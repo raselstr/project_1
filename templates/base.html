@@ -1,49 +1,42 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Django Stisla</title>
+  <title>Ecommerce Dashboard &mdash; Stisla</title>
 
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
 
   <!-- CSS Libraries -->
+  <link rel="stylesheet" href="{% static 'assets/modules/jqvmap/dist/jqvmap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/summernote/summernote-bs4.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/owlcarousel2/dist/assets/owl.carousel.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/owlcarousel2/dist/assets/owl.theme.default.min.css' %}">
 
   <!-- Template CSS -->
   <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
-  <!-- Start GA -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+<!-- Start GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  {% comment %} <!-- General CSS Files -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
-    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> {% endcomment %}
+  gtag('config', 'UA-94034622-3');
+</script>
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
-  <!-- <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}"> -->
-  
-
-
-</head>
+{% block style %}{% endblock style %}
+<!-- /END GA --></head>
 
 <body>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
-
-      {% include 'includes/header.html' %}
-      {% include 'includes/sidebar.html' %}
+        {% include 'includes/header.html' %}
+        {% include 'includes/sidebar.html' %}
       <div class="main-content">
         {% block content %}
         {% endblock content %}
@@ -51,69 +44,31 @@
       {% include 'includes/footer.html' %}
     </div>
   </div>
+
+  <!-- General JS Scripts -->
   <script src="{% static 'assets/modules/jquery.min.js' %}"></script>
   <script src="{% static 'assets/modules/popper.js' %}"></script>
   <script src="{% static 'assets/modules/tooltip.js' %}"></script>
   <script src="{% static 'assets/modules/bootstrap/js/bootstrap.min.js' %}"></script>
   <script src="{% static 'assets/modules/nicescroll/jquery.nicescroll.min.js' %}"></script>
   <script src="{% static 'assets/modules/moment.min.js' %}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+  <script src="{% static 'assets/js/stisla.js' %}"></script>
+  
   <!-- JS Libraies -->
-  <script src="{% static 'assets/modules/jquery-ui/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'assets/modules/jquery.sparkline.min.js' %}"></script>
+  <script src="{% static 'assets/modules/chart.min.js' %}"></script>
+  <script src="{% static 'assets/modules/owlcarousel2/dist/owl.carousel.min.js' %}"></script>
+  <script src="{% static 'assets/modules/summernote/summernote-bs4.js' %}"></script>
+  <script src="{% static 'assets/modules/chocolat/dist/js/jquery.chocolat.min.js' %}"></script>
 
   <!-- Page Specific JS File -->
-  <script src="{% static 'assets/js/page/components-table.js' %}"></script>
+  <script src="{% static 'assets/js/page/index.js' %}"></script>
   
-  
-  {% comment %} <!-- General JS Scripts -->
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
-  </script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script> {% endcomment %}
-  <script src="{% static 'assets/js/stisla.js' %}"></script>
-
-
   <!-- Template JS File -->
   <script src="{% static 'assets/js/scripts.js' %}"></script>
   <script src="{% static 'assets/js/custom.js' %}"></script>
+  {% block src %}{% endblock src %}
+  {% block javascript %}{% endblock javascript %}
 
-  <!-- Page Specific JS File -->
-  <!-- <script src="{% static 'assets/js/page/index-0.js' %}"></script> -->
-  <!-- <script src="{% static 'assets/js/page/bootstrap.modal.js' %}"></script> -->
-  <!-- <script src="{% static 'assets/js/jquery.js' %}"></script> -->
-  <!-- <script src="{% static 'assets/js/bootstrap.min.js' %}"></script> -->
-
-  <script>
-    new DataTable('#example', {
-        layout: {
-            topStart: {
-                pageLength: {
-                    menu: [ 10, 25, 50, 100 ]
-                }
-
-            },
-            topEnd: {
-                search: {
-                    placeholder: 'Type search here'
-                }
-            },
-            bottomEnd: {
-                paging: {
-                    numbers: 3
-                }
-                
-            }
-        }
-    });
-  </script>
 </body>
-
 </html>
