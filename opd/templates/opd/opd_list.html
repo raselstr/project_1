@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+      <div class="section-header">
+        <h1>Dashboard</h1>
+      </div>
+      {% include 'includes/infobox.html' %}
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kode OPD</th>
+                <th>Nama OPD</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for opd in opd %}
+                <tr>
+                    <td>{{ opd.kode_opd }}</td>
+                    <td>{{ opd.nama_opd }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
