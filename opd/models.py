@@ -9,3 +9,8 @@ class Opd(models.Model):
 
     def simpan_opd(self):
         self.save()
+    
+   
+
+    def delete_opd(self):
+        self.delete()
