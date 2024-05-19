@@ -6,27 +6,69 @@
         <h1>Dashboard</h1>
       </div>
       {% include 'includes/infobox.html' %}
-<div class="container">
-    <table class="display" id="tabel1" style="width:100%">
-        <thead>
-            <tr>
-                <th>Kode OPD</th>
-                <th>Nama OPD</th>
-            </tr>
-        </thead>
-        <tbody>
-            
-            {% for opd in opds %}
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 20px;">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahOPD">Tambah OPD</button>
+        </div>
+        
+        <table class="display" id="tabel1" style="width:100%">
+            <thead>
                 <tr>
-                    <td>{{ opd.kode_opd }}</td>
-                    <td>{{ opd.nama_opd }}</td>
+                    <th style="text-align: center;">Aksi</th>
+                    <th style="text-align: center;">Kode OPD</th>
+                    <th style="text-align: center;">Nama OPD</th>
                 </tr>
-            {% endfor %}
-            
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                
+                {% for opd in opds %}
+                    <tr>
+                        <td style="text-align: center;">
+                            <a href="#" class="btn btn-info btn-sm">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="#" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                        <td style="text-align: left;">{{ opd.kode_opd }}</td>
+                        <td style="text-align: left;">{{ opd.nama_opd }}</td>
+                    </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
 </section>
+
+    <!-- Modal Tambah OPD -->
+    <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahOPDLabel">Tambah OPD Baru</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'simpan_opd' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="kodeOPD">Kode OPD</label>
+                            <input type="text" class="form-control" id="kodeOPD" name="kodeOPD" placeholder="Masukkan Kode OPD">
+                        </div>
+                        <div class="form-group">
+                            <label for="namaOPD">Nama OPD</label>
+                            <input type="text" class="form-control" id="namaOPD" name="namaOPD" placeholder="Masukkan Nama OPD">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 {% endblock %}
 {% block style %}
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
@@ -46,14 +88,12 @@
                         menu: [ 
                             [10, 25, 50, -1],
                             [10, 25, 50, 'All']    
-                        ]
+                        ],
                     }
-
-                    
                 },
                 topEnd: {
                     search: {
-                        placeholder: 'Type search here'
+                        placeholder: 'cari'
                     }
                 },
                 bottomEnd: {

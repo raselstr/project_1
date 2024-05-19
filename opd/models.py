@@ -7,3 +7,5 @@ class Opd(models.Model):
     def __str__(self):
         return self.nama_opd
 
+    def simpan_opd(self):
+        self.save()
