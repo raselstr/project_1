@@ -79,14 +79,19 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    {% comment %} <form method="POST" action="{% url 'edit_opd' opd.id %}"> {% endcomment %}
                         {% csrf_token %}
                         <div class="form-group">
+                            <label for="opdID">ID OPD</label>
+                            <input type="text" class="form-control" id="opdID" name="opdID" readonly>
+                        </div>
+                        <div class="form-group">
                             <label for="editKodeOPD">Kode OPD</label>
-                            <input type="text" class="form-control" id="editKodeOPD" name="kodeOPD" value="{{ opd.kode_opd }}" placeholder="Masukkan Kode OPD">
+                            <input type="text" class="form-control" id="editKodeOPD" name="kodeOPD" placeholder="Masukkan Kode OPD">
                         </div>
                         <div class="form-group">
                             <label for="editNamaOPD">Nama OPD</label>
-                            <input type="text" class="form-control" id="editNamaOPD" name="namaOPD" value="{{ opd.nama_opd }}" placeholder="Masukkan Nama OPD">
+                            <input type="text" class="form-control" id="editNamaOPD" name="namaOPD" placeholder="Masukkan Nama OPD">
                         </div>
                         <button type="submit" class="btn btn-primary">Update</button>
                     </form>
@@ -94,6 +99,14 @@
             </div>
         </div>
     </div>
+    <script>
+        $('#modalEditOPD').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var opdId = button.data('opd-id') // Extract info from data-* attributes
+            var modal = $(this)
+            modal.find('.modal-body #opdID').val(opdId)
+        })
+    </script>
 
 
     
