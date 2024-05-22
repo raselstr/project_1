@@ -8,6 +8,7 @@
       {% include 'includes/infobox.html' %}
     <div class="container">
         <div style="text-align: right; margin-bottom: 20px;">
+           {% comment %} <a href="{% url 'tambah_opd' %}" type="button" class="btn btn-primary">Tambah OPD</a> {% endcomment %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahOPD">Tambah OPD</button>
         </div>
         
@@ -42,7 +43,29 @@
 </section>
 
     <!-- Modal Tambah OPD -->
-    <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true">
+    <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahOPDLabel">Tambah OPD Baru</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Modal Tambah OPD -->
+    {% comment %} <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -67,9 +90,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
     <!-- Modal Edit OPD -->
-    <div class="modal fade" id="modalEditOPD" tabindex="-1" role="dialog" aria-labelledby="modalEditOPDLabel" aria-hidden="true">
+    {% comment %} <div class="modal fade" id="modalEditOPD" tabindex="-1" role="dialog" aria-labelledby="modalEditOPDLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -79,7 +102,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    {% comment %} <form method="POST" action="{% url 'edit_opd' opd.id %}"> {% endcomment %}
+                    <form method="POST" action="{% url 'edit_opd' opd.id %}">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="opdID">ID OPD</label>
@@ -98,15 +121,15 @@
                 </div>
             </div>
         </div>
-    </div>
-    <script>
+    </div> {% endcomment %}
+    {% comment %} <script>
         $('#modalEditOPD').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget) // Button that triggered the modal
             var opdId = button.data('opd-id') // Extract info from data-* attributes
             var modal = $(this)
             modal.find('.modal-body #opdID').val(opdId)
         })
-    </script>
+    </script> {% endcomment %}
 
 
     

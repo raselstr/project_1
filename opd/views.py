@@ -1,20 +1,28 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import Opd
+from .forms import OpdForm
 
 # Create your views here.
 def opd_list(request):
     opd = Opd.objects.all()
     return render(request, "opd/opd_list.html", {"opds": opd})
 
+def form_opd(request):
+    form = OpdForm()
+    
+    return render(request, "opd/form.html", {"form": form})
 
 def simpan_opd(request):
     if request.method == "POST":
-        kode_opd = request.POST.get('kodeOPD')
-        nama_opd = request.POST.get('namaOPD')
-        opd_baru = Opd(kode_opd=kode_opd, nama_opd=nama_opd)
-        opd_baru.simpan_opd()
+        form = OpdForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('opd_list')
+        else:
+            kode_opd = request.POST.get('kodeOPD')
+        
         return HttpResponseRedirect(reverse('opd_list'))
     
 # View untuk mengedit data OPD
