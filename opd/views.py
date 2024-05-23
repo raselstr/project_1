@@ -7,12 +7,8 @@ from .forms import OpdForm
 # Create your views here.
 def opd_list(request):
     opd = Opd.objects.all()
-    return render(request, "opd/opd_list.html", {"opds": opd})
-
-def form_opd(request):
     form = OpdForm()
-    
-    return render(request, "opd/form.html", {"form": form})
+    return render(request, "opd/opd_list.html", {"opds": opd, "form": form})
 
 def simpan_opd(request):
     if request.method == "POST":
@@ -21,10 +17,10 @@ def simpan_opd(request):
             form.save()
             return redirect('opd_list')
         else:
-            kode_opd = request.POST.get('kodeOPD')
+            form = OpdForm()
         
-        return HttpResponseRedirect(reverse('opd_list'))
-    
+        return render(request, 'opd/opd_list.html',{"form": form})
+
 # View untuk mengedit data OPD
 def edit_opd(request, opd_id):
     if request.method == "POST":
@@ -40,7 +36,3 @@ def delete_opd(request, opd_id):
     opd = Opd.objects.get(id=opd_id)
     opd.delete()
     return HttpResponseRedirect(reverse('opd_list'))
-
-
-
-

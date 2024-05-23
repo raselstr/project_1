@@ -43,7 +43,7 @@
 </section>
 
     <!-- Modal Tambah OPD -->
-    <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true"> 
+    <div class="modal fade {% if form.errors %}show{% endif %}" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true" {% if form.errors %}style="display: block;"{% endif %}> 
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -53,84 +53,23 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST">
+                    <form id="formTambahOPD" method="POST" action="{% url 'simpan_opd' %}">
                         {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <div class="invalid-feedback">
+                                    {{ field.errors }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    
-    <!-- Modal Tambah OPD -->
-    {% comment %} <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahOPDLabel">Tambah OPD Baru</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{% url 'simpan_opd' %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="kodeOPD">Kode OPD</label>
-                            <input type="text" class="form-control" id="kodeOPD" name="kodeOPD" placeholder="Masukkan Kode OPD">
-                        </div>
-                        <div class="form-group">
-                            <label for="namaOPD">Nama OPD</label>
-                            <input type="text" class="form-control" id="namaOPD" name="namaOPD" placeholder="Masukkan Nama OPD">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-    <!-- Modal Edit OPD -->
-    {% comment %} <div class="modal fade" id="modalEditOPD" tabindex="-1" role="dialog" aria-labelledby="modalEditOPDLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditOPDLabel">Edit Data OPD</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{% url 'edit_opd' opd.id %}">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="opdID">ID OPD</label>
-                            <input type="text" class="form-control" id="opdID" name="opdID" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="editKodeOPD">Kode OPD</label>
-                            <input type="text" class="form-control" id="editKodeOPD" name="kodeOPD" placeholder="Masukkan Kode OPD">
-                        </div>
-                        <div class="form-group">
-                            <label for="editNamaOPD">Nama OPD</label>
-                            <input type="text" class="form-control" id="editNamaOPD" name="namaOPD" placeholder="Masukkan Nama OPD">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Update</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-    {% comment %} <script>
-        $('#modalEditOPD').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget) // Button that triggered the modal
-            var opdId = button.data('opd-id') // Extract info from data-* attributes
-            var modal = $(this)
-            modal.find('.modal-body #opdID').val(opdId)
-        })
-    </script> {% endcomment %}
-
 
     
 {% endblock content %}
@@ -171,6 +110,17 @@
         });
     </script>
 
-    
+    <script>
+        $(document).ready(function() {
+            if ($('.modal.show').length > 0) {
+                $('#modalTambahOPD').modal('show');
+            }
+
+            $('form').on('submit', function(event) {
+                var form = $(this);
+                form.addClass('was-validated');
+            });
+        });
+    </script>
 {% endblock javascript %}
 
