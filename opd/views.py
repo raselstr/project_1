@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib import messages
 from .models import Opd
 from .forms import OpdForm
 
@@ -16,6 +17,7 @@ def simpan_opd(request):
         form = OpdForm(request.POST or None)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Data Berhasil disimpan')
             return redirect('opd_list')
     else:
         form = OpdForm()

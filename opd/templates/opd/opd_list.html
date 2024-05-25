@@ -11,7 +11,11 @@
            {% comment %} <a href="{% url 'tambah_opd' %}" type="button" class="btn btn-primary">Tambah OPD</a> {% endcomment %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahOPD">Tambah OPD</button>
         </div>
-        
+        {% if messages %}
+            {% for pesan in messages %}
+                <span>{{pesan}}</span>
+            {% endfor %}
+        {% endif %}
         <table class="display" id="tabel1" style="width:100%">
             <thead>
                 <tr>
