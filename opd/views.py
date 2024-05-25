@@ -9,7 +9,12 @@ from .forms import OpdForm
 def opd_list(request):
     opd = Opd.objects.all()
     form = OpdForm()
-    return render(request, "opd/opd_list.html", {"opds": opd, "form": form})
+    context = {
+        "judul": "Tambah OPD Baru", 
+        "form": form, 
+        "opds": opd
+    }
+    return render(request, "opd/opd_list.html", context)
 
 def simpan_opd(request):
     opd = Opd.objects.all()
@@ -21,19 +26,19 @@ def simpan_opd(request):
             return redirect('opd_list')
     else:
         form = OpdForm()
-    return render(request, "opd/opd_list.html", {"form": form,'opds':opd})
+    context = {
+        'form'  : form,
+        'opds'  : opd
+    }
+    return render(request, "opd/opd_list.html", context)
 
 
 # View untuk mengedit data OPD
-def edit_opd(request, opd_id):
-    if request.method == "POST":
-        kode_opd = request.POST.get('kodeOPD')
-        nama_opd = request.POST.get('namaOPD')
-        Opd.edit_opd(opd_id, kode_opd, nama_opd)
-        return HttpResponseRedirect(reverse('opd_list'))
-    else:
-        opd = Opd.objects.get(id=opd_id)
-        return render(request, "opd/edit_opd.html", {"opd": opd})
+def update_opd(request, opd_id):
+    obj_opd = Opd.objects.get(id=opd_id)
+    form = OpdForm(request.POST or None, instance=obj_opd)
+    context = {"judul": "Update OPD", "form": form, "opds": Opd.objects.all()}
+    return render(request, 'opd/opd_list.html',context)
 
 def delete_opd(request, opd_id):
     opd = Opd.objects.get(id=opd_id)
