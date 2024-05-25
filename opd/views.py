@@ -11,15 +11,17 @@ def opd_list(request):
     return render(request, "opd/opd_list.html", {"opds": opd, "form": form})
 
 def simpan_opd(request):
+    opd = Opd.objects.all()
     if request.method == "POST":
-        form = OpdForm(request.POST)
+        form = OpdForm(request.POST or None)
         if form.is_valid():
             form.save()
             return redirect('opd_list')
-        else:
-            form = OpdForm()
-        
-        return render(request, 'opd/opd_list.html',{"form": form})
+    else:
+        form = OpdForm()
+    return render(request, "opd/opd_list.html", {"form": form,'opds':opd})
+
+    # return redirect('opd_list')
 
 # View untuk mengedit data OPD
 def edit_opd(request, opd_id):
