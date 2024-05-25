@@ -23,7 +23,6 @@ def simpan_opd(request):
         form = OpdForm()
     return render(request, "opd/opd_list.html", {"form": form,'opds':opd})
 
-    # return redirect('opd_list')
 
 # View untuk mengedit data OPD
 def edit_opd(request, opd_id):
@@ -39,4 +38,5 @@ def edit_opd(request, opd_id):
 def delete_opd(request, opd_id):
     opd = Opd.objects.get(id=opd_id)
     opd.delete()
-    return HttpResponseRedirect(reverse('opd_list'))
+    messages.warning(request, "Data Berhasil dihapus")
+    return redirect("opd_list")

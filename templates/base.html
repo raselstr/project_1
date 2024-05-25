@@ -24,13 +24,13 @@
   <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
 <!-- Start GA -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
+{% comment %} <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'UA-94034622-3');
-</script>
+</script> {% endcomment %}
 
 {% block style %}{% endblock style %}
 <!-- /END GA --></head>
@@ -53,7 +53,7 @@
   <script src="{% static 'assets/modules/popper.js' %}"></script>
   <script src="{% static 'assets/modules/tooltip.js' %}"></script>
   <script src="{% static 'assets/modules/bootstrap/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'assets/modules/nicescroll/jquery.nicescroll.min.js' %}"></script>
+  {% comment %} <script src="{% static 'assets/modules/nicescroll/jquery.nicescroll.min.js' %}"></script> {% endcomment %}
   <script src="{% static 'assets/modules/moment.min.js' %}"></script>
   <script src="{% static 'assets/js/stisla.js' %}"></script>
   
@@ -66,18 +66,18 @@
 
     
   <!-- JS Libraies -->
-  <script src="{% static 'ssets/modules/izitoast/js/iziToast.min.js' %}"></script>
+  {% block src %}{% endblock src %}
+  <script src="{% static 'assets/modules/izitoast/js/iziToast.min.js' %}"></script>
 
   <!-- Page Specific JS File -->
   <script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>
   
   <!-- Page Specific JS File -->
-  <script src="{% static 'assets/js/page/index.js' %}"></script>
+  {% comment %} <script src="{% static 'assets/js/page/index.js' %}"></script> {% endcomment %}
   
   <!-- Template JS File -->
   <script src="{% static 'assets/js/scripts.js' %}"></script>
   <script src="{% static 'assets/js/custom.js' %}"></script>
-  {% block src %}{% endblock src %}
   {% block javascript %}{% endblock javascript %}
 
 </body>
