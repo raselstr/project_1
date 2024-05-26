@@ -1,6 +1,4 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.urls import reverse
 from django.contrib import messages
 from .models import Opd
 from .forms import OpdForm
