@@ -8,7 +8,7 @@ def opd_list(request):
     opd = Opd.objects.all()
     form = OpdForm()
     context = {
-        "judul": "Tambah OPD Baru", 
+        "judul": "Daftar OPD", 
         "form": form, 
         "opds": opd
     }
