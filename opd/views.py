@@ -42,10 +42,12 @@ def update_opd(request, opd_id):
             form.save()
             messages.success(request, "Data Berhasil diupdate")
             return redirect("opd_list")
+    else:
+        form = OpdForm(instance=opd)
 
     opd = Opd.objects.all()
     context = {"form": form, "opds": opd, "judul": "Update OPD"}
-    return render(request, "opd/opd_list.html", context)
+    return render(request, "opd/edit_opd.html", context)
 
 
 def delete_opd(request, opd_id):
