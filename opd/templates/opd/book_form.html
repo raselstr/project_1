@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+      <div class="section-header">
+        <h1>{{judul}}</h1>
+      </div>
+      {% include 'includes/infobox.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-6 mx-auto">
+                <div class="card">
+                    <div class="card-header" style="background-color: blue; color: white;">
+                        <h4>{{judul}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit">Save</button>
+                        </form>
+                        <a href="{% url 'book_list' %}">Back to list</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+
+

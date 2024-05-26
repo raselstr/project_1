@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Opd
-from .forms import OpdForm
+from .models import Opd, Book, Author, Publisher
+from .forms import OpdForm, BookForm
 
 # Create your views here.
 def opd_list(request):
@@ -53,3 +53,19 @@ def delete_opd(request, pk):
     opd.delete()
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("opd_list")
+
+
+def book_create(request):
+    if request.method == "POST":
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("book_list")
+    else:
+        form = BookForm()
+    return render(request, "opd/book_form.html", {"form": form})
+
+
+def book_list(request):
+    books = Book.objects.select_related("author", "publisher").all()
+    return render(request, "opd/book_list.html", {"books": books})

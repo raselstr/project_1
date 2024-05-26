@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+      <div class="section-header">
+        <h1>{{judul}}</h1>
+      </div>
+      {% include 'includes/infobox.html' %}
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 20px;">
+           {% comment %} <a href="{% url 'tambah_opd' %}" type="button" class="btn btn-primary">Tambah OPD</a> {% endcomment %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahOPD">Tambah OPD</button>
+        </div>
+        <h1>Book List</h1>
+        <ul>
+            {% for book in books %}
+                <li>
+                    <a href="">{{ book.title }}</a> by {{ book.author.name }}, published by {{ book.publisher.name }}
+                </li>
+            {% endfor %}
+        </ul>
+        
+        
+    </div>
+</section>
+
+
+    
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+{% block javascript %}
+
+{% endblock javascript %}
+
