@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Opd
+from . import models
 
 # Register your models here.
-admin.site.register(Opd)
+admin.site.register(models.Opd)
 

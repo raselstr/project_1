@@ -32,8 +32,8 @@ def simpan_opd(request):
 
 
 # View untuk mengedit data OPD
-def update_opd(request, opd_id):
-    opd = Opd.objects.get(id=opd_id)
+def update_opd(request, pk):
+    opd = Opd.objects.get(id=pk)
     form = OpdForm(request.POST or None, instance=opd)
     if request.method == "POST":
         if form.is_valid():
@@ -48,8 +48,8 @@ def update_opd(request, opd_id):
     return render(request, "opd/edit_opd.html", context)
 
 
-def delete_opd(request, opd_id):
-    opd = Opd.objects.get(id=opd_id)
+def delete_opd(request, pk):
+    opd = Opd.objects.get(id=pk)
     opd.delete()
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("opd_list")

@@ -1,5 +1,8 @@
 from django.shortcuts import render
 
 def index(request):
+    context = {
+        'judul' : 'Dashboard',
+    }
     # if request.method == "GET":
-        return render(request, "dashboard.html")
+    return render(request, "dashboard.html", context)
