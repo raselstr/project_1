@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.urls import reverse
 from django.contrib import messages
 from .models import Opd
@@ -35,10 +35,18 @@ def simpan_opd(request):
 
 # View untuk mengedit data OPD
 def update_opd(request, opd_id):
-    obj_opd = Opd.objects.get(id=opd_id)
-    form = OpdForm(request.POST or None, instance=obj_opd)
-    context = {"judul": "Update OPD", "form": form, "opds": Opd.objects.all()}
-    return render(request, 'opd/opd_list.html',context)
+    opd = Opd.objects.get(id=opd_id)
+    form = OpdForm(request.POST or None, instance=opd)
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Data Berhasil diupdate")
+            return redirect("opd_list")
+
+    opd = Opd.objects.all()
+    context = {"form": form, "opds": opd, "judul": "Update OPD"}
+    return render(request, "opd/opd_list.html", context)
+
 
 def delete_opd(request, opd_id):
     opd = Opd.objects.get(id=opd_id)

@@ -26,9 +26,9 @@
                 {% for opd in opds %}
                     <tr>
                         <td style="text-align: center;">
-                            <a href="{% url 'update_opd' opd.id %}" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD">
+                            <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
                                 <i class="fas fa-pencil-alt"></i>
-                            </a>
+                            </button>
                             <a href="{% url 'delete_opd' opd.id %}" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i>
                             </a>
@@ -144,6 +144,14 @@
             {% endfor %}
             {% endif %}
         });
+
+        function editOpd(id,kodeOpd, namaOpd) {
+        $('#modalTambahOPDLabel').text('Update OPD');
+        $('#formTambahOPD').attr('action', '{% url "update_opd" 0 %}'.replace('0', id));
+        $('#opdId').val(id);
+        $('#id_kode_opd').val(kodeOpd);
+        $('#id_nama_opd').val(namaOpd);
+    }
     </script>
 
 
