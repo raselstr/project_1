@@ -13,7 +13,7 @@ def index(request):
         'menu' : menus,
         'submenu_dict' : submenu_dict
     }
-    print(submenu_dict)
+    # print(submenu_dict)
     # if request.method == "GET":
     return render(request, "dashboard/dashboard.html", context)
 
