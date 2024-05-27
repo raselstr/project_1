@@ -12,10 +12,10 @@ def unik(value, app_name: str, model_name:str, field:str):
     
 number_validator = RegexValidator(
     regex='^[0-9]+$',
-    message='Kode OPD harus berupa angka'
+    message='Data yang diinput harus berupa angka'
 )
 
 minimal2_validator = MinLengthValidator(
     limit_value=2,
-    message="Nama OPD minimal 2 huruf"
+    message="Data yang diinput minimal 2 karakter"
 )
