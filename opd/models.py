@@ -1,24 +1,25 @@
 from django.db import models
-from django.core import validators
+from functools import partial
+from project.validations import *
+
 
 class Opd(models.Model):
     kode_opd = models.CharField(
         max_length=10,
         unique=True,
         validators=[
-            validators.RegexValidator(
-                regex='^[0-9]+$',
-                message='Kode OPD harus berupa angka')
-            
+            number_validator,
+            partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
             ]
-        
         )
+    
+    
     nama_opd = models.CharField(
         max_length=100,
+        unique=True,
         validators=[
-            validators.MinLengthValidator(
-                limit_value=3,
-                message='Gak boleh lebih dari 3')
+            minimal2_validator,
+            partial(unik, app_name='opd', model_name='Opd', field='nama_opd')
             ]
         )
 
