@@ -5,4 +5,4 @@ def index(request):
         'judul' : 'Dashboard',
     }
     # if request.method == "GET":
-    return render(request, "dashboard.html", context)
+    return render(request, "dashboard/dashboard.html", context)
