@@ -29,10 +29,10 @@
               {% for menu, submenus in submenu_dict.items %}
                   <li class="menu-header">{{ menu.menu_nama }}</li>
                   <li class="dropdown">
-                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>{{ menu.menu_nama }}</span></a>
+                    <a href="#" class="nav-link has-dropdown"><i class="{{ menu.menu_icon }}"></i><span>{{ menu.menu_nama }}</span></a>
                   <ul class="dropdown-menu">
                       {% for submenu in submenus %}
-                          <li><a class="nav-link" href="#"><i class="fas fa-fire"></i>{{ submenu.submenu_nama }}</a></li>
+                          <li><a class="nav-link" href="#"><i class="{{ submenu.submenu_icon }}" style="color: #e71d93;"></i>{{ submenu.submenu_nama }}</a></li>
                       {% endfor %}
                   </ul>
               {% endfor %}
