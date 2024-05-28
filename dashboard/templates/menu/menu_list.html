@@ -2,56 +2,62 @@
 
 {% block content %}
 <section class="section">
-      <div class="section-header">
+    <div class="section-header">
         <h1>{{judul}}</h1>
-      </div>
-      {% include 'includes/infobox.html' %}
-    <div class="container">
-        <div style="text-align: right; margin-bottom: 20px;">
-           {% comment %} <a href="{% url 'tambah_opd' %}" type="button" class="btn btn-primary">Tambah OPD</a> {% endcomment %}
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambahOPD">Tambah OPD</button>
+    </div>
+    {% include 'includes/infobox.html' %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                <th style="text-align: center;">Menu</th>
+                                <th style="text-align: center;">Link</th>
+                                <th style="text-align: center;">Icon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for data in datas %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button> {% endcomment %}
+                                        <a href="#" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url 'delete_menu' data.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;">{{ data.menu_nama }}</td>
+                                    <td style="text-align: left;">{{ data.link }}</td>
+                                    <td style="text-align: left;">{{ data.Icon }}</td>
+                                </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        
-        
-        <table class="display" id="tabel1" style="width:100%">
-            <thead>
-                <tr>
-                    <th style="text-align: center;">Aksi</th>
-                    <th style="text-align: center;">Kode OPD</th>
-                    <th style="text-align: center;">Nama OPD</th>
-                </tr>
-            </thead>
-            <tbody>
-                
-                {% for opd in opds %}
-                    <tr>
-                        <td style="text-align: center;">
-                            {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button> {% endcomment %}
-                            <a href="{% url 'update_opd' opd.id %}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-                            <a href="{% url 'delete_opd' opd.id %}" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </td>
-                        <td style="text-align: left;">{{ opd.kode_opd }}</td>
-                        <td style="text-align: left;">{{ opd.nama_opd }}</td>
-                    </tr>
-                {% endfor %}
-                
-            </tbody>
-        </table>
     </div>
 </section>
 
     <!-- Modal Tambah OPD -->
-    <div class="modal fade" id="modalTambahOPD" tabindex="-1" role="dialog" aria-labelledby="modalTambahOPDLabel" aria-hidden="true"> 
+    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahOPDLabel">Tambah OPD Baru</h5>
+                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -59,7 +65,7 @@
                 
                 <div class="modal-body">
                     
-                    <form id="formTambahOPD" method="POST" action="{% url 'simpan_opd' %}">
+                    <form id="formTambah" method="POST" action="{% url 'simpan_menu' %}">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -125,13 +131,13 @@
     <script>
         $(document).ready(function() {
             {% if form.errors %}
-                $('#modalTambahOPD').modal('show');
+                $('#modalTambah').modal('show');
             {% endif %}
 
             $('#clear').on('click', function() {
-                $('#formTambahOPD').find('input[type="text"]').val('');
+                $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'opd_list' %}";
+                window.location.href = "{% url 'list_menu' %}";
             });
         });
     </script>
