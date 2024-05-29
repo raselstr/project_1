@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.html import escape
 
-from .models import Menu, Submenu, Level
+from .models import Menu, Submenu, Level, Userlevel
 
 class Menuform(forms.ModelForm):
     class Meta:
@@ -75,3 +75,13 @@ class LevelForm(forms.ModelForm):
     def clean_menu_link(self):
         data = self.cleaned_data['level_submenu']
         return escape(data)
+
+class UserlevelForm(forms.ModelForm):
+    class Meta:
+        model = Userlevel
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user_nama'].widget.attrs.update({'class': 'form-control select2'})
+        self.fields['userlevel'].widget.attrs.update({'class': 'form-control select2'})
