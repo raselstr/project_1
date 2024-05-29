@@ -34,7 +34,7 @@ class SubmenuForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['submenu_menu'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Menu'})
+        self.fields['submenu_menu'].widget.attrs.update({'class': 'form-control select2'})
         self.fields['submenu_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Submenu'})
         self.fields['submenu_icon'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Icon Submenu'})
         self.fields['submenu_link'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Link Submenu'})

@@ -156,6 +156,13 @@
             {% endif %}
         });
     </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%' // Ensure Select2 takes full width of the container
+            });
+        });
+    </script>
     
 {% endblock javascript %}
 
