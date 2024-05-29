@@ -19,6 +19,7 @@
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">Menu</th>
+                                <th style="text-align: center;">SubMenu</th>
                                 <th style="text-align: center;">Link</th>
                                 <th style="text-align: center;">Icon</th>
                             </tr>
@@ -31,16 +32,17 @@
                                         {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
                                             <i class="fas fa-pencil-alt"></i>
                                         </button> {% endcomment %}
-                                        <a href="{% url 'update_menu' data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'update_submenu' data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_menu' data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'delete_submenu' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.menu_nama }}</td>
-                                    <td style="text-align: left;">{{ data.menu_link }}</td>
-                                    <td style="text-align: left;">{{ data.menu_icon }}</td>
+                                    <td style="text-align: left;">{{ data.submenu_menu }}</td>
+                                    <td style="text-align: left;">{{ data.submenu_nama }}</td>
+                                    <td style="text-align: left;">{{ data.submenu_link }}</td>
+                                    <td style="text-align: left;">{{ data.submenu_icon }}</td>
                                 </tr>
                             {% endfor %}
                             
@@ -65,7 +67,7 @@
                 
                 <div class="modal-body">
                     
-                    <form id="formTambah" method="POST" action="{% url 'simpan_menu' %}">
+                    <form id="formTambah" method="POST" action="{% url 'simpan_submenu' %}">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -137,7 +139,7 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_menu' %}";
+                window.location.href = "{% url 'list_submenu' %}";
             });
         });
     </script>

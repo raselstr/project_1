@@ -13,32 +13,29 @@
               <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Dashboard</span></a>
               <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{% url 'dashboard' %}">General Dashboard</a></li>
-                <li><a class="nav-link" href="index.html">Ecommerce Dashboard</a></li>
               </ul>
             </li>
           </ul>
           <ul class="sidebar-menu">
-            <li class="menu-header">Admin</li>
-            <li class="dropdown">
-              <a href="{% url 'opd_list' %}" class="nav-link"><i class="fas fa-fire"></i><span>Opd</span></a>
-              <a href="{% url 'opd_list' %}" class="nav-link"><i class="fas fa-fire"></i><span>Opd</span></a>
-              <a href="{% url 'book_list' %}" class="nav-link"><i class="fas fa-fire"></i><span>BOOK</span></a>
-            </li>
-          </ul>
-          <ul class="sidebar-menu">
               {% for menu, submenus in submenu_dict.items %}
-                  <li class="menu-header">{{ menu.menu_nama }}</li>
+                  <li class="menu-header" style="color: #212121;">{{ menu.menu_nama }}</li>
                   <li class="dropdown">
-                    <a href="#" class="nav-link has-dropdown"><i class="{{ menu.menu_icon }}"></i><span>{{ menu.menu_nama }}</span></a>
-                  <ul class="dropdown-menu">
-                      {% for submenu in submenus %}
-                          <li><a class="nav-link" href="{% url submenu.submenu_link %}"><i class="{{ submenu.submenu_icon }}" style="color: #e71d93;"></i>{{ submenu.submenu_nama }}</a></li>
-                      {% endfor %}
-                  </ul>
+                    <a href="#" class="nav-link has-dropdown"><i class="{{ menu.menu_icon }}" style="color: #1714e6;"></i><span>{{ menu.menu_nama }}</span></a>
+                    <ul class="dropdown-menu">
+                        {% for submenu in submenus %}
+                        <li>
+                          <a class="nav-link" href="{% if submenu.submenu_link %}{% url submenu.submenu_link %}
+                            {% else %}{% url 'dashboard' %}{% endif %}">
+                              <i class="{{ submenu.submenu_icon }}" style="color: #63e6be;"></i>
+                              {{ submenu.submenu_nama }}
+                          </a>
+                          {% comment %} <a class="nav-link" href="{% url submenu.submenu_link %}"><i class="{{ submenu.submenu_icon }}" style="color: #63e6be;"></i>{{ submenu.submenu_nama }}</a></li> {% endcomment %}
+                        </li>    
+                        {% endfor %}
+                    </ul>
+                  </li>
               {% endfor %}
           </ul>
       </aside>
   </div>
-  
-    
 {% endblock content %}

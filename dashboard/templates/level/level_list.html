@@ -18,9 +18,8 @@
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">Menu</th>
-                                <th style="text-align: center;">Link</th>
-                                <th style="text-align: center;">Icon</th>
+                                <th style="text-align: center;">Level</th>
+                                <th style="text-align: center;">SubMenu</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -31,16 +30,15 @@
                                         {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
                                             <i class="fas fa-pencil-alt"></i>
                                         </button> {% endcomment %}
-                                        <a href="{% url 'update_menu' data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'update_level' data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_menu' data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'delete_level' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.menu_nama }}</td>
-                                    <td style="text-align: left;">{{ data.menu_link }}</td>
-                                    <td style="text-align: left;">{{ data.menu_icon }}</td>
+                                    <td style="text-align: left;">{{ data.level_nama }}</td>
+                                    <td style="text-align: left;">{{ data.level_submenu }}</td>
                                 </tr>
                             {% endfor %}
                             
@@ -52,41 +50,40 @@
     </div>
 </section>
 
-    <!-- Modal Tambah OPD -->
-    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
+<!-- Modal Tambah OPD -->
+<div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <div class="modal-body">
                 
-                <div class="modal-body">
-                    
-                    <form id="formTambah" method="POST" action="{% url 'simpan_menu' %}">
-                        {% csrf_token %}
-                        {% for field in form %}
-                            <div class="form-group">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
+                <form id="formTambah" method="POST" action="{% url 'simpan_level' %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
                                 {% for error in field.errors %}
-                                    <div class="text-danger">
-                                            <p>{{ error }}</p>
-                                        </div>
-                                        {% endfor %}
-                                {% endif %}
-                                
-                            </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
-                    </form>
-                </div>
+                                <div class="text-danger">
+                                    <p>{{ error }}</p>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
     
 {% endblock content %}
@@ -137,7 +134,7 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_menu' %}";
+                window.location.href = "{% url 'list_level' %}";
             });
         });
     </script>
@@ -152,6 +149,13 @@
                 });
             {% endfor %}
             {% endif %}
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%' // Ensure Select2 takes full width of the container
+            });
         });
     </script>
     

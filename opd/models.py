@@ -7,9 +7,10 @@ class Opd(models.Model):
     kode_opd = models.CharField(
         max_length=10,
         unique=True,
+        error_messages={'unique': 'Data, nilai ini sudah ada dalam database.'},
         validators=[
             number_validator,
-            partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
+            # partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
             ]
         )
     
@@ -17,9 +18,10 @@ class Opd(models.Model):
     nama_opd = models.CharField(
         max_length=100,
         unique=True,
+        error_messages={'unique': 'Maaf, nilai ini sudah ada dalam database.'},
         validators=[
             minimal2_validator,
-            partial(unik, app_name='opd', model_name='Opd', field='nama_opd')
+            
             ]
         )
 

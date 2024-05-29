@@ -13,6 +13,14 @@
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="{% static 'assets/modules/ionicons/css/ionicons.min.css' %}">
 
+ <!-- CSS Libraries -->
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-daterangepicker/daterangepicker.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/jquery-selectric/selectric.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css' %}">
+
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="{% static 'assets/modules/izitoast/css/iziToast.min.css' %}">
 
@@ -33,6 +41,8 @@
   gtag('js', new Date());
 
   gtag('config', 'UA-94034622-3');
+
+
 </script>
 
 {% block style %}{% endblock style %}
@@ -61,6 +71,7 @@
   <script src="{% static 'assets/js/stisla.js' %}"></script>
   
   <!-- JS Libraies -->
+  
   {% comment %} <script src="{% static 'assets/modules/jquery.sparkline.min.js' %}"></script>
   <script src="{% static 'assets/modules/chart.min.js' %}"></script>
   <script src="{% static 'assets/modules/owlcarousel2/dist/owl.carousel.min.js' %}"></script>
@@ -71,6 +82,20 @@
   <!-- JS Libraies -->
   {% block src %}{% endblock src %}
   <script src="{% static 'assets/modules/izitoast/js/iziToast.min.js' %}"></script>
+  
+  <!-- JS Libraies -->
+  <script src="{% static 'assets/modules/cleave-js/dist/cleave.min.js' %}"></script>
+  <script src="{% static 'assets/modules/cleave-js/dist/addons/cleave-phone.us.js' %}"></script>
+  <script src="{% static 'assets/modules/jquery-pwstrength/jquery.pwstrength.min.js' %}"></script>
+  <script src="{% static 'assets/modules/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+  <script src="{% static 'assets/modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+  <script src="{% static 'assets/modules/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}"></script>
+  <script src="{% static 'assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js' %}"></script>
+  <script src="{% static 'assets/modules/select2/dist/js/select2.full.min.js' %}"></script>
+  <script src="{% static 'assets/modules/jquery-selectric/jquery.selectric.min.js' %}"></script>
+
+
+  {% comment %} <script src="{% static 'assets/js/page/forms-advanced-forms.js' %}"></script> {% endcomment %}
 
   <!-- Page Specific JS File -->
   <script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 
 from ..models import Menu
@@ -10,7 +10,6 @@ def list_menu(request):
     context = {
         "judul": "Daftar Menu", 
         "tombol" : "Tambah Menu",
-        "link" : "menu_list",
         "form": form, 
         "datas": data
     }
@@ -31,6 +30,20 @@ def simpan_menu(request):
         'datas': data
     }
     return render(request, "menu/menu_list.html", context)
+
+def update_menu(request, pk):
+    data = get_object_or_404(Menu, id=pk)
+    formupdate = Menuform(request.POST or None, instance=data)
+    if request.method == "POST":
+        if formupdate.is_valid():
+            formupdate.save()
+            messages.success(request, "Data Berhasil diupdate")
+            return redirect("list_menu")
+    else:
+        formupdate = Menuform(instance=data)
+
+    context = {"form": formupdate, "datas": data, "judul": "Update Menu"}
+    return render(request, "menu/menu_edit.html", context)
 
 def delete_menu(request, pk):
     data = Menu.objects.get(id=pk)
