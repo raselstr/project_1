@@ -41,7 +41,7 @@ class Level(models.Model):
     
 class Userlevel(models.Model):
     user_nama = models.OneToOneField(User, on_delete=models.CASCADE)
-    userlevel = models.OneToOneField(Level, on_delete=models.CASCADE)
+    userlevel = models.ForeignKey(Level, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user_nama} - {self.userlevel}'

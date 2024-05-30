@@ -1,9 +1,19 @@
 from django.urls import path
 
 # from . import views
-from .views import view_dashboard, view_menu, view_submenu, view_level
+from .views import view_dashboard, view_menu, view_submenu,view_level, view_userlevel, view_pengguna
 
 urlpatterns = [
+    path("pengguna/", view_pengguna.list_pengguna, name="list_pengguna"),
+    path("pengguna/simpan/", view_pengguna.simpan_pengguna, name="simpan_pengguna"),
+    path("pengguna/delete/<int:pk>", view_pengguna.delete_pengguna, name="delete_pengguna"),
+    path("pengguna/update/<int:pk>", view_pengguna.update_pengguna, name="update_pengguna"),
+    
+    path("userlevel/", view_userlevel.list_userlevel, name="list_userlevel"),
+    path("userlevel/simpan/", view_userlevel.simpan_userlevel, name="simpan_userlevel"),
+    path("userlevel/delete/<int:pk>", view_userlevel.delete_userlevel, name="delete_userlevel"),
+    path("userlevel/update/<int:pk>", view_userlevel.update_userlevel, name="update_userlevel"),
+
     path("menu/", view_menu.list_menu, name="list_menu"),
     path("menu/simpan/", view_menu.simpan_menu, name="simpan_menu"),
     path("menu/delete/<int:pk>", view_menu.delete_menu, name="delete_menu"),
