@@ -12,6 +12,7 @@
 
   <!-- CSS Libraries -->
   <link rel="stylesheet" href="{% static 'assets/modules/ionicons/css/ionicons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/izitoast/css/iziToast.min.css' %}">
 
  <!-- CSS Libraries -->
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-daterangepicker/daterangepicker.css' %}">
@@ -21,8 +22,6 @@
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css' %}">
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="{% static 'assets/modules/izitoast/css/iziToast.min.css' %}">
 
   <!-- CSS Libraries -->
   {% comment %} <link rel="stylesheet" href="{% static 'assets/modules/jqvmap/dist/jqvmap.min.css' %}">
@@ -81,7 +80,9 @@
     
   <!-- JS Libraies -->
   {% block src %}{% endblock src %}
+  <script src="{% static 'smart_selects/admin/js/chainedfk.js' %}"></script>
   <script src="{% static 'assets/modules/izitoast/js/iziToast.min.js' %}"></script>
+  <script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>
   
   <!-- JS Libraies -->
   <script src="{% static 'assets/modules/cleave-js/dist/cleave.min.js' %}"></script>
@@ -98,7 +99,6 @@
   <script src="{% static 'assets/js/page/forms-advanced-forms.js' %}"></script>
 
   <!-- Page Specific JS File -->
-  <script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>
   
   <!-- Page Specific JS File -->
   {% comment %} <script src="{% static 'assets/js/page/index.js' %}"></script> {% endcomment %}
