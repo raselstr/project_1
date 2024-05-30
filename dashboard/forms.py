@@ -87,6 +87,7 @@ class UserlevelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user_nama'].widget.attrs.update({'class': 'form-control select2'})
         self.fields['userlevel'].widget.attrs.update({'class': 'form-control select2'})
+        self.fields['userlevelopd'].widget.attrs.update({'class': 'form-control select2'})
 
 class PenggunaForm(UserCreationForm):
     is_active = forms.BooleanField(label="Active", required=False, initial=True)

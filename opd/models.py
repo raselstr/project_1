@@ -1,5 +1,4 @@
 from django.db import models
-from functools import partial
 from project.validations import *
 
 

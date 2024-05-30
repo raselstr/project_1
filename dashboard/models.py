@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from project.validations import *
+from opd.models import Opd
 
 class Menu(models.Model):
     menu_nama = models.CharField(
@@ -42,6 +42,7 @@ class Level(models.Model):
 class Userlevel(models.Model):
     user_nama = models.OneToOneField(User, on_delete=models.CASCADE)
     userlevel = models.ForeignKey(Level, on_delete=models.CASCADE)
+    userlevelopd = models.ForeignKey(Opd, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user_nama} - {self.userlevel}'
