@@ -66,6 +66,7 @@
                         {% for field in form %}
                             <div class="form-group">
                                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field.media.js }}
                                 {{ field }}
                                 {% if field.errors %}
                                 {% for error in field.errors %}
@@ -150,7 +151,7 @@
             {% endif %}
         });
     </script>
-    <script type="text/javascript">
+    <script>
         $(document).ready(function() {
             $('.select2').select2({
                 width: '100%' // Ensure Select2 takes full width of the container

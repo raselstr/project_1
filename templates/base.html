@@ -6,6 +6,10 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>{{judul}}</title>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="{% static 'smart_selects/admin/js/chainedfk.js' %}"></script>
+
   <!-- General CSS Files -->
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
@@ -80,7 +84,7 @@
     
   <!-- JS Libraies -->
   {% block src %}{% endblock src %}
-  <script src="{% static 'smart_selects/admin/js/chainedfk.js' %}"></script>
+  
   <script src="{% static 'assets/modules/izitoast/js/iziToast.min.js' %}"></script>
   <script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>
   
