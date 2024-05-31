@@ -1,5 +1,4 @@
 from django.db import models
-from smart_selects.db_fields import ChainedForeignKey
 
 class Dana(models.Model):
     dana_nama = models.CharField(max_length=30)
@@ -16,15 +15,7 @@ class Program(models.Model):
     
 class Kegiatan(models.Model):
     kegiatan_dana = models.ForeignKey(Dana, on_delete=models.CASCADE)
-    # kegiatan_program = models.ForeignKey(Program, on_delete=models.CASCADE)
-    kegiatan_program = ChainedForeignKey(
-        to=Program,
-        chained_field='kegiatan_dana',
-        chained_model_field='program_dana',
-        show_all=False,
-        auto_choose=True,
-        sort=True
-    )
+    kegiatan_program = models.ForeignKey(Program, on_delete=models.CASCADE)
     kegiatan_nama = models.CharField(max_length=200)
 
     def __str__(self):

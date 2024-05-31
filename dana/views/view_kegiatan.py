@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 
-from ..models import Kegiatan
+from ..models import Kegiatan, Program
 from ..forms import KegiatanForm
 
 def list_kegiatan(request):
@@ -50,3 +50,9 @@ def delete_kegiatan(request, pk):
     data.delete()
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("list_kegiatan")
+
+def load_dana(request):
+    dana_id = request.GET.get('kegiatan_dana')
+    programs = Program.objects.filter(program_dana=dana_id)
+
+    return render(request, "kegiatan/load_dana.html", {'programs':programs})

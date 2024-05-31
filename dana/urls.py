@@ -17,6 +17,7 @@ urlpatterns = [
     path("kegiatan/simpan/", view_kegiatan.simpan_kegiatan, name="simpan_kegiatan"),
     path("kegiatan/delete/<int:pk>", view_kegiatan.delete_kegiatan, name="delete_kegiatan"),
     path("kegiatan/update/<int:pk>", view_kegiatan.update_kegiatan, name="update_kegiatan"),
-
+    path("kegiatan/load_dana/", view_kegiatan.load_dana, name='load_dana')
+    
     
 ]

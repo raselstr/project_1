@@ -42,6 +42,11 @@
                             
                         </tbody>
                     </table>
+                        {% comment %} <button hx-get="{% url 'load_dana' 1 %}" hx-target="#test">
+                            Click Me
+                        </button>
+                        <div id="test"></div> {% endcomment %}
+
                 </div>
             </div>
         </div>
@@ -79,6 +84,7 @@
                             </div>
                         {% endfor %}
                         <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                        
                     </form>
                 </div>
             </div>
