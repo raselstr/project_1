@@ -1,7 +1,7 @@
 from django.urls import path
 from .utils import dataprogram
 
-from .views import view_dana, view_program, view_kegiatan, view_subkegiatan
+from .views import view_dana, view_program, view_kegiatan, view_subkegiatan, view_subrinc
 
 urlpatterns = [
     path("", view_dana.list_dana, name="list_dana"),
@@ -26,8 +26,13 @@ urlpatterns = [
     path("subkegiatan/update/<int:pk>", view_subkegiatan.update_subkegiatan, name="update_subkegiatan"),
     path("subkegiatan/load_program/", view_subkegiatan.load_kegprogram, name='load_kegprogram'),
     path("subkegiatan/load_kegiatan/", view_subkegiatan.load_kegiatan, name='load_kegiatan'),
-    # path("subkegiatan/load_dana/", view_subkegiatan.load_dana, name='load_dana')
     
-    # path("load_kegiatan/", view_subkegiatan.load_kegiatan, name='load_kegiatan'),
+    path("subrinc/", view_subrinc.list_subrinc, name="list_subrinc"),
+    path("subrinc/simpan/", view_subrinc.simpan_subrinc, name="simpan_subrinc"),
+    path("subrinc/delete/<int:pk>", view_subrinc.delete_subrinc, name="delete_subrinc"),
+    path("subrinc/update/<int:pk>", view_subrinc.update_subrinc, name="update_subrinc"),
+    path("subrinc/load_program/", view_subrinc.load_kegprogram, name='load_kegprogram'),
+    path("subrinc/load_kegiatan/", view_subrinc.load_kegiatan, name='load_kegiatan'),
+    # path("subrinc/load_subkegiatan/", view_subrinc.load_subkegiatan, name='load_subkegiatan'),
     
 ]

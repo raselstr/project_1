@@ -1,7 +1,7 @@
 from django import forms
 from django.urls import reverse
 from .mixins import BaseFormMixin
-from .models import Dana, Program, Kegiatan, Subkegiatan, SubRincian
+from .models import Dana, Program, Kegiatan, Subkegiatan, Subrinc
 
 class DanaForm(forms.ModelForm):
     class Meta:
@@ -78,8 +78,8 @@ class SubkegiatanForm(forms.ModelForm):
         
         
 
-class SubrRincianForm(forms.ModelForm):
+class SubrincForm(forms.ModelForm):
     class Meta:
-        model = SubRincian
+        model = Subrinc
         fields = '__all__'
 

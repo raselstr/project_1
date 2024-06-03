@@ -30,7 +30,7 @@ class Subkegiatan(models.Model):
     def __str__(self):
         return self.sub_nama
     
-class SubRincian(models.Model):
+class Subrinc(models.Model):
     subrinc_dana = models.ForeignKey(Dana, on_delete=models.CASCADE)
     subrinc_prog = models.ForeignKey(Program, on_delete=models.CASCADE)
     subrinc_keg  = models.ForeignKey(Kegiatan, on_delete=models.CASCADE)
