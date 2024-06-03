@@ -50,15 +50,31 @@ class SubkegiatanForm(forms.ModelForm):
         model = Subkegiatan
         fields = '__all__'
         widgets = {
-            'sub_dana': forms.Select(attrs={'class': 'form-control', 'hx-target': '#id_sub_prog'}),
-            'sub_prog': forms.Select(attrs={'class': 'form-control', 'hx-target': '#id_sub_keg'}),
-            'sub_keg': forms.Select(attrs={'class': 'form-control'}),
+            'sub_dana': forms.Select(attrs={
+                'class': 'form-control', 
+                'hx-target': '#id_sub_prog',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                
+                }),
+            'sub_prog': forms.Select(attrs={
+                'class': 'form-control', 
+                'hx-target': '#id_sub_keg',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                }),
+            'sub_keg': forms.Select(attrs={
+                'class': 'form-control',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                }),
             'sub_nama': forms.TextInput(attrs={'class': 'form-control'}),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['sub_dana'].widget.attrs['hx-get'] = reverse('load_dana')
+        self.fields['sub_dana'].widget.attrs['hx-get'] = reverse('load_kegprogram')
+        self.fields['sub_prog'].widget.attrs['hx-get'] = reverse('load_kegiatan')
         
         
 

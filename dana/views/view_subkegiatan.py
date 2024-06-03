@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-
+from ..utils import dataprogram, datakegiatan
 from ..models import Subkegiatan, Kegiatan, Program
 from ..forms import SubkegiatanForm, KegiatanForm
 
@@ -51,8 +51,27 @@ def delete_subkegiatan(request, pk):
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("list_subkegiatan")
 
-def load_program(request):
-    dana_id = request.GET.get('subkegiatan_dana')
-    programs = Program.objects.filter(program_dana=dana_id)
 
-    return render(request, "subkegiatan/load_dana.html", {'programs':programs})
+def load_kegprogram(request):
+    return dataprogram(
+        request, 
+        'sub_dana','Program',
+        'program_dana',
+        'load/load_program.html')
+
+def load_kegiatan(request):
+    kwargs = {
+        'model_name' : 'Kegiatan',
+        'fieldsmodel' : ['kegiatan_dana','kegiatan_program'],
+        'template_name' : 'load/load_kegiatan.html',
+        'fieldget1' : 'sub_dana',
+        'fieldget2' : 'sub_prog'
+        
+    }
+    return datakegiatan(request, **kwargs)
+    
+# def load_program(request):
+#     dana_id = request.GET.get('subkegiatan_dana')
+#     programs = Program.objects.filter(program_dana=dana_id)
+
+#     return render(request, "subkegiatan/load_dana.html", {'programs':programs})
