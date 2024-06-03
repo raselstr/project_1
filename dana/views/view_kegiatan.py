@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-
+from ..utils import dataprogram
 from ..models import Kegiatan, Program
 from ..forms import KegiatanForm
 
@@ -51,8 +51,16 @@ def delete_kegiatan(request, pk):
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("list_kegiatan")
 
-def load_dana(request):
-    dana_id = request.GET.get('kegiatan_dana')
-    programs = Program.objects.filter(program_dana=dana_id)
+def load_program(request):
+    return dataprogram(
+        request, 
+        'kegiatan_dana','Program',
+        'program_dana',
+        'load/load_program.html')
 
-    return render(request, "kegiatan/load_dana.html", {'programs':programs})
+# def load_dana(request):
+#     dana_id = request.GET.get('kegiatan_dana')
+#     programs = Program.objects.filter(program_dana=dana_id)
+#     print(programs)
+
+#     return render(request, "load/load_dana.html", {'programs':programs})
