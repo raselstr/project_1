@@ -87,20 +87,20 @@ class SubrincForm(forms.ModelForm):
                 'class': 'form-control', 
                 'hx-target': '#id_subrinc_prog',
                 'hx-include': 'form',
-                'hx-trigger': 'click',
+                'hx-trigger': 'click, keyup',
                 
                 }),
             'subrinc_prog': forms.Select(attrs={
                 'class': 'form-control', 
                 'hx-target': '#id_subrinc_keg',
                 'hx-include': 'form',
-                'hx-trigger': 'click',
+                'hx-trigger': 'click, keyup',
                 }),
             'subrinc_keg': forms.Select(attrs={
                 'class': 'form-control',
                 'hx-target': '#id_subrinc_kegsub',
                 'hx-include': 'form',
-                'hx-trigger': 'click',
+                'hx-trigger': 'click, keyup',
                 }),
             'subrinc_kegsub': forms.Select(attrs={
                 'class': 'form-control',

@@ -4,13 +4,13 @@ from django.apps import apps
 
 def dataprogram(request, fieldget, model_name, fieldsmodel, template_name):
     Model = apps.get_model('dana', model_name)
-    # print("Mode:", Model)  # Cetak nilai filter_kwargs
     filter_value = request.GET.get(fieldget)
-    # print("Filter Value:", filter_value)  # Cetak nilai filter_kwargs
-    filter_kwargs = {fieldsmodel: filter_value}
-    # print("Filter kwargs:", filter_kwargs)  # Cetak nilai filter_kwargs
-    objects = Model.objects.filter(**filter_kwargs)
-    # print("Filtered objects:", objects)  # Cetak objek yang difilter
+    if fieldget:
+        filter_kwargs = {fieldsmodel: filter_value}
+        objects = Model.objects.filter(**filter_kwargs)
+    else:
+        objects = Model.objects.none()
+        
     return render(request, template_name, {'objects': objects})
 
 
@@ -73,7 +73,10 @@ def datasubkegiatan(request, **kwargs):
         
         # Melakukan filter pada model
         objects = Model.objects.filter(**filter_kwargs)
-    
+    else:
+        # Jika tidak ada nilai filter, kembalikan queryset kosong
+        objects = Model.objects.none()
+        
     print(objects)
     
     # Render template dengan objek yang difilter
