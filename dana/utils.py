@@ -64,6 +64,7 @@ def datasubkegiatan(request, **kwargs):
     filter_value3 = request.GET.get(fieldget3)
     print("filter value1:", filter_value1)  # Cetak nilai filter_kwargs
     print("filter value2:", filter_value2)  # Cetak nilai filter_kwargs
+    print("filter value3:", filter_value3)  # Cetak nilai filter_kwargs
     
     # Memastikan kedua nilai filter ada
     if filter_value1 and filter_value2 and filter_value3:
@@ -72,9 +73,7 @@ def datasubkegiatan(request, **kwargs):
         
         # Melakukan filter pada model
         objects = Model.objects.filter(**filter_kwargs)
-    else:
-        # Jika tidak ada nilai filter, kembalikan queryset kosong
-        objects = Model.objects.none()
+    
     print(objects)
     
     # Render template dengan objek yang difilter

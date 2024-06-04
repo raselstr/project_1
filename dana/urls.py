@@ -24,15 +24,15 @@ urlpatterns = [
     path("subkegiatan/simpan/", view_subkegiatan.simpan_subkegiatan, name="simpan_subkegiatan"),
     path("subkegiatan/delete/<int:pk>", view_subkegiatan.delete_subkegiatan, name="delete_subkegiatan"),
     path("subkegiatan/update/<int:pk>", view_subkegiatan.update_subkegiatan, name="update_subkegiatan"),
-    path("subkegiatan/load_program/", view_subkegiatan.load_kegprogram, name='load_kegprogram'),
-    path("subkegiatan/load_kegiatan/", view_subkegiatan.load_kegiatan, name='load_kegiatan'),
+    path("subkegiatan/load_subprogram/", view_subkegiatan.load_kegprogram, name='load_kegprogram'),
+    path("subkegiatan/load_subkegiatan/", view_subkegiatan.load_kegiatan, name='load_kegiatan'),
     
     path("subrinc/", view_subrinc.list_subrinc, name="list_subrinc"),
     path("subrinc/simpan/", view_subrinc.simpan_subrinc, name="simpan_subrinc"),
     path("subrinc/delete/<int:pk>", view_subrinc.delete_subrinc, name="delete_subrinc"),
     path("subrinc/update/<int:pk>", view_subrinc.update_subrinc, name="update_subrinc"),
-    path("subrinc/load_program/", view_subrinc.load_kegprogram, name='load_subrincprogram'),
-    path("subrinc/load_kegiatan/", view_subrinc.load_kegiatan, name='load_subrinckegiatan'),
-    path("subrinc/load_subkegiatan/", view_subrinc.load_subkegiatan, name='load_subrinckegiatan'),
+    path("subrinc/load_subrincprogram/", view_subrinc.load_subrincprogram, name='load_subrincprogram'),
+    path("subrinc/load_subrinckegiatan/", view_subrinc.load_subrinckegiatan, name='load_subrinckegiatan'),
+    path("subrinc/load_subrincsubkegiatan/", view_subrinc.load_subrincsubkegiatan, name='load_subrincsubkegiatan'),
     
 ]

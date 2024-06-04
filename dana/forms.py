@@ -98,7 +98,7 @@ class SubrincForm(forms.ModelForm):
                 }),
             'subrinc_keg': forms.Select(attrs={
                 'class': 'form-control',
-                'hx-target': '#id_sub_keg',
+                'hx-target': '#id_subrinc_kegsub',
                 'hx-include': 'form',
                 'hx-trigger': 'change',
                 }),
@@ -112,5 +112,5 @@ class SubrincForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['subrinc_dana'].widget.attrs['hx-get'] = reverse('load_subrincprogram')
         self.fields['subrinc_prog'].widget.attrs['hx-get'] = reverse('load_subrinckegiatan')
-        self.fields['subrinc_keg'].widget.attrs['hx-get'] = reverse('load_subrinckegiatan')
+        self.fields['subrinc_keg'].widget.attrs['hx-get'] = reverse('load_subrincsubkegiatan')
 

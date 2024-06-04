@@ -52,14 +52,14 @@ def delete_subrinc(request, pk):
     return redirect("list_subrinc")
 
 
-def load_kegprogram(request):
+def load_subrincprogram(request):
     return dataprogram(
         request, 
         'subrinc_dana','Program',
         'program_dana',
         'load/load_program.html')
 
-def load_kegiatan(request):
+def load_subrinckegiatan(request):
     kwargs = {
         'model_name' : 'Kegiatan',
         'fieldsmodel' : ['kegiatan_dana','kegiatan_program'],
@@ -70,7 +70,7 @@ def load_kegiatan(request):
     }
     return datakegiatan(request, **kwargs)
 
-def load_subkegiatan(request):
+def load_subrincsubkegiatan(request):
     kwargs = {
         'model_name' : 'Subkegiatan',
         'fieldsmodel' : ['sub_dana','sub_prog','sub_keg'],
