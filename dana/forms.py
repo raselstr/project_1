@@ -54,19 +54,19 @@ class SubkegiatanForm(forms.ModelForm):
                 'class': 'form-control', 
                 'hx-target': '#id_sub_prog',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 
                 }),
             'sub_prog': forms.Select(attrs={
                 'class': 'form-control', 
                 'hx-target': '#id_sub_keg',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 }),
             'sub_keg': forms.Select(attrs={
                 'class': 'form-control',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 }),
             'sub_nama': forms.TextInput(attrs={'class': 'form-control'}),
         }
@@ -87,20 +87,20 @@ class SubrincForm(forms.ModelForm):
                 'class': 'form-control', 
                 'hx-target': '#id_subrinc_prog',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 
                 }),
             'subrinc_prog': forms.Select(attrs={
                 'class': 'form-control', 
                 'hx-target': '#id_subrinc_keg',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 }),
             'subrinc_keg': forms.Select(attrs={
                 'class': 'form-control',
                 'hx-target': '#id_subrinc_kegsub',
                 'hx-include': 'form',
-                'hx-trigger': 'change',
+                'hx-trigger': 'click',
                 }),
             'subrinc_kegsub': forms.Select(attrs={
                 'class': 'form-control',
