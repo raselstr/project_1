@@ -23,13 +23,13 @@ def datakegiatan(request, **kwargs):
 
     # Mendapatkan model berdasarkan nama
     Model = apps.get_model('dana', model_name)
-    print("Model", Model)
+    # print("Model", Model)
     
     # Mendapatkan nilai filter dari parameter GET
     filter_value1 = request.GET.get(fieldget1)
     filter_value2 = request.GET.get(fieldget2)
-    print("filter value1:", filter_value1)  # Cetak nilai filter_kwargs
-    print("filter value2:", filter_value2)  # Cetak nilai filter_kwargs
+    # print("filter value1:", filter_value1)  # Cetak nilai filter_kwargs
+    # print("filter value2:", filter_value2)  # Cetak nilai filter_kwargs
     
     # Memastikan kedua nilai filter ada
     if filter_value1 and filter_value2:
@@ -56,15 +56,11 @@ def datasubkegiatan(request, **kwargs):
 
     # Mendapatkan model berdasarkan nama
     Model = apps.get_model('dana', model_name)
-    print("Model", Model)
     
     # Mendapatkan nilai filter dari parameter GET
     filter_value1 = request.GET.get(fieldget1)
     filter_value2 = request.GET.get(fieldget2)
     filter_value3 = request.GET.get(fieldget3)
-    print("filter value1:", filter_value1)  # Cetak nilai filter_kwargs
-    print("filter value2:", filter_value2)  # Cetak nilai filter_kwargs
-    print("filter value3:", filter_value3)  # Cetak nilai filter_kwargs
     
     # Memastikan kedua nilai filter ada
     if filter_value1 and filter_value2 and filter_value3:
