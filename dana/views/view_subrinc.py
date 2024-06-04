@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from ..utils import dataprogram, datakegiatan
+from ..utils import dataprogram, datakegiatan, datasubkegiatan
 from ..models import Subkegiatan, Kegiatan, Program, Subrinc
 from ..forms import SubrincForm, KegiatanForm
 
@@ -55,7 +55,7 @@ def delete_subrinc(request, pk):
 def load_kegprogram(request):
     return dataprogram(
         request, 
-        'sub_dana','Program',
+        'subrinc_dana','Program',
         'program_dana',
         'load/load_program.html')
 
@@ -64,22 +64,23 @@ def load_kegiatan(request):
         'model_name' : 'Kegiatan',
         'fieldsmodel' : ['kegiatan_dana','kegiatan_program'],
         'template_name' : 'load/load_kegiatan.html',
-        'fieldget1' : 'sub_dana',
-        'fieldget2' : 'sub_prog'
+        'fieldget1' : 'subrinc_dana',
+        'fieldget2' : 'subrinc_prog'
         
     }
     return datakegiatan(request, **kwargs)
 
-def load_subrinc(request):
+def load_subkegiatan(request):
     kwargs = {
-        'model_name' : 'Kegiatan',
-        'fieldsmodel' : ['kegiatan_dana','kegiatan_program'],
-        'template_name' : 'load/load_kegiatan.html',
-        'fieldget1' : 'sub_dana',
-        'fieldget2' : 'sub_prog'
+        'model_name' : 'Subkegiatan',
+        'fieldsmodel' : ['sub_dana','sub_prog','sub_keg'],
+        'template_name' : 'load/load_subkegiatan.html',
+        'fieldget1' : 'subrinc_dana',
+        'fieldget2' : 'subrinc_prog',
+        'fieldget3' : 'subrinc_keg'
         
     }
-    return datakegiatan(request, **kwargs)
+    return datasubkegiatan(request, **kwargs)
     
 # def load_program(request):
 #     dana_id = request.GET.get('subrinc_dana')

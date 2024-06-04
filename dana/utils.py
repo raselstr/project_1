@@ -46,7 +46,7 @@ def datakegiatan(request, **kwargs):
     # Render template dengan objek yang difilter
     return render(request, template_name, {'objects': objects})
 
-def datasubrinc(request, **kwargs):
+def datasubkegiatan(request, **kwargs):
     model_name = kwargs.get('model_name')
     fieldsmodel = kwargs.get('fieldsmodel')
     template_name = kwargs.get('template_name')

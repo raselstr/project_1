@@ -82,4 +82,35 @@ class SubrincForm(forms.ModelForm):
     class Meta:
         model = Subrinc
         fields = '__all__'
+        widgets = {
+            'subrinc_dana': forms.Select(attrs={
+                'class': 'form-control', 
+                'hx-target': '#id_subrinc_prog',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                
+                }),
+            'subrinc_prog': forms.Select(attrs={
+                'class': 'form-control', 
+                'hx-target': '#id_subrinc_keg',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                }),
+            'subrinc_keg': forms.Select(attrs={
+                'class': 'form-control',
+                'hx-target': '#id_sub_keg',
+                'hx-include': 'form',
+                'hx-trigger': 'change',
+                }),
+            'subrinc_kegsub': forms.Select(attrs={
+                'class': 'form-control',
+                }),
+            'subrinc_nama': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['subrinc_dana'].widget.attrs['hx-get'] = reverse('load_subrincprogram')
+        self.fields['subrinc_prog'].widget.attrs['hx-get'] = reverse('load_subrinckegiatan')
+        self.fields['subrinc_keg'].widget.attrs['hx-get'] = reverse('load_subrinckegiatan')
 

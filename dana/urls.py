@@ -31,8 +31,8 @@ urlpatterns = [
     path("subrinc/simpan/", view_subrinc.simpan_subrinc, name="simpan_subrinc"),
     path("subrinc/delete/<int:pk>", view_subrinc.delete_subrinc, name="delete_subrinc"),
     path("subrinc/update/<int:pk>", view_subrinc.update_subrinc, name="update_subrinc"),
-    path("subrinc/load_program/", view_subrinc.load_kegprogram, name='load_kegprogram'),
-    path("subrinc/load_kegiatan/", view_subrinc.load_kegiatan, name='load_kegiatan'),
-    # path("subrinc/load_subkegiatan/", view_subrinc.load_subkegiatan, name='load_subkegiatan'),
+    path("subrinc/load_program/", view_subrinc.load_kegprogram, name='load_subrincprogram'),
+    path("subrinc/load_kegiatan/", view_subrinc.load_kegiatan, name='load_subrinckegiatan'),
+    path("subrinc/load_subkegiatan/", view_subrinc.load_subkegiatan, name='load_subrinckegiatan'),
     
 ]
