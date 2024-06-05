@@ -14,7 +14,32 @@
                     <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
                 </div>
                 <div class="card-body">
-                    
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="text-center">MENU</th>
+                                    <th scope="col" class="text-center">KETERANGAN</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="">
+                                    <td scope="row"><a href="{% url 'list_dankel' %}" class="btn btn-primary btn-block">DANA KELURAHAN</a></td>
+                                    <td>Laporan Dana Kelurahan</td>
+                                </tr>
+                                <tr class="">
+                                    <td scope="row"><a href="" class="btn btn-primary btn-block">DAU SG BIDANG PENDIDIKAN</a></td>
+                                    <td>Laporan DAU SG Bidang Pendidikan</td>
+                                </tr>
+                                <tr class="">
+                                    <td scope="row"><a href="" class="btn btn-primary btn-block">DAU SG BIDANG KESEHATAN</a></td>
+                                    <td>Laporan DAU SG Bidang Keseatan</td>
+                                </tr>
+                                <tr class="">
+                                    <td scope="row"><a href="" class="btn btn-primary btn-block">DAU SG BIDANG PEKERJAAN UMUM</a></td>
+                                    <td>Laporan DAU SG Bidang Pekerjaan Umum</td>
+                                </tr>
+                            </tbody>
+                        </table>
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import dausg, view_dankelprog, view_dankelkeg
+from .views import view_dausg, view_dankelprog, view_dankelkeg
 
 urlpatterns = [
     
@@ -16,7 +16,7 @@ urlpatterns = [
     path("dankelprog/", view_dankelprog.list, name="list_dankel"),
     path("loadprog/", view_dankelprog.load, name="load_dankelprog"),
     
-    path('', dausg,)
+    path('', view_dausg.dausg, name='dausg')
     
     
     
