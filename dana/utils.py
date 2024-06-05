@@ -13,6 +13,24 @@ def dataprogram(request, fieldget, model_name, fieldsmodel, template_name):
         
     return render(request, template_name, {'objects': objects})
 
+def datasubrinc(request, **kwargs):
+    nama_app = kwargs.get('nama_app')
+    model_name = kwargs.get('model_name')
+    fieldsmodel = kwargs.get('fieldsmodel')
+    template_name = kwargs.get('template_name')
+    fieldget = kwargs.get('fieldget')
+    
+    Model = apps.get_model(nama_app, model_name)
+    filter_value = request.GET.get(fieldget)
+    if fieldget:
+        if isinstance(fieldsmodel, list):
+            fieldsmodel = '_'.join(fieldsmodel)
+        filter_kwargs = {fieldsmodel:filter_value}
+        objects = Model.objects.filter(**filter_kwargs)
+    else:
+        objects = Model.objects.none()
+    return render(request, template_name, {'objects': objects})
+    
 
 def datakegiatan(request, **kwargs):
     model_name = kwargs.get('model_name')

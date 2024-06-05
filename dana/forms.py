@@ -1,6 +1,5 @@
 from django import forms
 from django.urls import reverse
-from .mixins import BaseFormMixin
 from .models import Dana, Program, Kegiatan, Subkegiatan, Subrinc
 
 class DanaForm(forms.ModelForm):

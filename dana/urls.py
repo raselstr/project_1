@@ -1,6 +1,4 @@
 from django.urls import path
-from .utils import dataprogram
-
 from .views import view_dana, view_program, view_kegiatan, view_subkegiatan, view_subrinc
 
 urlpatterns = [

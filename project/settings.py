@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'dashboard',
     'opd',
     'dana',
+    'dausg'
 ]
 
 MIDDLEWARE = [
