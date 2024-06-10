@@ -9,7 +9,10 @@ Form_data = DankelProgForm
 Nilai_data = DankelProg
 
 def list(request):
-    data = Nilai_data.objects.all()
+    data = (Nilai_data.objects
+            .select_related('dankel_dana', 'dankel_subrinc')
+            .prefetch_related('dankelkegs__dankelsubs')
+            .all())
     form = Form_data()
     context = {
         "judul": "Daftar Program", 

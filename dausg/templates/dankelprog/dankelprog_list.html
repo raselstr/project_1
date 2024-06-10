@@ -17,32 +17,60 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel1" style="width:100%">
+                    <table class="display table-sm table-bordered" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">Sub Rincian Dana</th>
-                                <th style="text-align: center;">Program</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Kegiatan dan Rincian</th>
                             </tr>
                         </thead>
                         <tbody>
                             
                             {% for data in datas %}
-                                <tr>
-                                    <td style="text-align: center;">
-                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button> {% endcomment %}
-                                        <a href="{% url 'update_dankel' data.id %}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="{% url 'delete_dankel' data.id %}" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </td>
-                                    <td style="text-align: left;">{{ data.dankel_subrinc }}</td>
-                                    <td style="text-align: left;">{{ data.dankel_prog }}</td>
-                                </tr>
+                            <tr>
+                                <td style="text-align: center;" class="align-top">
+                                    {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button> {% endcomment %}
+                                    <a href="{% url 'update_dankel' data.id %}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </a>
+                                    <a href="{% url 'delete_dankel' data.id %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="right" title="Klik, untuk masuk ke Sub Kegiatan">
+                                        <i class="fas fa-arrow-circle-right"></i>
+                                    </a>
+                                </td>
+                                <td class="align-top">{{ data.dankel_subrinc }}</td>
+                                <td class="align-top">{{ data.dankel_prog }}</td>
+                                <td class="align-top">
+                                    <table class="display table-borderless" style="width:100%">
+                                        <tbody>
+                                            {% for keg in data.dankelkegs.all %}
+                                            <tr>
+                                                <td width="3%" class="align-top">{{forloop.counter}}.</td>
+                                                <td class="align-top">{{keg.dankelkeg_nama}}.</td>
+                                                <td class="align-top">
+                                                    <table class="display table-sm" style="width:100%">
+                                                        <tbody>
+                                                            {% for sub in keg.dankelsubs.all %}
+                                                            <tr>
+                                                                <td  width="5%" class="align-top">{{forloop.counter}}.</td>
+                                                                <td class="align-top">{{sub.dankelsub_nama}}</td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
                             {% endfor %}
                             
                         </tbody>
@@ -91,7 +119,6 @@
 
     
 {% endblock content %}
-
 {% block style %}
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
@@ -101,6 +128,7 @@
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 {% endblock src %}
+
 {% block javascript %}
     <script>
         new DataTable('#tabel1', {
