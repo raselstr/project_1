@@ -10,6 +10,7 @@
         <div class="col-lg-12 col-md-12 col-12 col-sm-12">
             <div class="card">
                 <div class="card-header">
+                    <a href="{% url "list_dankel" %}" type="button" class="btn btn-warning mr-3">Kembali</a>
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
@@ -22,7 +23,6 @@
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">Jenis Dana</th>
                                 <th style="text-align: center;">Sub Rincian Dana</th>
-                                <th style="text-align: center;">Program</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,19 +30,18 @@
                             {% for data in datas %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button> {% endcomment %}
-                                        <a href="{% url 'update_dankel' data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'update_dankelkeg' number data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_dankel' data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'delete_dankelkeg' number data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                         <a href="#" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="right" title="Rincian Sub Kegiatan">
+                                            <i class="fas fa-arrow-circle-right"></i>
+                                        </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.dankel_dana }}</td>
-                                    <td style="text-align: left;">{{ data.dankel_subrinc }}</td>
-                                    <td style="text-align: left;">{{ data.dankel_prog }}</td>
+                                    <td style="text-align: left;">{{ data.dankelkeg_prog }}</td>
+                                    <td style="text-align: left;">{{ data.dankelkeg_nama }}</td>
                                 </tr>
                             {% endfor %}
                             
@@ -67,7 +66,7 @@
                 
                 <div class="modal-body">
                     
-                    <form id="formTambah" method="POST" action="{% url 'simpan_dankel' %}">
+                    <form id="formTambah" method="POST" action="{% url 'simpan_dankelkeg' number %}">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -130,7 +129,7 @@
 
         
     </script>
-    <script>
+    {% comment %} <script>
         $(document).ready(function() {
             {% if form.errors %}
                 $('#modalTambah').modal('show');
@@ -139,10 +138,10 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_dankel' %}";
+                window.location.href = "{% url 'list_dankelkeg' data.id %}";
             });
         });
-    </script>
+    </script> {% endcomment %}
     <script>
         $(document).ready(function() {
             {% if messages %}

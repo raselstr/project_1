@@ -40,7 +40,7 @@
                                     <a href="{% url 'delete_dankel' data.id %}" class="btn btn-danger btn-sm">
                                         <i class="fas fa-trash"></i>
                                     </a>
-                                    <a href="#" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="right" title="Klik, untuk masuk ke Sub Kegiatan">
+                                    <a href="{% url 'list_dankelkeg' data.id %}" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="right" title="Sub Kegiatan">
                                         <i class="fas fa-arrow-circle-right"></i>
                                     </a>
                                 </td>
