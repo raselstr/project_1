@@ -44,7 +44,7 @@ def simpan(request, number):
         form = Form_data()
     context = {
         'form'  : form,
-        'datas': data
+        'datas': data,
     }
     return render(request, lokasitemplate, context)
 

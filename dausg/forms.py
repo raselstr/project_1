@@ -38,10 +38,10 @@ class DankelKegForm(forms.ModelForm):
        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+       
         self.fields['dankelkeg_prog'].widget.attrs.update({'class':'form-control'})
         self.fields['dankelkeg_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Kegiatan'})
-        
-        
+                
     def save(self, commit=True):
         instance = super().save(commit=False)
         if commit:
