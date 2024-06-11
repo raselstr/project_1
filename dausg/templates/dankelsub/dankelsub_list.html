@@ -64,7 +64,6 @@
                 <div class="modal-body">
                     
                     <form id="formTambah" method="POST" action="{% url 'simpan_dankelsub' number sub %}">
-                    {% comment %} <form id="formTambah" method="POST" action="#"> {% endcomment %}
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -127,7 +126,7 @@
 
         
     </script>
-    {% comment %} <script>
+    <script>
         $(document).ready(function() {
             {% if form.errors %}
                 $('#modalTambah').modal('show');
@@ -136,10 +135,10 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_dankelsub' number %}";
+                window.location.href = "{% url 'list_dankelsub' number sub %}";
             });
         });
-    </script> {% endcomment %}
+    </script>
     <script>
         $(document).ready(function() {
             {% if messages %}
