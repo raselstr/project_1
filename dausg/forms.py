@@ -1,6 +1,6 @@
 from django import forms
 from django.urls import reverse
-from .models import DankelProg, DankelKeg
+from .models import DankelProg, DankelKeg, Dankelsub
 
 class DankelProgForm(forms.ModelForm):
     
@@ -38,6 +38,27 @@ class DankelKegForm(forms.ModelForm):
        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['dankelkeg_prog'].widget.attrs.update({'class':'form-control'})
+        self.fields['dankelkeg_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Kegiatan'})
+        
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+
+
+class DankelSubForm(forms.ModelForm):
+    
+    class Meta:
+        model = Dankelsub
+        fields = '__all__'
+       
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['dankelsub_keg'].widget.attrs.update({'class':'form-control'})
+        self.fields['dankelsub_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Sub Kegiatan'})
         
         
     def save(self, commit=True):

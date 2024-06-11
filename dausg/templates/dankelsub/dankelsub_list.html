@@ -21,8 +21,8 @@
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">Jenis Dana</th>
-                                <th style="text-align: center;">Sub Rincian Dana</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Rincian Kegiatan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,18 +30,15 @@
                             {% for data in datas %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        <a href="{% url 'update_dankelkeg' number data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'update_dankelsub' number sub data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_dankelkeg' number data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'delete_dankelsub' number sub data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                         <a href="{% url 'list_dankelsub' number data.id %}" class="btn btn-warning btn-sm" data-toggle="tooltip" data-placement="right" title="Rincian Sub Kegiatan">
-                                            <i class="fas fa-arrow-circle-right"></i>
-                                        </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.dankelkeg_prog }}</td>
-                                    <td style="text-align: left;">{{ data.dankelkeg_nama }}</td>
+                                    <td style="text-align: left;">{{ data.dankelsub_keg }}</td>
+                                    <td style="text-align: left;">{{ data.dankelsub_nama }}</td>
                                 </tr>
                             {% endfor %}
                             
@@ -66,7 +63,7 @@
                 
                 <div class="modal-body">
                     
-                    <form id="formTambah" method="POST" action="{% url 'simpan_dankelkeg' number %}">
+                    <form id="formTambah" method="POST" action="{% url 'simpan_dankelsub' sub %}">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -138,7 +135,7 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_dankelkeg' number %}";
+                window.location.href = "{% url 'list_dankelsub' number %}";
             });
         });
     </script>

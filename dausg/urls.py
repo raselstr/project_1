@@ -1,13 +1,17 @@
 from django.urls import path
 
-from .views import view_dausg, view_dankelprog, view_dankelkeg
+from .views import view_dausg, view_dankelprog, view_dankelkeg, view_dankelsub
 
 urlpatterns = [
+    
+    path("dankelsub/<int:number>/<int:sub>/delete/<int:pk>", view_dankelsub.delete, name="delete_dankelsub"),
+    path("dankelsub/<int:number>/<int:sub>/update/<int:pk>", view_dankelsub.update, name="update_dankelsub"),
+    path("dankelsub/<int:number>/<int:sub>/simpan", view_dankelsub.simpan, name="simpan_dankelsub"),
+    path("dankelsub/<int:number>/<int:sub>/", view_dankelsub.list, name="list_dankelsub"),
     
     path("dankelkeg/<int:number>/delete/<int:pk>", view_dankelkeg.delete, name="delete_dankelkeg"),
     path("dankelkeg/<int:number>/update/<int:pk>", view_dankelkeg.update, name="update_dankelkeg"),
     path("dankelkeg/<int:number>/simpan", view_dankelkeg.simpan, name="simpan_dankelkeg"),
-    # path("dankelkeg/<int:pk>/", view_dankelkeg.load, name="load_dankelkeg"),
     path("dankelkeg/<int:number>/", view_dankelkeg.list, name="list_dankelkeg"),
     
     path("dankelprog/delete/<int:pk>", view_dankelprog.delete, name="delete_dankel"),
