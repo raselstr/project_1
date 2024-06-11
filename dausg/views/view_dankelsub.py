@@ -27,18 +27,19 @@ def list(request, number, sub):
         "form": form, 
         "datas": data,
         "number":number,
+        "sub":sub,
         
     }
     return render(request, lokasitemplate, context) 
 
-def simpan(request, sub):
+def simpan(request, number, sub):
     data = Model_data.objects.all()
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil disimpan')
-            return redirect(tag_url, sub=sub)
+            return redirect(tag_url, number=number, sub=sub)
     else:
         form = Form_data()
     context = {
@@ -54,7 +55,7 @@ def update(request, number, sub, pk):
         if formupdate.is_valid():
             formupdate.save()
             messages.success(request, "Data Berhasil diupdate")
-            return redirect(tag_url, number=number)
+            return redirect(tag_url, number=number, sub=sub)
     else:
         formupdate = Form_data(instance=data)
 
