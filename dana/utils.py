@@ -23,8 +23,6 @@ def datasubrinc(request, **kwargs):
     Model = apps.get_model(nama_app, model_name)
     filter_value = request.GET.get(fieldget)
     if fieldget:
-        if isinstance(fieldsmodel, list):
-            fieldsmodel = '_'.join(fieldsmodel)
         filter_kwargs = {fieldsmodel:filter_value}
         objects = Model.objects.filter(**filter_kwargs)
     else:

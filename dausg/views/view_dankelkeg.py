@@ -33,7 +33,6 @@ def list(request, number):
     return render(request, lokasitemplate, context) 
 
 def simpan(request, number):
-    data = Model_data.objects.all()
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
@@ -44,7 +43,6 @@ def simpan(request, number):
         form = Form_data()
     context = {
         'form'  : form,
-        'datas': data,
     }
     return render(request, lokasitemplate, context)
 
