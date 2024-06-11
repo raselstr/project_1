@@ -19,7 +19,7 @@ def list(request, number):
     dankel_prog = get_object_or_404(Model_induk, id=number)
     data = dankel_prog.dankelkegs.prefetch_related('dankelsubs').all()
     # data = Model_data.objects.all()
-    form = Form_data()
+    form = Form_data(request.POST or None, number=number)
     
     context = {
         "judul": "Daftar Kegiatan", 
@@ -34,15 +34,16 @@ def list(request, number):
 
 def simpan(request, number):
     if request.method == "POST":
-        form = Form_data(request.POST or None)
+        form = Form_data(request.POST or None, number=number)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil disimpan')
             return redirect(tag_url, number=number)
     else:
-        form = Form_data()
+        form = Form_data(number=number)
     context = {
         'form'  : form,
+        'number' : number,
     }
     return render(request, lokasitemplate, context)
 

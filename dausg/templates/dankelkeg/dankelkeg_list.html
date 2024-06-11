@@ -65,7 +65,6 @@
                 </div>
                 
                 <div class="modal-body">
-                    
                     <form id="formTambah" method="POST" action="{% url 'simpan_dankelkeg' number %}">
                         {% csrf_token %}
                         {% for field in form %}

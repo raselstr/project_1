@@ -37,10 +37,14 @@ class DankelKegForm(forms.ModelForm):
         fields = '__all__'
        
     def __init__(self, *args, **kwargs):
+        number = kwargs.pop('number', None)
         super().__init__(*args, **kwargs)
        
         self.fields['dankelkeg_prog'].widget.attrs.update({'class':'form-control'})
         self.fields['dankelkeg_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Kegiatan'})
+        
+        if number:
+            self.initial['dankelkeg_prog'] = number
                 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -56,10 +60,13 @@ class DankelSubForm(forms.ModelForm):
         fields = '__all__'
        
     def __init__(self, *args, **kwargs):
+        sub = kwargs.pop('sub', None)
         super().__init__(*args, **kwargs)
         self.fields['dankelsub_keg'].widget.attrs.update({'class':'form-control'})
         self.fields['dankelsub_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Sub Kegiatan'})
         
+        if sub:
+            self.initial['dankelsub_keg'] = sub
         
     def save(self, commit=True):
         instance = super().save(commit=False)
