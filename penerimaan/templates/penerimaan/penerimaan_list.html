@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
 <section class="section">
@@ -43,7 +44,7 @@
                                     <td style="text-align: left;">{{ data.penerimaan_tahap }}</td>
                                     <td style="text-align: left;">{{ data.penerimaan_tgl }}</td>
                                     <td style="text-align: left;">{{ data.penerimaan_ket }}</td>
-                                    <td style="text-align: right;">{{ data.penerimaan_nilai }}</td>
+                                    <td style="text-align: right;">{{ data.penerimaan_nilai|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                             
