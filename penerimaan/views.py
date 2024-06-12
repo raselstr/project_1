@@ -1,5 +1,5 @@
-from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
+from collections import defaultdict
 from django.contrib import messages
 
 from . models import Penerimaan
@@ -13,14 +13,25 @@ tag_url = 'list_penerimaan'
 
 def list(request):
     
-    data = Model_data.objects.all()
+    data = Model_data.objects.all().order_by('penerimaan_dana')
     form = Form_data(request.POST or None)
+    
+    subtotals = defaultdict(lambda: 0)
+    total = 0
+    
+    for item in data:
+        subtotals[item.penerimaan_dana] += item.penerimaan_nilai
+        total += item.penerimaan_nilai
+
+    subtotal_list = [{'dana': dana, 'subtotal': subtotal} for dana, subtotal in subtotals.items()]
     
     context = {
         "judul": "Daftar Penerimaan Dana", 
         "tombol" : "Tambah Penerimaan",
         "form": form, 
         "datas": data,
+        "subtotal_list": subtotal_list,
+        "total": total,
         
     }
     return render(request, lokasitemplate, context) 

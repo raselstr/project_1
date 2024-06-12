@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load custom_filters %}
 
 {% block content %}
 <section class="section">
@@ -46,7 +47,18 @@
                                     <td style="text-align: left;">{{ data.penerimaan_ket }}</td>
                                     <td style="text-align: right;">{{ data.penerimaan_nilai|intcomma }}</td>
                                 </tr>
-                            {% endfor %}
+
+                                {% comment %} {% if forloop.last or not forloop.next.penerimaan_dana == data.penerimaan_dana %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: right;"><strong>Subtotal {{ data.penerimaan_dana }}:</strong></td>
+                                        <td style="text-align: right;">{{ subtotal_list|get_subtotal:data.penerimaan_dana|intcomma }}</td>
+                                    </tr>
+                                    {% endif %} {% endcomment %}
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></td>
+                                    <td style="text-align: right;">{{ total|intcomma }}</td>
+                                </tr>
                             
                         </tbody>
                     </table>
