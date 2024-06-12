@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('penerimaan/', include('penerimaan.urls')),
     path('dausg/', include('dausg.urls')),
     path('dana/', include('dana.urls')),
     path('opd/', include('opd.urls')),

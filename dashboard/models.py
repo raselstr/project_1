@@ -4,45 +4,48 @@ from opd.models import Opd
 
 class Menu(models.Model):
     menu_nama = models.CharField(
+        verbose_name="Menu",
         max_length=30,
         unique=True,
         error_messages={'unique': 'Maaf, data ini sudah ada dalam database.'},
     )
-    menu_icon = models.CharField(max_length=40)
-    menu_link = models.CharField(max_length=40, blank=True)
+    menu_icon = models.CharField(verbose_name="Icon", max_length=40)
+    menu_link = models.CharField(verbose_name="Link", max_length=40, blank=True)
 
     def __str__(self):
         return self.menu_nama
     
     
 class Submenu(models.Model):
-    submenu_menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    submenu_menu = models.ForeignKey(Menu, verbose_name="Menu", on_delete=models.CASCADE)
     submenu_nama = models.CharField(
+        verbose_name="Sub Menu",
         max_length=30,
         unique=True,
         error_messages={'unique': 'Maaf, data ini sudah ada dalam database.'},
         )
-    submenu_icon = models.CharField(max_length=40)
-    submenu_link = models.CharField(max_length=40, blank=True)
+    submenu_icon = models.CharField(verbose_name="Icon", max_length=40)
+    submenu_link = models.CharField(verbose_name="Link", max_length=40, blank=True)
 
     def __str__(self):
         return f'{self.submenu_nama} - {self.submenu_menu}'
 
 class Level(models.Model):
     level_nama = models.CharField(
+        verbose_name="Level",
         max_length=30,
         unique=True,
         error_messages={'unique': 'Maaf, data ini sudah ada dalam database.'},
         )
-    level_submenu = models.ManyToManyField(Submenu)
+    level_submenu = models.ManyToManyField(Submenu, verbose_name="Level Sub Menu",)
 
     def __str__(self):
         return self.level_nama
     
 class Userlevel(models.Model):
-    user_nama = models.OneToOneField(User, on_delete=models.CASCADE)
-    userlevel = models.ForeignKey(Level, on_delete=models.CASCADE)
-    userlevelopd = models.ForeignKey(Opd, on_delete=models.CASCADE)
+    user_nama = models.OneToOneField(User, verbose_name="Pengguna", on_delete=models.CASCADE)
+    userlevel = models.ForeignKey(Level, verbose_name="Level", on_delete=models.CASCADE)
+    userlevelopd = models.ForeignKey(Opd, verbose_name="OPD", on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user_nama} - {self.userlevel}'

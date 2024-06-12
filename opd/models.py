@@ -4,6 +4,7 @@ from project.validations import *
 
 class Opd(models.Model):
     kode_opd = models.CharField(
+        verbose_name="Kode OPD",
         max_length=10,
         unique=True,
         error_messages={'unique': 'Data, nilai ini sudah ada dalam database.'},
@@ -15,6 +16,7 @@ class Opd(models.Model):
     
     
     nama_opd = models.CharField(
+        verbose_name="Nama OPD",
         max_length=100,
         unique=True,
         error_messages={'unique': 'Maaf, nilai ini sudah ada dalam database.'},
