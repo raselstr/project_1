@@ -1,8 +1,10 @@
 from django.db import models
+from datetime import datetime
 from dana.models import Subrinc, TahapDana
 # Create your models here.
 
 class Penerimaan(models.Model):
+    penerimaan_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     penerimaan_dana = models.ForeignKey(Subrinc, verbose_name="Dana", on_delete=models.CASCADE)
     penerimaan_tahap = models.ForeignKey(TahapDana, verbose_name="Tahap", on_delete=models.CASCADE)
     penerimaan_tgl = models.DateField(verbose_name="Tanggal")

@@ -8,6 +8,7 @@ class PenerimaanForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['penerimaan_tahun'].widget.attrs.update({'class': 'form-control'})
         self.fields['penerimaan_dana'].widget.attrs.update({'class': 'form-control select2'})
         self.fields['penerimaan_tahap'].widget.attrs.update({'class': 'form-control select2'})
         self.fields['penerimaan_tgl'].widget.attrs.update({'class': 'form-control datepicker'})
