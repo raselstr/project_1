@@ -21,9 +21,3 @@ class Penerimaan(models.Model):
             UniqueConstraint(fields=['penerimaan_tahun', 'penerimaan_dana', 'penerimaan_tahap'], name='unique_penerimaan')
         ]
     
-    # def save(self, *args, **kwargs):
-    #     try:
-    #         super().save(*args, **kwargs)
-    #     except IntegrityError:
-    #         raise ValidationError("Penerimaan Tahun, Dana, dan Tahap sudah ada.")
-    
