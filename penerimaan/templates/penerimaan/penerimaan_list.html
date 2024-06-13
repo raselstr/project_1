@@ -64,7 +64,7 @@
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th style="text-align: right;">{{ total|intcomma }}</strong></th>
+                                <th style="text-align: left;"><strong>{{ total|intcomma }}</strong></th>
                                 
                             </tr>
                         </tfoot>
@@ -167,7 +167,7 @@
                 let tr = document.createElement('tr');
 
                 addCell(tr, 'Subtotal ' + group, 5);
-                addCell(tr, valueTotal, 1); // Total nilai
+                addCell(tr, valueTotal, 1 ,'text-align:right;'); // Total nilai
 
                 return tr;
                 },
