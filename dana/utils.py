@@ -59,7 +59,7 @@ def datakegiatan(request, **kwargs):
     else:
         # Jika tidak ada nilai filter, kembalikan queryset kosong
         objects = Model.objects.none()
-    print(objects)
+    # print(objects)
     
     # Render template dengan objek yang difilter
     return render(request, template_name, {'objects': objects})
@@ -91,7 +91,7 @@ def datasubkegiatan(request, **kwargs):
         # Jika tidak ada nilai filter, kembalikan queryset kosong
         objects = Model.objects.none()
         
-    print(objects)
+    # print(objects)
     
     # Render template dengan objek yang difilter
     return render(request, template_name, {'objects': objects})
