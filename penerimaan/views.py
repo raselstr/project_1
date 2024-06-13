@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
 
@@ -40,14 +41,19 @@ def simpan(request):
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Berhasil disimpan')
-            return redirect(tag_url)
+            try:
+                form.save()
+                messages.success(request, 'Data Berhasil disimpan')
+                return redirect(tag_url)
+            except ValidationError as e:
+                form.add_error(None, e.message)
+                messages.error(request, e.message)
     else:
         form = Form_data()
     context = {
         'form'  : form,
     }
+    # print(messages.error)
     return render(request, lokasitemplate, context)
 
 def update(request, pk):

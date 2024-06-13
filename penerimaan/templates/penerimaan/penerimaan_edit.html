@@ -21,15 +21,17 @@
                                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
                                     {% if field.errors %}
-                                    {% for error in field.errors %}
                                         <div class="text-danger">
-                                                <p>{{ error }}</p>
-                                            </div>
-                                            {% endfor %}
+                                            {{ field.errors }}
+                                        </div>
                                     {% endif %}
-                                    
                                 </div>
-                            {% endfor %}
+                                    {% endfor %}
+                                    {% if form.non_field_errors %}
+                                        <div class="text-danger">
+                                            {{ form.non_field_errors }}
+                                        </div>
+                                    {% endif %}
                             <button type="submit" class="btn btn-primary float-right">Update</button>
                             <a href="{% url 'list_penerimaan'%}" class="btn btn-warning">Batal</a>
                         </form>

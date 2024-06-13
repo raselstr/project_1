@@ -1,5 +1,7 @@
-from django.db import models
+from django.db import models, IntegrityError
+from django.core.exceptions import ValidationError
 from datetime import datetime
+from django.db.models import UniqueConstraint
 from dana.models import Subrinc, TahapDana
 # Create your models here.
 
@@ -14,7 +16,14 @@ class Penerimaan(models.Model):
     def __str__(self):
         return self.penerimaan_ket
     
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['penerimaan_tahun', 'penerimaan_dana', 'penerimaan_tahap'], name='unique_penerimaan')
+        ]
     
-    
-    
+    # def save(self, *args, **kwargs):
+    #     try:
+    #         super().save(*args, **kwargs)
+    #     except IntegrityError:
+    #         raise ValidationError("Penerimaan Tahun, Dana, dan Tahap sudah ada.")
     
