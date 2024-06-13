@@ -20,6 +20,7 @@ class DankelKeg (models.Model):
 class Dankelsub (models.Model):
     dankelsub_keg = models.ForeignKey(DankelKeg, verbose_name="Kegiatan DAUSG", on_delete=models.CASCADE, related_name='dankelsubs')
     dankelsub_nama = models.CharField(verbose_name="Sub Kegiatan DAUSG",max_length=200)
+    dankelsub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
         return self.dankelsub_nama
