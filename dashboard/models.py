@@ -21,8 +21,6 @@ class Submenu(models.Model):
     submenu_nama = models.CharField(
         verbose_name="Sub Menu",
         max_length=30,
-        unique=True,
-        error_messages={'unique': 'Maaf, data ini sudah ada dalam database.'},
         )
     submenu_icon = models.CharField(verbose_name="Icon", max_length=40)
     submenu_link = models.CharField(verbose_name="Link", max_length=40, blank=True)
