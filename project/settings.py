@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'opd',
     'dana',
     'dausg',
-    'penerimaan'
+    'penerimaan',
+    'rencana',
 ]
 
 MIDDLEWARE = [
