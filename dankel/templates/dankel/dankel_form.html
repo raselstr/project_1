@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{ judul }}</h1>
+    </div>
+    {% include 'includes/infobox.html' %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ judul }}</h4>
+                </div>
+                <div class="card-body col-12 col-md-10 mx-auto">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Full width fields -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_tahun.id_for_label }}">{{ form.rencdankel_tahun.label }}</label>
+                                    {{ form.rencdankel_tahun }}
+                                    {% if form.rencdankel_tahun.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_tahun.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_opd.id_for_label }}">{{ form.rencdankel_opd.label }}</label>
+                                    {{ form.rencdankel_opd }}
+                                    {% if form.rencdankel_opd.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_opd.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_sub.id_for_label }}">{{ form.rencdankel_sub.label }}</label>
+                                    {{ form.rencdankel_sub }}
+                                    {% if form.rencdankel_sub.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_sub.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- Split fields -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_pagu.id_for_label }}">{{ form.rencdankel_pagu.label }}</label>
+                                    {{ form.rencdankel_pagu }}
+                                    {% if form.rencdankel_pagu.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_pagu.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_output.id_for_label }}">{{ form.rencdankel_output.label }}</label>
+                                    {{ form.rencdankel_output }}
+                                    {% if form.rencdankel_output.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_output.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankel_ket.id_for_label }}">{{ form.rencdankel_ket.label }}</label>
+                                    {{ form.rencdankel_ket }}
+                                    {% if form.rencdankel_ket.errors %}
+                                        <div class="text-danger">
+                                            {{ form.rencdankel_ket.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                {% for formset_form in formset %}
+                                    <div class="form-group">
+                                        <label for="{{ formset_form.rencdankelsisa_pagu.id_for_label }}">{{ formset_form.rencdankelsisa_pagu.label }}</label>
+                                        {{ formset_form.rencdankelsisa_pagu }}
+                                        {% if formset_form.rencdankelsisa_pagu.errors %}
+                                            <div class="text-danger">
+                                                {{ formset_form.rencdankelsisa_pagu.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ formset_form.rencdankelsisa_output.id_for_label }}">{{ formset_form.rencdankelsisa_output.label }}</label>
+                                        {{ formset_form.rencdankelsisa_output }}
+                                        {% if formset_form.rencdankelsisa_output.errors %}
+                                            <div class="text-danger">
+                                                {{ formset_form.rencdankelsisa_output.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ formset_form.rencdankelsisa_ket.id_for_label }}">{{ formset_form.rencdankelsisa_ket.label }}</label>
+                                        {{ formset_form.rencdankelsisa_ket }}
+                                        {% if formset_form.rencdankelsisa_ket.errors %}
+                                            <div class="text-danger">
+                                                {{ formset_form.rencdankelsisa_ket.errors }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if form.non_field_errors %}
+                            <div class="text-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                        <a href="{% url 'list_penerimaan' %}" class="btn btn-warning">Batal</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block style %}
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+<script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}

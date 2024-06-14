@@ -1,6 +1,10 @@
 from django.contrib import admin
-from . import models
+from .models import RencDankel, RencDankelsisa
 
-# Register your models here.
-admin.site.register(models.RencDankel)
-admin.site.register(models.RencDankelsisa)
+class RencDankelsisaInline(admin.TabularInline):
+    model = RencDankelsisa
+    extra = 1  # Jumlah form tambahan yang ingin ditampilkan secara default
+
+@admin.register(RencDankel)
+class RencDankelAdmin(admin.ModelAdmin):
+    inlines = [RencDankelsisaInline]

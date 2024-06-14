@@ -1,0 +1,55 @@
+<!-- File: templates/rencdankel_list.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>List Rencana Dankel</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tahun</th>
+                            <th>OPD</th>
+                            <th>Sub Kegiatan</th>
+                            <th>Pagu Anggaran</th>
+                            <th>Output</th>
+                            <th>Keterangan Kegiatan</th>
+                            <th>Pagu Anggaran Sisa</th>
+                            <th>Output Sisa</th>
+                            <th>Keterangan Kegiatan Sisa</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rencdankel in rencdankels %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ rencdankel.rencdankel_tahun }}</td>
+                            <td>{{ rencdankel.rencdankel_opd }}</td>
+                            <td>{{ rencdankel.rencdankel_sub }}</td>
+                            <td>{{ rencdankel.rencdankel_pagu }}</td>
+                            <td>{{ rencdankel.rencdankel_output }}</td>
+                            <td>{{ rencdankel.rencdankel_ket }}</td>
+                            <!-- Menambahkan informasi dari RencDankelsisa -->
+                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_pagu }}</td>
+                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_output }}</td>
+                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_ket }}</td>
+                            <td>
+                                {% comment %} <a href="{% url 'update_rencdankel' rencdankel.pk %}" class="btn btn-primary btn-sm">Update</a>
+                                <a href="{% url 'delete_rencdankel' rencdankel.pk %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
