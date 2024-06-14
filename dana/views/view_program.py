@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from ..models import Program
 from ..forms import ProgramForm
@@ -46,7 +47,12 @@ def update_program(request, pk):
     return render(request, "program/program_edit.html", context)
 
 def delete_program(request, pk):
-    data = Program.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Program.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Program.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_program")

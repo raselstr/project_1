@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from ..models import Dana
 from ..forms import DanaForm
@@ -46,7 +47,12 @@ def update_dana(request, pk):
     return render(request, "dana/dana_edit.html", context)
 
 def delete_dana(request, pk):
-    data = Dana.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Dana.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Dana.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_dana")

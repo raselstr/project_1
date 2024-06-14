@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from ..utils import dataprogram
 from ..models import Kegiatan, Program
 from ..forms import KegiatanForm
@@ -46,9 +47,14 @@ def update_kegiatan(request, pk):
     return render(request, "kegiatan/kegiatan_edit.html", context)
 
 def delete_kegiatan(request, pk):
-    data = Kegiatan.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Kegiatan.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Kegiatan.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_kegiatan")
 
 def load_program(request):

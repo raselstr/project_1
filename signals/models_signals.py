@@ -12,19 +12,8 @@ def prevent_deletion(sender, instance, **kwargs):
         for field in model._meta.fields:
             if isinstance(field, ForeignKey) and field.related_model == sender:
                 if model.objects.filter(**{field.name: instance}).exists():
-                    raise ValidationError(f"{model_name} cannot be deleted because it is related to {model.__name__}.")
-
-# Daftar model yang ingin dihubungkan dengan sinyal
-# models_to_connect = [
-#     'dana.Dana',
-#     'dana.Program',
-#     'dana.Kegiatan',
-#     'dana.Subkegiatan',
-#     'dana.TahapDana',
-#     'dashboard.SomeModel',  # Contoh model dari aplikasi lain
-#     # Tambahkan model lain sesuai kebutuhan
-# ]
-
+                    raise ValidationError('Data tidak bisa dihapus karena terhubung dengan data lain.')
+    
 # Daftar aplikasi yang ingin dihubungkan dengan sinyal
 apps_to_connect = [
     'dana', 
