@@ -15,7 +15,7 @@
                     <h4>{{ judul }}</h4>
                 </div>
                 <div class="card-body col-12 col-md-10 mx-auto">
-                    <form method="POST" action="{% url "rencdankel_simpan" %}" id="form_input">
+                    <form method="POST" id="form_input">
                         {% csrf_token %}
                         <div class="row">
                             <!-- Full width fields -->
@@ -123,7 +123,7 @@
                         {% endif %}
                         <button type="submit" class="btn btn-primary float-right" id="btnSubmit">
                             <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-                            <span class="sr-only">Loading...</span> Simpan
+                            <span class="sr-only">Loading...</span> {{btntombol}}
                         </button>
                         <a href="{% url 'rencdankel_list' %}" class="btn btn-warning">Batal</a>
                     </form>
