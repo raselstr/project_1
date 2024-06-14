@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from .models import Opd, Book, Author, Publisher
-from .forms import OpdForm, BookForm
+from .models import Opd
+from .forms import OpdForm
 
 # Create your views here.
 def opd_list(request):
@@ -61,17 +61,17 @@ def delete_opd(request, pk):
     return redirect("opd_list")
 
 
-def book_create(request):
-    if request.method == "POST":
-        form = BookForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("book_list")
-    else:
-        form = BookForm()
-    return render(request, "opd/book_form.html", {"form": form})
+# def book_create(request):
+#     if request.method == "POST":
+#         form = BookForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("book_list")
+#     else:
+#         form = BookForm()
+#     return render(request, "opd/book_form.html", {"form": form})
 
 
-def book_list(request):
-    books = Book.objects.select_related("author", "publisher").all()
-    return render(request, "opd/book_list.html", {"books": books})
+# def book_list(request):
+#     books = Book.objects.select_related("author", "publisher").all()
+#     return render(request, "opd/book_list.html", {"books": books})
