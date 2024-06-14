@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from ..utils import dataprogram, datakegiatan
 from ..models import Subkegiatan, Kegiatan, Program
 from ..forms import SubkegiatanForm, KegiatanForm
@@ -46,9 +47,14 @@ def update_subkegiatan(request, pk):
     return render(request, "subkegiatan/subkegiatan_edit.html", context)
 
 def delete_subkegiatan(request, pk):
-    data = Subkegiatan.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Subkegiatan.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Subkegiatan.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_subkegiatan")
 
 
