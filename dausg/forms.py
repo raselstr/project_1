@@ -64,6 +64,7 @@ class DankelSubForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['dankelsub_keg'].widget.attrs.update({'class':'form-control'})
         self.fields['dankelsub_nama'].widget.attrs.update({'class':'form-control','placeholder': 'Nama Sub Kegiatan'})
+        self.fields['dankelsub_satuan'].widget.attrs.update({'class':'form-control'})
         
         if sub:
             self.initial['dankelsub_keg'] = sub
