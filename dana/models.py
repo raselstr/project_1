@@ -1,6 +1,4 @@
 from django.db import models
-from django.db.models.signals import pre_delete
-from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 class Dana(models.Model):
@@ -55,34 +53,3 @@ class TahapDana(models.Model):
     def __str__(self):
         return self.tahap_dana
 
-# Sinyal untuk mencegah penghapusan objek Dana jika terkait dengan objek lain
-def prevent_dana_deletion(sender, instance, **kwargs):
-    if Program.objects.filter(program_dana=instance).exists() or \
-       Kegiatan.objects.filter(kegiatan_dana=instance).exists() or \
-       Subkegiatan.objects.filter(sub_dana=instance).exists() or \
-       Subrinc.objects.filter(subrinc_dana=instance).exists():
-        raise ValidationError("Dana tidak bisa dihapus karena terhubung dengan data lain.")
-
-# Sinyal untuk mencegah penghapusan objek Program jika terkait dengan objek lain
-def prevent_program_deletion(sender, instance, **kwargs):
-    if Kegiatan.objects.filter(kegiatan_program=instance).exists() or \
-       Subkegiatan.objects.filter(sub_prog=instance).exists() or \
-       Subrinc.objects.filter(subrinc_prog=instance).exists():
-        raise ValidationError("Program tidak bisa dihapus karena terhubung dengan data lain.")
-
-# Sinyal untuk mencegah penghapusan objek Kegiatan jika terkait dengan objek lain
-def prevent_kegiatan_deletion(sender, instance, **kwargs):
-    if Subkegiatan.objects.filter(sub_keg=instance).exists() or \
-       Subrinc.objects.filter(subrinc_keg=instance).exists():
-        raise ValidationError("Kegiatan tidak bisa dihapus karena terhubung dengan data lain..")
-
-# Sinyal untuk mencegah penghapusan objek Subkegiatan jika terkait dengan objek lain
-def prevent_subkegiatan_deletion(sender, instance, **kwargs):
-    if Subrinc.objects.filter(subrinc_kegsub=instance).exists():
-        raise ValidationError("Subkegiatan tidak bisa dihapus karena terhubung dengan data lain.")
-
-# Menghubungkan sinyal dengan model masing-masing
-pre_delete.connect(prevent_dana_deletion, sender=Dana)
-pre_delete.connect(prevent_program_deletion, sender=Program)
-pre_delete.connect(prevent_kegiatan_deletion, sender=Kegiatan)
-pre_delete.connect(prevent_subkegiatan_deletion, sender=Subkegiatan)
