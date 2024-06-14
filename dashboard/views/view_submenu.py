@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from ..models import Submenu
 from ..forms import SubmenuForm
@@ -46,7 +47,12 @@ def update_submenu(request, pk):
     return render(request, "submenu/submenu_edit.html", context)
 
 def delete_submenu(request, pk):
-    data = Submenu.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Submenu.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Submenu.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_submenu")

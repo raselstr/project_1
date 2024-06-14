@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
 from ..models import DankelProg
@@ -53,9 +54,14 @@ def update(request, pk):
     return render(request, "dankelprog/dankelprog_edit.html", context)
 
 def delete(request, pk):
-    data = Nilai_data.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Nilai_data.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Nilai_data.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_dankel")
 
 def load(request):

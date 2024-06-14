@@ -3,6 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from ..forms import PenggunaForm
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 
 def list_pengguna(request):
@@ -58,7 +59,12 @@ def update_pengguna(request, pk):
     return render(request, "pengguna/pengguna_edit.html", context)
 
 def delete_pengguna(request, pk):
-    data = User.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = User.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except User.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_pengguna")

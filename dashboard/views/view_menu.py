@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from ..models import Menu
 from ..forms import Menuform
@@ -46,7 +47,12 @@ def update_menu(request, pk):
     return render(request, "menu/menu_edit.html", context)
 
 def delete_menu(request, pk):
-    data = Menu.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Menu.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Menu.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("list_menu")

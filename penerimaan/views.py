@@ -71,9 +71,14 @@ def update(request, pk):
     return render(request, lokasiupdate, context)
 
 def delete(request, pk):
-    data = Model_data.objects.get(id=pk)
-    data.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        data = Model_data.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Model_data.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect(tag_url)
 
 

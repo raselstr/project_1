@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from .models import Opd, Book, Author, Publisher
 from .forms import OpdForm, BookForm
 
@@ -49,9 +50,14 @@ def update_opd(request, pk):
 
 
 def delete_opd(request, pk):
-    opd = Opd.objects.get(id=pk)
-    opd.delete()
-    messages.warning(request, "Data Berhasil dihapus")
+    try:
+        opd = Opd.objects.get(id=pk)
+        opd.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Opd.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
     return redirect("opd_list")
 
 
