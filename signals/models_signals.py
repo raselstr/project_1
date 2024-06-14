@@ -21,7 +21,7 @@ apps_to_connect = [
     'dausg',
     'opd',
     'penerimaan',
-    'rencana',
+    'dankel',
     ]
 
 for app_label in apps_to_connect:
