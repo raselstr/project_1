@@ -1,7 +1,6 @@
 from django.db import models
 from project.validations import *
 
-
 class Opd(models.Model):
     kode_opd = models.CharField(
         verbose_name="Kode OPD",
@@ -13,7 +12,6 @@ class Opd(models.Model):
             # partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
             ]
         )
-    
     
     nama_opd = models.CharField(
         verbose_name="Nama OPD",
@@ -29,7 +27,6 @@ class Opd(models.Model):
     def __str__(self):
         return self.nama_opd
 
-
 class Author(models.Model):
     name = models.CharField(max_length=100)
     birthdate = models.DateField(null=True, blank=True)
@@ -37,7 +34,6 @@ class Author(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Publisher(models.Model):
     name = models.CharField(max_length=100)
