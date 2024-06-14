@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'dausg',
     'penerimaan',
     'rencana',
+    'dankel',
 ]
 
 MIDDLEWARE = [
