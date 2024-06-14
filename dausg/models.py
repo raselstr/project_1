@@ -23,4 +23,4 @@ class Dankelsub (models.Model):
     dankelsub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
-        return self.dankelsub_nama
+        return f'{self.dankelsub_keg} - {self.dankelsub_nama}'

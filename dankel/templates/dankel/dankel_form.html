@@ -5,15 +5,17 @@
     <div class="section-header">
         <h1>{{ judul }}</h1>
     </div>
-    {% include 'includes/infobox.html' %}
     <div class="row">
+        <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
         <div class="col-lg-12 col-md-12 col-12 col-sm-12">
             <div class="card">
                 <div class="card-header">
                     <h4>{{ judul }}</h4>
                 </div>
                 <div class="card-body col-12 col-md-10 mx-auto">
-                    <form method="POST">
+                    <form method="POST" action="{% url "rencdankel_simpan" %}" id="form_input">
                         {% csrf_token %}
                         <div class="row">
                             <!-- Full width fields -->
@@ -46,7 +48,8 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <!-- Split fields -->
+                        </div>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="{{ form.rencdankel_pagu.id_for_label }}">{{ form.rencdankel_pagu.label }}</label>
@@ -77,44 +80,52 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
+                                {{ formset.management_form }}  <!-- Untuk menyertakan formset management form -->
                                 {% for formset_form in formset %}
-                                    <div class="form-group">
-                                        <label for="{{ formset_form.rencdankelsisa_pagu.id_for_label }}">{{ formset_form.rencdankelsisa_pagu.label }}</label>
-                                        {{ formset_form.rencdankelsisa_pagu }}
-                                        {% if formset_form.rencdankelsisa_pagu.errors %}
-                                            <div class="text-danger">
-                                                {{ formset_form.rencdankelsisa_pagu.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="{{ formset_form.rencdankelsisa_output.id_for_label }}">{{ formset_form.rencdankelsisa_output.label }}</label>
-                                        {{ formset_form.rencdankelsisa_output }}
-                                        {% if formset_form.rencdankelsisa_output.errors %}
-                                            <div class="text-danger">
-                                                {{ formset_form.rencdankelsisa_output.errors }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="{{ formset_form.rencdankelsisa_ket.id_for_label }}">{{ formset_form.rencdankelsisa_ket.label }}</label>
-                                        {{ formset_form.rencdankelsisa_ket }}
-                                        {% if formset_form.rencdankelsisa_ket.errors %}
-                                            <div class="text-danger">
-                                                {{ formset_form.rencdankelsisa_ket.errors }}
-                                            </div>
-                                        {% endif %}
+                                    <div class="formset-form">
+                                        {{ formset_form.id }}
+                                        <div class="form-group">
+                                            <label for="{{ formset_form.rencdankelsisa_pagu.id_for_label }}">{{ formset_form.rencdankelsisa_pagu.label }}</label>
+                                            {{ formset_form.rencdankelsisa_pagu }}
+                                            {% if formset_form.rencdankelsisa_pagu.errors %}
+                                                <div class="text-danger">
+                                                    {{ formset_form.rencdankelsisa_pagu.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="{{ formset_form.rencdankelsisa_output.id_for_label }}">{{ formset_form.rencdankelsisa_output.label }}</label>
+                                            {{ formset_form.rencdankelsisa_output }}
+                                            {% if formset_form.rencdankelsisa_output.errors %}
+                                                <div class="text-danger">
+                                                    {{ formset_form.rencdankelsisa_output.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="{{ formset_form.rencdankelsisa_ket.id_for_label }}">{{ formset_form.rencdankelsisa_ket.label }}</label>
+                                            {{ formset_form.rencdankelsisa_ket }}
+                                            {% if formset_form.rencdankelsisa_ket.errors %}
+                                                <div class="text-danger">
+                                                    {{ formset_form.rencdankelsisa_ket.errors }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 {% endfor %}
                             </div>
                         </div>
+                        
                         {% if form.non_field_errors %}
                             <div class="text-danger">
                                 {{ form.non_field_errors }}
                             </div>
                         {% endif %}
-                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
-                        <a href="{% url 'list_penerimaan' %}" class="btn btn-warning">Batal</a>
+                        <button type="submit" class="btn btn-primary float-right" id="btnSubmit">
+                            <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                            <span class="sr-only">Loading...</span> Simpan
+                        </button>
+                        <a href="{% url 'rencdankel_list' %}" class="btn btn-warning">Batal</a>
                     </form>
                 </div>
             </div>
@@ -123,12 +134,12 @@
 </section>
 {% endblock content %}
 
-{% block style %}
-<link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
-{% endblock style %}
+{% block javascript %}
+    <script>
+        $('#form_input').on('submit', function() {
+            $('#btnSubmit').prop('disabled', true); // Menonaktifkan tombol Simpan
+            $('#spinner').show(); // Menampilkan spinner
+        });
+    </script>
+{% endblock javascript %}
 
-{% block src %}
-<script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
-<script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
-{% endblock src %}

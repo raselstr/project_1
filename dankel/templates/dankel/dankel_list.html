@@ -1,55 +1,158 @@
-<!-- File: templates/rencdankel_list.html -->
-
 {% extends "base.html" %}
+{% load humanize %}
+{% load custom_filters %}
 
 {% block content %}
 <section class="section">
     <div class="section-header">
-        <h1>List Rencana Dankel</h1>
+        <h1>{{judul}}</h1>
     </div>
     <div class="row">
-        <div class="col-lg-12">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tahun</th>
-                            <th>OPD</th>
-                            <th>Sub Kegiatan</th>
-                            <th>Pagu Anggaran</th>
-                            <th>Output</th>
-                            <th>Keterangan Kegiatan</th>
-                            <th>Pagu Anggaran Sisa</th>
-                            <th>Output Sisa</th>
-                            <th>Keterangan Kegiatan Sisa</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rencdankel in rencdankels %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ rencdankel.rencdankel_tahun }}</td>
-                            <td>{{ rencdankel.rencdankel_opd }}</td>
-                            <td>{{ rencdankel.rencdankel_sub }}</td>
-                            <td>{{ rencdankel.rencdankel_pagu }}</td>
-                            <td>{{ rencdankel.rencdankel_output }}</td>
-                            <td>{{ rencdankel.rencdankel_ket }}</td>
-                            <!-- Menambahkan informasi dari RencDankelsisa -->
-                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_pagu }}</td>
-                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_output }}</td>
-                            <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_ket }}</td>
-                            <td>
-                                {% comment %} <a href="{% url 'update_rencdankel' rencdankel.pk %}" class="btn btn-primary btn-sm">Update</a>
-                                <a href="{% url 'delete_rencdankel' rencdankel.pk %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <a href="{% url "rencdankel_form" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
+                                {% comment %} <th style="text-align: center;">Kegiatan</th> {% endcomment %}
+                                <th style="text-align: center;">Kegiatan - Sub Kegiatan</th>
+                                <th style="text-align: center;">Pagu Anggaran</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Satuan</th>
+                                <th style="text-align: center;">Keterangan Kegiatan</th>
+                                <th style="text-align: center;">Pagu Anggaran Sisa</th>
+                                <th style="text-align: center;">Output Sisa</th>
+                                <th style="text-align: center;">Keterangan Kegiatan Sisa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for rencdankel in rencdankels %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="#" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    {% comment %} <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}</td> {% endcomment %}
+                                    {% comment %} <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td> {% endcomment %}
+                                    <td>{{ rencdankel.rencdankel_sub }}</td>
+                                    <td style="text-align: right;">{{ rencdankel.rencdankel_pagu|intcomma }}</td>
+                                    <td style="text-align: right;">{{ rencdankel.rencdankel_output }}</td>
+                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_satuan }}</td>
+                                    <td>{{ rencdankel.rencdankel_ket }}</td>
+                                    <!-- Menambahkan informasi dari RencDankelsisa -->
+                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_pagu|intcomma }}</td>
+                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_output }}</td>
+                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_ket }}</td>
+                                </tr>
+                                {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
+                                <th style="text-align: left;"><strong>{{ total|intcomma }}</strong></th>
+                                
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock %}
+    
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.5.0/css/rowGroup.dataTables.css" />
+  
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.5.0/js/dataTables.rowGroup.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.5.0/js/rowGroup.dataTables.js"></script>
+  
+{% endblock src %}
+{% block javascript %}
+    <script>
+        function addCell(tr, content, colSpan = 1) {
+            let td = document.createElement('th');
+        
+            td.colSpan = colSpan;
+            td.textContent = content;
+
+            tr.appendChild(td);
+        }
+        
+        new DataTable('#tabel1', {
+            order: [[1, 'asc']],
+            rowGroup: {
+                startRender: null,
+                endRender: function (rows, group) {
+                    let valueTotal = rows
+                        .data()
+                        .pluck(2) // Kolom "Nilai"
+                        .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
+                    let valueSisa = rows
+                        .data()
+                        .pluck(6) // Kolom "Nilai"
+                        .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
+
+            // Format total nilai sebagai mata uang Rupiah
+                valueTotal = new Intl.NumberFormat('id-ID', {
+                    //style: 'currency',
+                    //currency: 'IDR',
+                    minimumFractionDigits: 2
+                }).format(valueTotal);
+
+                // Buat baris subtotal
+                let tr = document.createElement('tr');
+
+                addCell(tr, 'Subtotal ' + group, 2);
+                addCell(tr, valueTotal, 1 ,'text-align:right;'); // Total nilai
+                addCell(tr, '',3); // Total nilai
+                addCell(tr, valueSisa,1); // Total nilai
+                addCell(tr, '',2); // Total nilai
+
+                return tr;
+                },
+            dataSrc: 1
+            },
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']
+            ],
+            scrollX: true,
+        });
+        
+    </script>
+    
+    <script>
+        $(document).ready(function() {
+            {% if messages %}
+            {% for message in messages %}
+                iziToast.{{ message.tags }}({
+                    title: '{{ message.tags }}',
+                    message: '{{ message }}',
+                    position: 'topRight'
+                });
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
+{% endblock javascript %}
+

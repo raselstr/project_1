@@ -16,7 +16,7 @@
               </ul>
             </li>
           </ul>
-          <ul class="sidebar-menu">
+          <ul class="sidebar-menu" id="dynamic-list">
               {% for menu, submenus in submenu_dict.items %}
                   <li class="menu-header" style="color: #212121;">{{ menu.menu_nama }}</li>
                   <li class="dropdown">
@@ -39,3 +39,7 @@
       </aside>
   </div>
 {% endblock content %}
+
+
+
+
