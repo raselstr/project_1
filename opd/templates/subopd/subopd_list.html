@@ -18,8 +18,8 @@
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">Kode OPD</th>
-                                <th style="text-align: center;">Nama OPD</th>
+                                <th style="text-align: center;">OPD</th>
+                                <th style="text-align: center;">Sub OPD</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,15 +30,15 @@
                                         {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
                                             <i class="fas fa-pencil-alt"></i>
                                         </button> {% endcomment %}
-                                        <a href="{% url 'update_opd' data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url 'update_subopd' data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_opd' data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url 'delete_subopd' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.kode_opd }}</td>
-                                    <td style="text-align: left;">{{ data.nama_opd }}</td>
+                                    <td style="text-align: left;">{{ data.sub_opd }}</td>
+                                    <td style="text-align: left;">{{ data.sub_nama }}</td>
                                 </tr>
                             {% endfor %}
                             
@@ -63,7 +63,7 @@
                 
                 <div class="modal-body">
                     
-                    <form id="formTambahOPD" method="POST" action="{% url 'simpan_opd' %}">
+                    <form id="formTambahOPD" method="POST" action="{% url 'simpan_subopd' %}">
                         {% csrf_token %}
                         {% for field in form %}
                             <div class="form-group">
@@ -135,7 +135,7 @@
             $('#clear').on('click', function() {
                 $('#formTambahOPD').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_opd' %}";
+                window.location.href = "{% url 'list_subopd' %}";
             });
         });
     </script>

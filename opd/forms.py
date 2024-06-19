@@ -1,5 +1,5 @@
 from django import forms
-from .models import Opd, SubOpd
+from .models import Opd, Subopd
 
 class OpdForm(forms.ModelForm):
     class Meta:
@@ -10,6 +10,16 @@ class OpdForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['kode_opd'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Kode OPD'})
         self.fields['nama_opd'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama OPD'})
+
+class SubopdForm(forms.ModelForm):
+    class Meta:
+        model = Subopd
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['sub_opd'].widget.attrs.update({'class': 'form-control'})
+        self.fields['sub_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Sub OPD'})
 
 
 # class BookForm(forms.ModelForm):

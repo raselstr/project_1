@@ -1,12 +1,15 @@
 from django.urls import path
 
-from . import views
+from .views import view_opd, view_subopd
 
 urlpatterns = [
-    path("", views.opd_list, name="opd_list"),
-    path("simpan_opd/", views.simpan_opd, name="simpan_opd"),
-    path("delete_opd/<int:pk>/", views.delete_opd, name="delete_opd"),
-    path("update_opd/<int:pk>/", views.update_opd, name="update_opd"),
-#     path("books/create/", views.book_create, name="book_create"),
-#     path("books/", views.book_list, name="book_list"),
+    path("opd/", view_opd.list, name="list_opd"),
+    path("opd/simpan/", view_opd.simpan, name="simpan_opd"),
+    path("opd/delete/<int:pk>/", view_opd.delete, name="delete_opd"),
+    path("opd/update/<int:pk>/", view_opd.update, name="update_opd"),
+    
+    path("subopd/", view_subopd.list, name="list_subopd"),
+    path("subopd/simpan/", view_subopd.simpan, name="simpan_subopd"),
+    path("subopd/delete/<int:pk>/", view_subopd.delete, name="delete_subopd"),
+    path("subopd/update/<int:pk>/", view_subopd.update, name="update_subopd"),
 ]
