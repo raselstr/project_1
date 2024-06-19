@@ -1,6 +1,7 @@
 from django.urls import path
 
-from .views import view_dausg, view_dankelprog, view_dankelkeg, view_dankelsub
+from .views.view_dausg import view_dausg
+from .views.view_dankel import view_dankelprog, view_dankelkeg, view_dankelsub
 
 urlpatterns = [
     

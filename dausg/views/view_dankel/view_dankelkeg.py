@@ -4,14 +4,14 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ..models import DankelKeg, DankelProg
-from ..forms import DankelKegForm
+from ...models import DankelKeg, DankelProg
+from ...forms import DankelKegForm
 
 Form_data = DankelKegForm
 Model_data = DankelKeg
 Model_induk = DankelProg
-lokasitemplate = 'dankelkeg/dankelkeg_list.html'
-lokasiupdate = 'dankelkeg/dankelkeg_edit.html'
+lokasitemplate = 'dankel/dankelkeg/dankelkeg_list.html'
+lokasiupdate = 'dankel/dankelkeg/dankelkeg_edit.html'
 tag_url = 'list_dankelkeg'
 lokasiload = 'load/load_subrinckeg.html'
 

@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ..models import DankelProg
-from ..forms import DankelProgForm
+from ...models import DankelProg
+from ...forms import DankelProgForm
 
 Form_data = DankelProgForm
 Nilai_data = DankelProg
@@ -21,7 +21,7 @@ def list(request):
         "form": form, 
         "datas": data
     }
-    return render(request, "dankelprog/dankelprog_list.html", context) 
+    return render(request, "dankel/dankelprog/dankelprog_list.html", context) 
 
 def simpan(request):
     data = Nilai_data.objects.all()
@@ -37,7 +37,7 @@ def simpan(request):
         'form'  : form,
         'datas': data
     }
-    return render(request, "dankelprog/dankelprog_list.html", context)
+    return render(request, "dankel/dankelprog/dankelprog_list.html", context)
 
 def update(request, pk):
     data = get_object_or_404(Nilai_data, id=pk)
@@ -51,7 +51,7 @@ def update(request, pk):
         formupdate = Form_data(instance=data)
 
     context = {"form": formupdate, "datas": data, "judul": "Update dankelprog"}
-    return render(request, "dankelprog/dankelprog_edit.html", context)
+    return render(request, "dankel/dankelprog/dankelprog_edit.html", context)
 
 def delete(request, pk):
     try:

@@ -4,14 +4,14 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ..models import DankelKeg,Dankelsub
-from ..forms import DankelSubForm
+from ...models import DankelKeg,Dankelsub
+from ...forms import DankelSubForm
 
 Form_data = DankelSubForm
 Model_data = Dankelsub
 Model_induk = DankelKeg
-lokasitemplate = 'dankelsub/dankelsub_list.html'
-lokasiupdate = 'dankelsub/dankelsub_edit.html'
+lokasitemplate = 'dankel/dankelsub/dankelsub_list.html'
+lokasiupdate = 'dankel/dankelsub/dankelsub_edit.html'
 tag_url = 'list_dankelsub'
 
 def list(request, number, sub):
@@ -22,9 +22,9 @@ def list(request, number, sub):
     form = Form_data(request.POST or None, sub=sub)
     
     context = {
-        "judul": "Daftar Kegiatan", 
+        "judul": "Daftar Sub Kegiatan", 
         'dankel_keg': dankel_keg,
-        "tombol" : "Tambah Kegiatan",
+        "tombol" : "Tambah Sub Kegiatan",
         "form": form, 
         "datas": data,
         "number":number,

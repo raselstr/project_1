@@ -5,3 +5,15 @@ from . import models
 admin.site.register(models.DankelProg)
 admin.site.register(models.DankelKeg)
 admin.site.register(models.Dankelsub)
+
+admin.site.register(models.DausgpendidikanProg)
+admin.site.register(models.DausgpendidikanKeg)
+admin.site.register(models.Dausgpendidikansub)
+
+admin.site.register(models.DausgkesehatanProg)
+admin.site.register(models.DausgkesehatanKeg)
+admin.site.register(models.Dausgkesehatansub)
+
+admin.site.register(models.DausgpuProg)
+admin.site.register(models.DausgpuKeg)
+admin.site.register(models.Dausgpusub)
