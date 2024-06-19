@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
 from ...models import DankelKeg, DankelProg
-from ...forms import DankelKegForm
+from ...forms.form_dankel import DankelKegForm
 
 Form_data = DankelKegForm
 Model_data = DankelKeg
