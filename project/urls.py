@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('dankel/', include('dankel.urls')),
     path('penerimaan/', include('penerimaan.urls')),
-    path('dausg/', include('dausg.urls')),
+    path('dausg/dankel', include('dausg.urls.url_dankel')),
     path('dana/', include('dana.urls')),
     path('opd/', include('opd.urls')),
     path('', include('dashboard.urls')),
