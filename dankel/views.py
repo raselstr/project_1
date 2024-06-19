@@ -85,7 +85,7 @@ def simpan(request):
 
 def list(request):
     rencdankels = Model_data.objects.select_related(
-        'rencdankel_opd', 
+        'rencdankel_subopd', 
         'rencdankel_sub__dankelsub_keg'
         ).prefetch_related('rencdankelsisa').all().order_by('rencdankel_sub__dankelsub_keg')
 

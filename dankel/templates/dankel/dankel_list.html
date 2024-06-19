@@ -22,8 +22,9 @@
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
                                 {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
-                                {% comment %} <th style="text-align: center;">Kegiatan</th> {% endcomment %}
-                                <th style="text-align: center;">Kegiatan - Sub Kegiatan</th>
+                                <th style="text-align: center;">Sub OPD</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Kegiatan</th>
                                 <th style="text-align: center;">Pagu Anggaran</th>
                                 <th style="text-align: center;">Output</th>
                                 <th style="text-align: center;">Satuan</th>
@@ -45,9 +46,9 @@
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    {% comment %} <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}</td> {% endcomment %}
-                                    {% comment %} <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td> {% endcomment %}
-                                    <td>{{ rencdankel.rencdankel_sub }}</td>
+                                    <td>{{ rencdankel.rencdankel_subopd.sub_nama }}</td>
+                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td>
+                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_nama}}</td>
                                     <td style="text-align: right;">{{ rencdankel.rencdankel_pagu|intcomma }}</td>
                                     <td style="text-align: right;">{{ rencdankel.rencdankel_output }}</td>
                                     <td>{{ rencdankel.rencdankel_sub.dankelsub_satuan }}</td>
@@ -105,32 +106,32 @@
                 endRender: function (rows, group) {
                     let valueTotal = rows
                         .data()
-                        .pluck(2) // Kolom "Nilai"
+                        .pluck(4) // Kolom "Nilai"
                         .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
                     let valueSisa = rows
                         .data()
-                        .pluck(6) // Kolom "Nilai"
+                        .pluck(8) // Kolom "Nilai"
                         .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
 
-            // Format total nilai sebagai mata uang Rupiah
-                valueTotal = new Intl.NumberFormat('id-ID', {
-                    //style: 'currency',
-                    //currency: 'IDR',
-                    minimumFractionDigits: 2
-                }).format(valueTotal);
+                    // Format total nilai sebagai mata uang Rupiah
+                    valueTotal = new Intl.NumberFormat('id-ID', {
+                        //style: 'currency',
+                        //currency: 'IDR',
+                        minimumFractionDigits: 2
+                    }).format(valueTotal);
 
-                // Buat baris subtotal
-                let tr = document.createElement('tr');
+                    // Buat baris subtotal
+                    let tr = document.createElement('tr');
 
-                addCell(tr, 'Subtotal ' + group, 2);
-                addCell(tr, valueTotal, 1 ,'text-align:right;'); // Total nilai
-                addCell(tr, '',3); // Total nilai
-                addCell(tr, valueSisa,1); // Total nilai
-                addCell(tr, '',2); // Total nilai
+                    addCell(tr, 'Subtotal ' + group, 4);
+                    addCell(tr, valueTotal, 1 ,'right;'); // Total nilai
+                    addCell(tr, '',3); // Total nilai
+                    addCell(tr, valueSisa,1, 'right'); // Total nilai
+                    addCell(tr, '',2); // Total nilai
 
-                return tr;
+                    return tr;
                 },
-            dataSrc: 1
+            dataSrc: [1,2]
             },
             lengthMenu: [
                 [10, 25, 50, -1],

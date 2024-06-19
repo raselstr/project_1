@@ -21,6 +21,7 @@
                                 <th style="text-align: center;">Nama User</th>
                                 <th style="text-align: center;">Level User</th>
                                 <th style="text-align: center;">OPD</th>
+                                <th style="text-align: center;">Sub OPD</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,6 +41,7 @@
                                     </td>
                                     <td style="text-align: left;">{{ data.user_nama }}</td>
                                     <td style="text-align: left;">{{ data.userlevel }}</td>
+                                    <td style="text-align: left;">{{ data.userlevelopd.sub_opd.nama_opd }}</td>
                                     <td style="text-align: left;">{{ data.userlevelopd }}</td>
                                 </tr>
                             {% endfor %}

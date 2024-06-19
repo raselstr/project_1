@@ -8,7 +8,7 @@ class RencDankelForm(forms.ModelForm):
         
         widgets = {
             'rencdankel_tahun': forms.TextInput(attrs={'class': 'form-control'}),
-            'rencdankel_opd': forms.Select(attrs={'class': 'form-control select2'}),
+            'rencdankel_subopd': forms.Select(attrs={'class': 'form-control select2'}),
             'rencdankel_sub': forms.Select(attrs={'class': 'form-control select2'}),
             'rencdankel_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
             'rencdankel_output': forms.NumberInput(attrs={'class': 'form-control'}),
