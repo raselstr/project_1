@@ -9,6 +9,7 @@ urlpatterns = [
     path('dausg/dankel/', include('dausg.urls.url_dankel')),
     path('dausg/dausgpend/', include('dausg.urls.url_dausgpend')),
     path('dausg/dausgkes/', include('dausg.urls.url_dausgkes')),
+    path('dausg/dausgpu/', include('dausg.urls.url_dausgpu')),
     path('dana/', include('dana.urls')),
     path('opd/', include('opd.urls')),
     path('', include('dashboard.urls')),
