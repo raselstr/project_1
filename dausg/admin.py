@@ -12,8 +12,8 @@ admin.site.register(models.DausgpendidikanSub)
 
 admin.site.register(models.DausgkesehatanProg)
 admin.site.register(models.DausgkesehatanKeg)
-admin.site.register(models.Dausgkesehatansub)
+admin.site.register(models.DausgkesehatanSub)
 
 admin.site.register(models.DausgpuProg)
 admin.site.register(models.DausgpuKeg)
-admin.site.register(models.Dausgpusub)
+admin.site.register(models.DausgpuSub)

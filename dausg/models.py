@@ -64,7 +64,7 @@ class DausgkesehatanKeg (models.Model):
     def __str__(self):
         return self.dausgkesehatankeg_nama
 
-class Dausgkesehatansub (models.Model):
+class DausgkesehatanSub (models.Model):
     dausgkesehatansub_keg = models.ForeignKey(DausgkesehatanKeg, verbose_name="Kegiatan DAUSG kesehatan", on_delete=models.CASCADE, related_name='dausgkesehatansubs')
     dausgkesehatansub_nama = models.CharField(verbose_name="Sub Kegiatan DAUSG kesehatan",max_length=200)
     dausgkesehatansub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
@@ -88,7 +88,7 @@ class DausgpuKeg (models.Model):
     def __str__(self):
         return self.dausgpukeg_nama
 
-class Dausgpusub (models.Model):
+class DausgpuSub (models.Model):
     dausgpusub_keg = models.ForeignKey(DausgpuKeg, verbose_name="Kegiatan DAUSG Pekerjaan Umum", on_delete=models.CASCADE, related_name='dausgpusubs')
     dausgpusub_nama = models.CharField(verbose_name="Sub Kegiatan DAUSG Pekerjaan Umum",max_length=200)
     dausgpusub_satuan = models.CharField(verbose_name="Satuan",max_length=200)

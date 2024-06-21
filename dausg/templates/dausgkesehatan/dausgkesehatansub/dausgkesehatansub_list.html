@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    {% include 'includes/infobox.html' %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url "list_dausgkesehatankeg" number %}" type="button" class="btn btn-warning mr-3">Kembali</a>
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Rincian Kegiatan</th>
+                                <th style="text-align: center;">Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for data in datas %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="{% url 'update_dausgkesehatansub' number sub data.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url 'delete_dausgkesehatansub' number sub data.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;">{{ data.dausgkesehatansub_keg }}</td>
+                                    <td style="text-align: left;">{{ data.dausgkesehatansub_nama }}</td>
+                                    <td style="text-align: left;">{{ data.dausgkesehatansub_satuan }}</td>
+                                </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Modal Tambah OPD -->
+    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    
+                    <form id="formTambah" method="POST" action="{% url 'simpan_dausgkesehatansub' number sub %}">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">
+                                            <p>{{ error }}</p>
+                                        </div>
+                                        {% endfor %}
+                                {% endif %}
+                                
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+{% block javascript %}
+    <script>
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [ 
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']    
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                    
+                }
+            }
+        });
+
+        
+    </script>
+    <script>
+        $(document).ready(function() {
+            {% if form.errors %}
+                $('#modalTambah').modal('show');
+            {% endif %}
+
+            $('#clear').on('click', function() {
+                $('#formTambah').find('input[type="text"]').val('');
+                $('.text-danger').remove();
+                window.location.href = "{% url 'list_dausgkesehatansub' number sub %}";
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            {% if messages %}
+            {% for message in messages %}
+                iziToast.{{ message.tags }}({
+                    title: '{{ message.tags }}',
+                    message: '{{ message }}',
+                    position: 'topRight'
+                });
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%' // Ensure Select2 takes full width of the container
+            });
+        });
+    </script>
+    
+{% endblock javascript %}
+
