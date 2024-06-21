@@ -1,10 +1,21 @@
 asgiref==3.8.1
+contourpy==1.2.1
+cycler==0.12.1
 Django==4.2.11
+django-dynamic-datatb==1.0.25
 django-htmx==1.17.3
+djangorestframework==3.15.1
+fonttools==4.53.0
+kiwisolver==1.4.5
+matplotlib==3.9.0
+numpy==1.26.4
+packaging==24.1
+pandas==2.2.2
+pillow==10.3.0
+pyparsing==3.1.2
+python-dateutil==2.9.0.post0
+pytz==2024.1
 setuptools==70.0.0
+six==1.16.0
 sqlparse==0.5.0
 tzdata==2024.1
-
-# py -m pip freeze > requirements.txt
-
-# python manage.py migrate --fake <app_name> zero => menghapus migrate yang sudah tidak terpakai
