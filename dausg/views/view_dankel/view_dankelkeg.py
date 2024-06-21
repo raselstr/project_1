@@ -23,9 +23,9 @@ def list(request, number):
     form = Form_data(request.POST or None, number=number)
     
     context = {
-        "judul": "Daftar Kegiatan", 
+        "judul": "Daftar Kegiatan Dana Kelurahan", 
         'dankel_prog': dankel_prog,
-        "tombol" : "Tambah Kegiatan",
+        "tombol" : "Tambah Kegiatan Dana Kelurahan",
         "form": form, 
         "datas": data,
         "number":number,

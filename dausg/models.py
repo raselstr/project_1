@@ -41,7 +41,7 @@ class DausgpendidikanKeg (models.Model):
     def __str__(self):
         return self.dausgpendidikankeg_nama
 
-class Dausgpendidikansub (models.Model):
+class DausgpendidikanSub (models.Model):
     dausgpendidikansub_keg = models.ForeignKey(DausgpendidikanKeg, verbose_name="Kegiatan DAUSG Pendidikan", on_delete=models.CASCADE, related_name='dausgpendidikansubs')
     dausgpendidikansub_nama = models.CharField(verbose_name="Sub Kegiatan DAUSG Pendidikan",max_length=200)
     dausgpendidikansub_satuan = models.CharField(verbose_name="Satuan",max_length=200)

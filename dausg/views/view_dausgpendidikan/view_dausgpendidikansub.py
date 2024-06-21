@@ -4,27 +4,27 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ...models import DankelKeg,Dankelsub
-from ...forms.form_dankel import DankelSubForm
+from ...models import DausgpendidikanKeg,DausgpendidikanSub
+from ...forms.form_dausgpendidikan import DausgpendidikanSubForm
 
-Form_data = DankelSubForm
-Model_data = Dankelsub
-Model_induk = DankelKeg
-lokasitemplate = 'dankel/dankelsub/dankelsub_list.html'
-lokasiupdate = 'dankel/dankelsub/dankelsub_edit.html'
-tag_url = 'list_dankelsub'
+Form_data = DausgpendidikanSubForm
+Model_data = DausgpendidikanSub
+Model_induk = DausgpendidikanKeg
+lokasitemplate = 'dausgpendidikan/dausgpendidikansub/dausgpendidikansub_list.html'
+lokasiupdate = 'dausgpendidikan/dausgpendidikansub/dausgpendidikansub_edit.html'
+tag_url = 'list_dausgpendidikansub'
 
 def list(request, number, sub):
     
-    dankel_keg = get_object_or_404(Model_induk, id=sub)
-    data = dankel_keg.dankelsubs.all()
+    dausgpendidikan_keg = get_object_or_404(Model_induk, id=sub)
+    data = dausgpendidikan_keg.dausgpendidikansubs.all()
     # data = Model_data.objects.all()
     form = Form_data(request.POST or None, sub=sub)
     
     context = {
-        "judul": "Daftar Sub Kegiatan Dana Kelurahan", 
-        'dankel_keg': dankel_keg,
-        "tombol" : "Tambah Sub Kegiatan Dana Kelurahan",
+        "judul": "Daftar Sub Kegiatan DAU SG Pendidikan", 
+        'dausgpendidikan_keg': dausgpendidikan_keg,
+        "tombol" : "Tambah Sub Kegiatan DAUSG Pendidikan",
         "form": form, 
         "datas": data,
         "number":number,
@@ -44,7 +44,6 @@ def simpan(request, number, sub):
         form = Form_data(sub=sub)
     context = {
         'form'  : form,
-        'datas': data,
         'sub':sub,
     }
     return render(request, lokasitemplate, context)

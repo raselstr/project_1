@@ -4,66 +4,65 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ...models import DankelKeg,Dankelsub
-from ...forms.form_dankel import DankelSubForm
+from ...models import DausgpendidikanKeg, DausgpendidikanProg
+from ...forms.form_dausgpendidikan import DausgpendidikanKegForm
 
-Form_data = DankelSubForm
-Model_data = Dankelsub
-Model_induk = DankelKeg
-lokasitemplate = 'dankel/dankelsub/dankelsub_list.html'
-lokasiupdate = 'dankel/dankelsub/dankelsub_edit.html'
-tag_url = 'list_dankelsub'
+Form_data = DausgpendidikanKegForm
+Model_data = DausgpendidikanKeg
+Model_induk = DausgpendidikanProg
+lokasitemplate = 'dausgpendidikan/dausgpendidikankeg/dausgpendidikankeg_list.html'
+lokasiupdate = 'dausgpendidikan/dausgpendidikankeg/dausgpendidikankeg_edit.html'
+tag_url = 'list_dausgpendidikankeg'
+lokasiload = 'load/load_subrinckeg.html'
 
-def list(request, number, sub):
+def list(request, number):
     
-    dankel_keg = get_object_or_404(Model_induk, id=sub)
-    data = dankel_keg.dankelsubs.all()
+    dankel_prog = get_object_or_404(Model_induk, id=number)
+    data = dankel_prog.dausgpendidikankegs.prefetch_related('dausgpendidikansubs').all()
     # data = Model_data.objects.all()
-    form = Form_data(request.POST or None, sub=sub)
+    form = Form_data(request.POST or None, number=number)
     
     context = {
-        "judul": "Daftar Sub Kegiatan Dana Kelurahan", 
-        'dankel_keg': dankel_keg,
-        "tombol" : "Tambah Sub Kegiatan Dana Kelurahan",
+        "judul": "Daftar Kegiatan DAU SG Pendidikan", 
+        'dankel_prog': dankel_prog,
+        "tombol" : "Tambah Kegiatan DAUSG Pendidikan",
         "form": form, 
         "datas": data,
         "number":number,
-        "sub":sub,
         
     }
     return render(request, lokasitemplate, context) 
 
-def simpan(request, number, sub):
+def simpan(request, number):
     if request.method == "POST":
-        form = Form_data(request.POST or None,  sub=sub)
+        form = Form_data(request.POST or None, number=number)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil disimpan')
-            return redirect(tag_url, number=number, sub=sub)
+            return redirect(tag_url, number=number)
     else:
-        form = Form_data(sub=sub)
+        form = Form_data(number=number)
     context = {
         'form'  : form,
-        'datas': data,
-        'sub':sub,
+        'number' : number,
     }
     return render(request, lokasitemplate, context)
 
-def update(request, number, sub, pk):
+def update(request, number, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
         if formupdate.is_valid():
             formupdate.save()
             messages.success(request, "Data Berhasil diupdate")
-            return redirect(tag_url, number=number, sub=sub)
+            return redirect(tag_url, number=number)
     else:
         formupdate = Form_data(instance=data)
 
-    context = {"form": formupdate, "datas": data, "number": number, "sub": sub, "judul": "Update Kegiatan"}
+    context = {"form": formupdate, "datas": data, "number": number, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
-def delete(request, number, sub, pk):
+def delete(request, number, pk):
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()
@@ -72,6 +71,6 @@ def delete(request, number, sub, pk):
         messages.error(request,"Dana tidak ditemukan")
     except ValidationError as e:
         messages.error(request, str(e))
-    return redirect(tag_url, number=number, sub=sub)
+    return redirect(tag_url, number=number)
 
 

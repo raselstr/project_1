@@ -3,25 +3,26 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 
-from ...models import DankelProg
-from ...forms.form_dankel import DankelProgForm
+from ...models import DausgpendidikanProg
+from ...forms.form_dausgpendidikan import DausgpendidikanProgForm
 
-Form_data = DankelProgForm
-Nilai_data = DankelProg
+Form_data = DausgpendidikanProgForm
+Nilai_data = DausgpendidikanProg
+tag_url = 'list_dausgpendidikanprog'
 
 def list(request):
     data = (Nilai_data.objects
-            .select_related('dankel_dana', 'dankel_subrinc')
-            .prefetch_related('dankelkegs__dankelsubs')
+            .select_related('dausgpendidikan_dana', 'dausgpendidikan_subrinc')
+            .prefetch_related('dausgpendidikankegs__dausgpendidikansubs')
             .all())
     form = Form_data()
     context = {
-        "judul": "Daftar Program Dana Kelurahan", 
-        "tombol" : "Tambah Program Dana Kelurahan",
+        "judul": "Daftar Program DAU SG Pendidikan", 
+        "tombol" : "Tambah Program DAUSG Pendidikan",
         "form": form, 
         "datas": data
     }
-    return render(request, "dankel/dankelprog/dankelprog_list.html", context) 
+    return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_list.html", context) 
 
 def simpan(request):
     data = Nilai_data.objects.all()
@@ -30,14 +31,14 @@ def simpan(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil disimpan')
-            return redirect('list_dankel')
+            return redirect(tag_url)
     else:
         form = Form_data()
     context = {
         'form'  : form,
         'datas': data
     }
-    return render(request, "dankel/dankelprog/dankelprog_list.html", context)
+    return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_list.html", context)
 
 def update(request, pk):
     data = get_object_or_404(Nilai_data, id=pk)
@@ -46,12 +47,12 @@ def update(request, pk):
         if formupdate.is_valid():
             formupdate.save()
             messages.success(request, "Data Berhasil diupdate")
-            return redirect("list_dankel")
+            return redirect(tag_url)
     else:
         formupdate = Form_data(instance=data)
 
-    context = {"form": formupdate, "datas": data, "judul": "Update dankelprog"}
-    return render(request, "dankel/dankelprog/dankelprog_edit.html", context)
+    context = {"form": formupdate, "datas": data, "judul": "Update dausgpendidikanprog"}
+    return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_edit.html", context)
 
 def delete(request, pk):
     try:
@@ -62,7 +63,7 @@ def delete(request, pk):
         messages.error(request,"Dana tidak ditemukan")
     except ValidationError as e:
         messages.error(request, str(e))
-    return redirect("list_dankel")
+    return redirect(tag_url)
 
 def load(request):
     kwargs = {
@@ -70,7 +71,7 @@ def load(request):
         'model_name' : 'Subrinc',
         'fieldsmodel' : ['subrinc_dana'],
         'template_name' : 'load/load_subrinckeg.html',
-        'fieldget' : 'dankel_dana',
+        'fieldget' : 'dausgpendidikan_dana',
         
     }
     return datasubrinc(request, **kwargs)

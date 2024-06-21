@@ -8,7 +8,7 @@ admin.site.register(models.Dankelsub)
 
 admin.site.register(models.DausgpendidikanProg)
 admin.site.register(models.DausgpendidikanKeg)
-admin.site.register(models.Dausgpendidikansub)
+admin.site.register(models.DausgpendidikanSub)
 
 admin.site.register(models.DausgkesehatanProg)
 admin.site.register(models.DausgkesehatanKeg)
