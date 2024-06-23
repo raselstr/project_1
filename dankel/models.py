@@ -18,7 +18,7 @@ class RencDankel(models.Model):
     rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
     rencdankel_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     rencdankel_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
-    rencdankel_verif = models.IntegerField(choices=VERIF, default = 0)
+    rencdankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
     
     class Meta:
         constraints = [
@@ -47,7 +47,7 @@ class RencDankelsisa(models.Model):
     rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0, blank=True)
     rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0, blank=True)
     rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
-    rencdankelsisa_verif = models.IntegerField(choices=VERIF, default = 0) 
+    rencdankelsisa_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def __str__(self):
         return self.rencdankelsisa_ket

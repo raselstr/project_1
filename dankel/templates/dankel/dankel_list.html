@@ -20,6 +20,12 @@
                     <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
+                                <th>
+                                    <div class="custom-checkbox custom-control">
+                                    <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
+                                    <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
+                                    </div>
+                                </th>
                                 <th style="text-align: center;">Aksi</th>
                                 {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
                                 <th style="text-align: center;">Sub OPD</th>
@@ -38,6 +44,12 @@
                             
                             {% for rencdankel in rencdankels %}
                                 <tr>
+                                    <td class="p-0 text-center">
+                                        <div class="custom-checkbox custom-control">
+                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-{{ forloop.counter }}">
+                                        <label for="checkbox-{{ forloop.counter }}" class="custom-control-label">&nbsp;</label>
+                                        </div>
+                                    </td>
                                     <td style="text-align: center;">
                                         <a href="{% url "rencdankel_update" rencdankel.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
