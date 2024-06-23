@@ -1,5 +1,5 @@
 from django import forms
-from .models import RencDankel, RencDankelsisa
+from .models import RencDankel
 
 class RencDankelForm(forms.ModelForm):
     class Meta:
@@ -19,12 +19,12 @@ class RencDankelForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
     
     
-RencDankelsisaFormSet = forms.inlineformset_factory(
-    RencDankel, RencDankelsisa,
-    fields=('rencdankelsisa_pagu', 'rencdankelsisa_output', 'rencdankelsisa_ket'),
-    widgets={
-        'rencdankelsisa_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
-        'rencdankelsisa_output': forms.NumberInput(attrs={'class': 'form-control'}),
-        'rencdankelsisa_ket': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-    }
-)
+# RencDankelsisaFormSet = forms.inlineformset_factory(
+#     RencDankel, RencDankelsisa,
+#     fields=('rencdankelsisa_pagu', 'rencdankelsisa_output', 'rencdankelsisa_ket'),
+#     widgets={
+#         'rencdankelsisa_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
+#         'rencdankelsisa_output': forms.NumberInput(attrs={'class': 'form-control'}),
+#         'rencdankelsisa_ket': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+#     }
+# )

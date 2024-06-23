@@ -43,7 +43,9 @@ class RencDankelsisa(models.Model):
         (1, 'Disetujui'),
         (2, 'Ditolak')
     ]
-    rencdankelsisa_rencana = models.OneToOneField(RencDankel, verbose_name='Rencana Kegiatan', on_delete=models.CASCADE, related_name='rencdankelsisa')
+    rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0, blank=True)
     rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0, blank=True)
     rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
