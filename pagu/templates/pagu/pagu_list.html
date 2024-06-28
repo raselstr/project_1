@@ -11,18 +11,19 @@
             <div class="card">
                 <div class="card-header">
                     <h4>Rekaputulasi Dana</h4>
-                    <div class="card-header-action section-title"></div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-md">
+                    <table class="table table-bordered table-hover table-sm">
                         <tr>
                             <th style="text-align: center;">Dana</th>
-                            <th style="text-align: center;">Total Nilai</th>
+                            <th style="text-align: center;">Total Pagu Tahun Berjalan</th>
+                            <th style="text-align: center;">Total Sisa Tahun Lalu</th>
                         </tr>
                         {% for item in total_dana %}
                         <tr>
                             <td>{{ item.pagudausg_dana__subrinc_nama }}</td>
                             <td style="text-align: right;">{{ item.total_nilai|intcomma }}</td>
+                            <td style="text-align: right;">{{ item.total_sisa|intcomma }}</td>
                         </tr>
                         {% endfor %}
                     </table>

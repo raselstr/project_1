@@ -33,4 +33,7 @@ class Pagudausg(models.Model):
     
     @classmethod
     def total_nilai_by_dana(cls):
-        return cls.objects.values('pagudausg_dana__subrinc_nama').annotate(total_nilai=Sum('pagudausg_nilai'))
+        return cls.objects.values('pagudausg_dana__subrinc_nama').annotate(
+            total_nilai=Sum('pagudausg_nilai'),
+            total_sisa=Sum('pagudausg_sisa')
+            ).order_by('pagudausg_dana')
