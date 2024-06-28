@@ -12,7 +12,7 @@ lokasiupdate = 'pagu/pagu_edit.html'
 tag_url = 'list_pagudausg'
 
 def list(request):
-    
+    total_dana = Pagudausg.total_nilai_by_dana()
     data = Model_data.objects.all().order_by('pagudausg_dana')
     form = Form_data(request.POST or None)
     context = {
@@ -20,6 +20,7 @@ def list(request):
         "tombol" : "Tambah Pagu TKDD",
         "datas": data,
         'form': form,
+        'total_dana' : total_dana,
     }
     return render(request, lokasitemplate, context) 
 

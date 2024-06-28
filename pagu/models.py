@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 from opd.models import Subopd
 from dana.models import Subrinc
 from datetime import datetime
@@ -29,3 +30,7 @@ class Pagudausg(models.Model):
     
     def __str__(self):
         return f"{self.pagudausg_opd.sub_nama}"
+    
+    @classmethod
+    def total_nilai_by_dana(cls):
+        return cls.objects.values('pagudausg_dana__subrinc_nama').annotate(total_nilai=Sum('pagudausg_nilai'))
