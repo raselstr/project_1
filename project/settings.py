@@ -142,3 +142,9 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JQUERY_URL = True
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan database
+SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
+SESSION_COOKIE_AGE = 1209600  # Durasi sesi dalam detik (2 minggu)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Apakah session berakhir saat browser ditutup
+
