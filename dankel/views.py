@@ -1,5 +1,6 @@
 # File: your_app/views.py
 from django.shortcuts import render, get_object_or_404,redirect
+from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from .models import RencDankel, RencDankelsisa, Subrinc
@@ -77,7 +78,17 @@ def simpan(request):
     return render(request, template, context)
 
 def list(request):
-    data = Model_data.objects.all()
+    try:
+        dana = Subrinc.objects.get(subrinc_slug=sesidana)
+    except Subrinc.DoesNotExist:
+        dana = None
+
+    # Membuat query secara dinamis
+    query = Q(rencdankel_tahun=sesitahun) & Q(rencdankel_dana=dana)
+    if sesiidopd is not None:
+        query &= Q(rencdankel_subopd=sesiidopd)
+
+    data = RencDankel.objects.filter(query)
     context = {
         'judul' : 'Rencana Kegiatan',
         'tombol' : 'Tambah Perencanaan',
