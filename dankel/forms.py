@@ -1,5 +1,5 @@
 from django import forms
-from .models import RencDankel
+from .models import RencDankel, Subopd
 
 class RencDankelForm(forms.ModelForm):
     class Meta:
@@ -16,7 +16,13 @@ class RencDankelForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        sesiidopd = kwargs.pop('sesiidopd', None)
         super().__init__(*args, **kwargs)
+        
+        if sesiidopd is not None:
+            self.fields['rencdankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
+        else:
+            self.fields['rencdankel_subopd'].queryset = Subopd.objects.all()
     
     
 # RencDankelsisaFormSet = forms.inlineformset_factory(
