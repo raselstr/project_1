@@ -8,7 +8,8 @@ urlpatterns = [
     # # path("rencana/update/<int:pk>", views.update, name="update_rencana"),
     # path('delete/<int:pk>', views.delete, name="rencdankel_delete"),
     # path('update/<int:pk>', views.update, name="rencdankel_update"),
-    # path('simpan/', views.simpan, name="rencdankel_simpan"),
+    path('simpan/', views.simpan, name="dankel_simpan"),
+    path('list/', views.list, name="dankel_list"),
     path('', views.home, name='dankel_home'),
     
 ]

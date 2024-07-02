@@ -79,41 +79,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                {{ formset.management_form }}  <!-- Untuk menyertakan formset management form -->
-                                {% for formset_form in formset %}
-                                    <div class="formset-form">
-                                        {{ formset_form.id }}
-                                        <div class="form-group">
-                                            <label for="{{ formset_form.rencdankelsisa_pagu.id_for_label }}">{{ formset_form.rencdankelsisa_pagu.label }}</label>
-                                            {{ formset_form.rencdankelsisa_pagu }}
-                                            {% if formset_form.rencdankelsisa_pagu.errors %}
-                                                <div class="text-danger">
-                                                    {{ formset_form.rencdankelsisa_pagu.errors }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="{{ formset_form.rencdankelsisa_output.id_for_label }}">{{ formset_form.rencdankelsisa_output.label }}</label>
-                                            {{ formset_form.rencdankelsisa_output }}
-                                            {% if formset_form.rencdankelsisa_output.errors %}
-                                                <div class="text-danger">
-                                                    {{ formset_form.rencdankelsisa_output.errors }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="{{ formset_form.rencdankelsisa_ket.id_for_label }}">{{ formset_form.rencdankelsisa_ket.label }}</label>
-                                            {{ formset_form.rencdankelsisa_ket }}
-                                            {% if formset_form.rencdankelsisa_ket.errors %}
-                                                <div class="text-danger">
-                                                    {{ formset_form.rencdankelsisa_ket.errors }}
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
                         </div>
                         
                         {% if form.non_field_errors %}
@@ -125,7 +90,7 @@
                             <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                             <span class="sr-only">Loading...</span> {{btntombol}}
                         </button>
-                        <a href="{% url 'rencdankel_list' %}" class="btn btn-warning">Batal</a>
+                        <a href="{% url 'dankel_list' %}" class="btn btn-warning">Batal</a>
                     </form>
                 </div>
             </div>

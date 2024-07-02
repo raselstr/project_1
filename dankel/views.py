@@ -7,13 +7,13 @@ from .forms import RencDankelForm
 
 Model_data = RencDankel
 Form_data = RencDankelForm
-tag_url = 'rencdankel_list'
+tag_url = 'dankel_list'
 template = 'dankel/dankel_form.html'
 template_list = 'dankel/dankel_list.html'
 template_home = 'dankel/dankel_home.html'
-# sesidana = 'Dana Kelurahan'
-# sesitahun = 2024
-# sesiidopd = 1
+sesidana = 'dana-kelurahan'
+sesitahun = 2024
+sesiidopd = None
 
 # def delete(request, pk):
 #     try:
@@ -60,38 +60,35 @@ template_home = 'dankel/dankel_home.html'
 #     return render(request, template, context)
 
 
-# def simpan(request):
+def simpan(request):
+    if request.method == 'POST':
+        form = Form_data(request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data Berhasil Simpan')
+            return redirect(tag_url)  # Ganti dengan URL redirect setelah berhasil
+    else:
+        form = Form_data()
+    context = {
+        'form': form,
+        'judul': 'Form Rencana Kegiatan',
+        'btntombol' : 'Simpan',
+    }
+    return render(request, template, context)
+
+def list(request):
+    data = Model_data.objects.all()
+    context = {
+        'judul' : 'Rencana Kegiatan',
+        'tombol' : 'Tambah Perencanaan',
+        'data' : data,
+        # 'datapagu' : total_pagu_nilai,
+        # 'datasisa' : total_pagu_sisa,
+    }
+    return render(request, template_list, context)
     
-#     if request.method == 'POST':
-#         form = Form_data(request.POST)
-#         formset = RencDankelsisaFormSet(request.POST)
-#         if form.is_valid() and formset.is_valid():
-#             rencdankel = form.save()
-#             instances = formset.save(commit=False)
-#             for instance in instances:
-#                 instance.rencdankelsisa_rencana = rencdankel
-#                 instance.save()
-#             messages.success(request, 'Data Berhasil Simpan')
-#             return redirect(tag_url)  # Ganti dengan URL redirect setelah berhasil
-#     else:
-#         form = Form_data()
-#         formset = RencDankelsisaFormSet()
-    
-#     context = {
-#         'form': form,
-#         'formset': formset,
-#         'judul': 'Form Rencana Kegiatan',
-#         'btntombol' : 'Simpan',
-        
-#     }
-#     return render(request, template, context)
 
 def home(request):
-    
-    sesidana = 'dana-kelurahan'
-    sesitahun = 2024
-    sesiidopd = None
-    data = Model_data.objects.all()
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)
     except Subrinc.DoesNotExist:
@@ -110,7 +107,7 @@ def home(request):
     context = {
         'judul' : 'Rencana Kegiatan',
         'tombol' : 'Tambah Perencanaan',
-        'data' : data,
+        # 'data' : data,
         'datapagu' : total_pagu_nilai,
         'datasisa' : total_pagu_sisa,
         

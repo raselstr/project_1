@@ -12,9 +12,12 @@
         <div class="col-lg-12 col-md-12 col-12 col-sm-12">
             <div class="card">
                 <div class="card-header">
-                    <h4>{{judul}}</h4>
+                    <div class="card-header-action mr-3">
+                        <a href="{% url "dankel_home" %}" type="button" class="btn btn-warning">Kembali  </a>
+                    </div>
+                    <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url "rencdankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        <a href="{% url "dankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -36,14 +39,11 @@
                                 <th style="text-align: center;">Output</th>
                                 <th style="text-align: center;">Satuan</th>
                                 <th style="text-align: center;">Keterangan Kegiatan</th>
-                                <th style="text-align: center;">Pagu Anggaran Sisa</th>
-                                <th style="text-align: center;">Output Sisa</th>
-                                <th style="text-align: center;">Keterangan Kegiatan Sisa</th>
                             </tr>
                         </thead>
                         <tbody>
                             
-                            {% for rencdankel in rencdankels %}
+                            {% for data in data %}
                                 <tr>
                                     <td class="p-0 text-center">
                                         <div class="custom-checkbox custom-control">
@@ -52,24 +52,21 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a href="{% url "rencdankel_update" rencdankel.id %}" class="btn btn-info btn-sm">
+                                        <a href="#" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url "rencdankel_delete" rencdankel.id %}" class="btn btn-danger btn-sm">
+                                        <a href="#" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td>{{ rencdankel.rencdankel_subopd.sub_nama }}</td>
-                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td>
-                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_nama}}</td>
-                                    <td style="text-align: right;">{{ rencdankel.rencdankel_pagu|intcomma }}</td>
-                                    <td style="text-align: right;">{{ rencdankel.rencdankel_output }}</td>
-                                    <td>{{ rencdankel.rencdankel_sub.dankelsub_satuan }}</td>
-                                    <td>{{ rencdankel.rencdankel_ket }}</td>
+                                    <td>{{ data.rencdankel_subopd.sub_nama }}</td>
+                                    <td>{{ data.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td>
+                                    <td>{{ data.rencdankel_sub.dankelsub_nama}}</td>
+                                    <td style="text-align: right;">{{ data.rencdankel_pagu|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.rencdankel_output }}</td>
+                                    <td>{{ data.rencdankel_sub.dankelsub_satuan }}</td>
+                                    <td>{{ data.rencdankel_ket }}</td>
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
-                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_pagu|intcomma }}</td>
-                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_output }}</td>
-                                    <td>{{ rencdankel.rencdankelsisa.rencdankelsisa_ket }}</td>
                                 </tr>
                                 {% endfor %}
                         </tbody>
