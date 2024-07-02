@@ -1,16 +1,19 @@
-# # File: your_app/views.py
-# from django.shortcuts import render, get_object_or_404,redirect
-# from django.core.exceptions import ValidationError
-# from django.contrib import messages
-# from .models import RencDankel
-# from .forms import RencDankelForm, RencDankelsisaFormSet
+# File: your_app/views.py
+from django.shortcuts import render, get_object_or_404,redirect
+from django.core.exceptions import ValidationError
+from django.contrib import messages
+from .models import RencDankel, RencDankelsisa, Subrinc
+from .forms import RencDankelForm
 
-
-# Model_data = RencDankel
-# Form_data = RencDankelForm
-# tag_url = 'rencdankel_list'
-# template = 'dankel/dankel_form.html'
-# template_list = 'dankel/dankel_list.html'
+Model_data = RencDankel
+Form_data = RencDankelForm
+tag_url = 'rencdankel_list'
+template = 'dankel/dankel_form.html'
+template_list = 'dankel/dankel_list.html'
+template_home = 'dankel/dankel_home.html'
+# sesidana = 'Dana Kelurahan'
+# sesitahun = 2024
+# sesiidopd = 1
 
 # def delete(request, pk):
 #     try:
@@ -83,16 +86,33 @@
 #     }
 #     return render(request, template, context)
 
-# def list(request):
-#     rencdankels = Model_data.objects.select_related(
-#         'rencdankel_subopd', 
-#         'rencdankel_sub__dankelsub_keg'
-#         ).prefetch_related('rencdankelsisa').all().order_by('rencdankel_sub__dankelsub_keg')
-
-#     context = {
-#         'rencdankels': rencdankels,
-#         'judul' : 'Rencana Kegiatan',
-#         'tombol' : 'Tambah Perencanaan',
+def home(request):
+    
+    sesidana = 'dana-kelurahan'
+    sesitahun = 2024
+    sesiidopd = None
+    data = Model_data.objects.all()
+    try:
+        dana = Subrinc.objects.get(subrinc_slug=sesidana)
+    except Subrinc.DoesNotExist:
+        dana = None
         
-#     }
-#     return render(request, template_list, context)
+    if dana:
+        total_pagu_nilai = RencDankel().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+    else:
+        total_pagu_nilai = None
+        
+    if dana:
+        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+    else:
+        total_pagu_sisa = None
+        
+    context = {
+        'judul' : 'Rencana Kegiatan',
+        'tombol' : 'Tambah Perencanaan',
+        'data' : data,
+        'datapagu' : total_pagu_nilai,
+        'datasisa' : total_pagu_sisa,
+        
+    }
+    return render(request, template_home, context)

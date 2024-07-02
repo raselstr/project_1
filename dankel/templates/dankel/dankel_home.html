@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
+            <div class="breadcrumb-item">Settings</div>
+        </div>
+    </div>
+
+    <div class="section-body">
+        <h2 class="section-title">{{judul}}</h2>
+        <p class="section-lead">
+            {{uraian}}
+        </p>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab1}}</h4>
+                        <p>Pagu Anggaran : {{datapagu|intcomma}} <br>
+                        Total Rencana</p>
+                        <a href="#" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab2}}</h4>
+                        <p>Sisa Pagu Anggaran: {{datasisa|intcomma}}  <br>
+                        Total Rencana</p>
+                        <a href="#" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}                   

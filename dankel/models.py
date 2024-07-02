@@ -1,9 +1,11 @@
 from django.db import models
+from django.db.models import Sum
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from opd.models import Subopd
 from dana.models import Subrinc
 from dausg.models import Dankelsub
+from pagu.models import Pagudausg
 from datetime import datetime
 
 # Create your models here.
@@ -45,6 +47,19 @@ class RencDankel(models.Model):
                 raise ValidationError('Sumber Dana dengan slug "dana-kelurahan" tidak ditemukan.')
         super(RencDankel, self).save(*args, **kwargs)
     
+    def get_pagudausg(self, tahun, opd, dana):
+        if opd is None:
+            return Pagudausg.objects.filter(
+                pagudausg_tahun=tahun,
+                pagudausg_dana=dana
+            ).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai']
+        else:
+            return Pagudausg.objects.filter(
+                pagudausg_tahun=tahun,
+                pagudausg_opd=opd,
+                pagudausg_dana=dana
+            ).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] 
+        
     def __str__(self):
         return self.rencdankel_ket
 
@@ -85,6 +100,19 @@ class RencDankelsisa(models.Model):
             except Subrinc.DoesNotExist:
                 raise ValidationError('Sumber Dana dengan slug "dana-kelurahan" tidak ditemukan.')
         super(RencDankelsisa, self).save(*args, **kwargs)
+    
+    def get_sisapagudausg(self, tahun, opd, dana):
+        if opd is None:
+            return Pagudausg.objects.filter(
+                pagudausg_tahun=tahun,
+                pagudausg_dana=dana
+            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai']
+        else:
+            return Pagudausg.objects.filter(
+                pagudausg_tahun=tahun,
+                pagudausg_opd=opd,
+                pagudausg_dana=dana
+            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai'] 
     
     def __str__(self):
         return self.rencdankelsisa_ket
