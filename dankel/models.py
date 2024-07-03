@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from opd.models import Subopd
@@ -7,6 +7,7 @@ from dana.models import Subrinc
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
 from datetime import datetime
+from decimal import Decimal
 
 # Create your models here.
 class RencDankel(models.Model):
@@ -37,28 +38,33 @@ class RencDankel(models.Model):
             rencdankel_sub=self.rencdankel_sub
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
-    
+        
+            
     def save(self, *args, **kwargs):
         # Set default value for rencdankel_dana if not provided
         if not self.rencdankel_dana_id:
             try:
                 self.rencdankel_dana = Subrinc.objects.get(subrinc_slug='dana-kelurahan')
             except Subrinc.DoesNotExist:
-                raise ValidationError('Sumber Dana dengan slug "dana-kelurahan" tidak ditemukan.')
+                raise ValidationError('Sumber Dana tidak ditemukan.')
         super(RencDankel, self).save(*args, **kwargs)
     
     def get_pagudausg(self, tahun, opd, dana):
-        if opd is None:
-            return Pagudausg.objects.filter(
-                pagudausg_tahun=tahun,
-                pagudausg_dana=dana
-            ).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai']
-        else:
-            return Pagudausg.objects.filter(
-                pagudausg_tahun=tahun,
-                pagudausg_opd=opd,
-                pagudausg_dana=dana
-            ).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] 
+        filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
+        if opd is not None:
+            filters &= Q(pagudausg_opd=opd)
+        return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
+    
+    def get_total_rencana(self, tahun, opd, dana):
+        filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
+        if opd is not None:
+            filters &= Q(rencdankel_subopd=opd)
+        return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
+       
+    def sisa(self, tahun, opd, dana):
+        total_rencana = self.get_total_rencana(tahun, opd, dana)
+        total_pagudausg = self.get_pagudausg(tahun, opd, dana)
+        return total_pagudausg - total_rencana
 
     def __str__(self):
         return self.rencdankel_ket
@@ -110,6 +116,19 @@ class RencDankelsisa(models.Model):
         else:
             return Pagudausg.objects.filter(
                 pagudausg_tahun=tahun,
+                pagudausg_opd=opd,
+                pagudausg_dana=dana
+            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai'] 
+    
+    def get_sisarencana(self, tahun, opd, dana):
+        if opd is None:
+            return RencDankelsisa.objects.filter(
+                rencdankelsisa_tahun=tahun,
+                pagudausg_dana=dana
+            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai']
+        else:
+            return RencDankelsisa.objects.filter(
+                rencdankelsisa_tahun=tahun,
                 pagudausg_opd=opd,
                 pagudausg_dana=dana
             ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai'] 

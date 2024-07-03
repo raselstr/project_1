@@ -14,7 +14,7 @@ template_list = 'dankel_rencana/dankel_list.html'
 template_home = 'dankel_rencana/dankel_home.html'
 sesidana = 'dana-kelurahan'
 sesitahun = 2024
-sesiidopd = 1
+sesiidopd = None
 
 def delete(request, pk):
     try:
@@ -92,20 +92,25 @@ def home(request):
         
     if dana:
         total_pagu_nilai = RencDankel().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        sisa_rencana = RencDankel().sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
     else:
         total_pagu_nilai = None
-        
-    if dana:
-        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-    else:
         total_pagu_sisa = None
+        total_rencana = None
         
     context = {
         'judul' : 'Rencana Kegiatan',
         'tombol' : 'Tambah Perencanaan',
+        'tab1'      : 'Rencana Kegiatan Tahun Berjalan',
+        'tab2'      : 'Rencana Kegiatan Sisa Tahun Lalu',
         # 'data' : data,
         'datapagu' : total_pagu_nilai,
         'datasisa' : total_pagu_sisa,
+        'datarencana' : total_rencana,
+        'sisarencana' : sisa_rencana,
+        
         
     }
     return render(request, template_home, context)
