@@ -5,7 +5,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('pagudausg/', include('pagu.urls')),
-    path('dankel/', include('dankel.urls')),
+    path('dankel/', include('dankel.urls.url_rencana')),
+    path('dankel/', include('dankel.urls.url_sisa')),
     path('penerimaan/', include('penerimaan.urls')),
     path('dausg/dankel/', include('dausg.urls.url_dankel')),
     path('dausg/dausgpend/', include('dausg.urls.url_dausgpend')),

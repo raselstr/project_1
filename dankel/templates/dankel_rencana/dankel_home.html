@@ -28,7 +28,7 @@
                         <h4>{{tab1}}</h4>
                         <p>Pagu Anggaran : {{datapagu|intcomma}} <br>
                         Total Rencana</p>
-                        <a href="{% url "dankel_list" %}" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                        <a href="{% url 'dankel_list' %}" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                         <h4>{{tab2}}</h4>
                         <p>Sisa Pagu Anggaran: {{datasisa|intcomma}}  <br>
                         Total Rencana</p>
-                        <a href="#" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                        <a href="{% url 'dankelsisa_list' %}" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>

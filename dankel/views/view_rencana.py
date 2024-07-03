@@ -3,15 +3,15 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from .models import RencDankel, RencDankelsisa, Subrinc
-from .forms import RencDankelForm
+from ..models import RencDankel, RencDankelsisa, Subrinc
+from ..forms.form_rencana import RencDankelForm
 
 Model_data = RencDankel
 Form_data = RencDankelForm
 tag_url = 'dankel_list'
-template = 'dankel/dankel_form.html'
-template_list = 'dankel/dankel_list.html'
-template_home = 'dankel/dankel_home.html'
+template = 'dankel_rencana/dankel_form.html'
+template_list = 'dankel_rencana/dankel_list.html'
+template_home = 'dankel_rencana/dankel_home.html'
 sesidana = 'dana-kelurahan'
 sesitahun = 2024
 sesiidopd = 1

@@ -59,9 +59,7 @@ class RencDankel(models.Model):
                 pagudausg_opd=opd,
                 pagudausg_dana=dana
             ).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] 
-    
-    
-        
+
     def __str__(self):
         return self.rencdankel_ket
 
