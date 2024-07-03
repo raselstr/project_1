@@ -54,8 +54,23 @@
                     </div>
                     <div class="card-body">
                         <h4>{{tab2}}</h4>
-                        <p>Sisa Pagu Anggaran: {{datasisa|default:"0.00"|floatformat:2|intcomma}}  <br>
-                        Total Rencana</p>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Sisa Pagu Anggaran</td>
+                                <td>:</td>
+                                <td style="text-align: right;">{{datasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Rencana Sisa</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{total_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Sisa yang belum direncanakan</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{sisa_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                        </table>
                         <a href="{% url 'dankelsisa_list' %}" class="card-cta">Rencana Kegiatan ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>

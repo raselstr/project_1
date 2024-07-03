@@ -92,13 +92,18 @@ def home(request):
         
     if dana:
         total_pagu_nilai = RencDankel().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
         sisa_rencana = RencDankel().sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_rencana_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        sisa_rencana_sisa = RencDankelsisa().sisa_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
     else:
         total_pagu_nilai = None
-        total_pagu_sisa = None
         total_rencana = None
+        sisa_rencana = None
+        total_pagu_sisa = None
+        total_rencana_sisa = None
+        sisa_rencana_sisa = None
         
     context = {
         'judul' : 'Rencana Kegiatan',
@@ -107,10 +112,10 @@ def home(request):
         'tab2'      : 'Rencana Kegiatan Sisa Tahun Lalu',
         # 'data' : data,
         'datapagu' : total_pagu_nilai,
-        'datasisa' : total_pagu_sisa,
         'datarencana' : total_rencana,
         'sisarencana' : sisa_rencana,
-        
-        
+        'datasisa' : total_pagu_sisa,
+        'total_rencana_sisa' : total_rencana_sisa,
+        'sisa_rencana_sisa' : sisa_rencana_sisa,
     }
     return render(request, template_home, context)

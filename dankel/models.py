@@ -108,30 +108,21 @@ class RencDankelsisa(models.Model):
         super(RencDankelsisa, self).save(*args, **kwargs)
     
     def get_sisapagudausg(self, tahun, opd, dana):
-        if opd is None:
-            return Pagudausg.objects.filter(
-                pagudausg_tahun=tahun,
-                pagudausg_dana=dana
-            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai']
-        else:
-            return Pagudausg.objects.filter(
-                pagudausg_tahun=tahun,
-                pagudausg_opd=opd,
-                pagudausg_dana=dana
-            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai'] 
+        filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
+        if opd is not None:
+            filters &= Q(pagudausg_opd=opd)
+        return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_sisa'))['total_nilai'] or Decimal(0)
     
-    def get_sisarencana(self, tahun, opd, dana):
-        if opd is None:
-            return RencDankelsisa.objects.filter(
-                rencdankelsisa_tahun=tahun,
-                pagudausg_dana=dana
-            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai']
-        else:
-            return RencDankelsisa.objects.filter(
-                rencdankelsisa_tahun=tahun,
-                pagudausg_opd=opd,
-                pagudausg_dana=dana
-            ).aggregate(total_sisanilai=Sum('pagudausg_sisa'))['total_sisanilai'] 
+    def get_total_sisa(self, tahun, opd, dana):
+        filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
+        if opd is not None:
+            filters &= Q(rencdankelsisa_subopd=opd)
+        return RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
+       
+    def sisa_sisa(self, tahun, opd, dana):
+        total_sisarencana = self.get_total_sisa(tahun, opd, dana)
+        total_pagudausg = self.get_sisapagudausg(tahun, opd, dana)
+        return total_pagudausg - total_sisarencana 
     
     def __str__(self):
         return self.rencdankelsisa_ket
