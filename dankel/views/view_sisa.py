@@ -81,28 +81,3 @@ def list(request):
         # 'datasisa' : total_pagu_sisa,
     }
     return render(request, template_list, context)
-    
-    try:
-        dana = Subrinc.objects.get(subrinc_slug=sesidana)
-    except Subrinc.DoesNotExist:
-        dana = None
-        
-    if dana:
-        total_pagu_nilai = RencDankel().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-    else:
-        total_pagu_nilai = None
-        
-    if dana:
-        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-    else:
-        total_pagu_sisa = None
-        
-    context = {
-        'judul' : 'Rencana Kegiatan',
-        'tombol' : 'Tambah Perencanaan',
-        # 'data' : data,
-        'datapagu' : total_pagu_nilai,
-        'datasisa' : total_pagu_sisa,
-        
-    }
-    return render(request, template_home, context)
