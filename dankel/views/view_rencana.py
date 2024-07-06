@@ -14,7 +14,7 @@ template_list = 'dankel_rencana/dankel_list.html'
 template_home = 'dankel_rencana/dankel_home.html'
 sesidana = 'dana-kelurahan'
 sesitahun = 2024
-sesiidopd = 1
+sesiidopd = None
 
 def delete(request, pk):
     try:
