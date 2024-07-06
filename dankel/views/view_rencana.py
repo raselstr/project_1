@@ -31,13 +31,13 @@ def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
 
     if request.method == 'POST':
-        form = Form_data(request.POST or None, instance=data, sesiidopd=sesiidopd)
+        form = Form_data(request.POST or None, instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Update')
             return redirect(tag_url)
     else:
-        form = Form_data(instance=data, sesiidopd=sesiidopd)
+        form = Form_data(instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
     context = {
         'form': form,
         'judul': 'Update Rencana Kegiatan',
@@ -48,13 +48,13 @@ def update(request, pk):
 
 def simpan(request):
     if request.method == 'POST':
-        form = Form_data(request.POST or None, sesiidopd=sesiidopd)
+        form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(tag_url)  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = Form_data(sesiidopd=sesiidopd)
+        form = Form_data(sesiidopd=sesiidopd, sesidana=sesidana)
     context = {
         'form': form,
         'judul': 'Form Rencana Kegiatan',

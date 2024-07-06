@@ -17,7 +17,7 @@ class RencDankel(models.Model):
         (2, 'Ditolak')
     ]
     rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE,editable=False)
+    rencdankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     rencdankel_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
@@ -39,14 +39,20 @@ class RencDankel(models.Model):
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
+        # Check if the total planned budget does not exceed the available budget
+        total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        
+        # Include the current instance's budget in the total_rencana
+        if self.pk:
+            total_rencana = total_rencana - RencDankel.objects.get(pk=self.pk).rencdankel_pagu
+
+        total_rencana += self.rencdankel_pagu
+        
+        if total_rencana > total_pagudausg:
+            raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
             
     def save(self, *args, **kwargs):
-        # Set default value for rencdankel_dana if not provided
-        if not self.rencdankel_dana_id:
-            try:
-                self.rencdankel_dana = Subrinc.objects.get(subrinc_slug='dana-kelurahan')
-            except Subrinc.DoesNotExist:
-                raise ValidationError('Sumber Dana tidak ditemukan.')
         super(RencDankel, self).save(*args, **kwargs)
     
     def get_pagudausg(self, tahun, opd, dana):
@@ -76,7 +82,7 @@ class RencDankelsisa(models.Model):
         (2, 'Ditolak')
     ]
     rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankelsisa_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE,editable=False)
+    rencdankelsisa_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0, blank=True)
@@ -97,14 +103,21 @@ class RencDankelsisa(models.Model):
             rencdankelsisa_sub=self.rencdankelsisa_sub
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
+        
+        # Check if the total planned budget does not exceed the available budget
+        total_rencana = self.get_total_sisa(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
+        total_pagudausg = self.get_sisapagudausg(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
+        
+        # Include the current instance's budget in the total_rencana
+        if self.pk:
+            total_rencana = total_rencana - RencDankelsisa.objects.get(pk=self.pk).rencdankelsisa_pagu
+
+        total_rencana += self.rencdankelsisa_pagu
+        
+        if total_rencana > total_pagudausg:
+            raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
     
     def save(self, *args, **kwargs):
-        # Set default value for rencdankel_dana if not provided
-        if not self.rencdankelsisa_dana_id:
-            try:
-                self.rencdankelsisa_dana = Subrinc.objects.get(subrinc_slug='dana-kelurahan')
-            except Subrinc.DoesNotExist:
-                raise ValidationError('Sumber Dana dengan slug "dana-kelurahan" tidak ditemukan.')
         super(RencDankelsisa, self).save(*args, **kwargs)
     
     def get_sisapagudausg(self, tahun, opd, dana):
