@@ -12,37 +12,37 @@ lokasitemplate = 'distribusi/distribusi_list.html'
 lokasiupdate = 'distribusi/distribusi_form.html'
 tag_url = 'list_distibusi'
 
-def list(request):
+def list(request, number):
     
-    data = Model_data.objects.all().order_by('distri_penerimaan')
+    data = Model_data.objects.filter(distri_penerimaan=number).order_by('distri_penerimaan')
     context = {
-        "judul": "Daftar Distribusi Penerimaan Dana", 
-        "tombol" : "Tambah Distribusi Dana",
-        "datas": data,
-        # "subtotal_list": subtotal_list,
-        # "total": total,
-        
+        'judul': 'Daftar Distribusi Penerimaan Dana', 
+        'tombol' : 'Tambah Distribusi Dana',
+        'datas': data,
+        'number': number
     }
     return render(request, lokasitemplate, context) 
 
-def simpan(request):
+def simpan(request, number):
     if request.method == "POST":
-        form = Form_data(request.POST or None)
+        form = Form_data(request.POST or None, number=number)
         if form.is_valid():
             try:
                 form.save()
                 messages.success(request, 'Data Berhasil disimpan')
-                return redirect(tag_url)
+                return redirect(tag_url, number=number)
             except ValidationError as e:
                 form.add_error(None, e.message)
                 messages.error(request, e.message)
     else:
-        form = Form_data()
+        form = Form_data(number=number)
     context = {
         'form'  : form,
+        'tombol' : 'Simpan',
+        'number' : number
     }
     # print(messages.error)
-    return render(request, lokasitemplate, context)
+    return render(request, lokasiupdate, context)
 
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)

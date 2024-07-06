@@ -9,9 +9,9 @@ urlpatterns = [
     path("penerimaan/simpan", view_penerimaan.simpan, name="simpan_penerimaan"),
     path("penerimaan/", view_penerimaan.list, name="list_penerimaan"),
     
-    path("distribusi/delete/<int:pk>", view_distribusi.delete, name="delete_distribusi"),
-    path("distribusi/update/<int:pk>", view_distribusi.update, name="update_distribusi"),
-    path("distribusi/simpan", view_distribusi.simpan, name="simpan_distribusi"),
-    path("distribusi/", view_distribusi.list, name="list_distribusi"),
+    path("distribusi/<int:number>/delete/<int:pk>", view_distribusi.delete, name="delete_distribusi"),
+    path("distribusi/<int:number>/update/<int:pk>", view_distribusi.update, name="update_distribusi"),
+    path("distribusi/<int:number>/simpan", view_distribusi.simpan, name="simpan_distribusi"),
+    path("distribusi/<int:number>", view_distribusi.list, name="list_distribusi"),
     
 ]

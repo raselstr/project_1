@@ -32,8 +32,8 @@
                                             {{ form.non_field_errors }}
                                         </div>
                                     {% endif %}
-                            <button type="submit" class="btn btn-primary float-right">Update</button>
-                            <a href="{% url 'list_penerimaan'%}" class="btn btn-warning">Batal</a>
+                            <button type="submit" class="btn btn-primary float-right">{{tombol}}</button>
+                            <a href="{% url 'list_distribusi' number=number%}" class="btn btn-warning">Batal</a>
                         </form>
                     </div>
                 </div>
