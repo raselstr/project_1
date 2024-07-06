@@ -1,8 +1,11 @@
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
+from django.db.models import Sum, Q
+from decimal import Decimal
 from datetime import datetime
 from django.db.models import UniqueConstraint
 from dana.models import Subrinc, TahapDana
+from opd.models import Subopd
 # Create your models here.
 
 class Penerimaan(models.Model):
@@ -21,3 +24,28 @@ class Penerimaan(models.Model):
             UniqueConstraint(fields=['penerimaan_tahun', 'penerimaan_dana', 'penerimaan_tahap'], name='unique_penerimaan')
         ]
     
+class DistribusiPenerimaan(models.Model):
+    distri_penerimaan = models.ForeignKey(Penerimaan, verbose_name='Penerimaan', on_delete=models.CASCADE)
+    distri_subopd = models.ForeignKey(Subopd, verbose_name='OPD Penerima', on_delete=models.CASCADE)
+    distri_nilai = models.DecimalField(verbose_name='Nilai Distribusi', max_digits=17, decimal_places=2,default=0)   
+    distri_ket = models.CharField(verbose_name='Keterangan Distribusi', max_length=50)   
+    
+    def __str__(self):
+        return f'{self.distri_penerimaan.penerimaan_dana} {self.distri_penerimaan.penerimaan_tahap} - {self.distri_subopd}'
+    
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['distri_penerimaan', 'distri_subopd'], name='unique_distrib')
+        ]
+    
+    def save(self, *args, **kwargs):
+        # Hitung total distribusi untuk penerimaan ini
+        total_distribusi = DistribusiPenerimaan.objects.filter(distri_penerimaan=self.distri_penerimaan).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
+        total_distribusi += self.distri_nilai
+        
+        # Validasi total distribusi tidak boleh melebihi penerimaan_nilai
+        if total_distribusi > self.distri_penerimaan.penerimaan_nilai:
+            raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai penerimaan {self.distri_penerimaan.penerimaan_nilai}')
+        
+        super(DistribusiPenerimaan, self).save(*args, **kwargs)
+        

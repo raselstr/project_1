@@ -3,8 +3,8 @@ from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
 
-from . models import Penerimaan
-from . forms import PenerimaanForm
+from .. models import Penerimaan
+from .. forms import PenerimaanForm
 
 Form_data = PenerimaanForm
 Model_data = Penerimaan
@@ -24,14 +24,14 @@ def list(request):
         subtotals[item.penerimaan_dana] += item.penerimaan_nilai
         total += item.penerimaan_nilai
 
-    subtotal_list = [{'dana': dana, 'subtotal': subtotal} for dana, subtotal in subtotals.items()]
+    # subtotal_list = [{'dana': dana, 'subtotal': subtotal} for dana, subtotal in subtotals.items()]
     
     context = {
         "judul": "Daftar Penerimaan Dana", 
         "tombol" : "Tambah Penerimaan",
         "form": form, 
         "datas": data,
-        "subtotal_list": subtotal_list,
+        # "subtotal_list": subtotal_list,
         "total": total,
         
     }

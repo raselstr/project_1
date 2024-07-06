@@ -1,12 +1,17 @@
 from django.urls import path
 
-from . import views
+from .views import view_penerimaan, view_distribusi
 
 urlpatterns = [
                
-    path("penerimaan/delete/<int:pk>", views.delete, name="delete_penerimaan"),
-    path("penerimaan/update/<int:pk>", views.update, name="update_penerimaan"),
-    path("penerimaan/simpan", views.simpan, name="simpan_penerimaan"),
-    path("penerimaan/", views.list, name="list_penerimaan"),
+    path("penerimaan/delete/<int:pk>", view_penerimaan.delete, name="delete_penerimaan"),
+    path("penerimaan/update/<int:pk>", view_penerimaan.update, name="update_penerimaan"),
+    path("penerimaan/simpan", view_penerimaan.simpan, name="simpan_penerimaan"),
+    path("penerimaan/", view_penerimaan.list, name="list_penerimaan"),
+    
+    path("distribusi/delete/<int:pk>", view_distribusi.delete, name="delete_distribusi"),
+    path("distribusi/update/<int:pk>", view_distribusi.update, name="update_distribusi"),
+    path("distribusi/simpan", view_distribusi.simpan, name="simpan_distribusi"),
+    path("distribusi/", view_distribusi.list, name="list_distribusi"),
     
 ]
