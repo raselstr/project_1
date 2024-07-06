@@ -10,7 +10,7 @@ Form_data = DistribusiForm
 Model_data = DistribusiPenerimaan
 lokasitemplate = 'distribusi/distribusi_list.html'
 lokasiupdate = 'distribusi/distribusi_form.html'
-tag_url = 'list_distibusi'
+tag_url = 'list_distribusi'
 
 def list(request, number):
     
@@ -44,21 +44,21 @@ def simpan(request, number):
     # print(messages.error)
     return render(request, lokasiupdate, context)
 
-def update(request, pk):
+def update(request, number, pk):
     data = get_object_or_404(Model_data, id=pk)
-    formupdate = Form_data(request.POST or None, instance=data)
+    formupdate = Form_data(request.POST or None, instance=data, number=number)
     if request.method == "POST":
         if formupdate.is_valid():
             formupdate.save()
             messages.success(request, "Data Berhasil diupdate")
-            return redirect(tag_url)
+            return redirect(tag_url, number=number)
     else:
-        formupdate = Form_data(instance=data)
+        formupdate = Form_data(instance=data, number=number)
 
-    context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
+    context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan", 'number':number,'tombol':'Update Data'}
     return render(request, lokasiupdate, context)
 
-def delete(request, pk):
+def delete(request, number, pk):
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()
@@ -67,6 +67,6 @@ def delete(request, pk):
         messages.error(request,"Dana tidak ditemukan")
     except ValidationError as e:
         messages.error(request, str(e))
-    return redirect(tag_url)
+    return redirect(tag_url, number=number)
 
 

@@ -38,14 +38,28 @@ class DistribusiPenerimaan(models.Model):
             UniqueConstraint(fields=['distri_penerimaan', 'distri_subopd'], name='unique_distrib')
         ]
     
-    def save(self, *args, **kwargs):
-        # Hitung total distribusi untuk penerimaan ini
+    def clean(self):
+        # Validasi unique constraint
+        if DistribusiPenerimaan.objects.filter(
+            distri_penerimaan=self.distri_penerimaan,
+            distri_subopd=self.distri_subopd
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError("Kombinasi Penerimaan Dana dan OPD sudah digunakan.")
+       
+       # Hitung total distribusi untuk penerimaan ini
         total_distribusi = DistribusiPenerimaan.objects.filter(distri_penerimaan=self.distri_penerimaan).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
+        
+        if self.pk:
+            # Jika instance sudah ada, kurangi nilai lama dari total
+            total_distribusi -= DistribusiPenerimaan.objects.get(pk=self.pk).distri_nilai
+        
         total_distribusi += self.distri_nilai
         
         # Validasi total distribusi tidak boleh melebihi penerimaan_nilai
         if total_distribusi > self.distri_penerimaan.penerimaan_nilai:
             raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai penerimaan {self.distri_penerimaan.penerimaan_nilai}')
-        
+    
+    def save(self, *args, **kwargs):
+        self.clean()  # Panggil clean untuk menjalankan validasi sebelum save
         super(DistribusiPenerimaan, self).save(*args, **kwargs)
         
