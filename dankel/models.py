@@ -3,7 +3,7 @@ from django.db.models import Sum, Q
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from opd.models import Subopd
-from dana.models import Subrinc
+from dana.models import Subrinc, TahapDana
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
 from datetime import datetime
@@ -85,8 +85,8 @@ class RencDankelsisa(models.Model):
     rencdankelsisa_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
-    rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0, blank=True)
-    rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0, blank=True)
+    rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0)
+    rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0)
     rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
     rencdankelsisa_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
@@ -139,3 +139,24 @@ class RencDankelsisa(models.Model):
     
     def __str__(self):
         return self.rencdankelsisa_ket
+    
+    
+class RealisasiDankel(models.Model):
+    realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    realisasidankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
+    realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100)
+    realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
+    realisasidankel_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
+    realisasidankel_lpj = models.CharField(verbose_name='No LPJ TU', max_length=100)
+    realisasidankel_lpjtgl = models.DateField(verbose_name='Tanggal LPJ TU')
+    realisasidankel_lpjnilai = models.DecimalField(verbose_name='Nilai LPJ TU', max_digits=17, decimal_places=2,default=0)
+    realisasidankel_sts = models.CharField(verbose_name='No STS TU', max_length=100)
+    realisasidankel_ststgl = models.DateField(verbose_name='Tanggal STS TU')
+    realisasidankel_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
+    
+    def __str__(self):
+        return self.realisasidankel_sp2dtu
+       
