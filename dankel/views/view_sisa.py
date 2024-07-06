@@ -66,6 +66,12 @@ def list(request):
         dana = Subrinc.objects.get(subrinc_slug=sesidana)
     except Subrinc.DoesNotExist:
         dana = None
+        
+    total_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
+    try:
+        dana = Subrinc.objects.get(subrinc_slug=sesidana)
+    except Subrinc.DoesNotExist:
+        dana = None
 
     # Membuat query secara dinamis
     query = Q(rencdankelsisa_tahun=sesitahun) & Q(rencdankelsisa_dana=dana)
@@ -77,7 +83,7 @@ def list(request):
         'judul' : 'Rencana Kegiatan Sisa Tahun Lalu',
         'tombol' : 'Tambah Perencanaan Sisa Tahun Lalu',
         'data' : data,
-        # 'datapagu' : total_pagu_nilai,
+        'totalsisa' : total_sisa,
         # 'datasisa' : total_pagu_sisa,
     }
     return render(request, template_list, context)

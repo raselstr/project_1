@@ -62,7 +62,7 @@
                                     <td>{{ data.rencdankelsisa_subopd.sub_nama }}</td>
                                     <td>{{ data.rencdankelsisa_sub.dankelsub_keg.dankelkeg_nama }}</td>
                                     <td>{{ data.rencdankelsisa_sub.dankelsub_nama}}</td>
-                                    <td style="text-align: right;">{{ data.rencdankelsisa_pagu|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.rencdankelsisa_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ data.rencdankelsisa_output }}</td>
                                     <td>{{ data.rencdankelsisa_sub.dankelsub_satuan }}</td>
                                     <td>{{ data.rencdankelsisa_ket }}</td>
@@ -73,7 +73,8 @@
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th style="text-align: left;"><strong>{{ total|intcomma }}</strong></th>
+                                <th colspan="2" style="text-align: left;"><strong>{{ totalsisa|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2" style="text-align: left;"></th>
                                 
                             </tr>
                         </tfoot>
