@@ -30,8 +30,11 @@ class DistribusiForm(forms.ModelForm):
         self.fields['distri_nilai'].widget.attrs.update({'class': 'form-control'})
         self.fields['distri_ket'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Keterangan Dana'})
     
-        if number:
-            self.initial['distri_penerimaan'] = number
+        if number is not None:
+            self.fields['distri_penerimaan'].queryset = Penerimaan.objects.filter(id=number)
+        else:
+            self.fields['rencdankel_subopd'].queryset = Penerimaan.objects.all()
+        
                 
     def save(self, commit=True):
         instance = super().save(commit=False)
