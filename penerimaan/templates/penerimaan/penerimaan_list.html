@@ -50,8 +50,8 @@
                                     <td style="text-align: left;">{{ data.penerimaan.penerimaan_tahap }}</td>
                                     <td style="text-align: left;">{{ data.penerimaan.penerimaan_tgl }}</td>
                                     <td style="text-align: left;">{{ data.penerimaan.penerimaan_ket }}</td>
-                                    <td style="text-align: right;">{{ data.penerimaan.penerimaan_nilai|intcomma }}</td>
-                                    <td style="text-align: right;">{{ data.total_distribusi|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.penerimaan.penerimaan_nilai|default:"0.00"|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.total_distribusi|default:"0.00"|floatformat:2|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                         </tbody>
