@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{ judul }}</h1>
+    </div>
+    <div class="row">
+        <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ judul }}</h4>
+                </div>
+                <div class="card-body col-12 col-md-10 mx-auto">
+                    <form method="POST" id="form_input">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">
+                                            <p>{{ error }}</p>
+                                        </div>
+                                        {% endfor %}
+                                {% endif %}
+                                
+                            </div>
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                            <div class="text-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary float-right" id="btnSubmit">
+                            <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                            <span class="sr-only">Loading...</span> {{btntombol}}
+                        </button>
+                        <a href="{% url 'dankel_list' %}" class="btn btn-warning">Batal</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block javascript %}
+    <script>
+        $('#form_input').on('submit', function() {
+            $('#btnSubmit').prop('disabled', true); // Menonaktifkan tombol Simpan
+            $('#spinner').show(); // Menampilkan spinner
+        });
+    </script>
+{% endblock javascript %}
+
