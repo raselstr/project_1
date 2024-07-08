@@ -1,9 +1,10 @@
+from django.db.models import Sum
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
 
-from .. models import Penerimaan
+from .. models import Penerimaan, DistribusiPenerimaan
 from .. forms import PenerimaanForm
 
 Form_data = PenerimaanForm
@@ -18,11 +19,23 @@ def list(request):
     form = Form_data(request.POST or None)
     
     subtotals = defaultdict(lambda: 0)
+    distribusi_totals = defaultdict(lambda: 0)
     total = 0
+    
+    distribusi_data = DistribusiPenerimaan.objects.values('distri_penerimaan').annotate(total=Sum('distri_nilai'))
+    for distribusi in distribusi_data:
+        distribusi_totals[distribusi['distri_penerimaan']] = distribusi['total']
+
+    penerimaan_list = []
     
     for item in data:
         subtotals[item.penerimaan_dana] += item.penerimaan_nilai
         total += item.penerimaan_nilai
+        
+        penerimaan_list.append({
+            'penerimaan': item,
+            'total_distribusi': distribusi_totals.get(item.id, 0)
+        })
 
     # subtotal_list = [{'dana': dana, 'subtotal': subtotal} for dana, subtotal in subtotals.items()]
     
@@ -30,7 +43,7 @@ def list(request):
         "judul": "Daftar Penerimaan Dana", 
         "tombol" : "Tambah Penerimaan",
         "form": form, 
-        "datas": data,
+        "datas": penerimaan_list,
         # "subtotal_list": subtotal_list,
         "total": total,
         
