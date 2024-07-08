@@ -146,17 +146,22 @@ class RealisasiDankel(models.Model):
     realisasidankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100)
-    realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
-    realisasidankel_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
-    realisasidankel_lpj = models.CharField(verbose_name='No LPJ TU', max_length=100)
-    realisasidankel_lpjtgl = models.DateField(verbose_name='Tanggal LPJ TU')
-    realisasidankel_lpjnilai = models.DecimalField(verbose_name='Nilai LPJ TU', max_digits=17, decimal_places=2,default=0)
-    realisasidankel_sts = models.CharField(verbose_name='No STS TU', max_length=100)
-    realisasidankel_ststgl = models.DateField(verbose_name='Tanggal STS TU')
-    realisasidankel_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
     
     def __str__(self):
-        return self.realisasidankel_sp2dtu
-       
+        return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
+
+class Realdankeldetail(models.Model):
+    realdankeldetail_tahap = models.ForeignKey(RealisasiDankel,verbose_name='Tahap Pencairan', on_delete=models.CASCADE)
+    realdankeldetail_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realdankeldetail_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100)
+    realdankeldetail_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
+    realdankeldetail_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
+    realdankeldetail_lpj = models.CharField(verbose_name='No LPJ TU', max_length=100)
+    realdankeldetail_lpjtgl = models.DateField(verbose_name='Tanggal LPJ TU')
+    realdankeldetail_lpjnilai = models.DecimalField(verbose_name='Nilai LPJ TU', max_digits=17, decimal_places=2,default=0)
+    realdankeldetail_sts = models.CharField(verbose_name='No STS TU', max_length=100)
+    realdankeldetail_ststgl = models.DateField(verbose_name='Tanggal STS TU')
+    realdankeldetail_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
+    
+    def __str__(self):
+        return self.realdankeldetail_sp2dtu
