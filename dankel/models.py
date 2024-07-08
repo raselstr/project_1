@@ -10,12 +10,14 @@ from datetime import datetime
 from decimal import Decimal
 
 # Create your models here.
-class RencDankel(models.Model):
-    VERIF = [
+VERIF = [
         (0, 'Input Dinas'),
         (1, 'Disetujui'),
         (2, 'Ditolak')
     ]
+
+class RencDankel(models.Model):
+    
     rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -76,11 +78,7 @@ class RencDankel(models.Model):
         return self.rencdankel_ket
 
 class RencDankelsisa(models.Model):
-    VERIF = [
-        (0, 'Input Dinas'),
-        (1, 'Disetujui'),
-        (2, 'Ditolak')
-    ]
+    
     rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankelsisa_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -142,15 +140,18 @@ class RencDankelsisa(models.Model):
     
     
 class RealisasiDankel(models.Model):
+    
     realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     realisasidankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def __str__(self):
         return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
 
 class Realdankeldetail(models.Model):
+    
     realdankeldetail_tahap = models.ForeignKey(RealisasiDankel,verbose_name='Tahap Pencairan', on_delete=models.CASCADE)
     realdankeldetail_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
     realdankeldetail_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100)
@@ -162,6 +163,7 @@ class Realdankeldetail(models.Model):
     realdankeldetail_sts = models.CharField(verbose_name='No STS TU', max_length=100)
     realdankeldetail_ststgl = models.DateField(verbose_name='Tanggal STS TU')
     realdankeldetail_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
+    realdankeldetail_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def __str__(self):
         return self.realdankeldetail_sp2dtu
