@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RealisasiDankel, RencDankelsisa, Subrinc
-# from ..forms.form_realisasi import RealisasiDankelForm
+from ..forms.form_realisasi import RealisasiDankelFilterForm
 
 # Model_data = RealisasiDankel
 # Form_data = RealisasiDankelForm
@@ -62,10 +62,23 @@ template_list = 'dankel_realisasi/realisasidankel_home.html'
 #     return render(request, template, context)
 
 def filter(request):
+    if request.method == 'GET':
+        form = RealisasiDankelFilterForm(request.GET)
+        if form.is_valid():
+            # Simpan data filter di sesi
+            request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
+            request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
+            request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
+            request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
+            
+            return redirect('create_realisasi_dankel')
+    else:
+        form = RealisasiDankelFilterForm()
     
     context = {
         'judul' : 'Realisasi Tahun Berjalan',
         'tombol' : 'Tambah Perencanaan Sisa Tahun Lalu',
+        'form': form
         # 'datasisa' : total_pagu_sisa,
     }
     return render(request, template_list, context)

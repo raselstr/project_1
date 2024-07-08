@@ -7,6 +7,7 @@ from dana.models import Subrinc, TahapDana
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
 from datetime import datetime
+
 from decimal import Decimal
 
 # Create your models here.
@@ -15,6 +16,10 @@ VERIF = [
         (1, 'Disetujui'),
         (2, 'Ditolak')
     ]
+
+
+
+
 
 class RencDankel(models.Model):
     
@@ -140,7 +145,7 @@ class RencDankelsisa(models.Model):
     
     
 class RealisasiDankel(models.Model):
-    
+    # realisasidankel_tahun = models.IntegerField(verbose_name="Tahun", choices=YEAR_CHOICES, default=CURRENT_YEAR)
     realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     realisasidankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)

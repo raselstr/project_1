@@ -3,27 +3,47 @@
 {% load custom_filters %}
 
 {% block content %}
-<section class="section">
+<section class="section" >
     <div class="section-header">
-        <h1>{{judul}}</h1>
+        <h1>{{ judul }}</h1>
         <div class="section-header-breadcrumb">
             <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
             <div class="breadcrumb-item">Settings</div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{judul}}</h4>
-                    <div class="card-header-action"></div>
-                </div>
-                <div class="card-body">
-                
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>{{ judul }}</h4>
+                        <div class="card-header-action"></div>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="form-group">
+                                {{ form.realisasidankel_tahun.label_tag }}
+                                {{ form.realisasidankel_tahun }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.realisasidankel_dana.label_tag }}
+                                {{ form.realisasidankel_dana }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.realisasidankel_tahap.label_tag }}
+                                {{ form.realisasidankel_tahap }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.realisasidankel_subopd.label_tag }}
+                                {{ form.realisasidankel_subopd }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock content %}                   
+{% endblock content %}
