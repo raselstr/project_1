@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.html import escape
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
+
 
 from .models import Menu, Submenu, Level, Userlevel
 
@@ -108,3 +109,21 @@ class PenggunaForm(UserCreationForm):
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+
+class PenggunaAktifForm(UserChangeForm):
+    is_active = forms.BooleanField(label="Active", required=False, initial=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'is_active')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+
+class UbahPasswordForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs.update({'class': 'form-control'})
+        self.fields['new_password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['new_password2'].widget.attrs.update({'class': 'form-control'})

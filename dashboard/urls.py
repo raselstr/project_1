@@ -8,6 +8,7 @@ urlpatterns = [
     path("pengguna/simpan/", view_pengguna.simpan_pengguna, name="simpan_pengguna"),
     path("pengguna/delete/<int:pk>", view_pengguna.delete_pengguna, name="delete_pengguna"),
     path("pengguna/update/<int:pk>", view_pengguna.update_pengguna, name="update_pengguna"),
+    path("pengguna/pass/<int:pk>", view_pengguna.ubah_password, name="update_password"),
     
     path("userlevel/", view_userlevel.list_userlevel, name="list_userlevel"),
     path("userlevel/simpan/", view_userlevel.simpan_userlevel, name="simpan_userlevel"),

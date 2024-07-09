@@ -20,6 +20,7 @@
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">User</th>
                                 <th style="text-align: center;">Status</th>
+                                <th style="text-align: center;">Aktif</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,9 +37,13 @@
                                         <a href="{% url 'delete_pengguna' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        <a href="{% url 'update_password' data.id %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-key"></i>
+                                        </a>
                                     </td>
                                     <td style="text-align: left;">{{ data.username }}</td>
                                     <td style="text-align: left;">{{ data.userlevel }}</td>
+                                    <td style="text-align: left;">{{ data.is_active }}</td>
                                 </tr>
                             {% endfor %}
                             
