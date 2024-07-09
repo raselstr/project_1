@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
+            <div class="breadcrumb-item">Settings</div>
+        </div>
+    </div>
+
+    <div class="section-body">
+        <h2 class="section-title">{{judul}}</h2>
+        <p class="section-lead">
+            {{uraian}}
+        </p>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab1}}</h4>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Pagu Anggaran</td>
+                                <td>:</td>
+                                <td style="text-align: right;">{{datapagu|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Rencana </td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{datarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Sisa yang belum direalisasikan</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{sisarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                        </table>
+                        <a href="{% url 'realisasidankel_list' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab2}}</h4>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Sisa Pagu Anggaran</td>
+                                <td>:</td>
+                                <td style="text-align: right;">{{datasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Rencana Sisa</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{total_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Sisa yang belum direalisasikan</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{sisa_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                        </table>
+                        <a href="{% url 'dankelsisa_list' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}                   

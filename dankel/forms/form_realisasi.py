@@ -23,10 +23,11 @@ class RealisasiDankelForm(forms.ModelForm):
         model = RealisasiDankel
         fields = '__all__'
         widgets = {
-            'realisasidankel_tahun': forms.NumberInput(attrs={'class': 'form-control'}),
-            'realisasidankel_dana': forms.Select(attrs={'class': 'form-control'}),
-            'realisasidankel_tahap': forms.Select(attrs={'class': 'form-control'}),
-            'realisasidankel_subopd': forms.Select(attrs={'class': 'form-control'}),
+            'realisasidankel_tahun': forms.HiddenInput(),
+            'realisasidankel_dana': forms.HiddenInput(),
+            'realisasidankel_tahap': forms.HiddenInput(),
+            'realisasidankel_subopd': forms.HiddenInput(),
+            'realisasidankel_rencana': forms.Select(attrs={'class': 'form-control'}),
             'realisasidankel_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankel_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'realisasidankel_nilai': forms.NumberInput(attrs={'class': 'form-control'}),

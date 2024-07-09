@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{ judul }}</h1>
+    </div>
+    <div class="row">
+        <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{ judul }}</h4>
+                </div>
+                <div class="card-body col-12 col-md-10 mx-auto">
+                    <form method="POST" id="form_input" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Field Tahun -->
+                        
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_tahun.id_for_label }}" hidden>{{ form.realisasidankel_tahun.label }}</label>
+                                    {{ form.realisasidankel_tahun }} 
+                                    {% if form.realisasidankel_tahun.errors %}
+                                        {% for error in form.realisasidankel_tahun.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            
+                        
+                        <!-- Field Sumber Dana -->
+                        
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_dana.id_for_label }}"hidden>{{ form.realisasidankel_dana.label }}</label>
+                                    {{ form.realisasidankel_dana }}
+                                    {% if form.realisasidankel_dana.errors %}
+                                        {% for error in form.realisasidankel_dana.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            
+                        <!-- Field Tahap Realisasi -->
+                       
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_tahap.id_for_label }}" hidden>{{ form.realisasidankel_tahap.label }}</label>
+                                    {{ form.realisasidankel_tahap }}
+                                    {% if form.realisasidankel_tahap.errors %}
+                                        {% for error in form.realisasidankel_tahap.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            
+                        
+                        <!-- Field Sub Opd -->
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_subopd.id_for_label }}" hidden>{{ form.realisasidankel_subopd.label }}</label>
+                                    {{ form.realisasidankel_subopd }}
+                                    {% if form.realisasidankel_subopd.errors %}
+                                        {% for error in form.realisasidankel_subopd.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                           
+                        <!-- Field Kegiatan -->
+                        <div class="form-row border-top border-bottom py-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_rencana.id_for_label }}">{{ form.realisasidankel_rencana.label }}</label>
+                                    {{ form.realisasidankel_rencana }}
+                                    {% if form.realisasidankel_rencana.errors %}
+                                        {% for error in form.realisasidankel_rencana.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Field No SP2D TU, Tanggal, Nilai -->
+                        <div class="form-row border-top border-bottom py-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_sp2dtu.id_for_label }}">{{ form.realisasidankel_sp2dtu.label }}</label>
+                                    {{ form.realisasidankel_sp2dtu }}
+                                    {% if form.realisasidankel_sp2dtu.errors %}
+                                        {% for error in form.realisasidankel_sp2dtu.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_tgl.id_for_label }}">{{ form.realisasidankel_tgl.label }}</label>
+                                    {{ form.realisasidankel_tgl }}
+                                    {% if form.realisasidankel_tgl.errors %}
+                                        {% for error in form.realisasidankel_tgl.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_nilai.id_for_label }}">{{ form.realisasidankel_nilai.label }}</label>
+                                    {{ form.realisasidankel_nilai }}
+                                    {% if form.realisasidankel_nilai.errors %}
+                                        {% for error in form.realisasidankel_nilai.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Field No LPJ TU, Tanggal, Nilai -->
+                        <div class="form-row border-top border-bottom py-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_lpj.id_for_label }}">{{ form.realisasidankel_lpj.label }}</label>
+                                    {{ form.realisasidankel_lpj }}
+                                    {% if form.realisasidankel_lpj.errors %}
+                                        {% for error in form.realisasidankel_lpj.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_lpjtgl.id_for_label }}">{{ form.realisasidankel_lpjtgl.label }}</label>
+                                    {{ form.realisasidankel_lpjtgl }}
+                                    {% if form.realisasidankel_lpjtgl.errors %}
+                                        {% for error in form.realisasidankel_lpjtgl.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_lpjnilai.id_for_label }}">{{ form.realisasidankel_lpjnilai.label }}</label>
+                                    {{ form.realisasidankel_lpjnilai }}
+                                    {% if form.realisasidankel_lpjnilai.errors %}
+                                        {% for error in form.realisasidankel_lpjnilai.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Field No STS TU, Tanggal, Nilai -->
+                        <div class="form-row border-top border-bottom py-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_sts.id_for_label }}">{{ form.realisasidankel_sts.label }}</label>
+                                    {{ form.realisasidankel_sts }}
+                                    {% if form.realisasidankel_sts.errors %}
+                                        {% for error in form.realisasidankel_sts.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_ststgl.id_for_label }}">{{ form.realisasidankel_ststgl.label }}</label>
+                                    {{ form.realisasidankel_ststgl }}
+                                    {% if form.realisasidankel_ststgl.errors %}
+                                        {% for error in form.realisasidankel_ststgl.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankel_stsnilai.id_for_label }}">{{ form.realisasidankel_stsnilai.label }}</label>
+                                    {{ form.realisasidankel_stsnilai }}
+                                    {% if form.realisasidankel_stsnilai.errors %}
+                                        {% for error in form.realisasidankel_stsnilai.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Error non-field -->
+                        {% if form.non_field_errors %}
+                            <div class="text-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Tombol Submit -->
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary float-right" id="btnSubmit">
+                                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                <span class="sr-only">Loading...</span> {{ btntombol }}
+                            </button>
+                            <a href="{% url 'realisasidankel_list' %}" class="btn btn-warning ml-2">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% block javascript %}
+    <script>
+        $('#form_input').on('submit', function() {
+            $('#btnSubmit').prop('disabled', true); // Menonaktifkan tombol Simpan
+            $('#spinner').show(); // Menampilkan spinner
+        });
+    </script>
+{% endblock javascript %}
+

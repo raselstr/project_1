@@ -145,7 +145,7 @@ class RencDankelsisa(models.Model):
     
     
 class RealisasiDankel(models.Model):
-    # realisasidankel_tahun = models.IntegerField(verbose_name="Tahun", choices=YEAR_CHOICES, default=CURRENT_YEAR)
+    
     realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     realisasidankel_dana = models.ForeignKey(Subrinc, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)

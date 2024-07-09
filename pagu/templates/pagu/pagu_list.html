@@ -22,7 +22,7 @@
                         {% for item in total_dana %}
                         <tr>
                             <td>{{ item.pagudausg_dana__subrinc_nama }}</td>
-                            <td style="text-align: right;">{{ item.total_nilai|intcomma }}</td>
+                            <td style="text-align: right;">{{ item.total_nilai|floatformat:"2"|intcomma }}</td>
                             <td style="text-align: right;">{{ item.total_sisa|intcomma }}</td>
                         </tr>
                         {% endfor %}
@@ -67,8 +67,8 @@
                                     <td style="text-align: left;">{{ data.pagudausg_tahun }}</td>
                                     <td style="text-align: left;">{{ data.pagudausg_opd }}</td>
                                     <td style="text-align: left;">{{ data.pagudausg_dana }}</td>
-                                    <td style="text-align: right;">{{ data.pagudausg_nilai|intcomma }}</td>
-                                    <td style="text-align: right;">{{ data.pagudausg_sisa|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.pagudausg_nilai|default:"0,00"|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.pagudausg_sisa|default:"0,00"|floatformat:2|intcomma }}</td>
                                 </tr>
                             {% endfor %}
                             
