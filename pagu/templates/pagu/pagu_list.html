@@ -22,8 +22,8 @@
                         {% for item in total_dana %}
                         <tr>
                             <td>{{ item.pagudausg_dana__subrinc_nama }}</td>
-                            <td style="text-align: right;">{{ item.total_nilai|floatformat:"2"|intcomma }}</td>
-                            <td style="text-align: right;">{{ item.total_sisa|intcomma }}</td>
+                            <td style="text-align: right;">{{ item.total_nilai|default:"0,00"|floatformat:2|intcomma }}</td>
+                            <td style="text-align: right;">{{ item.total_sisa|default:"0,00"|floatformat:2|intcomma }}</td>
                         </tr>
                         {% endfor %}
                     </table>
