@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from ..models import Menu, Submenu
 
+@login_required
 def index(request):
     menus = Menu.objects.all()  # Ambil semua objek menu
     submenu_dict = {}

@@ -9,3 +9,8 @@ def get_subtotal(subtotal_list, dana):
         if item['dana'] == dana:
             return item['subtotal']
     return 0
+
+@register.filter
+def unlocalize(value):
+    """Return the value unformatted"""
+    return str(value)

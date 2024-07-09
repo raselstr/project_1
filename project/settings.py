@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django_htmx',
+    'authapp',
     'dashboard',
     'opd',
     'dana',
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'project.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -155,6 +157,10 @@ MEDIA_ROOT = BASE_DIR / "media"  # Konversi Path menjadi string untuk MEDIA_ROOT
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JQUERY_URL = True
+
+LOGIN_URL = '/auth/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/auth/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan database
 SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
