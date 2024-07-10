@@ -3,6 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
+from project.decorators import menu_access_required
+
 
 from ..models import Opd
 from ..forms import OpdForm
@@ -13,6 +15,7 @@ lokasitemplate = 'opd/opd_list.html'
 lokasiupdate = 'opd/opd_edit.html'
 tag_url = 'list_opd'
 
+@menu_access_required
 def list(request):
     
     # dankel_keg = get_object_or_404(Model_data or None)

@@ -2,11 +2,11 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ..models import Menu, Submenu
-from project.decorators import user_has_permission  # Impor decorator dari project
 from project.context_processors import menu_context_processor
+from project.decorators import menu_access_required  # Impor decorator dari project
 
 @login_required
-# @user_has_permission
+@menu_access_required
 def index(request):
     context = menu_context_processor(request)
     context['judul'] = 'Dashboard'

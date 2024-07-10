@@ -4,7 +4,9 @@ from django.core.exceptions import ValidationError
 from ..utils import dataprogram
 from ..models import Kegiatan, Program
 from ..forms import KegiatanForm
+from project.decorators import menu_access_required
 
+@menu_access_required
 def list_kegiatan(request):
     data = Kegiatan.objects.all()
     form = KegiatanForm()

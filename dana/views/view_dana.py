@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
 
 from ..models import Dana
 from ..forms import DanaForm
 
+@menu_access_required
 def list_dana(request):
     data = Dana.objects.all()
     form = DanaForm()
