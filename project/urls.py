@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
     path('pagudausg/', include('pagu.urls')),
@@ -15,9 +16,11 @@ urlpatterns = [
     path('dausg/dausgpu/', include('dausg.urls.url_dausgpu')),
     path('dana/', include('dana.urls')),
     path('opd/', include('opd.urls')),
+    path('notfound/', views.notfound,name='notfound'),
     path('', include('dashboard.urls')),
     path('auth/', include('authapp.urls')),
     path('admin/', admin.site.urls),
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # if settings.DEBUG:
 #     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -3,7 +3,9 @@ from django.contrib import messages
 from ..utils import dataprogram, datakegiatan, datasubkegiatan
 from ..models import Subkegiatan, Kegiatan, Program, Subrinc
 from ..forms import SubrincForm, KegiatanForm
+from project.decorators import menu_access_required
 
+@menu_access_required
 def list_subrinc(request):
     data = Subrinc.objects.all()
     form = SubrincForm()
@@ -15,6 +17,7 @@ def list_subrinc(request):
     }
     return render(request, "subrinc/subrinc_list.html", context) 
 
+@menu_access_required
 def simpan_subrinc(request):
     data = Subrinc.objects.all()
     if request.method == "POST":
@@ -31,6 +34,7 @@ def simpan_subrinc(request):
     }
     return render(request, "subrinc/subrinc_list.html", context)
 
+@menu_access_required
 def update_subrinc(request, pk):
     data = get_object_or_404(Subrinc, id=pk)
     formupdate = SubrincForm(request.POST or None, instance=data)
@@ -45,13 +49,14 @@ def update_subrinc(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update subrinc"}
     return render(request, "subrinc/subrinc_edit.html", context)
 
+@menu_access_required
 def delete_subrinc(request, pk):
     data = Subrinc.objects.get(id=pk)
     data.delete()
     messages.warning(request, "Data Berhasil dihapus")
     return redirect("list_subrinc")
 
-
+@menu_access_required
 def load_subrincprogram(request):
     return dataprogram(
         request, 
@@ -59,6 +64,7 @@ def load_subrincprogram(request):
         'program_dana',
         'load/load_program.html')
 
+@menu_access_required
 def load_subrinckegiatan(request):
     kwargs = {
         'model_name' : 'Kegiatan',
@@ -70,6 +76,7 @@ def load_subrinckegiatan(request):
     }
     return datakegiatan(request, **kwargs)
 
+@menu_access_required
 def load_subrincsubkegiatan(request):
     kwargs = {
         'model_name' : 'Subkegiatan',

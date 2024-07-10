@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
+from project.decorators import menu_access_required
 
 from ...models import DausgpuKeg,DausgpuSub
 from ...forms.form_dausgpu import DausgpuSubForm
@@ -14,6 +15,7 @@ lokasitemplate = 'dausgpu/dausgpusub/dausgpusub_list.html'
 lokasiupdate = 'dausgpu/dausgpusub/dausgpusub_edit.html'
 tag_url = 'list_dausgpusub'
 
+@menu_access_required
 def list(request, number, sub):
     
     dausgpu_keg = get_object_or_404(Model_induk, id=sub)
@@ -33,6 +35,7 @@ def list(request, number, sub):
     }
     return render(request, lokasitemplate, context) 
 
+@menu_access_required
 def simpan(request, number, sub):
     if request.method == "POST":
         form = Form_data(request.POST or None,  sub=sub)
@@ -48,6 +51,7 @@ def simpan(request, number, sub):
     }
     return render(request, lokasitemplate, context)
 
+@menu_access_required
 def update(request, number, sub, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
@@ -62,6 +66,7 @@ def update(request, number, sub, pk):
     context = {"form": formupdate, "datas": data, "number": number, "sub": sub, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def delete(request, number, sub, pk):
     try:
         data = Model_data.objects.get(id=pk)

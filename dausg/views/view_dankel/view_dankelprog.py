@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
+from project.decorators import menu_access_required   
+
 
 from ...models import DankelProg
 from ...forms.form_dankel import DankelProgForm
@@ -9,6 +11,7 @@ from ...forms.form_dankel import DankelProgForm
 Form_data = DankelProgForm
 Nilai_data = DankelProg
 
+@menu_access_required
 def list(request):
     data = (Nilai_data.objects
             .select_related('dankel_dana', 'dankel_subrinc')
@@ -23,6 +26,7 @@ def list(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context) 
 
+@menu_access_required
 def simpan(request):
     data = Nilai_data.objects.all()
     if request.method == "POST":
@@ -39,6 +43,7 @@ def simpan(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context)
 
+@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Nilai_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
@@ -53,6 +58,7 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update dankelprog"}
     return render(request, "dankel/dankelprog/dankelprog_edit.html", context)
 
+@menu_access_required
 def delete(request, pk):
     try:
         data = Nilai_data.objects.get(id=pk)
@@ -64,6 +70,7 @@ def delete(request, pk):
         messages.error(request, str(e))
     return redirect("list_dankel")
 
+@menu_access_required
 def load(request):
     kwargs = {
         'nama_app'  : 'dana',

@@ -3,9 +3,9 @@ from .views import view_dana, view_program, view_kegiatan, view_subkegiatan, vie
 
 urlpatterns = [
     path("", view_dana.list_dana, name="list_dana"),
-    path("dana/simpan/", view_dana.simpan_dana, name="simpan_dana"),
-    path("dana/delete/<int:pk>", view_dana.delete_dana, name="delete_dana"),
-    path("dana/update/<int:pk>", view_dana.update_dana, name="update_dana"),
+    path("simpan/", view_dana.simpan_dana, name="simpan_dana"),
+    path("delete/<int:pk>", view_dana.delete_dana, name="delete_dana"),
+    path("update/<int:pk>", view_dana.update_dana, name="update_dana"),
     
     path("program/", view_program.list_program, name="list_program"),
     path("program/simpan/", view_program.simpan_program, name="simpan_program"),

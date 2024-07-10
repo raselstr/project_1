@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
+from project.decorators import menu_access_required
 
 from .. models import Penerimaan, DistribusiPenerimaan
 from .. forms import PenerimaanForm
@@ -13,6 +14,7 @@ lokasitemplate = 'penerimaan/penerimaan_list.html'
 lokasiupdate = 'penerimaan/penerimaan_edit.html'
 tag_url = 'list_penerimaan'
 
+@menu_access_required
 def list(request):
     
     data = Model_data.objects.all().order_by('penerimaan_dana')
@@ -50,6 +52,7 @@ def list(request):
     }
     return render(request, lokasitemplate, context) 
 
+@menu_access_required
 def simpan(request):
     if request.method == "POST":
         form = Form_data(request.POST or None)
@@ -69,6 +72,7 @@ def simpan(request):
     # print(messages.error)
     return render(request, lokasitemplate, context)
 
+@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
@@ -83,6 +87,7 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def delete(request, pk):
     try:
         data = Model_data.objects.get(id=pk)

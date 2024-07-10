@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
 
 from ..models import Userlevel
 from ..forms import UserlevelForm
 
+@menu_access_required
 def list_userlevel(request):
     data = Userlevel.objects.all()
     form = UserlevelForm()
@@ -16,6 +18,7 @@ def list_userlevel(request):
     }
     return render(request, "userlevel/userlevel_list.html", context) 
 
+@menu_access_required
 def simpan_userlevel(request):
     data = Userlevel.objects.all()
     if request.method == "POST":
@@ -32,6 +35,7 @@ def simpan_userlevel(request):
     }
     return render(request, "userlevel/userlevel_list.html", context)
 
+@menu_access_required
 def update_userlevel(request, pk):
     data = get_object_or_404(Userlevel, id=pk)
     formupdate = UserlevelForm(request.POST or None, instance=data)
@@ -46,6 +50,7 @@ def update_userlevel(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update User Level"}
     return render(request, "userlevel/userlevel_edit.html", context)
 
+@menu_access_required
 def delete_userlevel(request, pk):
     try:
         data = Userlevel.objects.get(id=pk)

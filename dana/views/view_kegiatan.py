@@ -18,6 +18,7 @@ def list_kegiatan(request):
     }
     return render(request, "kegiatan/kegiatan_list.html", context) 
 
+@menu_access_required
 def simpan_kegiatan(request):
     data = Kegiatan.objects.all()
     if request.method == "POST":
@@ -34,6 +35,7 @@ def simpan_kegiatan(request):
     }
     return render(request, "kegiatan/kegiatan_list.html", context)
 
+@menu_access_required
 def update_kegiatan(request, pk):
     data = get_object_or_404(Kegiatan, id=pk)
     formupdate = KegiatanForm(request.POST or None, instance=data)
@@ -48,6 +50,7 @@ def update_kegiatan(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
     return render(request, "kegiatan/kegiatan_edit.html", context)
 
+@menu_access_required
 def delete_kegiatan(request, pk):
     try:
         data = Kegiatan.objects.get(id=pk)
@@ -59,6 +62,7 @@ def delete_kegiatan(request, pk):
         messages.error(request, str(e))
     return redirect("list_kegiatan")
 
+@menu_access_required
 def load_program(request):
     return dataprogram(
         request, 

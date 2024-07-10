@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
+from project.decorators import menu_access_required
 
 from .. models import DistribusiPenerimaan
 from .. forms import DistribusiForm
@@ -12,6 +13,7 @@ lokasitemplate = 'distribusi/distribusi_list.html'
 lokasiupdate = 'distribusi/distribusi_form.html'
 tag_url = 'list_distribusi'
 
+@menu_access_required
 def list(request, number):
     
     data = Model_data.objects.filter(distri_penerimaan=number).order_by('distri_penerimaan')
@@ -23,6 +25,7 @@ def list(request, number):
     }
     return render(request, lokasitemplate, context) 
 
+@menu_access_required
 def simpan(request, number):
     if request.method == "POST":
         form = Form_data(request.POST or None, number=number)
@@ -44,6 +47,7 @@ def simpan(request, number):
     # print(messages.error)
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def update(request, number, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data, number=number)
@@ -58,6 +62,7 @@ def update(request, number, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan", 'number':number,'tombol':'Update Data'}
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def delete(request, number, pk):
     try:
         data = Model_data.objects.get(id=pk)

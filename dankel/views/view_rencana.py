@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RencDankel, RencDankelsisa, Subrinc
 from ..forms.form_rencana import RencDankelForm
+from project.decorators import menu_access_required
 
 Model_data = RencDankel
 Form_data = RencDankelForm
@@ -16,6 +17,7 @@ sesidana = 'dana-kelurahan'
 sesitahun = 2024
 sesiidopd = None
 
+@menu_access_required
 def delete(request, pk):
     try:
         data = Model_data.objects.get(id=pk)
@@ -27,6 +29,7 @@ def delete(request, pk):
         messages.error(request, str(e))
     return redirect(tag_url)
 
+@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
 
@@ -45,7 +48,7 @@ def update(request, pk):
     }
     return render(request, template, context)
 
-
+@menu_access_required
 def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
@@ -62,6 +65,7 @@ def simpan(request):
     }
     return render(request, template, context)
 
+@menu_access_required
 def list(request):
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)
@@ -89,7 +93,7 @@ def list(request):
     }
     return render(request, template_list, context)
     
-
+@menu_access_required
 def home(request):
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)

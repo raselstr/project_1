@@ -4,8 +4,9 @@ from django.contrib.auth import update_session_auth_hash
 from ..forms import PenggunaForm, PenggunaAktifForm, UbahPasswordForm
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
 
-
+@menu_access_required
 def list_pengguna(request):
     data = User.objects.all()
     form = PenggunaForm()
@@ -17,6 +18,7 @@ def list_pengguna(request):
     }
     return render(request, "pengguna/pengguna_list.html", context) 
 
+@menu_access_required
 def simpan_pengguna(request):
     data = User.objects.all()
     if request.method == "POST":
@@ -33,6 +35,7 @@ def simpan_pengguna(request):
     }
     return render(request, "pengguna/pengguna_list.html", context)
 
+@menu_access_required
 def update_pengguna(request, pk):
     data = get_object_or_404(User, id=pk)
     if request.method == "POST":
@@ -47,6 +50,7 @@ def update_pengguna(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Pengguna"}
     return render(request, "pengguna/pengguna_edit.html", context)
 
+@menu_access_required
 def ubah_password(request, pk):
     user = User.objects.get(pk=pk)
     
@@ -62,6 +66,7 @@ def ubah_password(request, pk):
         password_form = UbahPasswordForm(request.user)
     return render(request, 'pengguna/pengguna_password.html', {'form': password_form})
 
+@menu_access_required
 def delete_pengguna(request, pk):
     try:
         data = User.objects.get(id=pk)

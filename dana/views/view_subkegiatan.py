@@ -1,10 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
+
 from ..utils import dataprogram, datakegiatan
 from ..models import Subkegiatan, Kegiatan, Program
 from ..forms import SubkegiatanForm, KegiatanForm
 
+
+@menu_access_required
 def list_subkegiatan(request):
     data = Subkegiatan.objects.all()
     form = SubkegiatanForm()
@@ -16,6 +20,7 @@ def list_subkegiatan(request):
     }
     return render(request, "subkegiatan/subkegiatan_list.html", context) 
 
+@menu_access_required
 def simpan_subkegiatan(request):
     data = Subkegiatan.objects.all()
     if request.method == "POST":
@@ -32,6 +37,7 @@ def simpan_subkegiatan(request):
     }
     return render(request, "subkegiatan/subkegiatan_list.html", context)
 
+@menu_access_required
 def update_subkegiatan(request, pk):
     data = get_object_or_404(Subkegiatan, id=pk)
     formupdate = SubkegiatanForm(request.POST or None, instance=data)
@@ -46,6 +52,7 @@ def update_subkegiatan(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update subkegiatan"}
     return render(request, "subkegiatan/subkegiatan_edit.html", context)
 
+@menu_access_required
 def delete_subkegiatan(request, pk):
     try:
         data = Subkegiatan.objects.get(id=pk)
@@ -57,7 +64,7 @@ def delete_subkegiatan(request, pk):
         messages.error(request, str(e))
     return redirect("list_subkegiatan")
 
-
+@menu_access_required
 def load_kegprogram(request):
     return dataprogram(
         request, 
@@ -65,6 +72,7 @@ def load_kegprogram(request):
         'program_dana',
         'load/load_program.html')
 
+@menu_access_required
 def load_kegiatan(request):
     kwargs = {
         'model_name' : 'Kegiatan',

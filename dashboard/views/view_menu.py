@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
 
 from ..models import Menu
 from ..forms import Menuform
 
+@menu_access_required
 def list_menu(request):
     data = Menu.objects.all()
     form = Menuform()
@@ -16,6 +18,7 @@ def list_menu(request):
     }
     return render(request, "menu/menu_list.html", context) 
 
+@menu_access_required
 def simpan_menu(request):
     data = Menu.objects.all()
     if request.method == "POST":
@@ -32,6 +35,7 @@ def simpan_menu(request):
     }
     return render(request, "menu/menu_list.html", context)
 
+@menu_access_required
 def update_menu(request, pk):
     data = get_object_or_404(Menu, id=pk)
     formupdate = Menuform(request.POST or None, instance=data)
@@ -46,6 +50,7 @@ def update_menu(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Menu"}
     return render(request, "menu/menu_edit.html", context)
 
+@menu_access_required
 def delete_menu(request, pk):
     try:
         data = Menu.objects.get(id=pk)

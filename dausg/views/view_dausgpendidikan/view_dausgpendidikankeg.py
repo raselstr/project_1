@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
+from project.decorators import menu_access_required
 
 from ...models import DausgpendidikanKeg, DausgpendidikanProg
 from ...forms.form_dausgpendidikan import DausgpendidikanKegForm
@@ -15,6 +16,7 @@ lokasiupdate = 'dausgpendidikan/dausgpendidikankeg/dausgpendidikankeg_edit.html'
 tag_url = 'list_dausgpendidikankeg'
 lokasiload = 'load/load_subrinckeg.html'
 
+@menu_access_required
 def list(request, number):
     
     dankel_prog = get_object_or_404(Model_induk, id=number)
@@ -33,6 +35,7 @@ def list(request, number):
     }
     return render(request, lokasitemplate, context) 
 
+@menu_access_required
 def simpan(request, number):
     if request.method == "POST":
         form = Form_data(request.POST or None, number=number)
@@ -48,6 +51,7 @@ def simpan(request, number):
     }
     return render(request, lokasitemplate, context)
 
+@menu_access_required
 def update(request, number, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
@@ -62,6 +66,7 @@ def update(request, number, pk):
     context = {"form": formupdate, "datas": data, "number": number, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def delete(request, number, pk):
     try:
         data = Model_data.objects.get(id=pk)

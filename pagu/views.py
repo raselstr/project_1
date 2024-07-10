@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from project.decorators import menu_access_required
 
 from .models import Pagudausg
 from .forms import PagudausgForm
@@ -11,6 +12,7 @@ lokasitemplate = 'pagu/pagu_list.html'
 lokasiupdate = 'pagu/pagu_edit.html'
 tag_url = 'list_pagudausg'
 
+@menu_access_required
 def list(request):
     total_dana = Pagudausg.total_nilai_by_dana()
     data = Model_data.objects.all().order_by('pagudausg_dana')
@@ -24,6 +26,7 @@ def list(request):
     }
     return render(request, lokasitemplate, context) 
 
+@menu_access_required
 def simpan(request):
     if request.method == "POST":
         form = Form_data(request.POST or None)
@@ -38,6 +41,7 @@ def simpan(request):
     }
     return render(request, lokasitemplate, context)
 
+@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
@@ -52,6 +56,7 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data,"judul": "Update Pagu"}
     return render(request, lokasiupdate, context)
 
+@menu_access_required
 def delete(request, pk):
     try:
         data = Model_data.objects.get(id=pk)
