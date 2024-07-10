@@ -159,7 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JQUERY_URL = True
 
 LOGIN_URL = '/auth/login/'
-LOGIN_REDIRECT_URL = '/'
+# LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan database

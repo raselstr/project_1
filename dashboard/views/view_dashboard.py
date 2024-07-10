@@ -1,20 +1,13 @@
+# view_dashboard.py
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ..models import Menu, Submenu
+from project.decorators import user_has_permission  # Impor decorator dari project
+from project.context_processors import menu_context_processor
 
 @login_required
+# @user_has_permission
 def index(request):
-    menus = Menu.objects.all()  # Ambil semua objek menu
-    submenu_dict = {}
-    for menu in menus:
-        submenus = Submenu.objects.filter(submenu_menu=menu)
-        submenu_dict[menu] = submenus
-    
-    context = {
-        'judul' : 'Dashboard',
-        'menu' : menus,
-        'submenu_dict' : submenu_dict
-    }
-    # print(submenu_dict)
-    # if request.method == "GET":
+    context = menu_context_processor(request)
+    context['judul'] = 'Dashboard'
     return render(request, "dashboard/dashboard.html", context)
