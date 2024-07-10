@@ -36,9 +36,13 @@ class Level(models.Model):
         error_messages={'unique': 'Maaf, data ini sudah ada dalam database.'},
         )
     level_submenu = models.ManyToManyField(Submenu, verbose_name="Level Sub Menu",)
+    lihat = models.BooleanField(default=False, verbose_name="List Data")
+    simpan = models.BooleanField(default=False, verbose_name="Simpan Data")
+    update = models.BooleanField(default=False, verbose_name="Update Data")
+    delete = models.BooleanField(default=False, verbose_name="Hapus Data")
 
     def __str__(self):
-        return self.level_nama
+        return f'{self.level_nama}'
     
 class Userlevel(models.Model):
     user_nama = models.OneToOneField(User, verbose_name="Pengguna", on_delete=models.CASCADE)

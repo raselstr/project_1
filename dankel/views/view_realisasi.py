@@ -17,7 +17,7 @@ template_filter = 'dankel_realisasi/realisasi_filter.html'
 template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 
-@menu_access_required
+# @menu_access_required
 def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST)
@@ -86,7 +86,7 @@ def filter(request):
     }
     return render(request, template_filter, context)
 
-@menu_access_required
+# @menu_access_required
 def home(request):
     
     context = {

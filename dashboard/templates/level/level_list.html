@@ -38,7 +38,12 @@
                                         </a>
                                     </td>
                                     <td style="text-align: left;">{{ data.level_nama }}</td>
-                                    <td style="text-align: left;">{{ data.level_submenu }}</td>
+                                    <td style="text-align: left;">
+                                        {% for submenu in data.level_submenu.all %}
+                                            {{ submenu.submenu_nama }}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                             
