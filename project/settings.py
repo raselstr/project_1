@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'project.middleware.LoginRequiredMiddleware',
+    'project.middleware.AutoLogoutMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -164,6 +165,6 @@ LOGOUT_REDIRECT_URL = '/auth/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan database
 SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
-SESSION_COOKIE_AGE = 1209600  # Durasi sesi dalam detik (2 minggu)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Apakah session berakhir saat browser ditutup
+SESSION_COOKIE_AGE = 120  # Durasi sesi dalam detik (2 minggu)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Apakah session berakhir saat browser ditutup
 

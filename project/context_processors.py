@@ -18,8 +18,8 @@ def menu_context_processor(request):
             "submenu_dict": submenu_dict,
             "is_superuser": request.session.get('is_superuser', False),
             "user_nama": request.session.get('user_nama', 'Admin'),
-            "subopd": request.session.get('subopd', ''),
-            "level": request.session.get('level', ''),
+            "subopd": request.session.get('subopd', 'Tidak Terikat'),
+            "level": request.session.get('level', 'Super Admin'),
         }
     else:
         context = {
