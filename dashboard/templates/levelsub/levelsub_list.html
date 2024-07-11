@@ -30,8 +30,8 @@
                                     {% csrf_token %}
                                     {% for item in data %}
                                     <tr>
-                                        <td>{{ item.levelsub_level }}{{form.levelsub_level=number}}</td>
-                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} {{form.levelsub_submenu=item.id}}</td>
+                                        <td>{{ item.levelsub_level }}{{form.levelsub_level}}</td>
+                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} {{form.levelsub_submenu}}</td>
                                         <td>{{ form.lihat }}</td>
                                         <td>{{ form.simpan }}</td>
                                         <td>{{ form.update }}</td>
