@@ -11,13 +11,15 @@ Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
 # @menu_access_required
-def list(request):
+def list(request, number):
     data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
-    form = Form_data(request.POST or None)
+    
+    form = Form_data(request.POST or None, number)
 
     context = {
         'data': data,
         'form':form,
+        'number':number,
     }
     return render(request, template_list, context)
 

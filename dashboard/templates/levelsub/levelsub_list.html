@@ -30,8 +30,8 @@
                                     {% csrf_token %}
                                     {% for item in data %}
                                     <tr>
-                                        <td>{{ item.levelsub_level }}</td>
-                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} </td>
+                                        <td>{{ item.levelsub_level }}{{form.levelsub_level=number}}</td>
+                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} {{form.levelsub_submenu=item.id}}</td>
                                         <td>{{ form.lihat }}</td>
                                         <td>{{ form.simpan }}</td>
                                         <td>{{ form.update }}</td>
@@ -80,7 +80,7 @@
 </section>
 
 <!-- Modal Tambah OPD -->
-<div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+{% comment %} <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -112,7 +112,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> {% endcomment %}
 
     
 {% endblock content %}
