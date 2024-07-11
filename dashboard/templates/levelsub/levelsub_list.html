@@ -14,7 +14,36 @@
                     <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel1" style="width:100%">
+                        <table class="display table-bordered" id="tabel1">
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Submenu</th>
+                                    <th>List Data</th>
+                                    <th>Simpan Data</th>
+                                    <th>Update Data</th>
+                                    <th>Hapus Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {% for item in data %}
+                                    <tr>
+                                        <td>{{ item.levelsub_level }}</td>
+                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} </td>
+                                        <td>{{ form.lihat }}</td>
+                                        <td>{{ form.simpan }}</td>
+                                        <td>{{ form.update }}</td>
+                                        <td>{{ form.delete }}</td>
+                                    </tr>
+                                    {% endfor %}
+                            </tbody>
+                        </table>
+                        <br>
+                        <input type="submit" value="Simpan">
+                    </form>
+                    {% comment %} <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
@@ -27,16 +56,13 @@
                             {% for data in datas %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button> {% endcomment %}
                                         <a href="{% url 'update_level' data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
                                         <a href="{% url 'delete_level' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
-                                        <a href="{% url 'list_levelsub' %}" class="btn btn-warning btn-sm">
+                                        <a href="{% url 'delete_level' data.id %}" class="btn btn-warning btn-sm">
                                             <i class="fas fa-tasks"></i>
                                         </a>
                                     </td>
@@ -46,7 +72,7 @@
                             {% endfor %}
                             
                         </tbody>
-                    </table>
+                    </table> {% endcomment %}
                 </div>
             </div>
         </div>

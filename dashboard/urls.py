@@ -1,9 +1,11 @@
 from django.urls import path
 
 # from . import views
-from .views import view_dashboard, view_menu, view_submenu,view_level, view_userlevel, view_pengguna
+from .views import view_dashboard, view_menu, view_submenu,view_level, view_userlevel, view_pengguna, view_levelsub
 
 urlpatterns = [
+    path("levelsub/", view_levelsub.list, name="list_levelsub"),
+    
     path("pengguna/", view_pengguna.list_pengguna, name="list_pengguna"),
     path("pengguna/simpan/", view_pengguna.simpan_pengguna, name="simpan_pengguna"),
     path("pengguna/delete/<int:pk>", view_pengguna.delete_pengguna, name="delete_pengguna"),

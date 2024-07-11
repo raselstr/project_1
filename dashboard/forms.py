@@ -2,9 +2,11 @@ from django import forms
 from django.utils.html import escape
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
+from django.forms import modelformset_factory
 
 
-from .models import Menu, Submenu, Level, Userlevel
+from .models import Menu, Submenu, Level, Userlevel, Levelsub
+
 
 class Menuform(forms.ModelForm):
     class Meta:
@@ -62,23 +64,25 @@ class LevelForm(forms.ModelForm):
     class Meta:
         model = Level
         fields = '__all__'
-        widget = {
-            'level_submenu': forms.SelectMultiple,
-        }
-
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['level_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Level'})
-        self.fields['level_submenu'].widget.attrs.update({'class': 'form-control select2'})
+
+class LevelsubForm(forms.ModelForm):
+    class Meta:
+        model = Levelsub
+        fields = '__all__'
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})
+        self.fields['levelsub_submenu'].widget.attrs.update({'class': 'form-control'})
+        self.fields['lihat'].widget.attrs.update({'class': 'form-control'})
+        self.fields['simpan'].widget.attrs.update({'class': 'form-control'})
+        self.fields['update'].widget.attrs.update({'class': 'form-control'})
+        self.fields['delete'].widget.attrs.update({'class': 'form-control'})
     
-    def clean_menu_nama(self):
-        data = self.cleaned_data['level_nama']
-        return escape(data)
-
-    def clean_menu_link(self):
-        data = self.cleaned_data['level_submenu']
-        return escape(data)
-
 class UserlevelForm(forms.ModelForm):
     class Meta:
         model = Userlevel

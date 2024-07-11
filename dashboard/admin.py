@@ -14,6 +14,7 @@ admin.site.register(Menu)
 admin.site.register(Submenu)
 admin.site.register(Userlevel)
 
+admin.site.register(Levelsub)
 admin.site.register(Level, LevelAdmin)
 
 
