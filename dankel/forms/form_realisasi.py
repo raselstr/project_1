@@ -6,16 +6,16 @@ CURRENT_YEAR = timezone.now().year
 YEAR_CHOICES = [(r, r) for r in range(CURRENT_YEAR - 2, CURRENT_YEAR + 3)]
 
 class RealisasiDankelFilterForm(forms.ModelForm):
-    realisasidankel_tahun = forms.ChoiceField(choices=YEAR_CHOICES, label='Tahun',widget=forms.Select(attrs={'class': 'form-control'}))
+    realisasidankel_tahun = forms.ChoiceField(choices=YEAR_CHOICES, label='Tahun',widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
         model = RealisasiDankel
         fields = ['realisasidankel_tahun', 'realisasidankel_dana', 'realisasidankel_tahap', 'realisasidankel_subopd']
 
         widgets = {
             # 'realisasidankel_tahun': forms.Select(attrs={'class': 'form-control'}),
-            'realisasidankel_dana': forms.Select(attrs={'class': 'form-control'}),
-            'realisasidankel_tahap': forms.Select(attrs={'class': 'form-control'}),
-            'realisasidankel_subopd': forms.Select(attrs={'class': 'form-control'}),
+            'realisasidankel_dana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankel_tahap': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankel_subopd': forms.Select(attrs={'class': 'form-control select2'}),
         }
 
 class RealisasiDankelForm(forms.ModelForm):

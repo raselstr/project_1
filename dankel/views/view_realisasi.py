@@ -33,7 +33,12 @@ def simpan(request):
             'realisasidankel_subopd': request.session.get('realisasidankel_subopd')
         }
         form = Form_data(initial=initial_data)
-    return render(request, template_form, {'form': form, 'btntombol' : 'Simpan',})
+    context = {
+        'judul' : 'Form Input SP2D',
+        'form': form,
+        'btntombol' : 'Simpan',
+    }
+    return render(request, template_form, context)
 
 @menu_access_required
 def list(request):
