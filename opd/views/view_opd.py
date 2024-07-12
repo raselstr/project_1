@@ -20,7 +20,7 @@ def list(request):
     
     # dankel_keg = get_object_or_404(Model_data or None)
     # data = dankel_keg.dankelsubs.all()
-    data = Model_data.objects.all()
+    data = Model_data.objects.all().order_by('-kode_opd')
     form = Form_data(request.POST or None)
     
     context = {

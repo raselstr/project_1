@@ -4,13 +4,13 @@ from project.validations import *
 class Opd(models.Model):
     kode_opd = models.CharField(
         verbose_name="Kode OPD",
-        max_length=10,
+        max_length=25,
         unique=True,
         error_messages={'unique': 'Data, nilai ini sudah ada dalam database.'},
-        validators=[
-            number_validator,
-            # partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
-            ]
+        # validators=[
+        #     number_validator,
+        #     # partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
+        #     ]
         )
     
     nama_opd = models.CharField(
