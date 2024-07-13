@@ -72,7 +72,7 @@ class LevelForm(forms.ModelForm):
 class LevelsubForm(forms.ModelForm):
     class Meta:
         model = Levelsub
-        fields = ['lihat', 'simpan', 'update', 'delete']
+        fields = ['lihat', 'simpan', 'edit', 'hapus']
 LevelsubFormSet = inlineformset_factory(Submenu, Levelsub, form=LevelsubForm, extra=0, can_delete=False)
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)

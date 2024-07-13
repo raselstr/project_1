@@ -44,8 +44,8 @@ class Levelsub(models.Model):
     levelsub_submenu = models.ForeignKey(Submenu, verbose_name="Level Sub Menu", on_delete=models.CASCADE)
     lihat = models.BooleanField(default=False, verbose_name="List Data")
     simpan = models.BooleanField(default=False, verbose_name="Simpan Data")
-    update = models.BooleanField(default=False, verbose_name="Update Data")
-    delete = models.BooleanField(default=False, verbose_name="Hapus Data")
+    edit = models.BooleanField(default=False, verbose_name="Update Data")
+    hapus = models.BooleanField(default=False, verbose_name="Hapus Data")
     
     def __str__(self):
         return f'{self.levelsub_submenu}'
