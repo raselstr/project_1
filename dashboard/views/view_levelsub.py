@@ -11,25 +11,32 @@ Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
 def list(request, number):
-    submenus = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
+    submenus = Submenu.objects.all().order_by('submenu_menu')
     
+    # Pastikan setiap Submenu memiliki entri di Levelsub untuk level yang diberikan
+    for submenu in submenus:
+        Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
+
     if request.method == 'POST':
         formsets = []
         for submenu in submenus:
-            formset = LevelsubFormSet(request.POST, instance=submenu, prefix=submenu.id)
+            levelsubs = Levelsub.objects.filter(levelsub_level_id=number, levelsub_submenu=submenu)
+            formset = LevelsubFormSet(request.POST, queryset=levelsubs, prefix=submenu.id)
             formsets.append((submenu, formset))
         
         if all(formset.is_valid() for _, formset in formsets):
-            for _, formset in formsets:
+            for submenu, formset in formsets:
                 instances = formset.save(commit=False)
                 for instance in instances:
                     instance.levelsub_level_id = number
+                    instance.levelsub_submenu = submenu
                     instance.save()
             return redirect('list_levelsub', number=number)
     else:
         formsets = []
         for submenu in submenus:
-            formset = LevelsubFormSet(instance=submenu, prefix=submenu.id)
+            levelsubs = Levelsub.objects.filter(levelsub_level_id=number, levelsub_submenu=submenu)
+            formset = LevelsubFormSet(queryset=levelsubs, prefix=submenu.id)
             formsets.append((submenu, formset))
     
     context = {
