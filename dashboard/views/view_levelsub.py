@@ -4,24 +4,53 @@ from django.core.exceptions import ValidationError
 from project.decorators import menu_access_required
 
 from ..models import Levelsub, Submenu
-from ..forms import LevelsubForm
+from ..forms import LevelsubForm, LevelsubFormSet
 
 Model_data = Levelsub
 Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
-# @menu_access_required
 def list(request, number):
-    data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
+    submenus = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
     
-    form = Form_data(request.POST or None, number)
-
+    if request.method == 'POST':
+        formsets = []
+        for submenu in submenus:
+            formset = LevelsubFormSet(request.POST, instance=submenu, prefix=submenu.id)
+            formsets.append((submenu, formset))
+        
+        if all(formset.is_valid() for _, formset in formsets):
+            for _, formset in formsets:
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.levelsub_level_id = number
+                    instance.save()
+            return redirect('list_levelsub', number=number)
+    else:
+        formsets = []
+        for submenu in submenus:
+            formset = LevelsubFormSet(instance=submenu, prefix=submenu.id)
+            formsets.append((submenu, formset))
+    
     context = {
-        'data': data,
-        'form':form,
-        'number':number,
+        'formsets': formsets,
+        'number': number,
+        'tbltombol': 'Simpan Pengaturan'
     }
-    return render(request, template_list, context)
+    return render(request, 'levelsub/levelsub_list.html', context)
+# @menu_access_required
+# def list(request, number):
+#     data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
+    
+#     form = Form_data(request.POST or None, number)
+
+#     context = {
+#         'data': data,
+#         'form':form,
+#         'number':number,
+#         'tbltombol' : 'Simpan Pengaturan'
+#     }
+#     return render(request, template_list, context)
 
 # @menu_access_required
 # def simpan_level(request):

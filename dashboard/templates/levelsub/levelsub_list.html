@@ -14,35 +14,37 @@
                     <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
                 </div>
                 <div class="card-body">
-                        <table class="display table-bordered" id="tabel1">
-                            <thead>
-                                <tr>
-                                    <th>Level</th>
-                                    <th>Submenu</th>
-                                    <th>List Data</th>
-                                    <th>Simpan Data</th>
-                                    <th>Update Data</th>
-                                    <th>Hapus Data</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <form method="post">
-                                    {% csrf_token %}
-                                    {% for item in data %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td>{{ item.levelsub_level }}{{form.levelsub_level}}</td>
-                                        <td>{{ item.submenu_menu }} - {{ item.submenu_nama }} {{form.levelsub_submenu}}</td>
+                                        <th>Submenu</th>
+                                        <th>Lihat</th>
+                                        <th>Simpan</th>
+                                        <th>Update</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submenu, formset in formsets %}
+                                    {{ formset.management_form }}
+                                    <tr>
+                                        <td>{{ submenu.submenu_menu }} - {{ submenu.submenu_nama }}</td>
+                                        {% for form in formset %}
                                         <td>{{ form.lihat }}</td>
                                         <td>{{ form.simpan }}</td>
                                         <td>{{ form.update }}</td>
                                         <td>{{ form.delete }}</td>
+                                        {% endfor %}
                                     </tr>
                                     {% endfor %}
-                            </tbody>
-                        </table>
-                        <br>
-                        <input type="submit" value="Simpan">
-                    </form>
+                                </tbody>
+                            </table>
+                            <br>
+                            <input type="submit" value="Simpan">
+                        </form>
+
                     {% comment %} <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>

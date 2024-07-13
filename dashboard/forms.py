@@ -2,7 +2,7 @@ from django import forms
 from django.utils.html import escape
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib.auth.models import User
-from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 
 
 from .models import Menu, Submenu, Level, Userlevel, Levelsub
@@ -73,15 +73,15 @@ class LevelsubForm(forms.ModelForm):
     class Meta:
         model = Levelsub
         fields = '__all__'
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})
-        self.fields['levelsub_submenu'].widget.attrs.update({'class': 'form-control'})
-        self.fields['lihat'].widget.attrs.update({'class': 'form-control'})
-        self.fields['simpan'].widget.attrs.update({'class': 'form-control'})
-        self.fields['update'].widget.attrs.update({'class': 'form-control'})
-        self.fields['delete'].widget.attrs.update({'class': 'form-control'})
+LevelsubFormSet = inlineformset_factory(Submenu, Levelsub, form=LevelsubForm, extra=1, can_delete=False)
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})
+    #     self.fields['levelsub_submenu'].widget.attrs.update({'class': 'form-control'})
+    #     self.fields['lihat'].widget.attrs.update({'class': 'form-control'})
+    #     self.fields['simpan'].widget.attrs.update({'class': 'form-control'})
+    #     self.fields['update'].widget.attrs.update({'class': 'form-control'})
+    #     self.fields['delete'].widget.attrs.update({'class': 'form-control'})
     
 class UserlevelForm(forms.ModelForm):
     class Meta:
