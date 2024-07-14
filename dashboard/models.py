@@ -26,7 +26,7 @@ class Submenu(models.Model):
     submenu_link = models.CharField(verbose_name="Link", max_length=40, blank=True)
 
     def __str__(self):
-        return f'{self.submenu_nama} - {self.submenu_menu}'
+        return f'{self.submenu_menu} - {self.submenu_nama}'
 
 class Level(models.Model):
     level_nama = models.CharField(

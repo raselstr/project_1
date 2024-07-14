@@ -16,6 +16,7 @@
                 <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
+                            {{ formset.management_form }}
                             <table>
                                 <thead>
                                     <tr>
@@ -27,16 +28,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for submenu, formset in formsets %}
-                                    {{ formset.management_form }}
+                                    {% for data in data %}
                                     <tr>
-                                        <td>{{ submenu.submenu_menu }} - {{ submenu.submenu_nama }}</td>
-                                        {% for form in formset %}
-                                        <td>{{ form.lihat }}</td>
-                                        <td>{{ form.simpan }}</td>
-                                        <td>{{ form.update }}</td>
-                                        <td>{{ form.delete }}</td>
-                                        {% endfor %}
+                                        <td>{{ data.levelsub_submenu }}</td>
+                                        <td>{{ data.lihat }}</td>
+                                        <td>{{ data.simpan }}</td>
+                                        <td>{{ data.edit }}</td>
+                                        <td>{{ data.hapus }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
