@@ -72,9 +72,9 @@ class LevelForm(forms.ModelForm):
 class LevelsubForm(forms.ModelForm):
     class Meta:
         model = Levelsub
-        fields = ['lihat', 'simpan', 'edit', 'hapus']
+        fields = ['lihat', 'simpan','edit','hapus']
         
-LevelsubFormSet = inlineformset_factory(Level, Levelsub, form=LevelsubForm, extra=0, can_delete=False)
+        
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
     #     self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})

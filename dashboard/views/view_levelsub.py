@@ -2,9 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from project.decorators import menu_access_required
+from django.forms import modelformset_factory
 
 from ..models import Levelsub, Submenu
-from ..forms import LevelsubForm, LevelsubFormSet
+from ..forms import LevelsubForm
 
 Model_data = Levelsub
 Form_data = LevelsubForm
@@ -12,18 +13,27 @@ template_list = 'levelsub/levelsub_list.html'
 
 def list(request, number):
     submenus = Submenu.objects.all().order_by('submenu_menu')
+    
     # Pastikan setiap Submenu memiliki entri di Levelsub untuk level yang diberikan
     for submenu in submenus:
         Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
-
-    model = Model_data.objects.filter(levelsub_level=number).order_by('levelsub_submenu')
+    
+    if request.method == 'POST':
+        formset = LevelsubFormSet(request.POST)
+        if formset.is_valid():
+            formset.save()
+            return redirect('list_level')  # Ganti dengan URL yang sesuai
+    else:
+        formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=number))
     
     context = {
-        'data':model,
+        'formset': formset,
         'number': number,
         'tbltombol': 'Simpan Pengaturan'
     }
     return render(request, 'levelsub/levelsub_list.html', context)
+
+LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
 # @menu_access_required
 # def list(request, number):
 #     data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')

@@ -16,7 +16,6 @@
                 <div class="card-body">
                         <form method="post">
                             {% csrf_token %}
-                            {{ formset.management_form }}
                             <table>
                                 <thead>
                                     <tr>
@@ -28,20 +27,22 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for data in data %}
+                                    {{ formset.management_form }}
+                                    {% for form in formset %}
                                     <tr>
-                                        <td>{{ data.levelsub_submenu }}</td>
-                                        <td>{{ data.lihat }}</td>
-                                        <td>{{ data.simpan }}</td>
-                                        <td>{{ data.edit }}</td>
-                                        <td>{{ data.hapus }}</td>
+                                        <td>{{ form.instance.levelsub_submenu }}</td>
+                                        <td>{{ form.lihat }}</td>
+                                        <td>{{ form.simpan }}</td>
+                                        <td>{{ form.edit }}</td>
+                                        <td>{{ form.hapus }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                             <br>
-                            <input type="submit" value="Simpan">
+                            <input type="submit" value="{{ tbltombol }}">
                         </form>
+
 
 
                     {% comment %} <table class="display" id="tabel1" style="width:100%">
