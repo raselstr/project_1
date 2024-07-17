@@ -70,11 +70,11 @@ class LevelForm(forms.ModelForm):
         self.fields['level_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Level'})
 
 class LevelsubForm(forms.ModelForm):
+    levelsub_submenu = forms.ModelChoiceField(queryset=Submenu.objects.all(), label='Level Sub Menu')
+
     class Meta:
         model = Levelsub
-        fields = ['lihat', 'simpan','edit','hapus']
-        
-        
+        fields = ['levelsub_submenu', 'lihat', 'simpan', 'edit', 'hapus']        
     # def __init__(self, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
     #     self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})

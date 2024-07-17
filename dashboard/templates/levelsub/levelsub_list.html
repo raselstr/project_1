@@ -14,34 +14,19 @@
                     <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
                 </div>
                 <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Submenu</th>
-                                        <th>Lihat</th>
-                                        <th>Simpan</th>
-                                        <th>Update</th>
-                                        <th>Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {{ formset.management_form }}
-                                    {% for form in formset %}
-                                    <tr>
-                                        <td>{{ form.instance.levelsub_submenu }}</td>
-                                        <td>{{ form.lihat }}</td>
-                                        <td>{{ form.simpan }}</td>
-                                        <td>{{ form.edit }}</td>
-                                        <td>{{ form.hapus }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            <br>
-                            <input type="submit" value="{{ tbltombol }}">
-                        </form>
+                        <h2>Manage Levelsubs for Level {{ level }}</h2>
+                            <form method="post">
+                                <table>
+                                {% csrf_token %}
+                                {{ formset.management_form }}
+                                {% for form in formset %}
+                                    <div class="form-row">
+                                        {{ form.as_table }}
+                                    </div>
+                                {% endfor %}
+                                </table>
+                                <button type="submit">Save</button>
+                            </form>
 
 
 

@@ -4,7 +4,8 @@ from django.urls import path
 from .views import view_dashboard, view_menu, view_submenu,view_level, view_userlevel, view_pengguna, view_levelsub
 
 urlpatterns = [
-    path("levelsub/<int:number>/", view_levelsub.list, name="list_levelsub"),
+    # path("levelsub/<int:number>/", view_levelsub.list, name="list_levelsub"),
+    path("levelsub/<int:number>/", view_levelsub.manage_levelsubs, name="list_levelsub"),
     
     path("pengguna/", view_pengguna.list_pengguna, name="list_pengguna"),
     path("pengguna/simpan/", view_pengguna.simpan_pengguna, name="simpan_pengguna"),

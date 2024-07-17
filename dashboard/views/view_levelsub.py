@@ -4,36 +4,54 @@ from django.core.exceptions import ValidationError
 from project.decorators import menu_access_required
 from django.forms import modelformset_factory
 
-from ..models import Levelsub, Submenu
+from ..models import Levelsub, Submenu, Level
 from ..forms import LevelsubForm
 
 Model_data = Levelsub
 Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
-def list(request, number):
-    submenus = Submenu.objects.all().order_by('submenu_menu')
-    
-    # Pastikan setiap Submenu memiliki entri di Levelsub untuk level yang diberikan
-    for submenu in submenus:
-        Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
-    
+def manage_levelsubs(request, number):
+    LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
+    level = get_object_or_404(Level, pk=number)
+
     if request.method == 'POST':
-        formset = LevelsubFormSet(request.POST)
+        formset = LevelsubFormSet(request.POST, queryset=Levelsub.objects.filter(levelsub_level=level))
         if formset.is_valid():
-            formset.save()
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.levelsub_level = level
+                instance.save()
             return redirect('list_level')  # Ganti dengan URL yang sesuai
     else:
-        formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=number))
+        formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=level))
     
-    context = {
-        'formset': formset,
-        'number': number,
-        'tbltombol': 'Simpan Pengaturan'
-    }
-    return render(request, 'levelsub/levelsub_list.html', context)
+    return render(request, template_list, {'formset': formset, 'level': level})
 
-LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
+
+# def list(request, number):
+#     submenus = Submenu.objects.all().order_by('submenu_menu')
+    
+#     # Pastikan setiap Submenu memiliki entri di Levelsub untuk level yang diberikan
+#     for submenu in submenus:
+#         Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
+    
+#     if request.method == 'POST':
+#         formset = LevelsubFormSet(request.POST)
+#         if formset.is_valid():
+#             formset.save()
+#             return redirect('list_level')  # Ganti dengan URL yang sesuai
+#     else:
+#         formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=number))
+    
+#     context = {
+#         'formset': formset,
+#         'number': number,
+#         'tbltombol': 'Simpan Pengaturan'
+#     }
+#     return render(request, 'levelsub/levelsub_list.html', context)
+
+# LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
 # @menu_access_required
 # def list(request, number):
 #     data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
