@@ -42,9 +42,9 @@ class Level(models.Model):
 class Levelsub(models.Model):
     levelsub_level = models.ForeignKey(Level, verbose_name='Level', on_delete=models.CASCADE)
     levelsub_submenu = models.ForeignKey(Submenu, verbose_name="Level Sub Menu", on_delete=models.CASCADE)
-    lihat = models.BooleanField(default=False, verbose_name="List Data")
+    lihat = models.BooleanField(default=False, verbose_name="Lihat Data")
     simpan = models.BooleanField(default=False, verbose_name="Simpan Data")
-    edit = models.BooleanField(default=False, verbose_name="Update Data")
+    edit = models.BooleanField(default=False, verbose_name="Edit Data")
     hapus = models.BooleanField(default=False, verbose_name="Hapus Data")
     
     def __str__(self):

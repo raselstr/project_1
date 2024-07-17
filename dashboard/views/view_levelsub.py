@@ -14,6 +14,11 @@ template_list = 'levelsub/levelsub_list.html'
 def manage_levelsubs(request, number):
     LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
     level = get_object_or_404(Level, pk=number)
+    submenus = Submenu.objects.all().order_by('submenu_menu')
+    
+    for submenu in submenus:
+        Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
+    
 
     if request.method == 'POST':
         formset = LevelsubFormSet(request.POST, queryset=Levelsub.objects.filter(levelsub_level=level))
@@ -22,11 +27,13 @@ def manage_levelsubs(request, number):
             for instance in instances:
                 instance.levelsub_level = level
                 instance.save()
+                
             return redirect('list_level')  # Ganti dengan URL yang sesuai
     else:
+        
         formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=level))
     
-    return render(request, template_list, {'formset': formset, 'level': level})
+    return render(request, template_list, {'formset': formset, 'level': level, 'judul':'Daftar List Aktifitas'})
 
 
 # def list(request, number):
