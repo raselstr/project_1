@@ -1,32 +1,39 @@
 # authapp/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
 from django.contrib import messages
-from dashboard.models import Userlevel
+from dashboard.models import Userlevel, Levelsub
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
             if user.is_active:
                 login(request, user)
                 
-                # Check if the user is superuser
+                # Cek jika user adalah superuser
                 if user.is_superuser:
-                    # If superuser, set session to show all menus and submenus
+                    # Set session untuk menunjukkan semua menu dan submenu
                     request.session['is_superuser'] = True
                 else:
-                    # If not superuser, fetch the Userlevel object
+                    # Jika bukan superuser, ambil objek Userlevel
                     try:
                         userlevel = Userlevel.objects.get(user_nama=user)
+                        submenu_ids = Levelsub.objects.filter(
+                            levelsub_level=userlevel.userlevel
+                        ).filter(
+                            Q(lihat=True) | Q(simpan=True) | Q(edit=True) | Q(hapus=True)
+                        ).values_list('levelsub_submenu__id', flat=True)
+                        
                         request.session['is_superuser'] = False
                         request.session['user_nama'] = user.username
                         request.session['subopd'] = userlevel.userlevelopd.sub_nama
                         request.session['level'] = userlevel.userlevel.level_nama
-                        request.session['submenus'] = list(userlevel.userlevel.level_submenu.values_list('id', flat=True))
+                        request.session['submenus'] = list(submenu_ids)
                     except Userlevel.DoesNotExist:
                         messages.error(request, 'Pengaturan level pengguna tidak ditemukan. Silakan hubungi administrator.')
                         return redirect('login')
