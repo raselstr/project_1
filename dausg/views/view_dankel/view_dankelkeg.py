@@ -16,7 +16,6 @@ lokasiupdate = 'dankel/dankelkeg/dankelkeg_edit.html'
 tag_url = 'list_dankelkeg'
 lokasiload = 'load/load_subrinckeg.html'
 
-@menu_access_required
 def list(request, number):
     dankel_prog = get_object_or_404(Model_induk, id=number)
     data = dankel_prog.dankelkegs.prefetch_related('dankelsubs').all()
@@ -34,7 +33,6 @@ def list(request, number):
     }
     return render(request, lokasitemplate, context) 
 
-@menu_access_required
 def simpan(request, number):
     if request.method == "POST":
         form = Form_data(request.POST or None, number=number)
@@ -50,7 +48,6 @@ def simpan(request, number):
     }
     return render(request, lokasitemplate, context)
 
-@menu_access_required
 def update(request, number, pk):
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)

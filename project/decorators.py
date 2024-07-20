@@ -1,55 +1,60 @@
+import logging
 from functools import wraps
-from django.shortcuts import HttpResponseRedirect
-from django.http import HttpResponseForbidden
-from dashboard.models import Userlevel
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.urls import reverse
+from dashboard.models import Userlevel, Levelsub
 
-def menu_access_required(view_func):
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        # Periksa apakah pengguna terautentikasi
-        if not request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('notfound'))
-        
-        # Cek apakah pengguna adalah superuser
-        if request.user.is_superuser:
+logger = logging.getLogger(__name__)
+
+def menu_access_required(permission):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            user = request.user
+
+            # Cek otentikasi
+            if not user.is_authenticated:
+                return HttpResponseRedirect(reverse('notfound'))
+
+            # Jika user adalah superuser, lewati pengecekan
+            if user.is_superuser:
+                return view_func(request, *args, **kwargs)
+
+            try:
+                user_level = Userlevel.objects.get(user_nama=user).userlevel
+            except Userlevel.DoesNotExist:
+                logger.warning(f"Pengguna {user} tidak memiliki level pengguna yang ditetapkan.")
+                return HttpResponseRedirect(reverse('notfound'))
+
+            # Dapatkan semua levelsub yang diizinkan untuk level pengguna
+            allowed_levelsubs = Levelsub.objects.filter(levelsub_level=user_level)
+
+            # Periksa menu akses
+            if not allowed_levelsubs.filter(lihat=True).exists():
+                return HttpResponseRedirect(reverse('notfound'))
+
+            # Peta permission
+            permission_map = {
+                'list': 'lihat',
+                'simpan': 'simpan',
+                'update': 'edit',
+                'delete': 'hapus'
+            }
+
+            if permission not in permission_map:
+                logger.error(f"Permission tidak valid: {permission}")
+                return HttpResponseForbidden("Permission tidak dikenali.")
+
+            permission_field = permission_map[permission]
+            status_check = any(getattr(levelsub, permission_field) for levelsub in allowed_levelsubs)
+
+            # Print dan log status permission
+            print(f"Permission field checked: {permission_field} - Status: {status_check}")
+
+            if not status_check:
+                logger.warning(f"Pengguna {user} tidak memiliki izin {permission}.")
+                return HttpResponseForbidden(f"Anda tidak memiliki akses untuk {permission} data.")
+
             return view_func(request, *args, **kwargs)
-        
-        # Ambil level pengguna dari model Userlevel
-        try:
-            user_level = Userlevel.objects.get(user_nama=request.user)
-        except Userlevel.DoesNotExist:
-            return HttpResponseRedirect(reverse('notfound'))
-        
-        # Dapatkan semua submenu yang diizinkan untuk level pengguna
-        allowed_submenus = user_level.userlevel.level_submenu.all()
-
-        # Lanjutkan hanya jika submenu dari request ada di dalam allowed_submenus
-        submenu_id = request.GET.get('submenu_id')
-        if submenu_id and int(submenu_id) in allowed_submenus.values_list('id', flat=True):
-            return view_func(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse('notfound'))
-
-    return wrapper
-
-def check_permissions(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        user = request.user
-        if not user.is_authenticated:
-            return HttpResponseForbidden("Anda tidak memiliki akses ke halaman ini.")
-
-        try:
-            user_level = Userlevel.objects.get(user_nama=user).userlevel
-        except Userlevel.DoesNotExist:
-            return HttpResponseForbidden("Anda tidak memiliki akses ke halaman ini.")
-        
-        # Check list_data and simpan_data permissions
-        if kwargs.get('permission') == 'list_data' and not user_level.list_data:
-            return HttpResponseForbidden("Anda tidak memiliki akses untuk melihat data.")
-        if kwargs.get('permission') == 'simpan_data' and not user_level.simpan_data:
-            return HttpResponseForbidden("Anda tidak memiliki akses untuk menyimpan data.")
-        
-        return view_func(request, *args, **kwargs)
-    return _wrapped_view
+        return _wrapped_view
+    return decorator

@@ -16,7 +16,6 @@ sesidana = 'dana-kelurahan'
 sesitahun = 2024
 sesiidopd = None
 
-@menu_access_required
 def delete(request, pk):
     try:
         data = Model_data.objects.get(id=pk)
@@ -28,7 +27,6 @@ def delete(request, pk):
         messages.error(request, str(e))
     return redirect(tag_url)
 
-@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
 
@@ -47,7 +45,6 @@ def update(request, pk):
     }
     return render(request, template, context)
 
-@menu_access_required
 def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
@@ -64,7 +61,6 @@ def simpan(request):
     }
     return render(request, template, context)
 
-@menu_access_required
 def list(request):
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)

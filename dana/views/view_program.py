@@ -6,7 +6,7 @@ from project.decorators import menu_access_required
 from ..models import Program
 from ..forms import ProgramForm
 
-@menu_access_required
+@menu_access_required('list')
 def list_program(request):
     data = Program.objects.all()
     form = ProgramForm()
@@ -18,7 +18,7 @@ def list_program(request):
     }
     return render(request, "program/program_list.html", context) 
 
-@menu_access_required
+@menu_access_required('simpan')
 def simpan_program(request):
     data = Program.objects.all()
     if request.method == "POST":
@@ -35,7 +35,7 @@ def simpan_program(request):
     }
     return render(request, "program/program_list.html", context)
 
-@menu_access_required
+@menu_access_required('update')
 def update_program(request, pk):
     data = get_object_or_404(Program, id=pk)
     formupdate = ProgramForm(request.POST or None, instance=data)
@@ -50,7 +50,7 @@ def update_program(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update program"}
     return render(request, "program/program_edit.html", context)
 
-@menu_access_required
+@menu_access_required('delete')
 def delete_program(request, pk):
     try:
         data = Program.objects.get(id=pk)

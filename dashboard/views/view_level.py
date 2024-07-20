@@ -6,7 +6,6 @@ from project.decorators import menu_access_required
 from ..models import Level
 from ..forms import LevelForm
 
-@menu_access_required
 def list_level(request):
     data = Level.objects.all()
     form = LevelForm()
@@ -18,7 +17,6 @@ def list_level(request):
     }
     return render(request, "level/level_list.html", context) 
 
-@menu_access_required
 def simpan_level(request):
     data = Level.objects.all()
     if request.method == "POST":
@@ -35,7 +33,6 @@ def simpan_level(request):
     }
     return render(request, "level/level_list.html", context)
 
-@menu_access_required
 def update_level(request, pk):
     data = get_object_or_404(Level, id=pk)
     formupdate = LevelForm(request.POST or None, instance=data)
@@ -50,7 +47,6 @@ def update_level(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Level"}
     return render(request, "level/level_edit.html", context)
 
-@menu_access_required
 def delete_level(request, pk):
     try:
         data = Level.objects.get(id=pk)

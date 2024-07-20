@@ -6,7 +6,7 @@ from project.decorators import menu_access_required
 from ..models import Dana
 from ..forms import DanaForm
 
-@menu_access_required
+@menu_access_required('list')
 def list_dana(request):
     data = Dana.objects.all()
     form = DanaForm()
@@ -18,7 +18,7 @@ def list_dana(request):
     }
     return render(request, "dana/dana_list.html", context) 
 
-@menu_access_required
+@menu_access_required('simpan')
 def simpan_dana(request):
     data = Dana.objects.all()
     if request.method == "POST":
@@ -35,7 +35,7 @@ def simpan_dana(request):
     }
     return render(request, "dana/dana_list.html", context)
 
-@menu_access_required
+@menu_access_required('update')
 def update_dana(request, pk):
     data = get_object_or_404(Dana, id=pk)
     formupdate = DanaForm(request.POST or None, instance=data)
@@ -50,7 +50,7 @@ def update_dana(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update dana"}
     return render(request, "dana/dana_edit.html", context)
 
-@menu_access_required
+@menu_access_required('delete')
 def delete_dana(request, pk):
     try:
         data = Dana.objects.get(id=pk)

@@ -5,7 +5,6 @@ from ..models import Subkegiatan, Kegiatan, Program, Subrinc
 from ..forms import SubrincForm, KegiatanForm
 from project.decorators import menu_access_required
 
-@menu_access_required
 def list_subrinc(request):
     data = Subrinc.objects.all()
     form = SubrincForm()
@@ -17,7 +16,6 @@ def list_subrinc(request):
     }
     return render(request, "subrinc/subrinc_list.html", context) 
 
-@menu_access_required
 def simpan_subrinc(request):
     data = Subrinc.objects.all()
     if request.method == "POST":
@@ -34,7 +32,6 @@ def simpan_subrinc(request):
     }
     return render(request, "subrinc/subrinc_list.html", context)
 
-@menu_access_required
 def update_subrinc(request, pk):
     data = get_object_or_404(Subrinc, id=pk)
     formupdate = SubrincForm(request.POST or None, instance=data)
@@ -49,7 +46,6 @@ def update_subrinc(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update subrinc"}
     return render(request, "subrinc/subrinc_edit.html", context)
 
-@menu_access_required
 def delete_subrinc(request, pk):
     data = Subrinc.objects.get(id=pk)
     data.delete()

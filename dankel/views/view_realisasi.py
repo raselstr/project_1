@@ -40,7 +40,6 @@ def simpan(request):
     }
     return render(request, template_form, context)
 
-@menu_access_required
 def list(request):
     tahunrealisasi = request.session.get('realisasidankel_tahun')
     danarealisasi_id = request.session.get('realisasidankel_dana')
@@ -68,7 +67,6 @@ def list(request):
     }
     return render(request, template, context)
     
-@menu_access_required
 def filter(request):
     if request.method == 'GET':
         form = Form_filter(request.GET)
@@ -91,7 +89,6 @@ def filter(request):
     }
     return render(request, template_filter, context)
 
-# @menu_access_required
 def home(request):
     
     context = {

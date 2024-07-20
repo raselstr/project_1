@@ -11,7 +11,6 @@ from ...forms.form_dankel import DankelProgForm
 Form_data = DankelProgForm
 Nilai_data = DankelProg
 
-@menu_access_required
 def list(request):
     data = (Nilai_data.objects
             .select_related('dankel_dana', 'dankel_subrinc')
@@ -26,7 +25,6 @@ def list(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context) 
 
-@menu_access_required
 def simpan(request):
     data = Nilai_data.objects.all()
     if request.method == "POST":
@@ -43,7 +41,6 @@ def simpan(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context)
 
-@menu_access_required
 def update(request, pk):
     data = get_object_or_404(Nilai_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
