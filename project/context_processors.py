@@ -13,6 +13,7 @@ def menu_context_processor(request):
             submenus = Submenu.objects.filter(id__in=submenus_ids)
             menus = Menu.objects.filter(id__in=submenus.values_list('submenu_menu', flat=True))
             submenu_dict = {menu: submenus.filter(submenu_menu=menu) for menu in menus}
+        
         context = {
             "menus": menus,
             "submenu_dict": submenu_dict,
