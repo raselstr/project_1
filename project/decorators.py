@@ -1,8 +1,8 @@
-import logging
 from functools import wraps
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
 from dashboard.models import Userlevel, Levelsub
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +29,11 @@ def menu_access_required(permission):
             # Dapatkan semua Levelsub yang diizinkan untuk level pengguna
             allowed_levelsubs = Levelsub.objects.filter(levelsub_level=user_level)
             
-            # Dapatkan ID submenu yang relevan dari URL atau view args
-            submenu_id = kwargs.get('submenu_id')  # Asumsi ada submenu_id di URL
+            # Dapatkan ID submenu dari session
+            submenu_id = request.session.get('current_submenu_id')
             if submenu_id:
                 # Filter levelsub yang relevan untuk submenu ini
-                levelsubs_for_submenu = allowed_levelsubs.filter(submenu=submenu_id)
+                levelsubs_for_submenu = allowed_levelsubs.filter(levelsub_submenu=submenu_id)
 
                 # Peta permission
                 permission_map = {
@@ -56,12 +56,10 @@ def menu_access_required(permission):
                 if not status_check:
                     logger.warning(f"Pengguna {user} tidak memiliki izin {permission} untuk submenu {submenu_id}.")
                     return HttpResponseForbidden(f"Anda tidak memiliki akses untuk {permission} data.")
-
             else:
-                logger.error("submenu_id tidak ditemukan dalam URL atau args.")
-                return HttpResponseForbidden("Tidak ditemukan submenu ID.")
+                logger.error("submenu_id tidak ditemukan dalam session.")
+                return HttpResponseForbidden("Tidak ditemukan submenu ID dalam session.")
 
             return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
-
