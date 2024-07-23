@@ -9,6 +9,7 @@ from ..forms import DanaForm
 @set_submenu_session
 @menu_access_required('list')
 def list_dana(request):
+    request.session['next'] = request.get_full_path()
     data = Dana.objects.all()
     form = DanaForm()
     context = {
@@ -22,6 +23,7 @@ def list_dana(request):
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan_dana(request):
+    request.session['next'] = request.get_full_path()
     data = Dana.objects.all()
     if request.method == "POST":
         form = DanaForm(request.POST or None)
@@ -37,8 +39,10 @@ def simpan_dana(request):
     }
     return render(request, "dana/dana_list.html", context)
 
+@set_submenu_session
 @menu_access_required('update')
 def update_dana(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Dana, id=pk)
     formupdate = DanaForm(request.POST or None, instance=data)
     if request.method == "POST":
@@ -52,8 +56,10 @@ def update_dana(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update dana"}
     return render(request, "dana/dana_edit.html", context)
 
+@set_submenu_session
 @menu_access_required('delete')
 def delete_dana(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Dana.objects.get(id=pk)
         data.delete()

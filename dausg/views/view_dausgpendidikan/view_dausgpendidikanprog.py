@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 from ...models import DausgpendidikanProg
 from ...forms.form_dausgpendidikan import DausgpendidikanProgForm
@@ -11,7 +12,10 @@ Form_data = DausgpendidikanProgForm
 Nilai_data = DausgpendidikanProg
 tag_url = 'list_dausgpendidikanprog'
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
             .select_related('dausgpendidikan_dana', 'dausgpendidikan_subrinc')
             .prefetch_related('dausgpendidikankegs__dausgpendidikansubs')
@@ -25,7 +29,10 @@ def list(request):
     }
     return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_list.html", context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     data = Nilai_data.objects.all()
     if request.method == "POST":
         form = Form_data(request.POST or None)
@@ -41,7 +48,10 @@ def simpan(request):
     }
     return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_list.html", context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Nilai_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -55,7 +65,10 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update dausgpendidikanprog"}
     return render(request, "dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_edit.html", context)
 
+@set_submenu_session
+@menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Nilai_data.objects.get(id=pk)
         data.delete()

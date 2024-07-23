@@ -4,9 +4,13 @@ from django.contrib.auth import update_session_auth_hash
 from ..forms import PenggunaForm, PenggunaAktifForm, UbahPasswordForm
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
+
+@set_submenu_session
+@menu_access_required('list')
 def list_pengguna(request):
+    request.session['next'] = request.get_full_path()
     data = User.objects.all()
     form = PenggunaForm()
     context = {
@@ -17,7 +21,10 @@ def list_pengguna(request):
     }
     return render(request, "pengguna/pengguna_list.html", context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan_pengguna(request):
+    request.session['next'] = request.get_full_path()
     data = User.objects.all()
     if request.method == "POST":
         form = PenggunaForm(request.POST or None)
@@ -33,7 +40,10 @@ def simpan_pengguna(request):
     }
     return render(request, "pengguna/pengguna_list.html", context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update_pengguna(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(User, id=pk)
     if request.method == "POST":
         formupdate = PenggunaAktifForm(request.POST or None, instance=data)
@@ -47,7 +57,10 @@ def update_pengguna(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Pengguna"}
     return render(request, "pengguna/pengguna_edit.html", context)
 
+@set_submenu_session
+@menu_access_required('update')
 def ubah_password(request, pk):
+    request.session['next'] = request.get_full_path()
     user = User.objects.get(pk=pk)
     
     if request.method == 'POST':
@@ -62,7 +75,10 @@ def ubah_password(request, pk):
         password_form = UbahPasswordForm(request.user)
     return render(request, 'pengguna/pengguna_password.html', {'form': password_form})
 
+@set_submenu_session
+@menu_access_required('delete')
 def delete_pengguna(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = User.objects.get(id=pk)
         data.delete()

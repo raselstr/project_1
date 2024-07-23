@@ -1,15 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
 from ..utils import dataprogram, datakegiatan
 from ..models import Subkegiatan, Kegiatan, Program
 from ..forms import SubkegiatanForm, KegiatanForm
 
-
+@set_submenu_session
 @menu_access_required('list')
 def list_subkegiatan(request):
+    request.session['next'] = request.get_full_path()
     data = Subkegiatan.objects.all()
     form = SubkegiatanForm()
     context = {
@@ -20,8 +21,10 @@ def list_subkegiatan(request):
     }
     return render(request, "subkegiatan/subkegiatan_list.html", context) 
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan_subkegiatan(request):
+    request.session['next'] = request.get_full_path()
     data = Subkegiatan.objects.all()
     if request.method == "POST":
         form = SubkegiatanForm(request.POST or None)
@@ -37,8 +40,10 @@ def simpan_subkegiatan(request):
     }
     return render(request, "subkegiatan/subkegiatan_list.html", context)
 
+@set_submenu_session
 @menu_access_required('update')
 def update_subkegiatan(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Subkegiatan, id=pk)
     formupdate = SubkegiatanForm(request.POST or None, instance=data)
     if request.method == "POST":
@@ -52,8 +57,10 @@ def update_subkegiatan(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update subkegiatan"}
     return render(request, "subkegiatan/subkegiatan_edit.html", context)
 
+@set_submenu_session
 @menu_access_required('delete')
 def delete_subkegiatan(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Subkegiatan.objects.get(id=pk)
         data.delete()
@@ -64,7 +71,7 @@ def delete_subkegiatan(request, pk):
         messages.error(request, str(e))
     return redirect("list_subkegiatan")
 
-@menu_access_required
+
 def load_kegprogram(request):
     return dataprogram(
         request, 
@@ -72,7 +79,7 @@ def load_kegprogram(request):
         'program_dana',
         'load/load_program.html')
 
-@menu_access_required
+
 def load_kegiatan(request):
     kwargs = {
         'model_name' : 'Kegiatan',

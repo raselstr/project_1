@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RencDankel, RencDankelsisa, Subrinc
 from ..forms.form_rencana import RencDankelForm
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 Model_data = RencDankel
 Form_data = RencDankelForm
@@ -17,8 +18,11 @@ sesidana = 'dana-kelurahan'
 sesitahun = 2024
 sesiidopd = None
 
+
+@set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()
@@ -29,8 +33,10 @@ def delete(request, pk):
         messages.error(request, str(e))
     return redirect(tag_url)
 
+@set_submenu_session
 @menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
 
     if request.method == 'POST':
@@ -48,8 +54,10 @@ def update(request, pk):
     }
     return render(request, template, context)
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     if request.method == 'POST':
         form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
         if form.is_valid():
@@ -65,8 +73,10 @@ def simpan(request):
     }
     return render(request, template, context)
 
+@set_submenu_session
 @menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)
     except Subrinc.DoesNotExist:

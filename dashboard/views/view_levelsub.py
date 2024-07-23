@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 from django.forms import modelformset_factory
 
 from ..models import Levelsub, Submenu, Level
@@ -11,7 +11,11 @@ Model_data = Levelsub
 Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
+
+@set_submenu_session
+@menu_access_required('simpan')
 def manage_levelsubs(request, number):
+    request.session['next'] = request.get_full_path()
     LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
     level = get_object_or_404(Level, pk=number)
     submenus = Submenu.objects.all().order_by('submenu_menu')

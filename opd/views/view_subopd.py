@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 from ..models import Subopd
 from ..forms import SubopdForm
@@ -14,7 +15,10 @@ lokasitemplate = 'subopd/subopd_list.html'
 lokasiupdate = 'subopd/subopd_edit.html'
 tag_url = 'list_subopd'
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     
     # dankel_keg = get_object_or_404(Model_data or None)
     # data = dankel_keg.dankelsubs.all()
@@ -30,7 +34,10 @@ def list(request):
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
@@ -44,7 +51,10 @@ def simpan(request):
     }
     return render(request, lokasitemplate, context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -58,7 +68,10 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
+@menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()

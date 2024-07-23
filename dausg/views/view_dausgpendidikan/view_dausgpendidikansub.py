@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 from ...models import DausgpendidikanKeg,DausgpendidikanSub
 from ...forms.form_dausgpendidikan import DausgpendidikanSubForm
@@ -15,7 +16,10 @@ lokasitemplate = 'dausgpendidikan/dausgpendidikansub/dausgpendidikansub_list.htm
 lokasiupdate = 'dausgpendidikan/dausgpendidikansub/dausgpendidikansub_edit.html'
 tag_url = 'list_dausgpendidikansub'
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request, number, sub):
+    request.session['next'] = request.get_full_path()
     
     dausgpendidikan_keg = get_object_or_404(Model_induk, id=sub)
     data = dausgpendidikan_keg.dausgpendidikansubs.all()
@@ -34,7 +38,10 @@ def list(request, number, sub):
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request, number, sub):
+    request.session['next'] = request.get_full_path()
     if request.method == "POST":
         form = Form_data(request.POST or None,  sub=sub)
         if form.is_valid():
@@ -49,7 +56,10 @@ def simpan(request, number, sub):
     }
     return render(request, lokasitemplate, context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update(request, number, sub, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -63,7 +73,10 @@ def update(request, number, sub, pk):
     context = {"form": formupdate, "datas": data, "number": number, "sub": sub, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
+@menu_access_required('delete')
 def delete(request, number, sub, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()

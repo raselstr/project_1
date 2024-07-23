@@ -4,10 +4,12 @@ from django.core.exceptions import ValidationError
 from ..utils import dataprogram
 from ..models import Kegiatan, Program
 from ..forms import KegiatanForm
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
+@set_submenu_session
 @menu_access_required('list')
 def list_kegiatan(request):
+    request.session['next'] = request.get_full_path()
     data = Kegiatan.objects.all()
     form = KegiatanForm()
     context = {
@@ -18,8 +20,10 @@ def list_kegiatan(request):
     }
     return render(request, "kegiatan/kegiatan_list.html", context) 
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan_kegiatan(request):
+    request.session['next'] = request.get_full_path()
     data = Kegiatan.objects.all()
     if request.method == "POST":
         form = KegiatanForm(request.POST or None)
@@ -35,8 +39,10 @@ def simpan_kegiatan(request):
     }
     return render(request, "kegiatan/kegiatan_list.html", context)
 
+@set_submenu_session
 @menu_access_required('edit')
 def update_kegiatan(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Kegiatan, id=pk)
     formupdate = KegiatanForm(request.POST or None, instance=data)
     if request.method == "POST":
@@ -50,8 +56,10 @@ def update_kegiatan(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
     return render(request, "kegiatan/kegiatan_edit.html", context)
 
+@set_submenu_session
 @menu_access_required('delete')
 def delete_kegiatan(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Kegiatan.objects.get(id=pk)
         data.delete()

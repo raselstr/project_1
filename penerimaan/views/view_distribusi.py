@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
 from .. models import DistribusiPenerimaan
 from .. forms import DistribusiForm
@@ -13,8 +13,10 @@ lokasitemplate = 'distribusi/distribusi_list.html'
 lokasiupdate = 'distribusi/distribusi_form.html'
 tag_url = 'list_distribusi'
 
+@set_submenu_session
 @menu_access_required('list')
 def list(request, number):
+    request.session['next'] = request.get_full_path()
     data = Model_data.objects.filter(distri_penerimaan=number).order_by('distri_penerimaan')
     context = {
         'judul': 'Daftar Distribusi Penerimaan Dana', 
@@ -24,8 +26,10 @@ def list(request, number):
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan(request, number):
+    request.session['next'] = request.get_full_path()
     if request.method == "POST":
         form = Form_data(request.POST or None, number=number)
         if form.is_valid():
@@ -46,8 +50,10 @@ def simpan(request, number):
     # print(messages.error)
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
 @menu_access_required('update')
 def update(request, number, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data, number=number)
     if request.method == "POST":
@@ -61,8 +67,10 @@ def update(request, number, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan", 'number':number,'tombol':'Update Data'}
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
 @menu_access_required('delete')
 def delete(request, number, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()

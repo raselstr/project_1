@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RealisasiDankel, RencDankelsisa, Subrinc
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 Model_data = RealisasiDankel
 Form_filter = RealisasiDankelFilterForm
@@ -17,8 +18,10 @@ template_filter = 'dankel_realisasi/realisasi_filter.html'
 template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 
-# @menu_access_required
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
@@ -40,7 +43,10 @@ def simpan(request):
     }
     return render(request, template_form, context)
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     tahunrealisasi = request.session.get('realisasidankel_tahun')
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')

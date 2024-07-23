@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
+
 
 from .models import Pagudausg
 from .forms import PagudausgForm
@@ -12,7 +13,10 @@ lokasitemplate = 'pagu/pagu_list.html'
 lokasiupdate = 'pagu/pagu_edit.html'
 tag_url = 'list_pagudausg'
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     total_dana = Pagudausg.total_nilai_by_dana()
     data = Model_data.objects.all().order_by('pagudausg_dana')
     form = Form_data(request.POST or None)
@@ -25,7 +29,10 @@ def list(request):
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
@@ -39,7 +46,10 @@ def simpan(request):
     }
     return render(request, lokasitemplate, context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -53,7 +63,10 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data,"judul": "Update Pagu"}
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
+@menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()

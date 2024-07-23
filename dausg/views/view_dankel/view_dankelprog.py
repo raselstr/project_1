@@ -2,7 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
-from project.decorators import menu_access_required   
+from project.decorators import menu_access_required, set_submenu_session
+
 
 
 from ...models import DankelProg
@@ -11,7 +12,10 @@ from ...forms.form_dankel import DankelProgForm
 Form_data = DankelProgForm
 Nilai_data = DankelProg
 
+@set_submenu_session
+@menu_access_required('list')
 def list(request):
+    request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
             .select_related('dankel_dana', 'dankel_subrinc')
             .prefetch_related('dankelkegs__dankelsubs')
@@ -25,7 +29,10 @@ def list(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     data = Nilai_data.objects.all()
     if request.method == "POST":
         form = Form_data(request.POST or None)
@@ -41,7 +48,10 @@ def simpan(request):
     }
     return render(request, "dankel/dankelprog/dankelprog_list.html", context)
 
+@set_submenu_session
+@menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Nilai_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -55,8 +65,10 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update dankelprog"}
     return render(request, "dankel/dankelprog/dankelprog_edit.html", context)
 
-@menu_access_required
+@set_submenu_session
+@menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Nilai_data.objects.get(id=pk)
         data.delete()
@@ -67,7 +79,7 @@ def delete(request, pk):
         messages.error(request, str(e))
     return redirect("list_dankel")
 
-@menu_access_required
+
 def load(request):
     kwargs = {
         'nama_app'  : 'dana',
