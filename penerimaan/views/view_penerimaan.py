@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.contrib import messages
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
 from .. models import Penerimaan, DistribusiPenerimaan
 from .. forms import PenerimaanForm
@@ -14,6 +14,7 @@ lokasitemplate = 'penerimaan/penerimaan_list.html'
 lokasiupdate = 'penerimaan/penerimaan_edit.html'
 tag_url = 'list_penerimaan'
 
+@set_submenu_session
 @menu_access_required('list')
 def list(request):
     
@@ -52,6 +53,7 @@ def list(request):
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
     if request.method == "POST":
@@ -72,6 +74,7 @@ def simpan(request):
     # print(messages.error)
     return render(request, lokasitemplate, context)
 
+@set_submenu_session
 @menu_access_required('update')
 def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
@@ -87,6 +90,7 @@ def update(request, pk):
     context = {"form": formupdate, "datas": data, "judul": "Update Kegiatan"}
     return render(request, lokasiupdate, context)
 
+@set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
     try:

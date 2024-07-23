@@ -12,6 +12,12 @@ def menu_context_processor(request):
             menus = Menu.objects.filter(id__in=submenus.values_list('submenu_menu', flat=True))
             submenu_dict = {menu: submenus.filter(submenu_menu=menu) for menu in menus}
 
+            # # Simpan submenu_id dalam session
+            # if submenus.exists():
+            #     request.session['current_submenu_id'] = submenus.first().id
+            # else:
+            #     request.session['current_submenu_id'] = None
+
         context = {
             "menus": menus,
             "submenu_dict": submenu_dict,
