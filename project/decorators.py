@@ -2,6 +2,7 @@ from functools import wraps
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
 from django.shortcuts import redirect
+from django.contrib import messages
 from dashboard.models import Userlevel, Levelsub
 import logging
 
@@ -40,6 +41,7 @@ def menu_access_required(permission):
 
             # Dapatkan semua Levelsub yang diizinkan untuk level pengguna
             allowed_levelsubs = Levelsub.objects.filter(levelsub_level=user_level)
+            next_url = request.session.get('next')
             
             # Dapatkan ID submenu dari session
             submenu_id = request.session.get('current_submenu_id')
@@ -57,7 +59,8 @@ def menu_access_required(permission):
 
                 if permission not in permission_map:
                     logger.error(f"Permission tidak valid: {permission}")
-                    return HttpResponseForbidden("Permission tidak dikenali.")
+                    messages.error(request, "Permission tidak dikenali.")
+                    return redirect(next_url)
 
                 permission_field = permission_map[permission]
                 status_check = any(getattr(levelsub, permission_field) for levelsub in levelsubs_for_submenu)
@@ -67,10 +70,12 @@ def menu_access_required(permission):
 
                 if not status_check:
                     logger.warning(f"Pengguna {user} tidak memiliki izin {permission} untuk submenu {submenu_id}.")
-                    return HttpResponseForbidden(f"Anda tidak memiliki akses untuk {permission} data.")
+                    messages.error(request, f"Anda tidak memiliki akses untuk {permission} data.")
+                    return redirect(next_url)
             else:
                 logger.error("submenu_id tidak ditemukan dalam session.")
-                return HttpResponseForbidden("Tidak ditemukan submenu ID dalam session.")
+                messages.error(request, "Tidak ditemukan submenu ID dalam session.")
+                return redirect(next_url)
 
             return view_func(request, *args, **kwargs)
         return _wrapped_view

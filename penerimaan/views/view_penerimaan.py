@@ -17,7 +17,7 @@ tag_url = 'list_penerimaan'
 @set_submenu_session
 @menu_access_required('list')
 def list(request):
-    
+    request.session['next'] = request.get_full_path()
     data = Model_data.objects.all().order_by('penerimaan_dana')
     form = Form_data(request.POST or None)
     
@@ -56,6 +56,7 @@ def list(request):
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
+    request.session['next'] = request.get_full_path()
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
@@ -77,6 +78,7 @@ def simpan(request):
 @set_submenu_session
 @menu_access_required('update')
 def update(request, pk):
+    request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
     formupdate = Form_data(request.POST or None, instance=data)
     if request.method == "POST":
@@ -93,6 +95,7 @@ def update(request, pk):
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
+    request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()
