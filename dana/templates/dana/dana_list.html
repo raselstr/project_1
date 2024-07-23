@@ -56,7 +56,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formTambah" method="POST" action="{% url 'simpan_dana' %}?submenu_id={{ request.session.current_submenu_id }}">
+                <form id="formTambah" method="POST" action="{% url 'simpan_dana' %}">
                     {% csrf_token %}
                     {% for field in form %}
                         <div class="form-group">
