@@ -24,7 +24,7 @@
                     <ul class="dropdown-menu">
                         {% for submenu in submenus %}
                         <li>
-                          <a class="nav-link" href="{% if submenu.submenu_link %}{% url submenu.submenu_link %}{% else %}{% url 'dashboard' %}{% endif %}">
+                          <a class="nav-link" href="{% if submenu.submenu_link %}{% url submenu.submenu_link %}?submenu_id={{ submenu.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ submenu.id }}{% endif %}">
                               <i class="{{ submenu.submenu_icon }}" style="color: #63e6be;"></i>
                               {{ submenu.submenu_nama }}
                           </a>

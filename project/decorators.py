@@ -1,10 +1,22 @@
 from functools import wraps
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
+from django.shortcuts import redirect
 from dashboard.models import Userlevel, Levelsub
 import logging
 
 logger = logging.getLogger(__name__)
+
+def set_submenu_session(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        submenu_id = request.GET.get('submenu_id')
+        if submenu_id:
+            request.session['current_submenu_id'] = submenu_id
+            # Redirect to remove query parameters from URL
+            return redirect(request.path)
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def menu_access_required(permission):
     def decorator(view_func):
@@ -51,7 +63,7 @@ def menu_access_required(permission):
                 status_check = any(getattr(levelsub, permission_field) for levelsub in levelsubs_for_submenu)
 
                 # Print dan log status permission
-                print(f"Permission field checked: {permission_field} - Status: {status_check}")
+                print(f"Permission field checked: {permission_field} - Status: {status_check} {levelsubs_for_submenu}")
 
                 if not status_check:
                     logger.warning(f"Pengguna {user} tidak memiliki izin {permission} untuk submenu {submenu_id}.")

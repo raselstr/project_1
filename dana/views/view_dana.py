@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required
+from project.decorators import menu_access_required, set_submenu_session
 
 from ..models import Dana
 from ..forms import DanaForm
 
+@set_submenu_session
 @menu_access_required('list')
 def list_dana(request):
     data = Dana.objects.all()
@@ -18,6 +19,7 @@ def list_dana(request):
     }
     return render(request, "dana/dana_list.html", context) 
 
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan_dana(request):
     data = Dana.objects.all()
