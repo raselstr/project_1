@@ -102,8 +102,11 @@ def list(request):
         # 'datasisa' : total_pagu_sisa,
     }
     return render(request, template_list, context)
-    
+
+@set_submenu_session
+@menu_access_required('list')    
 def home(request):
+    request.session['next'] = request.get_full_path()
     try:
         dana = Subrinc.objects.get(subrinc_slug=sesidana)
     except Subrinc.DoesNotExist:

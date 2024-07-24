@@ -72,8 +72,11 @@ def list(request):
         'data' : data,
     }
     return render(request, template, context)
-    
+
+@set_submenu_session
+@menu_access_required('list')    
 def filter(request):
+    request.session['next'] = request.get_full_path()
     if request.method == 'GET':
         form = Form_filter(request.GET)
         if form.is_valid():
@@ -95,8 +98,10 @@ def filter(request):
     }
     return render(request, template_filter, context)
 
+@set_submenu_session
+@menu_access_required('list')
 def home(request):
-    
+    request.session['next'] = request.get_full_path()
     context = {
         'judul' : 'Realisasi Kegiatan Dana Kelurahan',
         'tab1'      : 'Realisasi Kegiatan Tahun Berjalan',
