@@ -45,7 +45,9 @@ def simpan(request, number):
     context = {
         'form'  : form,
         'tombol' : 'Simpan',
-        'number' : number
+        'number' : number,
+        'judul': 'Form Distribusi Dana', 
+        'tombol' : 'Simpan Distribusi Penerimaan',
     }
     # print(messages.error)
     return render(request, lokasiupdate, context)

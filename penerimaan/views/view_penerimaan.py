@@ -71,6 +71,8 @@ def simpan(request):
         form = Form_data()
     context = {
         'form'  : form,
+        "judul": "Daftar Penerimaan Dana", 
+        "tombol" : "Tambah Penerimaan",
     }
     # print(messages.error)
     return render(request, lokasitemplate, context)

@@ -4,13 +4,13 @@ from django.db.models import Sum, Q
 from decimal import Decimal
 from datetime import datetime
 from django.db.models import UniqueConstraint
-from dana.models import Kegiatan, TahapDana
+from dana.models import Subkegiatan, TahapDana
 from opd.models import Subopd
 # Create your models here.
 
 class Penerimaan(models.Model):
     penerimaan_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    penerimaan_dana = models.ForeignKey(Kegiatan, verbose_name="Dana", on_delete=models.CASCADE)
+    penerimaan_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
     penerimaan_tahap = models.ForeignKey(TahapDana, verbose_name="Tahap", on_delete=models.CASCADE)
     penerimaan_tgl = models.DateField(verbose_name="Tanggal")
     penerimaan_ket = models.CharField(verbose_name="Keterangan", max_length=200)

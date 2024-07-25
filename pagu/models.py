@@ -3,14 +3,14 @@ from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from opd.models import Subopd
-from dana.models import Kegiatan
+from dana.models import Subkegiatan
 from datetime import datetime
 
 
 class Pagudausg(models.Model):
     pagudausg_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)    
     pagudausg_opd = models.ForeignKey(Subopd, verbose_name='Sub OPD', on_delete=models.CASCADE)
-    pagudausg_dana = models.ForeignKey(Kegiatan, verbose_name='Dana', on_delete=models.CASCADE)
+    pagudausg_dana = models.ForeignKey(Subkegiatan, verbose_name='Dana', on_delete=models.CASCADE)
     pagudausg_nilai = models.DecimalField(verbose_name='Pagu Anggaran', max_digits=17,decimal_places=2, default=0)
     pagudausg_sisa = models.DecimalField(verbose_name='Pagu Sisa Anggaran', max_digits=17,decimal_places=2, default=0)
     
@@ -33,7 +33,12 @@ class Pagudausg(models.Model):
     
     @classmethod
     def total_nilai_by_dana(cls):
-        return cls.objects.values('pagudausg_dana__kegiatan_nama').annotate(
+        result = cls.objects.select_related('pagudausg_dana').values('pagudausg_dana__sub_nama').annotate(
             total_nilai=Sum('pagudausg_nilai'),
             total_sisa=Sum('pagudausg_sisa')
-            ).order_by('pagudausg_dana')
+        ).order_by('pagudausg_dana__sub_nama')
+        
+        for item in result:
+            print(item)
+        
+        return result
