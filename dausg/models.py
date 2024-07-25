@@ -1,10 +1,9 @@
 from django.db import models
-from dana.models import Subrinc, Dana
+from dana.models import Subkegiatan
 
 # Create your models here.
 class DankelProg (models.Model):
-    dankel_dana = models.ForeignKey(Dana, verbose_name="Dana", on_delete=models.CASCADE)
-    dankel_subrinc = models.ForeignKey(Subrinc, verbose_name="Sub Rincian Dana", on_delete=models.CASCADE)
+    dankel_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
     dankel_prog = models.CharField(verbose_name="Program Dana Kelurahan", max_length=200)
     
     def __str__(self):
@@ -27,8 +26,7 @@ class Dankelsub (models.Model):
 
 
 class DausgpendidikanProg (models.Model):
-    dausgpendidikan_dana = models.ForeignKey(Dana, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgpendidikan_subrinc = models.ForeignKey(Subrinc, verbose_name="Sub Rincian Dana", on_delete=models.CASCADE)
+    dausgpendidikan_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
     dausgpendidikan_prog = models.CharField(verbose_name="Program DAUSG Pendidikan", max_length=200)
     
     def __str__(self):
@@ -50,8 +48,7 @@ class DausgpendidikanSub (models.Model):
         return f'{self.dausgpendidikansub_keg} - {self.dausgpendidikansub_nama}'
 
 class DausgkesehatanProg (models.Model):
-    dausgkesehatan_dana = models.ForeignKey(Dana, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgkesehatan_subrinc = models.ForeignKey(Subrinc, verbose_name="Sub Rincian Dana", on_delete=models.CASCADE)
+    dausgkesehatan_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
     dausgkesehatan_prog = models.CharField(verbose_name="Program DAUSG kesehatan", max_length=200)
     
     def __str__(self):
@@ -74,8 +71,7 @@ class DausgkesehatanSub (models.Model):
 
 
 class DausgpuProg (models.Model):
-    dausgpu_dana = models.ForeignKey(Dana, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgpu_subrinc = models.ForeignKey(Subrinc, verbose_name="Sub Rincian Dana", on_delete=models.CASCADE)
+    dausgpu_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
     dausgpu_prog = models.CharField(verbose_name="Program DAUSG Pekerjaan Umum", max_length=200)
     
     def __str__(self):

@@ -1,5 +1,5 @@
 from django import forms
-from ..models import RencDankelsisa, Subopd, Kegiatan
+from ..models import RencDankelsisa, Subopd, Subkegiatan
 
 class RencDankelsisaForm(forms.ModelForm):
     class Meta:
@@ -27,9 +27,9 @@ class RencDankelsisaForm(forms.ModelForm):
             self.fields['rencdankelsisa_subopd'].queryset = Subopd.objects.all()
             
         if sesidana is not None:
-            self.fields['rencdankelsisa_dana'].queryset = Kegiatan.objects.filter(kegiatan_slug=sesidana)
+            self.fields['rencdankelsisa_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
         else:
-            self.fields['rencdankelsisa_dana'].queryset = Kegiatan.objects.all()
+            self.fields['rencdankelsisa_dana'].queryset = Subkegiatan.objects.all()
         
         
     

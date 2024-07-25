@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RencDankel, RencDankelsisa
+from ..models import RencDankel, RencDankelsisa, Subkegiatan
 from ..forms.form_rencana import RencDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
@@ -78,14 +78,14 @@ def simpan(request):
 def list(request):
     request.session['next'] = request.get_full_path()
     try:
-        dana = Subrinc.objects.get(subrinc_slug=sesidana)
-    except Subrinc.DoesNotExist:
+        dana = Subkegiatan.objects.get(sub_slug=sesidana)
+    except Subkegiatan.DoesNotExist:
         dana = None
         
     total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     try:
-        dana = Subrinc.objects.get(subrinc_slug=sesidana)
-    except Subrinc.DoesNotExist:
+        dana = Subkegiatan.objects.get(sub_slug=sesidana)
+    except Subkegiatan.DoesNotExist:
         dana = None
 
     # Membuat query secara dinamis
@@ -108,8 +108,8 @@ def list(request):
 def home(request):
     request.session['next'] = request.get_full_path()
     try:
-        dana = Subrinc.objects.get(subrinc_slug=sesidana)
-    except Subrinc.DoesNotExist:
+        dana = Subkegiatan.objects.get(sub_slug=sesidana)
+    except Subkegiatan.DoesNotExist:
         dana = None
         
     if dana:

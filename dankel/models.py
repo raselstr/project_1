@@ -3,7 +3,7 @@ from django.db.models import Sum, Q
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
 from opd.models import Subopd
-from dana.models import Kegiatan, TahapDana
+from dana.models import Subkegiatan, TahapDana
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
 from datetime import datetime
@@ -20,7 +20,7 @@ VERIF = [
 class RencDankel(models.Model):
     
     rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankel_dana = models.ForeignKey(Kegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     rencdankel_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
@@ -81,7 +81,7 @@ class RencDankel(models.Model):
 class RencDankelsisa(models.Model):
     
     rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankelsisa_dana = models.ForeignKey(Kegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0)
@@ -143,7 +143,7 @@ class RencDankelsisa(models.Model):
 class RealisasiDankel(models.Model):
     
     realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    realisasidankel_dana = models.ForeignKey(Kegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    realisasidankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
