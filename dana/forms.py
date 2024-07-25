@@ -28,14 +28,14 @@ class KegiatanForm(forms.ModelForm):
         model = Kegiatan
         fields = '__all__'
         widgets = {
-            'kegiatan_dana': forms.Select(attrs={'class': 'form-control', 'hx-target': '#id_kegiatan_program'}),
+            # 'kegiatan_dana': forms.Select(attrs={'class': 'form-control', 'hx-target': '#id_kegiatan_program'}),
             'kegiatan_program': forms.Select(attrs={'class': 'form-control'}),
             'kegiatan_nama': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['kegiatan_dana'].widget.attrs['hx-get'] = reverse('load_program')
+        # self.fields['kegiatan_dana'].widget.attrs['hx-get'] = reverse('load_program')
         
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -49,33 +49,12 @@ class SubkegiatanForm(forms.ModelForm):
         model = Subkegiatan
         fields = '__all__'
         widgets = {
-            'sub_dana': forms.Select(attrs={
-                'class': 'form-control', 
-                'hx-target': '#id_sub_prog',
-                'hx-include': 'form',
-                'hx-trigger': 'click',
-                
-                }),
-            'sub_prog': forms.Select(attrs={
-                'class': 'form-control', 
-                'hx-target': '#id_sub_keg',
-                'hx-include': 'form',
-                'hx-trigger': 'click',
-                }),
-            'sub_keg': forms.Select(attrs={
-                'class': 'form-control',
-                'hx-include': 'form',
-                'hx-trigger': 'click',
-                }),
+            'sub_keg': forms.Select(attrs={'class': 'form-control'}),
             'sub_nama': forms.TextInput(attrs={'class': 'form-control'}),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['sub_dana'].widget.attrs['hx-get'] = reverse('load_kegprogram')
-        self.fields['sub_prog'].widget.attrs['hx-get'] = reverse('load_kegiatan')
-        
-        
 
 class SubrincForm(forms.ModelForm):
     class Meta:
