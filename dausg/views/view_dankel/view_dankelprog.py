@@ -17,7 +17,7 @@ Nilai_data = DankelProg
 def list(request):
     request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
-            .select_related('dankel_dana', 'dankel_subrinc')
+            .select_related('dankel_dana')
             .prefetch_related('dankelkegs__dankelsubs')
             .all())
     form = Form_data()
@@ -83,8 +83,8 @@ def delete(request, pk):
 def load(request):
     kwargs = {
         'nama_app'  : 'dana',
-        'model_name' : 'Subrinc',
-        'fieldsmodel' : ['subrinc_dana'],
+        'model_name' : 'Subkegiatan',
+        'fieldsmodel' : ['sub_dana'],
         'template_name' : 'load/load_subrinckeg.html',
         'fieldget' : 'dankel_dana',
         
