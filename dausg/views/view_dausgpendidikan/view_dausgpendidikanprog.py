@@ -17,7 +17,7 @@ tag_url = 'list_dausgpendidikanprog'
 def list(request):
     request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
-            .select_related('dausgpendidikan_dana', 'dausgpendidikan_subrinc')
+            .select_related('dausgpendidikan_dana')
             .prefetch_related('dausgpendidikankegs__dausgpendidikansubs')
             .all())
     form = Form_data()
@@ -82,8 +82,8 @@ def delete(request, pk):
 def load(request):
     kwargs = {
         'nama_app'  : 'dana',
-        'model_name' : 'Subrinc',
-        'fieldsmodel' : ['subrinc_dana'],
+        'model_name' : 'Subkegiatan',
+        'fieldsmodel' : ['sub_dana'],
         'template_name' : 'load/load_subrinckeg.html',
         'fieldget' : 'dausgpendidikan_dana',
         
