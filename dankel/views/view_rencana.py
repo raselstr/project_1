@@ -16,12 +16,14 @@ template_list = 'dankel_rencana/dankel_list.html'
 template_home = 'dankel_rencana/dankel_home.html'
 sesidana = 'dana-kelurahan'
 sesitahun = 2024
-sesiidopd = None
 
+def get_from_session(request):
+    return request.session.get('idsubopd')
 
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
+    sesiidopd = get_from_session(request)
     request.session['next'] = request.get_full_path()
     try:
         data = Model_data.objects.get(id=pk)
@@ -36,6 +38,7 @@ def delete(request, pk):
 @set_submenu_session
 @menu_access_required('update')
 def update(request, pk):
+    sesiidopd = get_from_session(request)
     request.session['next'] = request.get_full_path()
     data = get_object_or_404(Model_data, id=pk)
 
@@ -57,6 +60,7 @@ def update(request, pk):
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
+    sesiidopd = get_from_session(request)
     request.session['next'] = request.get_full_path()
     if request.method == 'POST':
         form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
@@ -76,6 +80,7 @@ def simpan(request):
 @set_submenu_session
 @menu_access_required('list')
 def list(request):
+    sesiidopd = get_from_session(request)
     request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
@@ -106,6 +111,7 @@ def list(request):
 @set_submenu_session
 @menu_access_required('list')    
 def home(request):
+    sesiidopd = get_from_session(request)
     request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)

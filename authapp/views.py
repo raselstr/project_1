@@ -32,6 +32,7 @@ def login_view(request):
                         request.session['is_superuser'] = False
                         request.session['user_nama'] = user.username
                         request.session['subopd'] = userlevel.userlevelopd.sub_nama
+                        request.session['idsubopd'] = userlevel.userlevelopd.id
                         request.session['level'] = userlevel.userlevel.level_nama
                         request.session['submenus'] = list(submenu_ids)
                     except Userlevel.DoesNotExist:
