@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RencDankelsisa
+from ..models import RealisasiDankel, RencDankelsisa, RencDankel
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
@@ -17,12 +17,15 @@ template = 'dankel_realisasi/realisasi_list.html'
 template_filter = 'dankel_realisasi/realisasi_filter.html'
 template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
+sesidana = 'dana-kelurahan'
 
 def get_from_sessions(request):
     session_data = {
         'idsubopd': request.session.get('idsubopd'),
-        'other_key': request.session.get('other_key'),
+        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
+        # Tambahkan lebih banyak kunci session jika diperlukan
     }
+    
     return session_data
 
 @set_submenu_session
@@ -34,6 +37,13 @@ def simpan(request):
         if form.is_valid():
             form.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
+        else:
+            context = {
+                'judul': 'Form Input SP2D',
+                'form': form,
+                'btntombol': 'Simpan',
+            }
+            return render(request, template_form, context)
     else:
         # Ambil data filter dari sesi
         initial_data = {
@@ -83,18 +93,21 @@ def list(request):
 @set_submenu_session
 @menu_access_required('list')    
 def filter(request):
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     
     if request.method == 'GET':
-        form = Form_filter(request.GET)
-        # if form.is_valid():
-        #     # Simpan data filter di sesi
-        #     request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
-        #     request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
-        #     request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
-        #     request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
+        form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
+        if form.is_valid():
+            # Simpan data filter di sesi
+            request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
+            request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
+            request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
+            request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
             
-        #     return redirect(tag_home)
+            return redirect(tag_home)
     else:
         form = Form_filter()
     

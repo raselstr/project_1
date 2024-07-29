@@ -14,17 +14,24 @@ tag_url = 'dankelsisa_list'
 template = 'dankel_sisa/dankelsisa_form.html'
 template_list = 'dankel_sisa/dankelsisa_list.html'
 sesidana = 'dana-kelurahan'
-sesitahun = 2024
-
-def get_from_session(request):
-    return request.session.get('idsubopd')
+def get_from_sessions(request):
+    session_data = {
+        'idsubopd': request.session.get('idsubopd'),
+        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
+        # Tambahkan lebih banyak kunci session jika diperlukan
+    }
+    
+    return session_data
 
 
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path() 
-    sesiidopd = get_from_session(request)
+    
     try:
         data = Model_data.objects.get(id=pk)
         data.delete()
@@ -39,7 +46,9 @@ def delete(request, pk):
 @menu_access_required('update')
 def update(request, pk):
     request.session['next'] = request.get_full_path()
-    sesiidopd = get_from_session(request)
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    sesitahun = session_data.get('sesitahun')
     data = get_object_or_404(Model_data, id=pk)
 
     if request.method == 'POST':
@@ -61,7 +70,9 @@ def update(request, pk):
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
-    sesiidopd = get_from_session(request)
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    sesitahun = session_data.get('sesitahun')
     if request.method == 'POST':
         form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
         if form.is_valid():
@@ -81,7 +92,9 @@ def simpan(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    sesiidopd = get_from_session(request)
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    sesitahun = session_data.get('sesitahun')
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
     except Subkegiatan.DoesNotExist:

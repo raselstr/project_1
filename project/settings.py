@@ -165,6 +165,6 @@ LOGOUT_REDIRECT_URL = '/auth/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan database
 SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
-SESSION_COOKIE_AGE = 120  # Durasi sesi dalam detik (2 minggu)
+SESSION_COOKIE_AGE = 300  # Durasi sesi dalam detik 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Apakah session berakhir saat browser ditutup
 
