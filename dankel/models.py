@@ -159,20 +159,28 @@ class RealisasiDankel(models.Model):
     realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def clean(self):
-        # Calculate the total realisasi for the related RencDankel
-        total_realisasi = RealisasiDankel.objects.filter(
-            realisasidankel_rencana=self.realisasidankel_rencana
-        ).aggregate(total_nilai=Sum('realisasidankel_nilai'))['total_nilai'] or Decimal(0)
-        
-        # Include the current instance's nilai in the total_realisasi
-        if self.pk:
-            total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_nilai
+        super().clean()  # Memanggil validasi dasar Django
+        total_realisasi = self.get_total_rencana(self.realisasidankel_rencana_id)
 
+        # Mengurangi nilai realisasi dari instance saat ini jika ada
+        if self.pk:
+            total_realisasi -= RealisasiDankel.objects.get(pk=self.pk).realisasidankel_nilai
+
+        # Menambahkan nilai realisasi dari instance saat ini
         total_realisasi += self.realisasidankel_nilai
-        
+
+        # Memastikan total realisasi tidak melebihi total rencana
         if total_realisasi > self.realisasidankel_rencana.rencdankel_pagu:
-            raise ValidationError('Total nilai realisasi tidak boleh lebih besar dari pagu anggaran.')
-    
+            raise ValidationError('Total nilai realisasi tidak boleh lebih besar dari total nilai rencana.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super(RealisasiDankel, self).save(*args, **kwargs)
+
+    def get_total_rencana(self, rencana):
+        filters = Q(realisasidankel_rencana=rencana)
+        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_nilai'))['total_nilai'] or Decimal(0)
+
     def __str__(self):
         return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
 
