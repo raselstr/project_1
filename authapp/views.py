@@ -35,6 +35,7 @@ def login_view(request):
                         request.session['idsubopd'] = userlevel.userlevelopd.id
                         request.session['level'] = userlevel.userlevel.level_nama
                         request.session['submenus'] = list(submenu_ids)
+                        request.session['submenus'] = list(submenu_ids)
                     except Userlevel.DoesNotExist:
                         messages.error(request, 'Pengaturan level pengguna tidak ditemukan. Silakan hubungi administrator.')
                         return redirect('login')

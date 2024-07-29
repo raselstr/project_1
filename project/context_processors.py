@@ -1,7 +1,13 @@
+from datetime import datetime
 from django.urls import reverse, NoReverseMatch
 from dashboard.models import Menu, Submenu
 
 def menu_context_processor(request):
+    
+    # Menyimpan tahun saat ini ke dalam session
+    current_year = datetime.now().year
+    request.session['tahun'] = current_year
+    
     if request.user.is_authenticated:
         if request.session.get('is_superuser', False):
             menus = Menu.objects.all()
@@ -25,6 +31,7 @@ def menu_context_processor(request):
             "user_nama": request.session.get('user_nama', 'Admin'),
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
+            "tahun": request.session.get('tahun', current_year),
         }
     else:
         context = {
@@ -34,6 +41,7 @@ def menu_context_processor(request):
             "user_nama": '',
             "subopd": '',
             "level": '',
+            "tahun": current_year,
         }
     
     return context

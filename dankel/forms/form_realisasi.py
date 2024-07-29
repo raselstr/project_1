@@ -1,5 +1,5 @@
 from django import forms
-from ..models import RealisasiDankel
+from ..models import RealisasiDankel, Subopd, Subkegiatan
 from django.utils import timezone
 
 CURRENT_YEAR = timezone.now().year
@@ -17,6 +17,23 @@ class RealisasiDankelFilterForm(forms.ModelForm):
             'realisasidankel_tahap': forms.Select(attrs={'class': 'form-control select2'}),
             'realisasidankel_subopd': forms.Select(attrs={'class': 'form-control select2'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        sesiidopd = kwargs.pop('sesiidopd', None)
+        sesidana = kwargs.pop('sesidana', None)
+        super().__init__(*args, **kwargs)
+        
+        if sesiidopd is not None:
+            self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
+        else:
+            self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()
+            
+        if sesidana is not None:
+            self.fields['realisasidankel_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
+        else:
+            self.fields['realisasidankel_dana'].queryset = Subkegiatan.objects.all()
+        
+        
 
 class RealisasiDankelForm(forms.ModelForm):
     class Meta:

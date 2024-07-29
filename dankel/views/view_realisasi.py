@@ -18,6 +18,13 @@ template_filter = 'dankel_realisasi/realisasi_filter.html'
 template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 
+def get_from_sessions(request):
+    session_data = {
+        'idsubopd': request.session.get('idsubopd'),
+        'other_key': request.session.get('other_key'),
+    }
+    return session_data
+
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
@@ -77,16 +84,17 @@ def list(request):
 @menu_access_required('list')    
 def filter(request):
     request.session['next'] = request.get_full_path()
+    
     if request.method == 'GET':
         form = Form_filter(request.GET)
-        if form.is_valid():
-            # Simpan data filter di sesi
-            request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
-            request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
-            request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
-            request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
+        # if form.is_valid():
+        #     # Simpan data filter di sesi
+        #     request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
+        #     request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
+        #     request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
+        #     request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
             
-            return redirect(tag_home)
+        #     return redirect(tag_home)
     else:
         form = Form_filter()
     
