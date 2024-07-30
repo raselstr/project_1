@@ -192,12 +192,6 @@ class RealisasiDankel(models.Model):
         penerimaan = self.get_penerimaan_total(tahun, opd, dana)
         return ((lpj/penerimaan)*100)
     
-    def get_rencana_pk(self, tahun, opd, dana, pk):
-        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-        if opd is not None:
-            filters &= Q(realisasidankel_subopd=opd) & Q(realisasidankel_rencana=pk)
-        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
-    
     def __str__(self):
         return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
 
