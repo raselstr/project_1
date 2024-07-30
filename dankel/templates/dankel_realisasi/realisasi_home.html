@@ -22,35 +22,35 @@
             <div class="col-lg-6">
                 <div class="card card-large-icons">
                     <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-cog"></i>
+                        <i class="fas fa-money-check-alt"></i>
                     </div>
                     <div class="card-body">
                         <h4>{{tab1}}</h4>
                         <table class="table table-sm">
                             <tr>
-                                <td>Pagu Anggaran</td>
+                                <td>Total Dana yang diterima</td>
                                 <td>:</td>
-                                <td style="text-align: right;">{{datapagu|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{datapenerimaan|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
-                                <td>Total Rencana </td>
+                                <td>Total Realisasi </td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{datarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{realisasilpj|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
-                                <td>Sisa yang belum direalisasikan</td>
+                                <td>Persentase Penyerapan</td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{sisarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{persentase|intcomma}} %</td>
                             </tr>
                         </table>
-                        <a href="{% url 'realisasidankel_list' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                        <a href="{% url 'realisasidankel_filter' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card card-large-icons">
                     <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-search"></i>
+                        <i class="fas fa-funnel-dollar"></i>
                     </div>
                     <div class="card-body">
                         <h4>{{tab2}}</h4>
@@ -71,7 +71,7 @@
                                 <td style="text-align: right;">{{sisa_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                         </table>
-                        <a href="{% url 'realisasidankel_list' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
+                        <a href="{% url 'realisasidankel_filter' %}" class="card-cta">Realisasi Kegiatan ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>

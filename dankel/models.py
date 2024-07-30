@@ -6,6 +6,7 @@ from opd.models import Subopd
 from dana.models import Subkegiatan, TahapDana
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
+from penerimaan.models import Penerimaan, DistribusiPenerimaan
 from datetime import datetime
 
 from decimal import Decimal
@@ -159,28 +160,44 @@ class RealisasiDankel(models.Model):
     realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def clean(self):
-        super().clean()  # Memanggil validasi dasar Django
-        total_realisasi = self.get_total_rencana(self.realisasidankel_rencana_id)
-
-        # Mengurangi nilai realisasi dari instance saat ini jika ada
+        total_penerimaan = self.get_penerimaan_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
+        total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
+        
         if self.pk:
-            total_realisasi -= RealisasiDankel.objects.get(pk=self.pk).realisasidankel_nilai
+            total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
 
-        # Menambahkan nilai realisasi dari instance saat ini
-        total_realisasi += self.realisasidankel_nilai
-
-        # Memastikan total realisasi tidak melebihi total rencana
-        if total_realisasi > self.realisasidankel_rencana.rencdankel_pagu:
-            raise ValidationError('Total nilai realisasi tidak boleh lebih besar dari total nilai rencana.')
-
+        total_realisasi += self.realisasidankel_lpjnilai
+        
+        if total_realisasi > total_penerimaan:
+            raise ValidationError('Total Realisasi LPJ tidak boleh lebih besar dari total Penerimaan yang tersedia.')
+        
     def save(self, *args, **kwargs):
-        self.clean()
         super(RealisasiDankel, self).save(*args, **kwargs)
-
-    def get_total_rencana(self, rencana):
-        filters = Q(realisasidankel_rencana=rencana)
-        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_nilai'))['total_nilai'] or Decimal(0)
-
+        
+    
+    def get_penerimaan_total(self, tahun, opd, dana):
+        filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
+        if opd is not None:
+            filters &= Q(distri_subopd=opd)
+        return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
+    
+    def get_realisasilpj_total(self, tahun, opd, dana):
+        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        if opd is not None:
+            filters &= Q(realisasidankel_subopd=opd)
+        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+    
+    def get_persentase(self, tahun, opd, dana):
+        lpj = self.get_realisasilpj_total(tahun, opd, dana)
+        penerimaan = self.get_penerimaan_total(tahun, opd, dana)
+        return ((lpj/penerimaan)*100)
+    
+    def get_rencana_pk(self, tahun, opd, dana, pk):
+        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        if opd is not None:
+            filters &= Q(realisasidankel_subopd=opd) & Q(realisasidankel_rencana=pk)
+        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+    
     def __str__(self):
         return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
 
