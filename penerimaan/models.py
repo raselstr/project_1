@@ -6,6 +6,7 @@ from datetime import datetime
 from django.db.models import UniqueConstraint
 from dana.models import Subkegiatan, TahapDana
 from opd.models import Subopd
+from pagu.models import Pagudausg
 # Create your models here.
 
 class Penerimaan(models.Model):
@@ -48,6 +49,10 @@ class DistribusiPenerimaan(models.Model):
        
        # Hitung total distribusi untuk penerimaan ini
         total_distribusi = DistribusiPenerimaan.objects.filter(distri_penerimaan=self.distri_penerimaan).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
+        total_pagu = Pagudausg.objects.filter(
+            pagudausg_tahun=self.distri_penerimaan.penerimaan_tahun,
+            pagudausg_opd=self.distri_subopd
+            ).aggregate(total=Sum('pagudausg_nilai'))['total'] or Decimal(0)
         
         if self.pk:
             # Jika instance sudah ada, kurangi nilai lama dari total
@@ -58,7 +63,10 @@ class DistribusiPenerimaan(models.Model):
         # Validasi total distribusi tidak boleh melebihi penerimaan_nilai
         if total_distribusi > self.distri_penerimaan.penerimaan_nilai:
             raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai penerimaan {self.distri_penerimaan.penerimaan_nilai}')
-    
+
+        if total_distribusi > total_pagu:
+            raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai pagu {total_pagu}')
+        
     def save(self, *args, **kwargs):
         self.clean()  # Panggil clean untuk menjalankan validasi sebelum save
         super(DistribusiPenerimaan, self).save(*args, **kwargs)
