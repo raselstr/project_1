@@ -46,10 +46,12 @@ def simpan(request):
             
             # Panggil method get_rencana_pk untuk validasi tambahan
             total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
+            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
+            
             
             # Lakukan validasi tambahan jika diperlukan
-            if realisasi_dankel.realisasidankel_lpjnilai > total_rencana_pk:
-                form.add_error('realisasidankel_lpjnilai', 'Nilai LPJ tidak boleh lebih besar dari total rencana.')
+            if total_realisasi_pk > total_rencana_pk:
+                form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
                 context = {
                     'judul': 'Form Input SP2D',
                     'form': form,
