@@ -236,19 +236,19 @@ class RealisasiDankelsisa(models.Model):
     realisasidankelsisa_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def clean(self):
-        total_penerimaan = self.get_penerimaan_total(self.realisasidankelsisa_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
-        total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
+        total_penerimaan = self.get_penerimaan_total(self.realisasidankelsisa_tahun, self.realisasidankelsisa_subopd_id, self.realisasidankelsisa_dana_id)
+        total_realisasi = self.get_realisasilpj_total(self.realisasidankelsisa_tahun, self.realisasidankelsisa_subopd_id, self.realisasidankelsisa_dana_id)
         
         if self.pk:
-            total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
+            total_realisasi = total_realisasi - RealisasiDankelsisa.objects.get(pk=self.pk).realisasidankelsisa_lpjnilai
 
-        total_realisasi += self.realisasidankel_lpjnilai
+        total_realisasi += self.realisasidankelsisa_lpjnilai
         
         if total_realisasi > total_penerimaan:
             raise ValidationError('Total Realisasi LPJ tidak boleh lebih besar dari total Penerimaan yang tersedia.')
         
     def save(self, *args, **kwargs):
-        super(RealisasiDankel, self).save(*args, **kwargs)
+        super(RealisasiDankelsisa, self).save(*args, **kwargs)
         
     
     def get_penerimaan_total(self, tahun, opd, dana):
