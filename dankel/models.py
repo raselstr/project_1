@@ -217,3 +217,78 @@ class RealisasiDankel(models.Model):
     def __str__(self):
         return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
 
+class RealisasiDankelsisa(models.Model):
+    
+    realisasidankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    realisasidankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    realisasidankelsisa_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
+    realisasidankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    realisasidankelsisa_rencana = models.ForeignKey(RencDankelsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankelsisa_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
+    realisasidankelsisa_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
+    realisasidankelsisa_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
+    realisasidankelsisa_lpj = models.CharField(verbose_name='No LPJ TU', max_length=100, unique=True)
+    realisasidankelsisa_lpjtgl = models.DateField(verbose_name='Tanggal LPJ TU')
+    realisasidankelsisa_lpjnilai = models.DecimalField(verbose_name='Nilai LPJ TU', max_digits=17, decimal_places=2,default=0)
+    realisasidankelsisa_sts = models.CharField(verbose_name='No STS TU', max_length=100, unique=True)
+    realisasidankelsisa_ststgl = models.DateField(verbose_name='Tanggal STS TU')
+    realisasidankelsisa_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
+    realisasidankelsisa_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
+    
+    def clean(self):
+        total_penerimaan = self.get_penerimaan_total(self.realisasidankelsisa_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
+        total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
+        
+        if self.pk:
+            total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
+
+        total_realisasi += self.realisasidankel_lpjnilai
+        
+        if total_realisasi > total_penerimaan:
+            raise ValidationError('Total Realisasi LPJ tidak boleh lebih besar dari total Penerimaan yang tersedia.')
+        
+    def save(self, *args, **kwargs):
+        super(RealisasiDankel, self).save(*args, **kwargs)
+        
+    
+    def get_penerimaan_total(self, tahun, opd, dana):
+        filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
+        if opd is not None:
+            filters &= Q(distri_subopd=opd)
+        return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
+    
+    def get_realisasilpj_total(self, tahun, opd, dana):
+        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        if opd is not None:
+            filters &= Q(realisasidankel_subopd=opd)
+        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+    
+    def get_persentase(self, tahun, opd, dana):
+        lpj = self.get_realisasilpj_total(tahun, opd, dana)
+        penerimaan = self.get_penerimaan_total(tahun, opd, dana)
+        return ((lpj/penerimaan)*100)
+    
+    def get_rencana_pk(self, tahun, opd, dana, pk):
+        filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
+        if opd is not None:
+            filters &= Q(rencdankel_subopd=opd) 
+        if pk is not None:
+            filters &= Q(id=pk)
+        
+        nilai_rencana = RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
+        print(nilai_rencana)
+        return nilai_rencana
+    
+    def get_realisasi_pk(self, tahun, opd, dana, pk):
+        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        if opd is not None:
+            filters &= Q(realisasidankel_subopd=opd) 
+        if pk is not None:
+            filters &= Q(realisasidankel_rencana=pk)
+        
+        nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+        print(nilai_realisasi)
+        return nilai_realisasi
+    
+    def __str__(self):
+        return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'

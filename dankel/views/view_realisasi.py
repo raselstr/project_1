@@ -29,6 +29,72 @@ def get_from_sessions(request):
     return session_data
 
 @set_submenu_session
+@menu_access_required('delete')
+def delete(request, pk):
+    request.session['next'] = request.get_full_path()
+    try:
+        data = Model_data.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except Model_data.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
+    return redirect(tag_url)
+
+@set_submenu_session
+@menu_access_required('update')
+def update(request, pk):
+    request.session['next'] = request.get_full_path()
+    realisasi_dankel = get_object_or_404(RealisasiDankel, pk=pk)
+
+    if request.method == 'POST':
+        form = Form_data(request.POST, instance=realisasi_dankel)
+        if form.is_valid():
+            # Ambil data dari form yang sudah divalidasi
+            realisasi_dankel = form.save(commit=False)
+            
+            # Ambil nilai-nilai yang diperlukan untuk validasi
+            tahun = realisasi_dankel.realisasidankel_tahun
+            opd = realisasi_dankel.realisasidankel_subopd_id
+            dana = realisasi_dankel.realisasidankel_dana_id
+            rencana_pk = realisasi_dankel.realisasidankel_rencana_id
+            
+            # Panggil method get_rencana_pk untuk validasi tambahan
+            total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
+            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
+
+            # Lakukan validasi tambahan jika diperlukan
+            if total_realisasi_pk > total_rencana_pk:
+                form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
+                context = {
+                    'judul': 'Form Update SP2D',
+                    'form': form,
+                    'btntombol': 'Update',
+                }
+                return render(request, template_form, context)
+            
+            # Jika validasi tambahan berhasil, simpan data
+            realisasi_dankel.save()
+            return redirect(tag_url)  # ganti dengan halaman sukses Anda
+        else:
+            context = {
+                'judul': 'Form Update SP2D',
+                'form': form,
+                'btntombol': 'Update',
+            }
+            return render(request, template_form, context)
+    else:
+        form = Form_data(instance=realisasi_dankel)
+    context = {
+        'judul': 'Form Update SP2D',
+        'form': form,
+        'btntombol': 'Update',
+    }
+    return render(request, template_form, context)
+
+
+@set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
@@ -160,31 +226,18 @@ def home(request):
         total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        # sisa_rencana = RencDankel().sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        # total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        # total_rencana_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        # sisa_rencana_sisa = RencDankelsisa().sisa_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
     else:
         total_penerimaan = None
         total_realisasilpj = None
         total_persentase = None
-        # sisa_rencana = None
-        # total_pagu_sisa = None
-        # total_rencana_sisa = None
-        # sisa_rencana_sisa = None
         
     context = {
         'judul' : 'Realisasi Belanja',
         'tab1'      : 'Realisasi Belanja Tahun Berjalan',
         'tab2'      : 'Realisasi Belanja Sisa Tahun Lalu',
-        # 'data' : data,
         'datapenerimaan' : total_penerimaan,
         'realisasilpj' : total_realisasilpj,
         'persentase' : total_persentase,
-        # 'sisarencana' : sisa_rencana,
-        # 'datasisa' : total_pagu_sisa,
-        # 'total_rencana_sisa' : total_rencana_sisa,
-        # 'sisa_rencana_sisa' : sisa_rencana_sisa,
     }
     return render(request, template_home, context)
     
