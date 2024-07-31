@@ -131,16 +131,18 @@ def home(request):
     request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
+        danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
     except Subkegiatan.DoesNotExist:
         dana = None
+        danasisa = None
         
     if dana:
         total_pagu_nilai = RencDankel().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
         sisa_rencana = RencDankel().sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_rencana_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        sisa_rencana_sisa = RencDankelsisa().sisa_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_pagu_sisa = RencDankelsisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_rencana_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        sisa_rencana_sisa = RencDankelsisa().sisa_sisa(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
     else:
         total_pagu_nilai = None
         total_rencana = None

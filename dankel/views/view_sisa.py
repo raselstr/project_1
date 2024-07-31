@@ -13,7 +13,7 @@ Form_data = RencDankelsisaForm
 tag_url = 'dankelsisa_list'
 template = 'dankel_sisa/dankelsisa_form.html'
 template_list = 'dankel_sisa/dankelsisa_list.html'
-sesidana = 'dana-kelurahan'
+sesidana = 'sisa-dana-kelurahan'
 def get_from_sessions(request):
     session_data = {
         'idsubopd': request.session.get('idsubopd'),

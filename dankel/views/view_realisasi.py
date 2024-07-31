@@ -68,7 +68,7 @@ def update(request, pk):
             if total_realisasi_pk > total_rencana_pk:
                 form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
                 context = {
-                    'judul': 'Form Update SP2D',
+                    'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
                     'form': form,
                     'btntombol': 'Update',
                 }
@@ -79,7 +79,7 @@ def update(request, pk):
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
             context = {
-                'judul': 'Form Update SP2D',
+                'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
                 'form': form,
                 'btntombol': 'Update',
             }
@@ -87,7 +87,7 @@ def update(request, pk):
     else:
         form = Form_data(instance=realisasi_dankel)
     context = {
-        'judul': 'Form Update SP2D',
+        'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
         'form': form,
         'btntombol': 'Update',
     }
@@ -113,6 +113,7 @@ def simpan(request):
             # Panggil method get_rencana_pk untuk validasi tambahan
             total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
             total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
+            print(total_realisasi_pk, total_rencana_pk)
             
             
             # Lakukan validasi tambahan jika diperlukan
