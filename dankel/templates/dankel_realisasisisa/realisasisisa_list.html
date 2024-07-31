@@ -17,7 +17,7 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url "realisasidankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        <a href="{% url "realisasisisadankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -51,31 +51,31 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a href="{% url "realisasidanke_update" data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url "realisasisisadankel_update" data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url "realisasidanke_delete" data.id%}" class="btn btn-danger btn-sm">
+                                        <a href="{% url "realisasisisadankel_delete" data.id%}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td>{{ data.realisasidankel_rencana }}</td>
+                                    <td>{{ data.realisasidankelsisa_rencana }}</td>
                                     <td>
-                                        {{ data.realisasidankel_sp2dtu }}<br>
-                                        {{ data.realisasidankel_tgl }}<br>
-                                        {{ data.realisasidankel_nilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                        {{ data.realisasidankelsisa_sp2dtu }}<br>
+                                        {{ data.realisasidankelsisa_tgl }}<br>
+                                        {{ data.realisasidankelsisa_nilai|default:"0.00"|floatformat:2|intcomma }}<br>
                                     </td>
                                     <td>
-                                        {{ data.realisasidankel_lpj }}<br>
-                                        {{ data.realisasidankel_lpjtgl }}<br>
-                                        {{ data.realisasidankel_lpjnilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                        {{ data.realisasidankelsisa_lpj }}<br>
+                                        {{ data.realisasidankelsisa_lpjtgl }}<br>
+                                        {{ data.realisasidankelsisa_lpjnilai|default:"0.00"|floatformat:2|intcomma }}<br>
                                     </td>
                                     <td>
-                                        {{ data.realisasidankel_sts }}<br>
-                                        {{ data.realisasidankel_ststgl }}<br>
-                                        {{ data.realisasidankel_stsnilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                        {{ data.realisasidankelsisa_sts }}<br>
+                                        {{ data.realisasidankelsisa_ststgl }}<br>
+                                        {{ data.realisasidankelsisa_stsnilai|default:"0.00"|floatformat:2|intcomma }}<br>
                                     </td>
-                                    <td>{{data.realisasidankel_lpjnilai}}</td>
-                                    <td>{{ data.realisasidankel_verif }}</td>
+                                    <td>{{data.realisasidankelsisa_lpjnilai}}</td>
+                                    <td>{{ data.realisasidankelsisa_verif }}</td>
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
                                 </tr>
                                 {% endfor %}

@@ -138,7 +138,7 @@ class RencDankelsisa(models.Model):
         return total_pagudausg - total_sisarencana 
     
     def __str__(self):
-        return self.rencdankelsisa_ket
+        return f'{self.rencdankelsisa_sub}'
     
     
 class RealisasiDankel(models.Model):
