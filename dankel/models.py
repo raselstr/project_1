@@ -214,7 +214,6 @@ class RealisasiDankel(models.Model):
             filters &= Q(id=pk)
         
         nilai_rencana = RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
-        print(nilai_rencana)
         return nilai_rencana
     
     def get_realisasi_pk(self, tahun, opd, dana, pk):
@@ -225,7 +224,6 @@ class RealisasiDankel(models.Model):
             filters &= Q(realisasidankel_rencana=pk)
         
         nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
-        print (nilai_realisasi)
         return nilai_realisasi
     
     def __str__(self):
@@ -283,7 +281,6 @@ class RealisasiDankelsisa(models.Model):
         if opd is not None:
             filters &= Q(distri_subopd=opd)
         penerimaan_total = DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
-        print(penerimaan_total)
         return penerimaan_total
     
     def get_realisasilpj_total(self, tahun, opd, dana):
@@ -291,7 +288,6 @@ class RealisasiDankelsisa(models.Model):
         if opd is not None:
             filters &= Q(realisasidankelsisa_subopd=opd)
         realisasilpj_total =  RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
-        print (realisasilpj_total)
         return realisasilpj_total
     
     def get_persentase(self, tahun, opd, dana):
@@ -307,7 +303,6 @@ class RealisasiDankelsisa(models.Model):
             filters &= Q(id=pk)
         
         nilai_rencana = RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
-        print(nilai_rencana, pk, filters)
         return nilai_rencana
     
     def get_realisasi_pk(self, tahun, opd, dana, pk):
@@ -318,7 +313,6 @@ class RealisasiDankelsisa(models.Model):
             filters &= Q(realisasidankelsisa_rencana=pk)
         
         nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
-        print(nilai_realisasi)
         return nilai_realisasi
     
     def __str__(self):
