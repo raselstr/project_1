@@ -7,6 +7,7 @@ from . import views
 urlpatterns = [
     path('pagudausg/', include('pagu.urls')),
     path('dankel/', include('dankel.urls.url_realisasi')),
+    path('dankel/', include('dankel.urls.url_realisasisisa')),
     path('dankel/', include('dankel.urls.url_rencana')),
     path('dankel/', include('dankel.urls.url_sisa')),
     path('penerimaan/', include('penerimaan.urls')),

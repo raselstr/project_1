@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RencDankelsisa, RencDankel, Subkegiatan
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
@@ -219,17 +219,25 @@ def home(request):
     request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
+        danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
     except Subkegiatan.DoesNotExist:
         dana = None
+        danasisa = None
         
     if dana:
         total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
     else:
         total_penerimaan = None
         total_realisasilpj = None
         total_persentase = None
+        total_penerimaansisa = None
+        total_realisasilpjsisa = None
+        total_persentasesisa = None
         
     context = {
         'judul' : 'Realisasi Belanja',
@@ -238,6 +246,9 @@ def home(request):
         'datapenerimaan' : total_penerimaan,
         'realisasilpj' : total_realisasilpj,
         'persentase' : total_persentase,
+        'datapenerimaansisa' : total_penerimaansisa,
+        'realisasilpjsisa' : total_realisasilpjsisa,
+        'persentasesisa' : total_persentasesisa,
     }
     return render(request, template_home, context)
     

@@ -50,6 +50,7 @@ class DistribusiPenerimaan(models.Model):
         # Hitung total distribusi untuk OPD ini tanpa memperhatikan PK
         total_distribusi_opd = DistribusiPenerimaan.objects.filter(
             distri_penerimaan__penerimaan_tahun=self.distri_penerimaan.penerimaan_tahun,
+            distri_penerimaan__penerimaan_dana = self.distri_penerimaan.penerimaan_dana,
             distri_subopd=self.distri_subopd
         ).exclude(pk=self.pk).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
         
@@ -60,7 +61,7 @@ class DistribusiPenerimaan(models.Model):
         total_pagu = Pagudausg.objects.filter(
             pagudausg_tahun=self.distri_penerimaan.penerimaan_tahun,
             pagudausg_opd=self.distri_subopd
-        ).aggregate(total=Sum('pagudausg_nilai'))['total'] or Decimal(0)
+        ).aggregate(total=Sum('pagudausg_sisa'))['total'] or Decimal(0)
 
         # Validasi total distribusi OPD tidak boleh melebihi nilai penerimaan
         if total_distribusi_opd > self.distri_penerimaan.penerimaan_nilai:

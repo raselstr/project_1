@@ -258,10 +258,10 @@ class RealisasiDankelsisa(models.Model):
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
     
     def get_realisasilpj_total(self, tahun, opd, dana):
-        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        filters = Q(realisasidankelsisa_tahun=tahun) & Q(realisasidankelsisa_dana=dana)
         if opd is not None:
-            filters &= Q(realisasidankel_subopd=opd)
-        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+            filters &= Q(realisasidankelsisa_subopd=opd)
+        return RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
     
     def get_persentase(self, tahun, opd, dana):
         lpj = self.get_realisasilpj_total(tahun, opd, dana)
@@ -269,26 +269,26 @@ class RealisasiDankelsisa(models.Model):
         return ((lpj/penerimaan)*100)
     
     def get_rencana_pk(self, tahun, opd, dana, pk):
-        filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
+        filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
         if opd is not None:
-            filters &= Q(rencdankel_subopd=opd) 
+            filters &= Q(rencdankelsisa_subopd=opd) 
         if pk is not None:
             filters &= Q(id=pk)
         
-        nilai_rencana = RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
+        nilai_rencana = RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
         print(nilai_rencana)
         return nilai_rencana
     
     def get_realisasi_pk(self, tahun, opd, dana, pk):
-        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        filters = Q(realisasidankelsisa_tahun=tahun) & Q(realisasidankelsisa_dana=dana)
         if opd is not None:
-            filters &= Q(realisasidankel_subopd=opd) 
+            filters &= Q(realisasidankelsisa_subopd=opd) 
         if pk is not None:
-            filters &= Q(realisasidankel_rencana=pk)
+            filters &= Q(realisasidankelsisa_rencana=pk)
         
-        nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+        nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
         print(nilai_realisasi)
         return nilai_realisasi
     
     def __str__(self):
-        return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
+        return f'{self.realisasidankelsisa_dana}-{self.realisasidankelsisa_tahap}'

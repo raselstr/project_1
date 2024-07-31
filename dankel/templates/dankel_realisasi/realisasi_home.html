@@ -56,22 +56,22 @@
                         <h4>{{tab2}}</h4>
                         <table class="table table-sm">
                             <tr>
-                                <td>Sisa Pagu Anggaran</td>
+                                <td>Total Dana yang diterima</td>
                                 <td>:</td>
-                                <td style="text-align: right;">{{datasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{datapenerimaansisa|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
-                                <td>Total Rencana Sisa</td>
+                                <td>Total Realisasi </td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{total_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{realisasilpjsisa|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
-                                <td>Sisa yang belum direalisasikan</td>
+                                <td>Persentase Penyerapan</td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{sisa_rencana_sisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{persentasesisa|intcomma}} %</td>
                             </tr>
                         </table>
-                        <a href="{% url 'realisasidankel_filter' %}" class="card-cta">{{judul}} ... <i class="fas fa-chevron-right"></i></a>
+                        <a href="{% url 'realisasisisadankel_filter' %}" class="card-cta">{{judul}} ... <i class="fas fa-chevron-right"></i></a>
                     </div>
                 </div>
             </div>
