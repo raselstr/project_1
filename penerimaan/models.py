@@ -46,27 +46,30 @@ class DistribusiPenerimaan(models.Model):
             distri_subopd=self.distri_subopd
         ).exclude(pk=self.pk).exists():
             raise ValidationError("Kombinasi Penerimaan Dana dan OPD sudah digunakan.")
-       
-       # Hitung total distribusi untuk penerimaan ini
-        total_distribusi = DistribusiPenerimaan.objects.filter(distri_penerimaan=self.distri_penerimaan).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
+
+        # Hitung total distribusi untuk OPD ini tanpa memperhatikan PK
+        total_distribusi_opd = DistribusiPenerimaan.objects.filter(
+            distri_penerimaan__penerimaan_tahun=self.distri_penerimaan.penerimaan_tahun,
+            distri_subopd=self.distri_subopd
+        ).exclude(pk=self.pk).aggregate(total=Sum('distri_nilai'))['total'] or Decimal(0)
+        
+        # Tambahkan nilai distribusi saat ini
+        total_distribusi_opd += self.distri_nilai
+        
+        # Ambil total pagu untuk OPD dan tahun yang sesuai
         total_pagu = Pagudausg.objects.filter(
             pagudausg_tahun=self.distri_penerimaan.penerimaan_tahun,
             pagudausg_opd=self.distri_subopd
-            ).aggregate(total=Sum('pagudausg_nilai'))['total'] or Decimal(0)
-        
-        if self.pk:
-            # Jika instance sudah ada, kurangi nilai lama dari total
-            total_distribusi -= DistribusiPenerimaan.objects.get(pk=self.pk).distri_nilai
-        
-        total_distribusi += self.distri_nilai
-        
-        # Validasi total distribusi tidak boleh melebihi penerimaan_nilai
-        if total_distribusi > self.distri_penerimaan.penerimaan_nilai:
-            raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai penerimaan {self.distri_penerimaan.penerimaan_nilai}')
+        ).aggregate(total=Sum('pagudausg_nilai'))['total'] or Decimal(0)
 
-        if total_distribusi > total_pagu:
-            raise ValidationError(f'Total distribusi {total_distribusi} melebihi nilai pagu {total_pagu}')
+        # Validasi total distribusi OPD tidak boleh melebihi nilai penerimaan
+        if total_distribusi_opd > self.distri_penerimaan.penerimaan_nilai:
+            raise ValidationError(f'Total distribusi {total_distribusi_opd} melebihi nilai penerimaan {self.distri_penerimaan.penerimaan_nilai}')
         
+        # Validasi total distribusi OPD tidak boleh melebihi nilai pagu
+        if total_distribusi_opd > total_pagu:
+            raise ValidationError(f'Total distribusi {total_distribusi_opd} melebihi nilai pagu {total_pagu}')
+
     def save(self, *args, **kwargs):
         self.clean()  # Panggil clean untuk menjalankan validasi sebelum save
         super(DistribusiPenerimaan, self).save(*args, **kwargs)
