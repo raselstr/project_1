@@ -176,9 +176,10 @@ def list(request):
     
     # Terapkan filter ke query data
     
-    data = (Model_data.objects
-            .prefetch_related('dankelkegs__dankelsubs__rencdankel_sub')
-            .filter(filters))
+    data = (RealisasiDankel.objects
+            .select_related('realisasidankel_dana', 'realisasidankel_tahap', 'realisasidankel_subopd', 'realisasidankel_rencana')
+            .prefetch_related('realisasidankel_rencana__dankelsub_keg__dankelkeg_prog')
+            .all())
     # data = Model_data.objects.filter(filters)
     prog = Model_program.objects.all()
 
