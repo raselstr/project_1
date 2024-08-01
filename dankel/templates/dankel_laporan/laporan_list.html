@@ -13,67 +13,78 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-header-action mr-3">
-                        <a href="{% url "dankel_home" %}" type="button" class="btn btn-warning">Kembali  </a>
+                        <a href="{% url "realisasidankel_home" %}" type="button" class="btn btn-warning">Kembali  </a>
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url "dankelsisa_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        <a href="{% url "realisasidankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table" id="tabel1" style="width:100%">
+                    <table class="table table-bordered" style="width:100%">
                         <thead>
                             <tr>
-                                <th>
-                                    <div class="custom-checkbox custom-control">
-                                    <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
-                                    <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
-                                    </div>
-                                </th>
-                                <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">Sub OPD</th>
-                                <th style="text-align: center;">Kegiatan</th>
-                                <th style="text-align: center;">Sub Kegiatan</th>
-                                <th style="text-align: center;">Pagu Anggaran</th>
+                                <th colspan=3 rowspan=2 style="text-align: center;">Uraian Kegiatan</th>
+                                <th colspan=3 style="text-align: center;">Rencana</th>
+                                <th colspan=3 style="text-align: center;">Realisasi</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Outuput</th>
+                                <th style="text-align: center;">Satuan</th>
+                                <th style="text-align: center;">Realisasi</th>
                                 <th style="text-align: center;">Output</th>
                                 <th style="text-align: center;">Satuan</th>
-                                <th style="text-align: center;">Keterangan Kegiatan</th>
                             </tr>
                         </thead>
                         <tbody>
                             
-                            {% comment %} {% for data in data %}
+                            {% for data in data %}
                                 <tr>
-                                    <td class="p-0 text-center">
-                                        <div class="custom-checkbox custom-control">
-                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-{{ forloop.counter }}">
-                                        <label for="checkbox-{{ forloop.counter }}" class="custom-control-label">&nbsp;</label>
-                                        </div>
+                                    <td colspan=3>
+                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
                                     </td>
-                                    <td style="text-align: center;">
-                                        <a href="{% url "dankelsisa_update" data.id %}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="{% url "dankelsisa_delete" data.id%}" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
                                     </td>
-                                    <td>{{ data.rencdankelsisa_subopd.sub_nama }}</td>
-                                    <td>{{ data.rencdankelsisa_sub.dankelsub_keg.dankelkeg_nama }}</td>
-                                    <td>{{ data.rencdankelsisa_sub.dankelsub_nama}}</td>
-                                    <td style="text-align: right;">{{ data.rencdankelsisa_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ data.rencdankelsisa_output }}</td>
-                                    <td>{{ data.rencdankelsisa_sub.dankelsub_satuan }}</td>
-                                    <td>{{ data.rencdankelsisa_ket }}</td>
+                                    <td>
+                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
+                                    </td>
+                                    <td>
+                                        {{ data.realisasidankel_sp2dtu }}<br>
+                                        {{ data.realisasidankel_tgl }}<br>
+                                        {{ data.realisasidankel_nilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                    </td>
+                                    <td>
+                                        {{ data.realisasidankel_lpj }}<br>
+                                        {{ data.realisasidankel_lpjtgl }}<br>
+                                        {{ data.realisasidankel_lpjnilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                    </td>
+                                    <td>
+                                        {{ data.realisasidankel_sts }}<br>
+                                        {{ data.realisasidankel_ststgl }}<br>
+                                        {{ data.realisasidankel_stsnilai|default:"0.00"|floatformat:2|intcomma }}<br>
+                                    </td>
+                                    <td>{{data.realisasidankel_lpjnilai}}</td>
+                                    <td>{{ data.realisasidankel_verif }}</td>
+                                    <td></td>
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
                                 </tr>
-                                {% endfor %} {% endcomment %}
+                                {% endfor %}
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th colspan="2" style="text-align: left;"><strong>{{ totalsisa|default:"0.00"|floatformat:2|intcomma }}</strong></th>
-                                <th colspan="2" style="text-align: left;"></th>
+                                <th colspan="2" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2" style="text-align: right;"><strong></strong></th>
                                 
                             </tr>
                         </tfoot>
