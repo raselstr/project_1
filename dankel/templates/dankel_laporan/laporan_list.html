@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered" style="width:100%">
+                    <table class="table table-sm table-bordered" style="width:100%">
                         <thead>
                             <tr>
                                 <th colspan=3 rowspan=2 style="text-align: center;">Uraian Kegiatan</th>
@@ -39,10 +39,10 @@
                         </thead>
                         <tbody>
                             
-                            {% for data in data %}
+                            {% for prog in prog %}
                                 <tr>
                                     <td colspan=3>
-                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
+                                        {{ prog.dankel_prog }}
                                     </td>
                                     <td></td>
                                     <td></td>
@@ -52,11 +52,23 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
+                                    <td></td>
+                                    <td colspan=2>
+                                        {% comment %} {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }} {% endcomment %}
                                     </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                {% for data in data %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
                                     <td>
-                                        {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }}
+                                        {% comment %} {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }} {% endcomment %}
                                     </td>
                                     <td>
                                         {{ data.realisasidankel_sp2dtu }}<br>
@@ -76,8 +88,10 @@
                                     <td>{{data.realisasidankel_lpjnilai}}</td>
                                     <td>{{ data.realisasidankel_verif }}</td>
                                     <td></td>
+
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
                                 </tr>
+                                {% endfor %}
                                 {% endfor %}
                         </tbody>
                         <tfoot>

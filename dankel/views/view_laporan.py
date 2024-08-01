@@ -3,12 +3,14 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan 
+from dausg.models import DankelProg
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
 
 Model_data = RealisasiDankel
+Model_program = DankelProg
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
 tag_url = 'laporan_list'
@@ -173,13 +175,20 @@ def list(request):
         filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
     # Terapkan filter ke query data
-    data = Model_data.objects.filter(filters)
+    
+    data = (Model_data.objects
+            .prefetch_related('dankelkegs__dankelsubs__rencdankel_sub')
+            .filter(filters))
+    # data = Model_data.objects.filter(filters)
+    prog = Model_program.objects.all()
 
     context = {
         'judul' : 'Rekapitulasi Realisasi Dana Kelurahan',
         'tombol' : 'Cetak',
         'data' : data,
+        'prog' : prog,
     }
+    print(data)
     return render(request, template, context)
 
 @set_submenu_session
