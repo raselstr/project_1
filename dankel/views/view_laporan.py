@@ -51,7 +51,7 @@ def list(request):
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
     if subopdrealisasi_id:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
-        
+
     filterreals = Q()
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
@@ -61,7 +61,7 @@ def list(request):
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
     if subopdrealisasi_id:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
-    
+
     progs = Model_prog.objects.all()
     kegs = Model_keg.objects.all()
     subs = Model_sub.objects.all()
@@ -71,8 +71,12 @@ def list(request):
     # Siapkan data untuk template
     prog_data = []
     for prog in progs:
+        total_pagu_prog = 0
+        total_realisasi_prog = 0
         prog_kegs = []
         for keg in prog.dankelkegs.all():
+            total_pagu_keg = 0
+            total_realisasi_keg = 0
             keg_subs = []
             for sub in keg.dankelsubs.all():
                 # Ambil rencana terkait dengan sub
@@ -81,7 +85,11 @@ def list(request):
                 # Ambil data pagu
                 pagu = 0
                 if related_rencanas.exists():
-                    pagu = related_rencanas.first().rencdankel_pagu
+                    pagu = related_rencanas.aggregate(total_pagu=Sum('rencdankel_pagu'))['total_pagu'] or 0
+                
+                # Hitung total pagu untuk keg dan prog
+                total_pagu_keg += pagu
+                
                 
                 # Ambil realisasi terkait dengan sub
                 realisasis_sub = realisasis.filter(realisasidankel_rencana__in=related_rencanas)
@@ -95,6 +103,7 @@ def list(request):
                         'rencana': rencana,
                         'realisasi': realisasi
                     })
+                    total_realisasi_keg += realisasi['total_lpj'] or 0
                 
                 keg_subs.append({
                     'sub': sub,
@@ -103,11 +112,18 @@ def list(request):
                 })
             prog_kegs.append({
                 'keg': keg,
-                'subs': keg_subs
+                'subs': keg_subs,
+                'total_pagu_keg': total_pagu_keg,
+                'total_realisasi_keg': total_realisasi_keg
             })
+            total_pagu_prog += total_pagu_keg
+            total_realisasi_prog += total_realisasi_keg
+            
         prog_data.append({
             'prog': prog,
-            'kegs': prog_kegs
+            'kegs': prog_kegs,
+            'total_pagu_prog': total_pagu_prog,
+            'total_realisasi_prog': total_realisasi_prog
         })
 
     context = {

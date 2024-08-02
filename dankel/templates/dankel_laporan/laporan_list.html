@@ -41,15 +41,15 @@
                             {% for prog in prog_data %}
                                 <tr>
                                     <td colspan="3">{{ prog.prog.dankel_prog }}</td>
-                                    <td colspan="3"></td>
-                                    <td colspan="3"></td>
+                                    <td colspan="3" style="text-align: right;">{{ prog.total_pagu_prog }}</td>
+                                    <td colspan="3" style="text-align: right;">{{ prog.total_realisasi_prog }}</td>
                                 </tr>
                                 {% for keg in prog.kegs %}
                                     <tr>
                                         <td></td>
                                         <td colspan="2">{{ keg.keg.dankelkeg_nama }}</td>
-                                        <td colspan="3"></td>
-                                        <td colspan="3"></td>
+                                        <td colspan="3" style="text-align: right;">{{ keg.total_pagu_keg }}</td>
+                                        <td colspan="3" style="text-align: right;">{{ keg.total_realisasi_keg }}</td>
                                     </tr>
                                     {% for sub in keg.subs %}
                                         <tr>
@@ -58,21 +58,20 @@
                                             <td>{{ sub.sub.dankelsub_nama }}</td>
                                             {% if sub.realisasi %}
                                                 {% for rencana in sub.realisasi %}
-                                                        <td style="text-align: right;">{{ rencana.rencana.rencdankel_pagu }}</td>
-                                                        <td style="text-align: center;">{{ rencana.rencana.rencdankel_output }}</td>
-                                                        <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
-                                                        <td style="text-align: right;">{{ rencana.realisasi.total_lpj|default:"0.00"|floatformat:2|intcomma}}</td>
-                                                        <td style="text-align: center;">{{ rencana.realisasi.total_output }}</td>
-                                                        <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
+                                                    <td style="text-align: right;">{{ rencana.rencana.rencdankel_pagu }}</td>
+                                                    <td style="text-align: center;">{{ rencana.rencana.rencdankel_output }}</td>
+                                                    <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
+                                                    <td style="text-align: right;">{{ rencana.realisasi.total_lpj|default:"0" }}</td>
+                                                    <td style="text-align: center;">{{ rencana.realisasi.total_output|default:"0" }}</td>
+                                                    <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
                                                 {% endfor %}
                                             {% else %}
-                                                <!-- Baris tambahan untuk tampilan kosong jika tidak ada realisasi -->
-                                                    <td style="text-align: right;">0</td>
-                                                    <td style="text-align: center;">0</td>
-                                                    <td style="text-align: right;">0</td>
-                                                    <td style="text-align: right;">0</td>
-                                                    <td style="text-align: center;">0</td>
-                                                    <td style="text-align: right;">0</td>
+                                                <td style="text-align: right;">0</td>
+                                                <td style="text-align: center;">0</td>
+                                                <td style="text-align: right;">0</td>
+                                                <td style="text-align: right;">0</td>
+                                                <td style="text-align: center;">0</td>
+                                                <td style="text-align: right;">0</td>
                                             {% endif %}
                                         </tr>
                                     {% endfor %}
