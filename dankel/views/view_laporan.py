@@ -70,6 +70,9 @@ def list(request):
 
     # Siapkan data untuk template
     prog_data = []
+    total_pagu_keseluruhan = 0
+    total_realisasi_keseluruhan = 0
+    
     for prog in progs:
         total_pagu_prog = 0
         total_realisasi_prog = 0
@@ -90,20 +93,24 @@ def list(request):
                 # Hitung total pagu untuk keg dan prog
                 total_pagu_keg += pagu
                 
-                
                 # Ambil realisasi terkait dengan sub
                 realisasis_sub = realisasis.filter(realisasidankel_rencana__in=related_rencanas)
                 realisasi_data = []
                 for rencana in related_rencanas:
                     realisasi = realisasis_sub.filter(realisasidankel_rencana=rencana).aggregate(
-                        total_lpj=Sum('realisasidankel_lpjnilai') or 0,
-                        total_output=Sum('realisasidankel_output') or 0
+                        total_lpj=Sum('realisasidankel_lpjnilai'),
+                        total_output=Sum('realisasidankel_output')
                     )
+                    total_lpj = realisasi['total_lpj'] if realisasi['total_lpj'] is not None else 0
+                    total_output = realisasi['total_output'] if realisasi['total_output'] is not None else 0
                     realisasi_data.append({
                         'rencana': rencana,
-                        'realisasi': realisasi
+                        'realisasi': {
+                            'total_lpj': total_lpj,
+                            'total_output': total_output
+                        }
                     })
-                    total_realisasi_keg += realisasi['total_lpj'] or 0
+                    total_realisasi_keg += total_lpj
                 
                 keg_subs.append({
                     'sub': sub,
@@ -118,7 +125,10 @@ def list(request):
             })
             total_pagu_prog += total_pagu_keg
             total_realisasi_prog += total_realisasi_keg
-            
+        
+        total_pagu_keseluruhan += total_pagu_prog
+        total_realisasi_keseluruhan += total_realisasi_prog
+        
         prog_data.append({
             'prog': prog,
             'kegs': prog_kegs,
@@ -130,10 +140,13 @@ def list(request):
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
         'tombol': 'Cetak',
         'prog_data': prog_data,
+        'total_pagu_keseluruhan': total_pagu_keseluruhan,
+        'total_realisasi_keseluruhan': total_realisasi_keseluruhan
     }
-    print(prog_data)
+    print(context)
 
     return render(request, template, context)
+
 
 @set_submenu_session
 @menu_access_required('list')    
