@@ -147,7 +147,8 @@ class RealisasiDankel(models.Model):
     realisasidankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE, related_name='rencanas')
+    realisasidankel_output = models.IntegerField(verbose_name='Output')
     realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
     realisasidankel_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
@@ -227,7 +228,7 @@ class RealisasiDankel(models.Model):
         return nilai_realisasi
     
     def __str__(self):
-        return f'{self.realisasidankel_dana}-{self.realisasidankel_tahap}'
+        return f'{self.realisasidankel_rencana}'
 
 class RealisasiDankelsisa(models.Model):
     
@@ -236,6 +237,7 @@ class RealisasiDankelsisa(models.Model):
     realisasidankelsisa_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankelsisa_rencana = models.ForeignKey(RencDankelsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankelsisa_output = models.IntegerField(verbose_name='Output')
     realisasidankelsisa_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankelsisa_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
     realisasidankelsisa_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)

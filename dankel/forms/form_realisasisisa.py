@@ -52,6 +52,7 @@ class RealisasiDankelsisaForm(forms.ModelForm):
             'realisasidankelsisa_tahap': forms.HiddenInput(),
             'realisasidankelsisa_subopd': forms.HiddenInput(),
             'realisasidankelsisa_rencana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankelsisa_output': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankelsisa_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankelsisa_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'realisasidankelsisa_nilai': forms.NumberInput(attrs={'class': 'form-control'}),

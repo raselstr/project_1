@@ -1,16 +1,20 @@
 # File: your_app/views.py
 from django.shortcuts import render, get_object_or_404,redirect
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan 
-from dausg.models import DankelProg
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan
+from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
 
 Model_data = RealisasiDankel
-Model_program = DankelProg
+Model_prog = DankelProg
+Model_keg = DankelKeg
+Model_sub = Dankelsub
+Model_rencana = RencDankel
+Model_realisasi = RealisasiDankel
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
 tag_url = 'laporan_list'
@@ -30,130 +34,6 @@ def get_from_sessions(request):
     
     return session_data
 
-# @set_submenu_session
-# @menu_access_required('delete')
-# def delete(request, pk):
-#     request.session['next'] = request.get_full_path()
-#     try:
-#         data = Model_data.objects.get(id=pk)
-#         data.delete()
-#         messages.warning(request, "Data Berhasil dihapus")
-#     except Model_data.DoesNotExist:
-#         messages.error(request,"Dana tidak ditemukan")
-#     except ValidationError as e:
-#         messages.error(request, str(e))
-#     return redirect(tag_url)
-
-# @set_submenu_session
-# @menu_access_required('update')
-# def update(request, pk):
-#     request.session['next'] = request.get_full_path()
-#     realisasi_dankel = get_object_or_404(laporan, pk=pk)
-
-#     if request.method == 'POST':
-#         form = Form_data(request.POST, instance=realisasi_dankel)
-#         if form.is_valid():
-#             # Ambil data dari form yang sudah divalidasi
-#             realisasi_dankel = form.save(commit=False)
-            
-#             # Ambil nilai-nilai yang diperlukan untuk validasi
-#             tahun = realisasi_dankel.realisasidankel_tahun
-#             opd = realisasi_dankel.realisasidankel_subopd_id
-#             dana = realisasi_dankel.realisasidankel_dana_id
-#             rencana_pk = realisasi_dankel.realisasidankel_rencana_id
-            
-#             # Panggil method get_rencana_pk untuk validasi tambahan
-#             total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-#             total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-
-#             # Lakukan validasi tambahan jika diperlukan
-#             if total_realisasi_pk > total_rencana_pk:
-#                 form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-#                 context = {
-#                     'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
-#                     'form': form,
-#                     'btntombol': 'Update',
-#                 }
-#                 return render(request, template_form, context)
-            
-#             # Jika validasi tambahan berhasil, simpan data
-#             realisasi_dankel.save()
-#             return redirect(tag_url)  # ganti dengan halaman sukses Anda
-#         else:
-#             context = {
-#                 'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
-#                 'form': form,
-#                 'btntombol': 'Update',
-#             }
-#             return render(request, template_form, context)
-#     else:
-#         form = Form_data(instance=realisasi_dankel)
-#     context = {
-#         'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
-#         'form': form,
-#         'btntombol': 'Update',
-#     }
-#     return render(request, template_form, context)
-
-
-# @set_submenu_session
-# @menu_access_required('simpan')
-# def simpan(request):
-#     request.session['next'] = request.get_full_path()
-#     if request.method == 'POST':
-#         form = Form_data(request.POST)
-#         if form.is_valid():
-#             # Ambil data dari form yang sudah divalidasi
-#             realisasi_dankel = form.save(commit=False)
-            
-#             # Ambil nilai-nilai yang diperlukan untuk validasi
-#             tahun = realisasi_dankel.realisasidankel_tahun
-#             opd = realisasi_dankel.realisasidankel_subopd_id
-#             dana = realisasi_dankel.realisasidankel_dana_id
-#             rencana_pk = realisasi_dankel.realisasidankel_rencana_id
-            
-#             # Panggil method get_rencana_pk untuk validasi tambahan
-#             total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-#             total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-#             print(total_realisasi_pk, total_rencana_pk)
-            
-            
-#             # Lakukan validasi tambahan jika diperlukan
-#             if total_realisasi_pk > total_rencana_pk:
-#                 form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-#                 context = {
-#                     'judul': 'Form Input SP2D',
-#                     'form': form,
-#                     'btntombol': 'Simpan',
-#                 }
-#                 return render(request, template_form, context)
-            
-#             # Jika validasi tambahan berhasil, simpan data
-#             realisasi_dankel.save()
-#             return redirect(tag_url)  # ganti dengan halaman sukses Anda
-#         else:
-#             context = {
-#                 'judul': 'Form Input SP2D',
-#                 'form': form,
-#                 'btntombol': 'Simpan',
-#             }
-#             return render(request, template_form, context)
-#     else:
-#         # Ambil data filter dari sesi
-#         initial_data = {
-#             'realisasidankel_tahun': request.session.get('realisasidankel_tahun'),
-#             'realisasidankel_dana': request.session.get('realisasidankel_dana'),
-#             'realisasidankel_tahap': request.session.get('realisasidankel_tahap'),
-#             'realisasidankel_subopd': request.session.get('realisasidankel_subopd')
-#         }
-#         form = Form_data(initial=initial_data)
-#     context = {
-#         'judul': 'Form Input SP2D',
-#         'form': form,
-#         'btntombol': 'Simpan',
-#     }
-#     return render(request, template_form, context)
-
 @set_submenu_session
 @menu_access_required('list')
 def list(request):
@@ -166,30 +46,77 @@ def list(request):
     # Buat filter query
     filters = Q()
     if tahunrealisasi:
-        filters &= Q(realisasidankel_tahun=tahunrealisasi)
+        filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
-        filters &= Q(realisasidankel_dana_id=danarealisasi_id)
-    if tahaprealisasi_id:
-        filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+        filters &= Q(rencdankel_dana_id=danarealisasi_id)
     if subopdrealisasi_id:
-        filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+        filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
+        
+    filterreals = Q()
+    if tahunrealisasi:
+        filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
+    if danarealisasi_id:
+        filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
+    if tahaprealisasi_id:
+        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+    if subopdrealisasi_id:
+        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
-    # Terapkan filter ke query data
-    
-    data = (RealisasiDankel.objects
-            .select_related('realisasidankel_dana', 'realisasidankel_tahap', 'realisasidankel_subopd', 'realisasidankel_rencana')
-            .prefetch_related('realisasidankel_rencana__dankelsub_keg__dankelkeg_prog')
-            .all())
-    # data = Model_data.objects.filter(filters)
-    prog = Model_program.objects.all()
+    progs = Model_prog.objects.all()
+    kegs = Model_keg.objects.all()
+    subs = Model_sub.objects.all()
+    rencanas = Model_rencana.objects.filter(filters)
+    realisasis = Model_realisasi.objects.filter(filterreals)
+
+    # Siapkan data untuk template
+    prog_data = []
+    for prog in progs:
+        prog_kegs = []
+        for keg in prog.dankelkegs.all():
+            keg_subs = []
+            for sub in keg.dankelsubs.all():
+                # Ambil rencana terkait dengan sub
+                related_rencanas = rencanas.filter(rencdankel_sub=sub)
+                
+                # Ambil data pagu
+                pagu = 0
+                if related_rencanas.exists():
+                    pagu = related_rencanas.first().rencdankel_pagu
+                
+                # Ambil realisasi terkait dengan sub
+                realisasis_sub = realisasis.filter(realisasidankel_rencana__in=related_rencanas)
+                realisasi_data = []
+                for rencana in related_rencanas:
+                    realisasi = realisasis_sub.filter(realisasidankel_rencana=rencana).aggregate(
+                        total_lpj=Sum('realisasidankel_lpjnilai') or 0,
+                        total_output=Sum('realisasidankel_output') or 0
+                    )
+                    realisasi_data.append({
+                        'rencana': rencana,
+                        'realisasi': realisasi
+                    })
+                
+                keg_subs.append({
+                    'sub': sub,
+                    'pagu': pagu,
+                    'realisasi': realisasi_data
+                })
+            prog_kegs.append({
+                'keg': keg,
+                'subs': keg_subs
+            })
+        prog_data.append({
+            'prog': prog,
+            'kegs': prog_kegs
+        })
 
     context = {
-        'judul' : 'Rekapitulasi Realisasi Dana Kelurahan',
-        'tombol' : 'Cetak',
-        'data' : data,
-        'prog' : prog,
+        'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
+        'tombol': 'Cetak',
+        'prog_data': prog_data,
     }
-    print(data)
+    print(prog_data)
+
     return render(request, template, context)
 
 @set_submenu_session
@@ -215,7 +142,7 @@ def filter(request):
     
     context = {
         'judul' : 'Realisasi Tahun Berjalan',
-        'tombol' : 'Tambah Realisasi Tahun Berjalan',
+        'tombol' : 'Cari Laporan Realisasi Tahun Berjalan',
         'form': form
         # 'datasisa' : total_pagu_sisa,
     }

@@ -38,62 +38,95 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
-                            {% for prog in prog %}
+                            {% for prog in prog_data %}
                                 <tr>
-                                    <td colspan=3>
-                                        {{ prog.dankel_prog }}
-                                    </td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                    <td colspan="3">{{ prog.prog.dankel_prog }}</td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
                                 </tr>
-                                <tr>
-                                    <td></td>
-                                    <td colspan=2>
-                                        {% comment %} {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }} {% endcomment %}
-                                    </td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                {% for data in data %}
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td>
-                                        {% comment %} {{ data.realisasidankel_rencana.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog }} {% endcomment %}
-                                    </td>
-                                    <td>
-                                        {{ data.realisasidankel_sp2dtu }}<br>
-                                        {{ data.realisasidankel_tgl }}<br>
-                                        {{ data.realisasidankel_nilai|default:"0.00"|floatformat:2|intcomma }}<br>
-                                    </td>
-                                    <td>
-                                        {{ data.realisasidankel_lpj }}<br>
-                                        {{ data.realisasidankel_lpjtgl }}<br>
-                                        {{ data.realisasidankel_lpjnilai|default:"0.00"|floatformat:2|intcomma }}<br>
-                                    </td>
-                                    <td>
-                                        {{ data.realisasidankel_sts }}<br>
-                                        {{ data.realisasidankel_ststgl }}<br>
-                                        {{ data.realisasidankel_stsnilai|default:"0.00"|floatformat:2|intcomma }}<br>
-                                    </td>
-                                    <td>{{data.realisasidankel_lpjnilai}}</td>
-                                    <td>{{ data.realisasidankel_verif }}</td>
-                                    <td></td>
-
-                                    <!-- Menambahkan informasi dari RencDankelsisa -->
-                                </tr>
+                                {% for keg in prog.kegs %}
+                                    <tr>
+                                        <td></td>
+                                        <td colspan="2">{{ keg.keg.dankelkeg_nama }}</td>
+                                        <td colspan="3"></td>
+                                        <td colspan="3"></td>
+                                    </tr>
+                                    {% for sub in keg.subs %}
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{ sub.sub.dankelsub_nama }}</td>
+                                            {% if sub.realisasi %}
+                                                {% for rencana in sub.realisasi %}
+                                                        <td style="text-align: right;">{{ rencana.rencana.rencdankel_pagu }}</td>
+                                                        <td style="text-align: center;">{{ rencana.rencana.rencdankel_output }}</td>
+                                                        <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
+                                                        <td style="text-align: right;">{{ rencana.realisasi.total_lpj|default:"0.00"|floatformat:2|intcomma}}</td>
+                                                        <td style="text-align: center;">{{ rencana.realisasi.total_output }}</td>
+                                                        <td style="text-align: right;">{{ sub.sub.dankelsub_satuan }}</td>
+                                                {% endfor %}
+                                            {% else %}
+                                                <!-- Baris tambahan untuk tampilan kosong jika tidak ada realisasi -->
+                                                    <td style="text-align: right;">0</td>
+                                                    <td style="text-align: center;">0</td>
+                                                    <td style="text-align: right;">0</td>
+                                                    <td style="text-align: right;">0</td>
+                                                    <td style="text-align: center;">0</td>
+                                                    <td style="text-align: right;">0</td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
                                 {% endfor %}
-                                {% endfor %}
+                            {% endfor %}
                         </tbody>
+                        {% comment %} <tbody>
+                            {% for prog in progs %}
+                            <tr>
+                                <td colspan="3">{{ prog.dankel_prog }}</td>
+                                <td colspan="3"></td>
+                                <td colspan="3"></td>
+                            </tr>
+                                {% for keg in prog.dankelkegs.all %}
+                                    <tr>
+                                        <td></td>
+                                        <td colspan="2">{{ keg.dankelkeg_nama }}</td>
+                                        <td colspan="3"></td>
+                                        <td colspan="3"></td>
+                                    </tr>
+                                    {% for sub in keg.dankelsubs.all %}
+                                        {% with rencana_data=rencanas|filter:"rencdankel_sub=sub" %}
+                                            {% if rencana_data %}
+                                                {% for rencana in rencana_data %}
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>{{ sub.dankelsub_nama }}</td>
+                                                        <td>{{ rencana.rencdankel_pagu|default:"0" }}</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>{{ sub.dankelsub_nama }}</td>
+                                                    <td>0</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody> {% endcomment %}
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
