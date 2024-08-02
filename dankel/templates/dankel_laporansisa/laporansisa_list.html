@@ -58,8 +58,8 @@
                                             <td>{{ sub.sub.dankelsub_nama }}</td>
                                             {% if sub.realisasi %}
                                                 {% for rencana in sub.realisasi %}
-                                                    <td style="text-align: right;">{{ rencana.rencana.rencdankel_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
-                                                    <td style="text-align: center;">{{ rencana.rencana.rencdankel_output|default:"0"|floatformat:0|intcomma }}</td>
+                                                    <td style="text-align: right;">{{ rencana.rencana.rencdankelsisa_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                    <td style="text-align: center;">{{ rencana.rencana.rencdankelsisa_output|default:"0"|floatformat:0|intcomma }}</td>
                                                     <td style="text-align: left;">{{ sub.sub.dankelsub_satuan }}</td>
                                                     <td style="text-align: right;">{{ rencana.realisasi.total_lpj|default:"0.00"|floatformat:2|intcomma }}</td>
                                                     <td style="text-align: center;">{{ rencana.realisasi.total_output|default:"0" }}</td>

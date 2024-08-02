@@ -236,7 +236,7 @@ class RealisasiDankelsisa(models.Model):
     realisasidankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankelsisa_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasidankelsisa_rencana = models.ForeignKey(RencDankelsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankelsisa_rencana = models.ForeignKey(RencDankelsisa, verbose_name='Kegiatan', on_delete=models.CASCADE, related_name='rencanasisas')
     realisasidankelsisa_output = models.IntegerField(verbose_name='Output')
     realisasidankelsisa_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankelsisa_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
