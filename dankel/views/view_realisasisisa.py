@@ -47,6 +47,12 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     realisasi_dankel = get_object_or_404(RealisasiDankelsisa, pk=pk)
+    
+    keg = {
+        'tahun' : request.session.get('realisasidankel_tahun'),
+        'dana' : request.session.get('realisasidankel_dana'),
+        'subopd' : request.session.get('realisasidankel_subopd')
+    }
 
     if request.method == 'POST':
         form = Form_data(request.POST, instance=realisasi_dankel)
@@ -85,7 +91,7 @@ def update(request, pk):
             }
             return render(request, template_form, context)
     else:
-        form = Form_data(instance=realisasi_dankel)
+        form = Form_data(instance=realisasi_dankel, keg=keg)
     context = {
         'judul': 'Form Update SP2D',
         'form': form,
@@ -98,6 +104,11 @@ def update(request, pk):
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
+    keg = {
+        'tahun' : request.session.get('realisasidankelsisa_tahun'),
+        'dana' : request.session.get('realisasidankelsisa_dana'),
+        'subopd' : request.session.get('realisasidankelsisa_subopd')
+    }
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
@@ -143,7 +154,8 @@ def simpan(request):
             'realisasidankelsisa_tahap': request.session.get('realisasidankelsisa_tahap'),
             'realisasidankelsisa_subopd': request.session.get('realisasidankelsisa_subopd')
         }
-        form = Form_data(initial=initial_data)
+        form = Form_data(initial=initial_data, keg=keg)
+        
     context = {
         'judul': 'Form Input SP2D penggunaan Sisa',
         'form': form,

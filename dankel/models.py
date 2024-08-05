@@ -9,7 +9,7 @@ from pagu.models import Pagudausg
 from penerimaan.models import Penerimaan, DistribusiPenerimaan
 from datetime import datetime
 
-from decimal import Decimal
+from decimal import Decimal, DivisionUndefined
 
 # Create your models here.
 VERIF = [
@@ -203,9 +203,20 @@ class RealisasiDankel(models.Model):
         return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
     
     def get_persentase(self, tahun, opd, dana):
-        lpj = self.get_realisasilpj_total(tahun, opd, dana)
-        penerimaan = self.get_penerimaan_total(tahun, opd, dana)
-        return ((lpj/penerimaan)*100)
+        try:
+            lpj = self.get_realisasilpj_total(tahun, opd, dana)
+            penerimaan = self.get_penerimaan_total(tahun, opd, dana)
+            
+            if lpj is None:
+                return None
+            if penerimaan is None:
+                return 0
+            return ((lpj/penerimaan)*100)
+        
+        except DivisionUndefined:
+            return "Error: Pembagian tidak terdefinisi"  # Menangani pembagian tidak terdefinisi
+        except Exception as e:
+            return 0
     
     def get_rencana_pk(self, tahun, opd, dana, pk):
         filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
@@ -293,9 +304,21 @@ class RealisasiDankelsisa(models.Model):
         return realisasilpj_total
     
     def get_persentase(self, tahun, opd, dana):
-        lpj = self.get_realisasilpj_total(tahun, opd, dana)
-        penerimaan = self.get_penerimaan_total(tahun, opd, dana)
-        return ((lpj/penerimaan)*100)
+        try:
+            lpj = self.get_realisasilpj_total(tahun, opd, dana)
+            penerimaan = self.get_penerimaan_total(tahun, opd, dana)
+            
+            if lpj is None:
+                return 0
+            if penerimaan is None:
+                return 0
+            return ((lpj/penerimaan)*100)
+        
+        except DivisionUndefined:
+            return "Error: Pembagian tidak terdefinisi"  # Menangani pembagian tidak terdefinisi
+        except Exception as e:
+            return 0
+    
     
     def get_rencana_pk(self, tahun, opd, dana, pk):
         filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
@@ -319,3 +342,16 @@ class RealisasiDankelsisa(models.Model):
     
     def __str__(self):
         return f'{self.realisasidankelsisa_dana}-{self.realisasidankelsisa_tahap}'
+    
+class RencDankeljadwal(models.Model):
+    
+    rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencdankel_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
+    rencdankel_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
+    rencdankel_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
+    
+    def __str__(self):
+        return f"{self.rencdankel_sub}"

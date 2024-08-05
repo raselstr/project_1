@@ -47,6 +47,11 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     realisasi_dankel = get_object_or_404(RealisasiDankel, pk=pk)
+    keg = {
+        'tahun' : request.session.get('realisasidankel_tahun'),
+        'dana' : request.session.get('realisasidankel_dana'),
+        'subopd' : request.session.get('realisasidankel_subopd')
+    }
 
     if request.method == 'POST':
         form = Form_data(request.POST, instance=realisasi_dankel)
@@ -85,7 +90,7 @@ def update(request, pk):
             }
             return render(request, template_form, context)
     else:
-        form = Form_data(instance=realisasi_dankel)
+        form = Form_data(instance=realisasi_dankel, keg=keg)
     context = {
         'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
         'form': form,
@@ -98,6 +103,12 @@ def update(request, pk):
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
+      
+    keg = {
+        'tahun' : request.session.get('realisasidankel_tahun'),
+        'dana' : request.session.get('realisasidankel_dana'),
+        'subopd' : request.session.get('realisasidankel_subopd')
+    }
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
@@ -113,18 +124,6 @@ def simpan(request):
             # Panggil method get_rencana_pk untuk validasi tambahan
             total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
             total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-            print(total_realisasi_pk, total_rencana_pk)
-            
-            
-            # Lakukan validasi tambahan jika diperlukan
-            if total_realisasi_pk > total_rencana_pk:
-                form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-                context = {
-                    'judul': 'Form Input SP2D',
-                    'form': form,
-                    'btntombol': 'Simpan',
-                }
-                return render(request, template_form, context)
             
             # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
@@ -137,14 +136,14 @@ def simpan(request):
             }
             return render(request, template_form, context)
     else:
-        # Ambil data filter dari sesi
         initial_data = {
             'realisasidankel_tahun': request.session.get('realisasidankel_tahun'),
             'realisasidankel_dana': request.session.get('realisasidankel_dana'),
             'realisasidankel_tahap': request.session.get('realisasidankel_tahap'),
             'realisasidankel_subopd': request.session.get('realisasidankel_subopd')
         }
-        form = Form_data(initial=initial_data)
+        form = Form_data(initial=initial_data, keg=keg)
+    
     context = {
         'judul': 'Form Input SP2D',
         'form': form,

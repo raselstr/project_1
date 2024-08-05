@@ -66,4 +66,19 @@ class RealisasiDankelsisaForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
+        keg = kwargs.pop('keg', None)
         super().__init__(*args, **kwargs)
+        print(keg)
+        if keg:
+            subopd = keg.get('subopd', None)
+            dana = keg.get('dana', None)
+            tahun = keg.get('tahun', None)
+
+            if subopd and dana and tahun:
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankel.objects.filter(
+                    rencdankel_subopd=subopd,
+                    rencdankel_dana=dana,
+                    rencdankel_tahun=tahun,
+                )
+            else:
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankel.objects.none()
