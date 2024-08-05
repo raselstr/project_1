@@ -49,7 +49,7 @@ def list(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id:
+    if subopdrealisasi_id is not 125:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     filterreals = Q()
@@ -59,7 +59,7 @@ def list(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id:
+    if subopdrealisasi_id is not 125:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
 
     progs = Model_prog.objects.all()
@@ -143,7 +143,7 @@ def list(request):
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
         'total_realisasi_keseluruhan': total_realisasi_keseluruhan
     }
-    print(context)
+    # print(context)
 
     return render(request, template, context)
 
@@ -184,6 +184,7 @@ def home(request):
     sesiidopd = session_data.get('idsubopd')
     sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path()
+    
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
         danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
@@ -217,5 +218,6 @@ def home(request):
         'realisasilpjsisa' : total_realisasilpjsisa,
         'persentasesisa' : total_persentasesisa,
     }
+    
     return render(request, template_home, context)
     

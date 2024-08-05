@@ -61,7 +61,7 @@ class DistribusiPenerimaan(models.Model):
         total_pagu = Pagudausg.objects.filter(
             pagudausg_tahun=self.distri_penerimaan.penerimaan_tahun,
             pagudausg_opd=self.distri_subopd
-        ).aggregate(total=Sum('pagudausg_sisa'))['total'] or Decimal(0)
+        ).aggregate(total=Sum('pagudausg_nilai'))['total'] or Decimal(0)
 
         # Validasi total distribusi OPD tidak boleh melebihi nilai penerimaan
         if total_distribusi_opd > self.distri_penerimaan.penerimaan_nilai:

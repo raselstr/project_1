@@ -159,7 +159,7 @@ def list(request):
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
-
+    
     # Buat filter query
     filters = Q()
     if tahunrealisasi:
@@ -168,7 +168,7 @@ def list(request):
         filters &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id:
+    if subopdrealisasi_id is not 125:
         filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
     # Terapkan filter ke query data
@@ -189,19 +189,23 @@ def filter(request):
     tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     
+    
     if request.method == 'GET':
         form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
         if form.is_valid():
-            # Simpan data filter di sesi
             request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
             request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
             request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
             request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
             
+            # print(f"Redirecting to: {tag_url}")
             return redirect(tag_url)
+        else:
+            print("Form is not valid")
+            # print(form.errors)
     else:
         form = Form_filter()
-    
+    # print(form)
     context = {
         'judul' : 'Realisasi Tahun Berjalan',
         'tombol' : 'Tambah Realisasi Tahun Berjalan',
