@@ -1,5 +1,5 @@
 from django import forms
-from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankel
+from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankelsisa
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -75,10 +75,10 @@ class RealisasiDankelsisaForm(forms.ModelForm):
             tahun = keg.get('tahun', None)
 
             if subopd and dana and tahun:
-                self.fields['realisasidankelsisa_rencana'].queryset = RencDankel.objects.filter(
-                    rencdankel_subopd=subopd,
-                    rencdankel_dana=dana,
-                    rencdankel_tahun=tahun,
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankelsisa.objects.filter(
+                    rencdankelsisa_subopd=subopd,
+                    rencdankelsisa_dana=dana,
+                    rencdankelsisa_tahun=tahun,
                 )
             else:
-                self.fields['realisasidankelsisa_rencana'].queryset = RencDankel.objects.none()
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankelsisa.objects.none()

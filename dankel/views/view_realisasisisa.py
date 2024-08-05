@@ -49,9 +49,9 @@ def update(request, pk):
     realisasi_dankel = get_object_or_404(RealisasiDankelsisa, pk=pk)
     
     keg = {
-        'tahun' : request.session.get('realisasidankel_tahun'),
-        'dana' : request.session.get('realisasidankel_dana'),
-        'subopd' : request.session.get('realisasidankel_subopd')
+        'tahun' : request.session.get('realisasidankelsisa_tahun'),
+        'dana' : request.session.get('realisasidankelsisa_dana'),
+        'subopd' : request.session.get('realisasidankelsisa_subopd')
     }
 
     if request.method == 'POST':
