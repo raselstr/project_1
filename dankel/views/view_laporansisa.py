@@ -7,6 +7,7 @@ from ..models import RealisasiDankelsisa, RencDankelsisa, Subkegiatan
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiDankelsisaForm
 from project.decorators import menu_access_required, set_submenu_session
+from django.contrib.sessions.models import Session
 
 
 Model_prog = DankelProg
@@ -22,7 +23,7 @@ template = 'dankel_laporansisa/laporansisa_list.html'
 template_filter = 'dankel_laporansisa/laporansisa_filter.html'
 template_form = 'dankel_laporansisa/laporansisa_form.html'
 template_home = 'dankel_laporansisa/laporansisa_home.html'
-sesidana = 'dana-kelurahan'
+sesidana = 'sisa-dana-kelurahan'
 
 def get_from_sessions(request):
     session_data = {
@@ -37,35 +38,37 @@ def get_from_sessions(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    tahunrealisasi = request.session.get('realisasidankelsisa_tahun')
-    danarealisasi_id = request.session.get('realisasidankelsisa_dana')
-    tahaprealisasi_id = request.session.get('realisasidankelsisa_tahap')
-    subopdrealisasi_id = request.session.get('realisasidankelsisa_subopd')
+    tahunrealisasisisa = request.session.get('realisasidankelsisa_tahun')
+    danarealisasisisa_id = request.session.get('realisasidankelsisa_dana')
+    tahaprealisasisisa_id = request.session.get('realisasidankelsisa_tahap')
+    subopdrealisasisisa_id = request.session.get('realisasidankelsisa_subopd')
+    print(subopdrealisasisisa_id)
 
     # Buat filter query
     filters = Q()
-    if tahunrealisasi:
-        filters &= Q(rencdankelsisa_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filters &= Q(rencdankelsisa_dana_id=danarealisasi_id)
-    if subopdrealisasi_id is not 125:
-        filters &= Q(rencdankelsisa_subopd_id=subopdrealisasi_id)
+    if tahunrealisasisisa:
+        filters &= Q(rencdankelsisa_tahun=tahunrealisasisisa)
+    if danarealisasisisa_id:
+        filters &= Q(rencdankelsisa_dana_id=danarealisasisisa_id)
+    if subopdrealisasisisa_id != 125:
+        filters &= Q(rencdankelsisa_subopd_id=subopdrealisasisisa_id)
 
     filterreals = Q()
-    if tahunrealisasi:
-        filterreals &= Q(realisasidankelsisa_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filterreals &= Q(realisasidankelsisa_dana_id=danarealisasi_id)
-    if tahaprealisasi_id:
-        filterreals &= Q(realisasidankelsisa_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id is not 125:
-        filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasi_id)
-
+    if tahunrealisasisisa:
+        filterreals &= Q(realisasidankelsisa_tahun=tahunrealisasisisa)
+    if danarealisasisisa_id:
+        filterreals &= Q(realisasidankelsisa_dana_id=danarealisasisisa_id)
+    if tahaprealisasisisa_id:
+        filterreals &= Q(realisasidankelsisa_tahap_id=tahaprealisasisisa_id)
+    if subopdrealisasisisa_id != 125:
+        filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasisisa_id)
+    
     progs = Model_prog.objects.all()
     kegs = Model_keg.objects.all()
     subs = Model_sub.objects.all()
     rencanas = Model_rencana.objects.filter(filters)
     realisasis = Model_realisasi.objects.filter(filterreals)
+    
 
     # Siapkan data untuk template
     prog_data = []
@@ -154,15 +157,18 @@ def filter(request):
     sesiidopd = session_data.get('idsubopd')
     tahunrencana = RencDankelsisa.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
+    # sessions = Session.objects.all()
+    # for session in sessions:
+    #     print(session.session_key, session.get_decoded())
     
     if request.method == 'GET':
         form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
         if form.is_valid():
             # Simpan data filter di sesi
             request.session['realisasidankelsisa_tahun'] = form.cleaned_data.get('realisasidankelsisa_tahun')
-            request.session['realisasidankelsisa_dana'] = form.cleaned_data.get('realisasidankelsisa_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
-            request.session['realisasidankelsisa_tahap'] = form.cleaned_data.get('realisasidankelsisa_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
-            request.session['realisasidankelsisa_subopd'] = form.cleaned_data.get('realisasidankelsisa_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
+            request.session['realisasidankelsisa_dana'] = form.cleaned_data.get('realisasidankelsisa_dana').id if form.cleaned_data.get('realisasidankelsisa_dana') else None
+            request.session['realisasidankelsisa_tahap'] = form.cleaned_data.get('realisasidankelsisa_tahap').id if form.cleaned_data.get('realisasidankelsisa_tahap') else None
+            request.session['realisasidankelsisa_subopd'] = form.cleaned_data.get('realisasidankelsisa_subopd').id if form.cleaned_data.get('realisasidankelsisa_subopd') else None
             
             return redirect(tag_url)
     else:
