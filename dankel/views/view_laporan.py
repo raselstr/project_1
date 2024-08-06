@@ -49,7 +49,7 @@ def list(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id is not 125:
+    if subopdrealisasi_id != 125:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     filterreals = Q()
@@ -59,7 +59,7 @@ def list(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id is not 125:
+    if subopdrealisasi_id != 125:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
 
     progs = Model_prog.objects.all()
