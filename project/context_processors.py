@@ -8,8 +8,11 @@ def menu_context_processor(request):
     # Menyimpan tahun saat ini ke dalam session
     current_year = datetime.now().year
     request.session['tahun'] = current_year
-    tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
-    jadwal = tblrencana.rencdankel_jadwal
+    try:
+        tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
+        jadwal = tblrencana.rencdankel_jadwal
+    except RencDankeljadwal.DoesNotExist:
+        jadwal = 1
     
     if request.user.is_authenticated:
         if request.session.get('is_superuser', False):

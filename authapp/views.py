@@ -7,8 +7,12 @@ from dashboard.models import Userlevel, Levelsub
 from dankel.models import RencDankeljadwal
 
 def login_view(request):
-    tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
-    jadwal = tblrencana.rencdankel_jadwal
+    
+    try:
+        tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
+        jadwal = tblrencana.rencdankel_jadwal
+    except RencDankeljadwal.DoesNotExist:
+        jadwal = 1
     
     if request.method == 'POST':
         username = request.POST.get('username')
