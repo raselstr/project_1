@@ -1,12 +1,15 @@
 from datetime import datetime
 from django.urls import reverse, NoReverseMatch
 from dashboard.models import Menu, Submenu
+from dankel.models import RencDankeljadwal
 
 def menu_context_processor(request):
     
     # Menyimpan tahun saat ini ke dalam session
     current_year = datetime.now().year
     request.session['tahun'] = current_year
+    tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
+    jadwal = tblrencana.rencdankel_jadwal
     
     if request.user.is_authenticated:
         if request.session.get('is_superuser', False):
@@ -32,6 +35,7 @@ def menu_context_processor(request):
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
             "tahun": request.session.get('tahun', current_year),
+            "jadwal": request.session.get('jadwal',jadwal),
         }
     else:
         context = {
@@ -42,6 +46,7 @@ def menu_context_processor(request):
             "subopd": '',
             "level": '',
             "tahun": current_year,
+            "jadwal":'',
         }
     
     return context

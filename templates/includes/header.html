@@ -15,8 +15,8 @@
     </div>
   </form>
   <ul class="navbar-nav navbar-right">
-    <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="fas fa-globe-asia"></i> {{ tahun }}</a>
-      <div class="dropdown-menu dropdown-list dropdown-menu-right">
+    <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="fas fa-globe-asia"></i> {{ tahun }} - {{jadwal}}</a>
+      {% comment %} <div class="dropdown-menu dropdown-list dropdown-menu-right">
         <div class="dropdown-header">Messages
           <div class="float-right">
             <a href="#">Mark All As Read</a>
@@ -25,7 +25,7 @@
         <div class="dropdown-footer text-center">
           <a href="#">View All <i class="fas fa-chevron-right"></i></a>
         </div>
-      </div>
+      </div> {% endcomment %}
     </li>
     <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="far fa-envelope"></i></a>
       <div class="dropdown-menu dropdown-list dropdown-menu-right">
@@ -53,10 +53,10 @@
     </li>
     <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
       <img alt="image" src="{% static 'media/img/avatar/avatar-1.png' %}" class="rounded-circle mr-1">
-      <div class="d-sm-none d-lg-inline-block">{{user_nama}}</div></a>
+      <div class="d-sm-none d-lg-inline-block">{{user_nama}} </div></a>
       <div class="dropdown-menu dropdown-menu-right">
         <div class="dropdown-title">
-          Super User : {{is_superuser}} <br>
+          Super User : {{is_superuser}}  <br>
           OPD : {{subopd}}<br>
           Level : {{level}}
         </div>
