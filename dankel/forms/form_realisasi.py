@@ -27,6 +27,8 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         if sesiidopd is not None:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
         else:
+            # self.fields['realisasidankel_subopd'].choices = [(None, '--- Tidak Ada Pilihan ---')]
+            # self.fields['realisasidankel_subopd'].widget.attrs.update({'disabled': 'disabled'})
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()
             
         if sesidana is not None:
