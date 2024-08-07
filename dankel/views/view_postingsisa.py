@@ -16,15 +16,70 @@ template_form = 'dankel_postingsisa/postingsisa_form.html'
 template_list = 'dankel_postingsisa/postingsisa_list.html'
 # sesitahun = 2024
 
+def get_from_sessions(request):
+    session_data = {
+        'idsubopd': request.session.get('idsubopd'),
+        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
+        # Tambahkan lebih banyak kunci session jika diperlukan
+    }
+    return session_data
+    
 @set_submenu_session
 @menu_access_required('list')    
 def list(request):
-    data = Model_data.objects.all()
+    request.session['next'] = request.get_full_path()
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    sesitahun = session_data.get('sesitahun')
+    
+    filters = Q()
+    if sesiidopd:
+        filters &= Q(rencdankelsisa_subopd_id=sesiidopd)
+    if sesitahun:
+        filters &= Q(rencdankelsisa_tahun=sesitahun)
+
+    induk = RencDankeljadwalsisa.objects.filter(rencdankelsisa_jadwal=1).filter(filters).order_by('rencdankelsisa_subopd_id')
+    perubahan = RencDankeljadwalsisa.objects.filter(rencdankelsisa_jadwal=2).filter(filters).order_by('rencdankelsisa_subopd_id')
+
+    # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
+    induk_dict = {
+        (item.rencdankelsisa_subopd_id, item.rencdankelsisa_tahun, item.rencdankelsisa_dana_id,  item.rencdankelsisa_sub_id): item
+        for item in induk
+    }
+    perubahan_dict = {
+        (item.rencdankelsisa_subopd_id, item.rencdankelsisa_tahun, item.rencdankelsisa_dana_id, item.rencdankelsisa_sub_id): item
+        for item in perubahan
+    }
+    
+    # Gabungkan data untuk ditampilkan di template
+    combined_data = []
+    all_keys = set(induk_dict.keys()).union(perubahan_dict.keys())
+    
+    for key in all_keys:
+        item_induk = induk_dict.get(key)
+        item_perubahan = perubahan_dict.get(key)
         
+        # Tambahkan selisih ke dalam data
+        if item_induk and item_perubahan:
+            selisih_pagu = item_perubahan.rencdankelsisa_pagu - item_induk.rencdankelsisa_pagu
+        elif item_perubahan:
+            selisih_pagu = item_perubahan.rencdankelsisa_pagu
+        elif item_induk:
+            selisih_pagu = -item_induk.rencdankelsisa_pagu
+        else:
+            selisih_pagu = 0
+
+        combined_data.append({
+            'item_induk': item_induk,
+            'item_perubahan': item_perubahan,
+            'selisih_pagu': selisih_pagu,
+        })
+    
     context = {
-        'judul' : 'Posting Rencana Kegiatan Dana Kelurahan',
-        'tombol' : 'Posting',
-        'form': data
+        'judul': 'Posting Sisa Rencana Kegiatan Dana Kelurahan',
+        'tombol': 'Posting',
+        'combined_data': combined_data,
+        'session':sesiidopd,
     }
     return render(request, template_list, context)
 

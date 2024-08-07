@@ -14,3 +14,8 @@ def get_subtotal(subtotal_list, dana):
 def unlocalize(value):
     """Return the value unformatted"""
     return str(value)
+
+# @register.filter
+# def zip_lists(list1, list2):
+#     """Menggabungkan dua list menjadi iterator tuple pasangan."""
+#     return zip(list1, list2)
