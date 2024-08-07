@@ -357,7 +357,7 @@ class RencDankeljadwal(models.Model):
     rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
     rencdankel_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     rencdankel_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
-    rencdankel_jadwal = models.IntegerField(models.IntegerField(choices=VERIF, editable=False))
+    rencdankel_jadwal = models.IntegerField(choices=VERIF, null=True)
     
     def __str__(self):
         return f"{self.rencdankel_sub}"

@@ -12,6 +12,7 @@ urlpatterns = [
     path('dankel/', include('dankel.urls.url_sisa')),
     path('dankel/', include('dankel.urls.url_laporan')),
     path('dankel/', include('dankel.urls.url_laporansisa')),
+    path('dankel/', include('dankel.urls.url_posting')),
     path('penerimaan/', include('penerimaan.urls')),
     path('dausg/dankel/', include('dausg.urls.url_dankel')),
     path('dausg/dausgpend/', include('dausg.urls.url_dausgpend')),
