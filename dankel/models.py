@@ -361,3 +361,22 @@ class RencDankeljadwal(models.Model):
     
     def __str__(self):
         return f"{self.rencdankel_sub}"
+
+class RencDankeljadwalsisa(models.Model):
+    
+    VERIF = [
+        (1, 'Rencana Induk'),
+        (2, 'Rencana Perubahan'),
+    ]
+    
+    rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0)
+    rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0)
+    rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
+    rencdankelsisa_jadwal = models.IntegerField(choices=VERIF, null=True)
+    
+    def __str__(self):
+        return f"{self.rencdankelsisa_sub}"

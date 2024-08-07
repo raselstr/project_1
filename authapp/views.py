@@ -28,6 +28,7 @@ def login_view(request):
                         ).filter(
                             Q(lihat=True) | Q(simpan=True) | Q(edit=True) | Q(hapus=True)
                         ).values_list('levelsub_submenu__id', flat=True)
+                        jadwal=
                         
                         request.session['is_superuser'] = False
                         request.session['user_nama'] = user.username
