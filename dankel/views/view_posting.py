@@ -18,21 +18,12 @@ template_list = 'dankel_posting/posting_list.html'
 # sesitahun = 2024
 
 
-def get_from_sessions(request):
-    session_data = {
-        'idsubopd': request.session.get('idsubopd'),
-        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
-        # Tambahkan lebih banyak kunci session jika diperlukan
-    }
-    return session_data
-    
 @set_submenu_session
 @menu_access_required('list')    
 def list(request):
     request.session['next'] = request.get_full_path()
-    session_data = get_from_sessions(request)
-    sesiidopd = session_data.get('idsubopd')
-    sesitahun = session_data.get('sesitahun')
+    sesiidopd = request.session.get('idsubopd')
+    sesitahun = request.session.get('tahun')
     
     filters = Q()
     if sesiidopd:

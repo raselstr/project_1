@@ -39,6 +39,7 @@ def menu_context_processor(request):
             "level": request.session.get('level', 'Super Admin'),
             "tahun": request.session.get('tahun', current_year),
             "jadwal": request.session.get('jadwal',jadwal),
+            "idsubopd" : request.session.get('idsubopd','None'),
         }
     else:
         context = {
@@ -50,6 +51,7 @@ def menu_context_processor(request):
             "level": '',
             "tahun": current_year,
             "jadwal":'',
+            "idsubopd":'',
         }
     
     return context
