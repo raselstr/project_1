@@ -91,6 +91,7 @@ def posting(request):
             if jadwal is not None:
                 for item in rencana:
                     obj, created = Model_data.objects.update_or_create(
+                        rencdankel_id = item.id,
                         rencdankel_tahun=item.rencdankel_tahun,
                         rencdankel_dana=item.rencdankel_dana,
                         rencdankel_subopd=item.rencdankel_subopd,

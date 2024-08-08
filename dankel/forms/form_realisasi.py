@@ -1,5 +1,5 @@
 from django import forms
-from ..models import RealisasiDankel, Subopd, Subkegiatan, RencDankel
+from ..models import RealisasiDankel, Subopd, Subkegiatan, RencDankeljadwal
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -27,8 +27,6 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         if sesiidopd is not None:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
         else:
-            # self.fields['realisasidankel_subopd'].choices = [(None, '--- Tidak Ada Pilihan ---')]
-            # self.fields['realisasidankel_subopd'].widget.attrs.update({'disabled': 'disabled'})
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()
             
         if sesidana is not None:
@@ -75,14 +73,16 @@ class RealisasiDankelForm(forms.ModelForm):
             subopd = keg.get('subopd', None)
             dana = keg.get('dana', None)
             tahun = keg.get('tahun', None)
+            jadwal = keg.get('jadwal', None)
 
             if subopd and dana and tahun:
-                self.fields['realisasidankel_rencana'].queryset = RencDankel.objects.filter(
+                self.fields['realisasidankel_rencana'].queryset = RencDankeljadwal.objects.filter(
                     rencdankel_subopd=subopd,
                     rencdankel_dana=dana,
                     rencdankel_tahun=tahun,
+                    rencdankel_jadwal=jadwal,
                 )
             else:
-                self.fields['realisasidankel_rencana'].queryset = RencDankel.objects.none()
+                self.fields['realisasidankel_rencana'].queryset = RencDankeljadwal.objects.none()
         
             

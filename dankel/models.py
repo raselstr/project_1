@@ -153,7 +153,7 @@ class RencDankeljadwal(models.Model):
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    
+    rencdankel_id = models.IntegerField()
     rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -173,6 +173,7 @@ class RencDankeljadwalsisa(models.Model):
         (2, 'Rencana Perubahan'),
     ]
     
+    rencdankelsisa_id = models.IntegerField()
     rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)

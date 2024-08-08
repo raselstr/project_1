@@ -3,14 +3,16 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 
 
 Model_data = RealisasiDankel
+Model_rencana = RencDankeljadwal
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
+
 tag_url = 'realisasidankel_list'
 tag_home = 'realisasidankel_home'
 template = 'dankel_realisasi/realisasi_list.html'
@@ -98,7 +100,8 @@ def simpan(request):
     keg = {
         'tahun' : request.session.get('realisasidankel_tahun'),
         'dana' : request.session.get('realisasidankel_dana'),
-        'subopd' : request.session.get('realisasidankel_subopd')
+        'subopd' : request.session.get('realisasidankel_subopd'),
+        'jadwal' : request.session.get('jadwal')
     }
     if request.method == 'POST':
         form = Form_data(request.POST)
@@ -176,7 +179,7 @@ def list(request):
 @menu_access_required('list')    
 def filter(request):
     sesiidopd = request.session.get('idsubopd')
-    tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
+    tahunrencana = Model_rencana.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     
     
@@ -207,9 +210,9 @@ def filter(request):
 @set_submenu_session
 @menu_access_required('list')
 def home(request):
+    request.session['next'] = request.get_full_path()
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('sesitahun')
-    request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
         danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
@@ -218,9 +221,10 @@ def home(request):
         danasisa = None
         
     if dana:
-        total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_penerimaan = Model_data().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_realisasilpj = Model_data().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        total_persentase = Model_data().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
+        
         total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
         total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
         total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
