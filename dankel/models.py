@@ -46,6 +46,7 @@ class RencDankel(models.Model):
         # Check if the total planned budget does not exceed the available budget
         total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
         total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        total_realisasilpj = self.get_realisasilpj_total(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
         
         # Include the current instance's budget in the total_rencana
         if self.pk:
@@ -75,6 +76,12 @@ class RencDankel(models.Model):
         total_rencana = self.get_total_rencana(tahun, opd, dana)
         total_pagudausg = self.get_pagudausg(tahun, opd, dana)
         return total_pagudausg - total_rencana
+    
+    def get_realisasilpj_total(self, tahun, opd, dana):
+        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
+        if opd is not None:
+            filters &= Q(realisasidankel_subopd=opd)
+        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
 
     def __str__(self):
         return f"{self.rencdankel_sub}"
@@ -140,14 +147,52 @@ class RencDankelsisa(models.Model):
     def __str__(self):
         return f'{self.rencdankelsisa_sub}'
     
+class RencDankeljadwal(models.Model):
     
+    VERIF = [
+        (1, 'Rencana Induk'),
+        (2, 'Rencana Perubahan'),
+    ]
+    
+    rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencdankel_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
+    rencdankel_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
+    rencdankel_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
+    rencdankel_jadwal = models.IntegerField(choices=VERIF, null=True)
+    
+    def __str__(self):
+        return f"{self.rencdankel_sub}"
+
+class RencDankeljadwalsisa(models.Model):
+    
+    VERIF = [
+        (1, 'Rencana Induk'),
+        (2, 'Rencana Perubahan'),
+    ]
+    
+    rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0)
+    rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0)
+    rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
+    rencdankelsisa_jadwal = models.IntegerField(choices=VERIF, null=True)
+    
+    def __str__(self):
+        return f"{self.rencdankelsisa_sub}"
+    
+
 class RealisasiDankel(models.Model):
     
     realisasidankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     realisasidankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasidankel_rencana = models.ForeignKey(RencDankel, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasidankel_rencana = models.ForeignKey(RencDankeljadwal, verbose_name='Kegiatan', on_delete=models.CASCADE)
     realisasidankel_output = models.IntegerField(verbose_name='Output')
     realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
@@ -225,7 +270,7 @@ class RealisasiDankel(models.Model):
         if pk is not None:
             filters &= Q(id=pk)
         
-        nilai_rencana = RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
+        nilai_rencana = RencDankeljadwal.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
         return nilai_rencana
     
     def get_realisasi_pk(self, tahun, opd, dana, pk):
@@ -343,40 +388,3 @@ class RealisasiDankelsisa(models.Model):
     def __str__(self):
         return f'{self.realisasidankelsisa_dana}-{self.realisasidankelsisa_tahap}'
     
-class RencDankeljadwal(models.Model):
-    
-    VERIF = [
-        (1, 'Rencana Induk'),
-        (2, 'Rencana Perubahan'),
-    ]
-    
-    rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencdankel_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
-    rencdankel_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
-    rencdankel_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencdankel_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
-    rencdankel_jadwal = models.IntegerField(choices=VERIF, null=True)
-    
-    def __str__(self):
-        return f"{self.rencdankel_sub}"
-
-class RencDankeljadwalsisa(models.Model):
-    
-    VERIF = [
-        (1, 'Rencana Induk'),
-        (2, 'Rencana Perubahan'),
-    ]
-    
-    rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencdankelsisa_sub = models.ForeignKey(Dankelsub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
-    rencdankelsisa_pagu = models.DecimalField(verbose_name='Pagu Anggaran Sisa',max_digits=17, decimal_places=2,default=0)
-    rencdankelsisa_output = models.DecimalField(verbose_name='Output Sisa',max_digits=8, decimal_places=2,default=0)
-    rencdankelsisa_ket = models.TextField(verbose_name='Keterangan Kegiatan Sisa', blank=True)
-    rencdankelsisa_jadwal = models.IntegerField(choices=VERIF, null=True)
-    
-    def __str__(self):
-        return f"{self.rencdankelsisa_sub}"

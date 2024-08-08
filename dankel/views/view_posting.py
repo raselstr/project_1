@@ -54,11 +54,11 @@ def list(request):
         
         # Tambahkan selisih ke dalam data
         if item_induk and item_perubahan:
-            selisih_pagu = item_perubahan.rencdankel_pagu - item_induk.rencdankel_pagu
+            selisih_pagu = item_induk.rencdankel_pagu - item_perubahan.rencdankel_pagu
         elif item_perubahan:
-            selisih_pagu = item_perubahan.rencdankel_pagu
+            selisih_pagu = 0 - item_perubahan.rencdankel_pagu
         elif item_induk:
-            selisih_pagu = -item_induk.rencdankel_pagu
+            selisih_pagu = item_induk.rencdankel_pagu - 0
         else:
             selisih_pagu = 0
 

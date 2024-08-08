@@ -19,15 +19,6 @@ template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 sesidana = 'dana-kelurahan'
 
-def get_from_sessions(request):
-    session_data = {
-        'idsubopd': request.session.get('idsubopd'),
-        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
-        # Tambahkan lebih banyak kunci session jika diperlukan
-    }
-    
-    return session_data
-
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
@@ -168,7 +159,7 @@ def list(request):
         filters &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id is not 125:
+    if subopdrealisasi_id != 125:
         filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
     # Terapkan filter ke query data
@@ -184,8 +175,7 @@ def list(request):
 @set_submenu_session
 @menu_access_required('list')    
 def filter(request):
-    session_data = get_from_sessions(request)
-    sesiidopd = session_data.get('idsubopd')
+    sesiidopd = request.session.get('idsubopd')
     tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     
@@ -217,9 +207,8 @@ def filter(request):
 @set_submenu_session
 @menu_access_required('list')
 def home(request):
-    session_data = get_from_sessions(request)
-    sesiidopd = session_data.get('idsubopd')
-    sesitahun = session_data.get('sesitahun')
+    sesiidopd = request.session.get('idsubopd')
+    sesitahun = request.session.get('sesitahun')
     request.session['next'] = request.get_full_path()
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
