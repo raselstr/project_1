@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankel, Subkegiatan
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
@@ -13,7 +13,7 @@ Model_data = RealisasiDankel
 Model_prog = DankelProg
 Model_keg = DankelKeg
 Model_sub = Dankelsub
-Model_rencana = RencDankel
+Model_rencana = RencDankeljadwal
 Model_realisasi = RealisasiDankel
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
@@ -42,9 +42,12 @@ def list(request):
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
+    jadwal = request.session.get('jadwal')
 
     # Buat filter query
     filters = Q()
+    if jadwal:
+        filters &=Q(rencdankel_jadwal=jadwal)
     if tahunrealisasi:
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
@@ -53,6 +56,8 @@ def list(request):
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     filterreals = Q()
+    if jadwal:
+        filters &=Q(rencdankel_jadwal=jadwal)
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
     if danarealisasi_id:
@@ -153,7 +158,7 @@ def list(request):
 def filter(request):
     session_data = get_from_sessions(request)
     sesiidopd = session_data.get('idsubopd')
-    tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
+    tahunrencana = Model_rencana.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     
     if request.method == 'GET':

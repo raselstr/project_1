@@ -52,6 +52,7 @@ class RealisasiDankelForm(forms.ModelForm):
             'realisasidankel_tahap': forms.HiddenInput(),
             'realisasidankel_subopd': forms.HiddenInput(),
             'realisasidankel_rencana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankel_idrencana': forms.HiddenInput(),
             'realisasidankel_output': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankel_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankel_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),

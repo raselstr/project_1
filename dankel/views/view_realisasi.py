@@ -43,7 +43,8 @@ def update(request, pk):
     keg = {
         'tahun' : request.session.get('realisasidankel_tahun'),
         'dana' : request.session.get('realisasidankel_dana'),
-        'subopd' : request.session.get('realisasidankel_subopd')
+        'subopd' : request.session.get('realisasidankel_subopd'),
+        'jadwal' : request.session.get('jadwal')
     }
 
     if request.method == 'POST':
@@ -113,12 +114,20 @@ def simpan(request):
             tahun = realisasi_dankel.realisasidankel_tahun
             opd = realisasi_dankel.realisasidankel_subopd_id
             dana = realisasi_dankel.realisasidankel_dana_id
-            rencana_pk = realisasi_dankel.realisasidankel_rencana_id
+            rencana_pk = realisasi_dankel.realisasidankel_idrencana
+            jadwal = keg.get('jadwal')
+            # rencana = Model_rencana.objects.filter(id=rencana_id)
+            # rencana_pk = rencana.rencdankel_id
+            
+            
             
             # Panggil method get_rencana_pk untuk validasi tambahan
-            total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-            
+            total_rencana_pk = realisasi_dankel.get_rencana_pk(
+                tahun, opd, dana, rencana_pk, jadwal
+                )
+            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(
+                tahun, opd, dana, rencana_pk
+                )
             # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
@@ -194,7 +203,7 @@ def filter(request):
             # print(f"Redirecting to: {tag_url}")
             return redirect(tag_url)
         else:
-            print("Form is not valid")
+            print(f"Form gak cocok : {form.errors}")
             # print(form.errors)
     else:
         form = Form_filter()
@@ -212,7 +221,8 @@ def filter(request):
 def home(request):
     request.session['next'] = request.get_full_path()
     sesiidopd = request.session.get('idsubopd')
-    sesitahun = request.session.get('sesitahun')
+    sesitahun = request.session.get('tahun')
+    
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
         danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
