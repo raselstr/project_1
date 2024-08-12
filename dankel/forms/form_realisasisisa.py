@@ -1,5 +1,5 @@
 from django import forms
-from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankelsisa
+from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankeljadwalsisa
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -52,6 +52,7 @@ class RealisasiDankelsisaForm(forms.ModelForm):
             'realisasidankelsisa_tahap': forms.HiddenInput(),
             'realisasidankelsisa_subopd': forms.HiddenInput(),
             'realisasidankelsisa_rencana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankelsisa_idrencana': forms.HiddenInput(),
             'realisasidankelsisa_output': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankelsisa_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankelsisa_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -68,17 +69,19 @@ class RealisasiDankelsisaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         keg = kwargs.pop('keg', None)
         super().__init__(*args, **kwargs)
-        print(keg)
+        # print(keg)
         if keg:
             subopd = keg.get('subopd', None)
             dana = keg.get('dana', None)
             tahun = keg.get('tahun', None)
+            jadwal = keg.get('jadwal', None)
 
             if subopd and dana and tahun:
-                self.fields['realisasidankelsisa_rencana'].queryset = RencDankelsisa.objects.filter(
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankeljadwalsisa.objects.filter(
                     rencdankelsisa_subopd=subopd,
                     rencdankelsisa_dana=dana,
                     rencdankelsisa_tahun=tahun,
+                    rencdankelsisa_jadwal=jadwal,
                 )
             else:
-                self.fields['realisasidankelsisa_rencana'].queryset = RencDankelsisa.objects.none()
+                self.fields['realisasidankelsisa_rencana'].queryset = RencDankeljadwalsisa.objects.none()

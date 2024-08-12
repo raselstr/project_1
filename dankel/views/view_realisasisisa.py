@@ -51,36 +51,14 @@ def update(request, pk):
     keg = {
         'tahun' : request.session.get('realisasidankelsisa_tahun'),
         'dana' : request.session.get('realisasidankelsisa_dana'),
-        'subopd' : request.session.get('realisasidankelsisa_subopd')
+        'subopd' : request.session.get('realisasidankelsisa_subopd'),
+        'jadwal' : request.session.get('jadwal')
     }
 
     if request.method == 'POST':
         form = Form_data(request.POST, instance=realisasi_dankel)
         if form.is_valid():
-            # Ambil data dari form yang sudah divalidasi
             realisasi_dankel = form.save(commit=False)
-            
-            # Ambil nilai-nilai yang diperlukan untuk validasi
-            tahun = realisasi_dankel.realisasidankelsisa_tahun
-            opd = realisasi_dankel.realisasidankelsisa_subopd_id
-            dana = realisasi_dankel.realisasidankelsisa_dana_id
-            rencana_pk = realisasi_dankel.realisasidankelsisa_rencana_id
-            
-            # Panggil method get_rencana_pk untuk validasi tambahan
-            total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-
-            # Lakukan validasi tambahan jika diperlukan
-            if total_realisasi_pk > total_rencana_pk:
-                form.add_error('realisasidankelsisa_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-                context = {
-                    'judul': 'Form Update SP2D',
-                    'form': form,
-                    'btntombol': 'Update',
-                }
-                return render(request, template_form, context)
-            
-            # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
@@ -107,36 +85,14 @@ def simpan(request):
     keg = {
         'tahun' : request.session.get('realisasidankelsisa_tahun'),
         'dana' : request.session.get('realisasidankelsisa_dana'),
-        'subopd' : request.session.get('realisasidankelsisa_subopd')
+        'subopd' : request.session.get('realisasidankelsisa_subopd'),
+        'jadwal' : request.session.get('jadwal')
     }
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
             # Ambil data dari form yang sudah divalidasi
             realisasisisa_dankel = form.save(commit=False)
-            
-            # Ambil nilai-nilai yang diperlukan untuk validasi
-            tahun = realisasisisa_dankel.realisasidankelsisa_tahun
-            opd = realisasisisa_dankel.realisasidankelsisa_subopd_id
-            dana = realisasisisa_dankel.realisasidankelsisa_dana_id
-            rencana_pk = realisasisisa_dankel.realisasidankelsisa_rencana_id
-            
-            # Panggil method get_rencana_pk untuk validasi tambahan
-            total_rencana_pk = realisasisisa_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-            total_realisasi_pk = realisasisisa_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-            
-            
-            # Lakukan validasi tambahan jika diperlukan
-            if total_realisasi_pk > total_rencana_pk:
-                form.add_error('realisasidankelsisa_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-                context = {
-                    'judul': 'Form Input SP2D penggunaan Sisa',
-                    'form': form,
-                    'btntombol': 'Simpan',
-                }
-                return render(request, template_form, context)
-            
-            # Jika validasi tambahan berhasil, simpan data
             realisasisisa_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
@@ -185,21 +141,24 @@ def list(request):
     
     # Terapkan filter ke query data
     data = Model_data.objects.filter(filters)
+    
+    total_realisasilpj = Model_data().get_realisasilpj_total(tahun=tahunrealisasi, opd=subopdrealisasi_id, dana=danarealisasi_id)
 
     context = {
         'judul' : 'Daftar Realisasi Sisa Tahun Lalu Dana Kelurahan',
         'tombol' : 'Tambah Realisasi Sisa Tahun Lalu ',
         'data' : data,
+        'total_realisasilpj':total_realisasilpj
     }
     return render(request, template, context)
 
 @set_submenu_session
 @menu_access_required('list')    
 def filter(request):
+    request.session['next'] = request.get_full_path()
     session_data = get_from_sessions(request)
     sesiidopd = session_data.get('idsubopd')
     tahunrencana = RencDankelsisa.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
-    request.session['next'] = request.get_full_path()
     
     if request.method == 'GET':
         form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)

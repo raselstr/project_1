@@ -9,6 +9,7 @@ from project.decorators import menu_access_required, set_submenu_session
 
 
 Model_data = RealisasiDankel
+Model_sisa = RealisasiDankelsisa
 Model_rencana = RencDankeljadwal
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
@@ -195,9 +196,9 @@ def home(request):
         total_realisasilpj = Model_data().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
         total_persentase = Model_data().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
         
-        total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-        total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-        total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_penerimaansisa = Model_sisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_realisasilpjsisa = Model_sisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        total_persentasesisa = Model_sisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
     else:
         total_penerimaan = None
         total_realisasilpj = None

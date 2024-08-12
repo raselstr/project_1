@@ -74,6 +74,18 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.realisasidankelsisa_idrencana.id_for_label }}" hidden>{{ form.realisasidankelsisa_idrencana.label }}</label>
+                                    {{ form.realisasidankelsisa_idrencana }}
+                                    {% if form.realisasidankelsisa_idrencana.errors %}
+                                        {% for error in form.realisasidankelsisa_idrencana.errors %}
+                                            <div class="text-danger">
+                                                <p>{{ error }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
                            
                         <!-- Field Kegiatan -->
                         <div class="form-row border-top border-bottom py-3">
