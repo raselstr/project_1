@@ -122,12 +122,12 @@ def simpan(request):
             
             
             # Panggil method get_rencana_pk untuk validasi tambahan
-            total_rencana_pk = realisasi_dankel.get_rencana_pk(
-                tahun, opd, dana, rencana_pk, jadwal
-                )
-            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(
-                tahun, opd, dana, rencana_pk
-                )
+            # total_rencana_pk = realisasi_dankel.get_rencana_pk(
+            #     tahun, opd, dana, rencana_pk, jadwal
+            #     )
+            # total_realisasi_pk = realisasi_dankel.get_realisasi_pk(
+            #     tahun, opd, dana, rencana_pk
+            #     )
             # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
