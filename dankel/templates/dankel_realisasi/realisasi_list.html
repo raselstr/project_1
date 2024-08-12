@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel2" style="width:100%">
+                    <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
@@ -100,26 +100,18 @@
 {% endblock src %}
 {% block javascript %}
 <script src="{% static 'js/datatable.js' %}"></script>
-    <script>
-        new DataTable('#tabel2', {
-            lengthMenu: [
-                [10, 25, 50, -1],
-                [10, 25, 50, 'All']]
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
-            {% if messages %}
-            {% for message in messages %}
-                iziToast.{{ message.tags }}({
-                    title: '{{ message.tags }}',
-                    message: '{{ message }}',
-                    position: 'topRight'
-                });
-            {% endfor %}
-            {% endif %}
-        });
-    </script>
+<script>
+    $(document).ready(function() {
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
 {% endblock javascript %}
 

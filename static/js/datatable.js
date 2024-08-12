@@ -10,6 +10,7 @@ function initializeDataTables() {
     document.querySelectorAll('table[id^="tabel"]').forEach(table => {
         new DataTable(table, {
             order: [[1, 'asc']],
+            
             rowGroup: {
                 startRender: null,
                 endRender: function (rows, group) {
