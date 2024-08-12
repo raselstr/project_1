@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load custom_filters %}
-{%load static %}
+{% load static %}
 
 {% block content %}
 <section class="section">
@@ -21,15 +21,9 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel1" style="width:100%">
+                    <table class="display" id="tabel2" style="width:100%">
                         <thead>
                             <tr>
-                                <th>
-                                    <div class="custom-checkbox custom-control">
-                                    <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
-                                    <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
-                                    </div>
-                                </th>
                                 <th style="text-align: center;">Aksi</th>
                                 {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
                                 <th style="text-align: center;">Kegiatan</th>
@@ -37,19 +31,14 @@
                                 <th style="text-align: center;">NO LPJ</th>
                                 <th style="text-align: center;">NO STS</th>
                                 <th style="text-align: center;">NIlai Realisasi</th>
-                                <th style="text-align: center;">Verif</th>
+                                <th style="text-align: center;">Capaian Output</th>
+                                <th style="text-align: center;">Satuan</th>
                             </tr>
                         </thead>
                         <tbody>
                             
                             {% for data in data %}
                                 <tr>
-                                    <td class="p-0 text-center">
-                                        <div class="custom-checkbox custom-control">
-                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-{{ forloop.counter }}">
-                                        <label for="checkbox-{{ forloop.counter }}" class="custom-control-label">&nbsp;</label>
-                                        </div>
-                                    </td>
                                     <td style="text-align: center;">
                                         <a href="{% url "realisasidankel_update" data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
@@ -75,7 +64,8 @@
                                         {{ data.realisasidankel_stsnilai|default:"0.00"|floatformat:2|intcomma }}<br>
                                     </td>
                                     <td>{{data.realisasidankel_lpjnilai}}</td>
-                                    <td>{{ data.realisasidankel_verif }}</td>
+                                    <td>{{data.realisasidankel_output}}</td>
+                                    <td>{{data.realisasidankel_rencana.rencdankel_sub.dankelsub_satuan}}</td>
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
                                 </tr>
                                 {% endfor %}
@@ -83,9 +73,8 @@
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th colspan="2" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2" style="text-align: right;"><strong>{{ total_realisasilpj|default:"0.00"|floatformat:2|intcomma }}</strong></th>
                                 <th colspan="2" style="text-align: right;"><strong></strong></th>
-                                
                             </tr>
                         </tfoot>
                     </table>
@@ -111,7 +100,14 @@
 {% endblock src %}
 {% block javascript %}
 <script src="{% static 'js/datatable.js' %}"></script>
-    
+    <script>
+        new DataTable('#tabel2', {
+            lengthMenu: [
+                [10, 25, 50, -1],
+                [10, 25, 50, 'All']]
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             {% if messages %}

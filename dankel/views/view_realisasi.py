@@ -50,30 +50,7 @@ def update(request, pk):
     if request.method == 'POST':
         form = Form_data(request.POST, instance=realisasi_dankel)
         if form.is_valid():
-            # Ambil data dari form yang sudah divalidasi
             realisasi_dankel = form.save(commit=False)
-            
-            # Ambil nilai-nilai yang diperlukan untuk validasi
-            tahun = realisasi_dankel.realisasidankel_tahun
-            opd = realisasi_dankel.realisasidankel_subopd_id
-            dana = realisasi_dankel.realisasidankel_dana_id
-            rencana_pk = realisasi_dankel.realisasidankel_rencana_id
-            
-            # Panggil method get_rencana_pk untuk validasi tambahan
-            total_rencana_pk = realisasi_dankel.get_rencana_pk(tahun, opd, dana, rencana_pk)
-            total_realisasi_pk = realisasi_dankel.get_realisasi_pk(tahun, opd, dana, rencana_pk)
-
-            # Lakukan validasi tambahan jika diperlukan
-            if total_realisasi_pk > total_rencana_pk:
-                form.add_error('realisasidankel_lpjnilai', f'Nilai LPJ tidak boleh lebih besar dari total rencana sebesar Rp. {total_rencana_pk}')
-                context = {
-                    'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
-                    'form': form,
-                    'btntombol': 'Update',
-                }
-                return render(request, template_form, context)
-            
-            # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
@@ -107,28 +84,7 @@ def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
-            # Ambil data dari form yang sudah divalidasi
             realisasi_dankel = form.save(commit=False)
-            
-            # Ambil nilai-nilai yang diperlukan untuk validasi
-            tahun = realisasi_dankel.realisasidankel_tahun
-            opd = realisasi_dankel.realisasidankel_subopd_id
-            dana = realisasi_dankel.realisasidankel_dana_id
-            rencana_pk = realisasi_dankel.realisasidankel_idrencana
-            jadwal = keg.get('jadwal')
-            # rencana = Model_rencana.objects.filter(id=rencana_id)
-            # rencana_pk = rencana.rencdankel_id
-            
-            
-            
-            # Panggil method get_rencana_pk untuk validasi tambahan
-            # total_rencana_pk = realisasi_dankel.get_rencana_pk(
-            #     tahun, opd, dana, rencana_pk, jadwal
-            #     )
-            # total_realisasi_pk = realisasi_dankel.get_realisasi_pk(
-            #     tahun, opd, dana, rencana_pk
-            #     )
-            # Jika validasi tambahan berhasil, simpan data
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
@@ -176,11 +132,15 @@ def list(request):
     
     # Terapkan filter ke query data
     data = Model_data.objects.filter(filters)
+    
+    total_realisasilpj = Model_data().get_realisasilpj_total(tahun=tahunrealisasi, opd=subopdrealisasi_id, dana=danarealisasi_id)
+     
 
     context = {
         'judul' : 'Daftar Realisasi Dana Kelurahan',
         'tombol' : 'Tambah Realisasi',
         'data' : data,
+        'total_realisasilpj':total_realisasilpj
     }
     return render(request, template, context)
 
