@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankelsisa, RencDankeljadwalsisa, Subkegiatan
+from ..models import RealisasiDankelsisa, RencDankeljadwalsisa, Subkegiatan, TahapDana, Subopd
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiDankelsisaForm
 from project.decorators import menu_access_required, set_submenu_session
@@ -38,6 +38,59 @@ def get_from_sessions(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    context.update({
+        'judul': 'Rekapitulasi Realisasi Sisa Dana Kelurahan',
+        'tombol': 'Cetak'
+    })
+    return render(request, template, context)
+
+
+@set_submenu_session
+@menu_access_required('list')    
+def filter(request):
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    tahunrencana = Model_rencana.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
+    request.session['next'] = request.get_full_path()
+    # sessions = Session.objects.all()
+    # for session in sessions:
+    #     print(session.session_key, session.get_decoded())
+    
+    if request.method == 'GET':
+        form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
+        if form.is_valid():
+            # Simpan data filter di sesi
+            request.session['realisasidankelsisa_tahun'] = form.cleaned_data.get('realisasidankelsisa_tahun')
+            request.session['realisasidankelsisa_dana'] = form.cleaned_data.get('realisasidankelsisa_dana').id if form.cleaned_data.get('realisasidankelsisa_dana') else None
+            request.session['realisasidankelsisa_tahap'] = form.cleaned_data.get('realisasidankelsisa_tahap').id if form.cleaned_data.get('realisasidankelsisa_tahap') else None
+            request.session['realisasidankelsisa_subopd'] = form.cleaned_data.get('realisasidankelsisa_subopd').id if form.cleaned_data.get('realisasidankelsisa_subopd') else None
+            
+            return redirect(tag_url)
+    else:
+        form = Form_filter()
+    
+    context = {
+        'judul' : 'Laporan Realisasi Sisa Tahun Lalu',
+        'tombol' : 'Cari Laporan Realisasi Sisa Tahun Lalu',
+        'form': form
+        # 'datasisa' : total_pagu_sisa,
+    }
+    return render(request, template_filter, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def pdf(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    context.update({
+        'judul': 'Rekapitulasi Realisasi Sisa Tahun Lalu',
+        'tombol': 'Cetak'
+    })
+    return render(request, 'dankel_laporansisa/laporansisa_pdf.html', context)
+
+def get_data_context(request):
     tahunrealisasisisa = request.session.get('realisasidankelsisa_tahun')
     danarealisasisisa_id = request.session.get('realisasidankelsisa_dana')
     tahaprealisasisisa_id = request.session.get('realisasidankelsisa_tahap')
@@ -139,48 +192,15 @@ def list(request):
             'total_pagu_prog': total_pagu_prog,
             'total_realisasi_prog': total_realisasi_prog
         })
-
-    context = {
-        'judul': 'Rekapitulasi Realisasi Sisa Dana Kelurahan',
-        'tombol': 'Cetak',
+    return {
         'prog_data': prog_data,
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
-        'total_realisasi_keseluruhan': total_realisasi_keseluruhan
+        'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
+        'tahunrealisasisisa' : tahunrealisasisisa,
+        'danarealisasisisa_id' : Subkegiatan.objects.get(pk=danarealisasisisa_id),
+        'tahaprealisasisisa_id' : TahapDana.objects.get(pk=tahaprealisasisisa_id),
+        'subopdrealisasisisa_id' : Subopd.objects.get(pk=subopdrealisasisisa_id),
+        'jadwal' : jadwal
     }
-    # print(context)
 
-    return render(request, template, context)
-
-
-@set_submenu_session
-@menu_access_required('list')    
-def filter(request):
-    session_data = get_from_sessions(request)
-    sesiidopd = session_data.get('idsubopd')
-    tahunrencana = Model_rencana.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
-    request.session['next'] = request.get_full_path()
-    # sessions = Session.objects.all()
-    # for session in sessions:
-    #     print(session.session_key, session.get_decoded())
-    
-    if request.method == 'GET':
-        form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
-        if form.is_valid():
-            # Simpan data filter di sesi
-            request.session['realisasidankelsisa_tahun'] = form.cleaned_data.get('realisasidankelsisa_tahun')
-            request.session['realisasidankelsisa_dana'] = form.cleaned_data.get('realisasidankelsisa_dana').id if form.cleaned_data.get('realisasidankelsisa_dana') else None
-            request.session['realisasidankelsisa_tahap'] = form.cleaned_data.get('realisasidankelsisa_tahap').id if form.cleaned_data.get('realisasidankelsisa_tahap') else None
-            request.session['realisasidankelsisa_subopd'] = form.cleaned_data.get('realisasidankelsisa_subopd').id if form.cleaned_data.get('realisasidankelsisa_subopd') else None
-            
-            return redirect(tag_url)
-    else:
-        form = Form_filter()
-    
-    context = {
-        'judul' : 'Laporan Realisasi Sisa Tahun Lalu',
-        'tombol' : 'Cari Laporan Realisasi Sisa Tahun Lalu',
-        'form': form
-        # 'datasisa' : total_pagu_sisa,
-    }
-    return render(request, template_filter, context)
 

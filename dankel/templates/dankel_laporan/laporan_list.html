@@ -123,15 +123,15 @@
             {% endif %}
         });
     </script>
-    <script>
-      function openPrintWindow(url) {
-        var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
-        if (printWindow) {
-          printWindow.onload = function() {
-            printWindow.print();
-          };
-        }
-      }
+<script>
+    function openPrintWindow(url) {
+    var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+    if (printWindow) {
+        printWindow.onload = function() {
+        printWindow.print();
+        };
+    }
+    }
 </script>
 {% endblock javascript %}
 
