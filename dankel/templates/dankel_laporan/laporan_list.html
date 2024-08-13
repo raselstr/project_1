@@ -17,7 +17,7 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url "realisasidankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        <a href="#" onclick="openPrintWindow('{% url "laporan_pdf" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -78,54 +78,6 @@
                                 {% endfor %}
                             {% endfor %}
                         </tbody>
-                        {% comment %} <tbody>
-                            {% for prog in progs %}
-                            <tr>
-                                <td colspan="3">{{ prog.dankel_prog }}</td>
-                                <td colspan="3"></td>
-                                <td colspan="3"></td>
-                            </tr>
-                                {% for keg in prog.dankelkegs.all %}
-                                    <tr>
-                                        <td></td>
-                                        <td colspan="2">{{ keg.dankelkeg_nama }}</td>
-                                        <td colspan="3"></td>
-                                        <td colspan="3"></td>
-                                    </tr>
-                                    {% for sub in keg.dankelsubs.all %}
-                                        {% with rencana_data=rencanas|filter:"rencdankel_sub=sub" %}
-                                            {% if rencana_data %}
-                                                {% for rencana in rencana_data %}
-                                                    <tr>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td>{{ sub.dankelsub_nama }}</td>
-                                                        <td>{{ rencana.rencdankel_pagu|default:"0" }}</td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                        <td></td>
-                                                    </tr>
-                                                {% endfor %}
-                                            {% else %}
-                                                <tr>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td>{{ sub.dankelsub_nama }}</td>
-                                                    <td>0</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                {% endfor %}
-                            {% endfor %}
-                        </tbody> {% endcomment %}
                         <tfoot>
                             <tr>
                                 <th colspan="3" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
@@ -171,5 +123,15 @@
             {% endif %}
         });
     </script>
+    <script>
+      function openPrintWindow(url) {
+        var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+        if (printWindow) {
+          printWindow.onload = function() {
+            printWindow.print();
+          };
+        }
+      }
+</script>
 {% endblock javascript %}
 

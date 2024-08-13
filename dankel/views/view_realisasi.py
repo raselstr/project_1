@@ -55,6 +55,7 @@ def update(request, pk):
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
+            form = Form_data(request.POST, instance=realisasi_dankel, keg=keg)
             context = {
                 'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
                 'form': form,
@@ -89,6 +90,7 @@ def simpan(request):
             realisasi_dankel.save()
             return redirect(tag_url)  # ganti dengan halaman sukses Anda
         else:
+            form = Form_data(request.POST, keg=keg)
             context = {
                 'judul': 'Form Input SP2D',
                 'form': form,

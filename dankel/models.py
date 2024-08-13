@@ -227,7 +227,26 @@ class RealisasiDankel(models.Model):
         formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
         formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
         formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
-        
+        try:
+            sp2dtu = Decimal(self.realisasidankel_nilai)
+            lpj = Decimal(self.realisasidankel_lpjnilai)
+            sts = Decimal(self.realisasidankel_stsnilai)
+        except ValueError:
+            raise ValidationError('SP2D TU dan LPJ harus berupa angka.')
+       
+        if sp2dtu < 0:
+            raise ValidationError('SP2D TU tidak boleh kurang dari 0')
+    
+        if lpj > sp2dtu:
+            raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
+
+        sisasts = sp2dtu - lpj
+
+        if sts < 0:
+            raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
+
+        if sts != sisasts:
+            raise ValidationError(f'Nilai STS tidak boleh lebih besar dari {sisasts}')        
         
         if total_realisasi_pk > total_rencana_pk:
             raise ValidationError(f'Total Realisasi Kegiatan ini Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
@@ -337,6 +356,27 @@ class RealisasiDankelsisa(models.Model):
         formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
         formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
         
+        try:
+            sp2dtu = Decimal(self.realisasidankelsisa_nilai)
+            lpj = Decimal(self.realisasidankelsisa_lpjnilai)
+            sts = Decimal(self.realisasidankelsisa_stsnilai)
+        except ValueError:
+            raise ValidationError('SP2D TU dan LPJ harus berupa angka.')
+       
+        if sp2dtu < 0:
+            raise ValidationError('SP2D TU tidak boleh kurang dari 0')
+    
+        if lpj > sp2dtu:
+            raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
+
+        sisasts = sp2dtu - lpj
+
+        if sts < 0:
+            raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
+
+        if sts != sisasts:
+            raise ValidationError(f'Nilai STS harus sama dengan {sisasts}')        
+
         
         if total_realisasi_pk > total_rencana_pk:
             raise ValidationError(f'Total Realisasi Kegiatan ini Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
