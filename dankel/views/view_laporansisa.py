@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankelsisa, RencDankelsisa, Subkegiatan
+from ..models import RealisasiDankelsisa, RencDankeljadwalsisa, Subkegiatan
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiDankelsisaForm
 from project.decorators import menu_access_required, set_submenu_session
@@ -13,7 +13,7 @@ from django.contrib.sessions.models import Session
 Model_prog = DankelProg
 Model_keg = DankelKeg
 Model_sub = Dankelsub
-Model_rencana = RencDankelsisa
+Model_rencana = RencDankeljadwalsisa
 Model_realisasi = RealisasiDankelsisa
 Form_filter = RealisasiDankelsisaFilterForm
 Form_data = RealisasiDankelsisaForm
@@ -42,10 +42,12 @@ def list(request):
     danarealisasisisa_id = request.session.get('realisasidankelsisa_dana')
     tahaprealisasisisa_id = request.session.get('realisasidankelsisa_tahap')
     subopdrealisasisisa_id = request.session.get('realisasidankelsisa_subopd')
-    print(subopdrealisasisisa_id)
+    jadwal = request.session.get('jadwal')
 
     # Buat filter query
     filters = Q()
+    if jadwal:
+        filters &=Q(rencdankelsisa_jadwal=jadwal)
     if tahunrealisasisisa:
         filters &= Q(rencdankelsisa_tahun=tahunrealisasisisa)
     if danarealisasisisa_id:
