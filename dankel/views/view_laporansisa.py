@@ -157,7 +157,7 @@ def list(request):
 def filter(request):
     session_data = get_from_sessions(request)
     sesiidopd = session_data.get('idsubopd')
-    tahunrencana = RencDankelsisa.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
+    tahunrencana = Model_rencana.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
     # sessions = Session.objects.all()
     # for session in sessions:
