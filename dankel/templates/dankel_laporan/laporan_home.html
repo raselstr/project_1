@@ -40,7 +40,7 @@
                             <tr>
                                 <td>Persentase Penyerapan</td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{persentase|intcomma}} %</td>
+                                <td style="text-align: right;">{{persentase|default:"0.00"|floatformat:2|intcomma}} %</td>
                             </tr>
                         </table>
                         <a href="{% url 'laporan_filter' %}" class="card-cta">{{judul}} ... <i class="fas fa-chevron-right"></i></a>
@@ -68,7 +68,7 @@
                             <tr>
                                 <td>Persentase Penyerapan</td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{persentasesisa|intcomma}} %</td>
+                                <td style="text-align: right;">{{persentasesisa|default:"0.00"|floatformat:2|intcomma}} %</td>
                             </tr>
                         </table>
                         <a href="{% url 'laporansisa_filter' %}" class="card-cta">{{judul}} ... <i class="fas fa-chevron-right"></i></a>

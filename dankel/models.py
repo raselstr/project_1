@@ -354,7 +354,7 @@ class RealisasiDankelsisa(models.Model):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
         if opd is not None and opd != 125:
             filters &= Q(distri_subopd=opd)
-        print(filters)
+        # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
