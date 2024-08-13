@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan,TahapDana, Subopd
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
@@ -38,118 +38,12 @@ def get_from_sessions(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    tahunrealisasi = request.session.get('realisasidankel_tahun')
-    danarealisasi_id = request.session.get('realisasidankel_dana')
-    tahaprealisasi_id = request.session.get('realisasidankel_tahap')
-    subopdrealisasi_id = request.session.get('realisasidankel_subopd')
-    jadwal = request.session.get('jadwal')
-
-    # Buat filter query
-    filters = Q()
-    if jadwal:
-        filters &=Q(rencdankel_jadwal=jadwal)
-    if tahunrealisasi:
-        filters &= Q(rencdankel_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id != 125:
-        filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
-
-    filterreals = Q()
-    if jadwal:
-        filters &=Q(rencdankel_jadwal=jadwal)
-    if tahunrealisasi:
-        filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
-    if tahaprealisasi_id:
-        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 125:
-        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
-
-    progs = Model_prog.objects.all()
-    kegs = Model_keg.objects.all()
-    subs = Model_sub.objects.all()
-    rencanas = Model_rencana.objects.filter(filters)
-    realisasis = Model_realisasi.objects.filter(filterreals)
-
-    # Siapkan data untuk template
-    prog_data = []
-    total_pagu_keseluruhan = 0
-    total_realisasi_keseluruhan = 0
+    context = get_data_context(request)
     
-    for prog in progs:
-        total_pagu_prog = 0
-        total_realisasi_prog = 0
-        prog_kegs = []
-        for keg in prog.dankelkegs.all():
-            total_pagu_keg = 0
-            total_realisasi_keg = 0
-            keg_subs = []
-            for sub in keg.dankelsubs.all():
-                # Ambil rencana terkait dengan sub
-                related_rencanas = rencanas.filter(rencdankel_sub=sub)
-                
-                # Ambil data pagu
-                pagu = 0
-                if related_rencanas.exists():
-                    pagu = related_rencanas.aggregate(total_pagu=Sum('rencdankel_pagu'))['total_pagu'] or 0
-                
-                # Hitung total pagu untuk keg dan prog
-                total_pagu_keg += pagu
-                
-                # Ambil realisasi terkait dengan sub
-                realisasis_sub = realisasis.filter(realisasidankel_rencana__in=related_rencanas)
-                realisasi_data = []
-                for rencana in related_rencanas:
-                    realisasi = realisasis_sub.filter(realisasidankel_rencana=rencana).aggregate(
-                        total_lpj=Sum('realisasidankel_lpjnilai'),
-                        total_output=Sum('realisasidankel_output')
-                    )
-                    total_lpj = realisasi['total_lpj'] if realisasi['total_lpj'] is not None else 0
-                    total_output = realisasi['total_output'] if realisasi['total_output'] is not None else 0
-                    realisasi_data.append({
-                        'rencana': rencana,
-                        'realisasi': {
-                            'total_lpj': total_lpj,
-                            'total_output': total_output
-                        }
-                    })
-                    total_realisasi_keg += total_lpj
-                
-                keg_subs.append({
-                    'sub': sub,
-                    'pagu': pagu,
-                    'realisasi': realisasi_data
-                })
-            prog_kegs.append({
-                'keg': keg,
-                'subs': keg_subs,
-                'total_pagu_keg': total_pagu_keg,
-                'total_realisasi_keg': total_realisasi_keg
-            })
-            total_pagu_prog += total_pagu_keg
-            total_realisasi_prog += total_realisasi_keg
-        
-        total_pagu_keseluruhan += total_pagu_prog
-        total_realisasi_keseluruhan += total_realisasi_prog
-        
-        prog_data.append({
-            'prog': prog,
-            'kegs': prog_kegs,
-            'total_pagu_prog': total_pagu_prog,
-            'total_realisasi_prog': total_realisasi_prog
-        })
-
-    context = {
+    context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
-        'tombol': 'Cetak',
-        'prog_data': prog_data,
-        'total_pagu_keseluruhan': total_pagu_keseluruhan,
-        'total_realisasi_keseluruhan': total_realisasi_keseluruhan
-    }
-    # print(context)
-
+        'tombol': 'Cetak'
+    })
     return render(request, template, context)
 
 
@@ -230,6 +124,15 @@ def home(request):
 @menu_access_required('list')
 def pdf(request):
     request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    context.update({
+        'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
+        'tombol': 'Cetak'
+    })
+    return render(request, 'dankel_laporan/laporan_pdf.html', context)
+
+def get_data_context(request):
     tahunrealisasi = request.session.get('realisasidankel_tahun')
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
@@ -239,7 +142,7 @@ def pdf(request):
     # Buat filter query
     filters = Q()
     if jadwal:
-        filters &=Q(rencdankel_jadwal=jadwal)
+        filters &= Q(rencdankel_jadwal=jadwal)
     if tahunrealisasi:
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
@@ -249,7 +152,7 @@ def pdf(request):
 
     filterreals = Q()
     if jadwal:
-        filters &=Q(rencdankel_jadwal=jadwal)
+        filters &= Q(rencdankel_jadwal=jadwal)
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
     if danarealisasi_id:
@@ -333,11 +236,13 @@ def pdf(request):
             'total_realisasi_prog': total_realisasi_prog
         })
 
-    context = {
-        'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
-        'tombol': 'Cetak',
+    return {
         'prog_data': prog_data,
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
-        'total_realisasi_keseluruhan': total_realisasi_keseluruhan
+        'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
+        'tahunrealisasi' : tahunrealisasi,
+        'danarealisasi_id' : Subkegiatan.objects.get(pk=danarealisasi_id),
+        'tahaprealisasi_id' : TahapDana.objects.get(pk=tahaprealisasi_id),
+        'subopdrealisasi_id' : Subopd.objects.get(pk=subopdrealisasi_id),
+        'jadwal' : jadwal
     }
-    return render(request, 'dankel_laporan/laporan_pdf.html', context)
