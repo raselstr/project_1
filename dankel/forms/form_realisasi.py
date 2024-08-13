@@ -53,7 +53,7 @@ class RealisasiDankelForm(forms.ModelForm):
             'realisasidankel_subopd': forms.HiddenInput(),
             'realisasidankel_rencana': forms.Select(attrs={'class': 'form-control select2'}),
             'realisasidankel_idrencana': forms.HiddenInput(),
-            'realisasidankel_output': forms.TextInput(attrs={'class': 'form-control'}),
+            'realisasidankel_output': forms.NumberInput(attrs={'class': 'form-control'}),
             'realisasidankel_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankel_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'realisasidankel_nilai': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -76,7 +76,7 @@ class RealisasiDankelForm(forms.ModelForm):
             tahun = keg.get('tahun', None)
             jadwal = keg.get('jadwal', None)
 
-            if subopd and dana and tahun:
+            if subopd and dana and tahun and jadwal:
                 self.fields['realisasidankel_rencana'].queryset = RencDankeljadwal.objects.filter(
                     rencdankel_subopd=subopd,
                     rencdankel_dana=dana,
