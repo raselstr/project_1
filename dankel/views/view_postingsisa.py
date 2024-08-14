@@ -64,7 +64,7 @@ def list(request):
         elif item_perubahan:
             selisih_pagu = item_perubahan.rencdankelsisa_pagu
         elif item_induk:
-            selisih_pagu = -item_induk.rencdankelsisa_pagu
+            selisih_pagu = item_induk.rencdankelsisa_pagu
         else:
             selisih_pagu = 0
 
@@ -97,6 +97,7 @@ def posting(request):
             if jadwal is not None:
                 for item in rencana:
                     obj, created = Model_data.objects.update_or_create(
+                        rencdankelsisa_id = item.id,
                         rencdankelsisa_tahun=item.rencdankelsisa_tahun,
                         rencdankelsisa_dana=item.rencdankelsisa_dana,
                         rencdankelsisa_subopd=item.rencdankelsisa_subopd,

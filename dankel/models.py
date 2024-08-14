@@ -255,7 +255,7 @@ class RealisasiDankel(models.Model):
             raise ValidationError(f'Nilai STS tidak boleh lebih besar dari {sisasts}')        
         
         if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
+            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
         
         if total_realisasi > total_penerimaan:
             raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
@@ -362,12 +362,13 @@ class RealisasiDankelsisa(models.Model):
         total_rencanaoutputsisa_pk = self.get_rencanaoutputsisa_pk()
         
          
-        total_realisasi_pk += self.realisasidankelsisa_lpjnilai
-        total_realisasi += self.realisasidankelsisa_lpjnilai
         
         if self.pk:
             total_realisasi_pk = total_realisasi_pk - RealisasiDankelsisa.objects.get(pk=self.pk).realisasidankelsisa_lpjnilai
             total_realisasi = total_realisasi - RealisasiDankelsisa.objects.get(pk=self.pk).realisasidankelsisa_lpjnilai
+        
+        total_realisasi_pk += self.realisasidankelsisa_lpjnilai
+        total_realisasi += self.realisasidankelsisa_lpjnilai
         
         # Format nilai menjadi string dengan pemisah ribuan
         formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
@@ -403,7 +404,7 @@ class RealisasiDankelsisa(models.Model):
 
         
         if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
+            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
         
         if total_realisasi > total_penerimaan:
             raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
