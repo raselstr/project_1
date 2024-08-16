@@ -1,0 +1,10 @@
+buat socket - selesai
+buat server - selesai
+
+cara mengaktifkan
+1. sudo chown -R www-data:www-data /home/-----lokasi path ke folder Project
+2. sudo chown -R 755 /home/------- laksi path ke folder Project
+3. sudo systemctl daemon-reload
+4. sudo systemctl start project_gunicorn.service
+
+
