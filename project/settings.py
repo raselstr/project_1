@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8@p_g6dgio(5mmo)9zi*jqzkl2bc6*#6e#b7$#km@a$id1-6+i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 CSRF_COOKIE_SECURE = True
 # CSRF_COOKIE_DOMAIN = '192.168.66.77'
@@ -172,3 +172,42 @@ SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
 SESSION_COOKIE_AGE = 300  # Durasi sesi dalam detik 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Apakah session berakhir saat browser ditutup
 
+# Konfigurasi default (misalnya untuk pengembangan)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+# Jika lingkungan adalah produksi
+if os.getenv('DJANGO_ENV') == 'production':
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': '/var/log/project_1/django.log',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+        },
+    }
