@@ -163,16 +163,17 @@
                                     </table>
                                 </div>
                                 <div class="card-footer">
+                                    {% for data in data %}
                                     <table class="table table-sm" style="width:100%;padding: 4px;line-height: 1.2">
                                         <tr>
-                                            <td width="70%"></td>
+                                            <td width="60%"></td>
                                             <td></td>
                                             <td>Kisaran,</td>
                                         </tr>
                                         <tr>
                                             <td></td>
                                             <td></td>
-                                            <td>Jabatan</td>
+                                            <td>{{data.pejabat_jabatan}}</td>
                                         </tr>
                                         <tr>
                                             <td></td>
@@ -197,19 +198,15 @@
                                         <tr>
                                             <td></td>
                                             <td></td>
-                                            <td>Nama</td>
+                                            <td>{{data.pejabat_nama}}</td>
                                         </tr>
                                         <tr>
                                             <td></td>
                                             <td></td>
-                                            <td>Pangkat</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td>NIP.</td>
+                                            <td>NIP. {{data.pejabat_nip}}.</td>
                                         </tr>
                                     </table>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>

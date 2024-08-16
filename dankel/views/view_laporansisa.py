@@ -8,6 +8,7 @@ from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiDankelsisaForm
 from project.decorators import menu_access_required, set_submenu_session
 from django.contrib.sessions.models import Session
+from opd.models import Pejabat
 
 
 Model_prog = DankelProg
@@ -17,6 +18,7 @@ Model_rencana = RencDankeljadwalsisa
 Model_realisasi = RealisasiDankelsisa
 Form_filter = RealisasiDankelsisaFilterForm
 Form_data = RealisasiDankelsisaForm
+Model_pejabat = Pejabat
 tag_url = 'laporansisa_list'
 tag_home = 'laporansisa_home'
 template = 'dankel_laporansisa/laporansisa_list.html'
@@ -84,9 +86,14 @@ def pdf(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
     
+    idsubopd = request.session.get('idsubopd')
+    if idsubopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+    
     context.update({
         'judul': 'Rekapitulasi Realisasi Sisa Tahun Lalu',
-        'tombol': 'Cetak'
+        'tombol': 'Cetak',
+        'data': data,
     })
     return render(request, 'dankel_laporansisa/laporansisa_pdf.html', context)
 

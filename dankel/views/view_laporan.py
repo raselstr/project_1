@@ -7,6 +7,7 @@ from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Sub
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
+from opd.models import Pejabat
 
 
 Model_data = RealisasiDankel
@@ -17,6 +18,8 @@ Model_rencana = RencDankeljadwal
 Model_realisasi = RealisasiDankel
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
+Model_pejabat = Pejabat
+
 tag_url = 'laporan_list'
 tag_home = 'laporan_home'
 template = 'dankel_laporan/laporan_list.html'
@@ -126,10 +129,15 @@ def pdf(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
     
+    idsubopd = request.session.get('idsubopd')
+    if idsubopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+        
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
-        'tombol': 'Cetak'
-    })
+        'tombol': 'Cetak',
+        'data' : data,    
+        })
     return render(request, 'dankel_laporan/laporan_pdf.html', context)
 
 def get_data_context(request):
