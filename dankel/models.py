@@ -62,13 +62,13 @@ class RencDankel(models.Model):
     
     def get_pagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None:
+        if opd is not None and opd !=125:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
-        if opd is not None:
+        if opd is not None and opd !=125:
             filters &= Q(rencdankel_subopd=opd)
         return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
        
@@ -79,7 +79,7 @@ class RencDankel(models.Model):
     
     def get_realisasilpj_total(self, tahun, opd, dana):
         filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-        if opd is not None:
+        if opd is not None and opd !=125:
             filters &= Q(realisasidankel_subopd=opd)
         return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
 
@@ -129,13 +129,13 @@ class RencDankelsisa(models.Model):
     
     def get_sisapagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None:
+        if opd is not None and opd !=125:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_sisa(self, tahun, opd, dana):
         filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
-        if opd is not None:
+        if opd is not None and opd !=125:
             filters &= Q(rencdankelsisa_subopd=opd)
         return RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
        
@@ -205,7 +205,7 @@ class RealisasiDankel(models.Model):
     realisasidankel_sts = models.CharField(verbose_name='No STS TU', max_length=100, unique=True)
     realisasidankel_ststgl = models.DateField(verbose_name='Tanggal STS TU')
     realisasidankel_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
-    realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
+    realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0) 
     
     def clean(self):
         super().clean()

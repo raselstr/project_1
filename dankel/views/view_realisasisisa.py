@@ -28,6 +28,24 @@ def get_from_sessions(request):
     
     return session_data
 
+def modal_content(request, pk):
+    data = get_object_or_404(Model_data, pk=pk)
+    return render(request, 'dankel_realisasisisa/verifikasisisa_modal.html', {'data': data})
+
+@set_submenu_session
+@menu_access_required('update')
+def verif(request, pk):
+    realisasi = get_object_or_404(Model_data, pk=pk)
+    verif = request.GET.get('verif')
+    
+    if verif == '1':
+        realisasi.realisasidankelsisa_verif = 1
+    elif verif == '0':
+        realisasi.realisasidankelsisa_verif = 0
+    
+    realisasi.save()
+    return redirect(tag_url)
+
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):

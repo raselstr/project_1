@@ -17,7 +17,11 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="#" onclick="openPrintWindow('{% url "laporan_pdf" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+                        {% if level != "APIP"%}
+                            <a href="#" onclick="openPrintWindow('{% url "laporan_pdf" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+                        {%else%}
+                            <a href="#" onclick="openPrintWindow('{% url "laporan_apip" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+                        {%endif%}
                     </div>
                 </div>
                 <div class="card-body">

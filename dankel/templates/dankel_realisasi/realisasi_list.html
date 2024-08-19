@@ -33,6 +33,7 @@
                                 <th style="text-align: center;">NIlai Realisasi</th>
                                 <th style="text-align: center;">Capaian Output</th>
                                 <th style="text-align: center;">Satuan</th>
+                                <th style="text-align: center;">Verifikasi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -40,12 +41,16 @@
                             {% for data in data %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        <a href="{% url "realisasidankel_update" data.id %}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="{% url "realisasidankel_delete" data.id%}" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        {% if level == "Pengguna"%}
+                                            {% if data.realisasidankel_verif == 0 %}
+                                                <a href="{% url "realisasidankel_update" data.id %}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+                                                <a href="{% url "realisasidankel_delete" data.id%}" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            {% endif%}
+                                        {% endif %}
                                     </td>
                                     <td>{{ data.realisasidankel_rencana }}</td>
                                     <td>
@@ -66,6 +71,35 @@
                                     <td>{{data.realisasidankel_lpjnilai}}</td>
                                     <td>{{data.realisasidankel_output}}</td>
                                     <td>{{data.realisasidankel_rencana.rencdankel_sub.dankelsub_satuan}}</td>
+                                    <td>
+                                        {% if level == "APIP"%}
+                                            {% if data.realisasidankel_verif == 0 %}
+                                            <button class="btn btn-outline-warning" 
+                                                    hx-get="{% url 'modal_content' data.id %}" 
+                                                    hx-target="#verifikasiModal .modal-content"
+                                                    hx-trigger="click"
+                                                    data-toggle="modal" 
+                                                    data-target="#verifikasiModal">
+                                                Diinput Dinas
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-outline-success " 
+                                                hx-get="{% url 'modal_content' data.id %}" 
+                                                hx-target="#verifikasiModal .modal-content"
+                                                hx-trigger="click"
+                                                data-toggle="modal" 
+                                                data-target="#verifikasiModal">
+                                                Disetujui APIP
+                                            </button>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if data.realisasidankel_verif == 0 %}
+                                                <button class="btn btn-outline-warning">Diinput Dinas</button>
+                                            {% else %}
+                                                <button class="btn btn-outline-success ">Disetujui APIP</button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
                                     <!-- Menambahkan informasi dari RencDankelsisa -->
                                 </tr>
                                 {% endfor %}
@@ -83,6 +117,25 @@
         </div>
     </div>
 </section>
+<!-- Modal -->
+<div class="modal fade" id="verifikasiModal" tabindex="-1" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Konten modal akan dimuat oleh HTMX -->
+            </div>
+            <div class="modal-footer">
+                <!-- Konten footer modal akan dimuat oleh HTMX -->
+            </div>
+        </div>
+    </div>
+</div>
     
 {% endblock content %}
 

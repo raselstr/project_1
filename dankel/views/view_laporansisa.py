@@ -97,12 +97,30 @@ def pdf(request):
     })
     return render(request, 'dankel_laporansisa/laporansisa_pdf.html', context)
 
+@set_submenu_session
+@menu_access_required('list')
+def apip(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    idsubopd = request.session.get('idsubopd')
+    if idsubopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+        
+    context.update({
+        'judul': 'Hasil Reviu APIP Realisasi Sisa Dana Kelurahan',
+        'tombol': 'Cetak',
+        'data' : data,    
+        })
+    return render(request, 'dankel_laporansisa/laporansisa_apip.html', context)
+
 def get_data_context(request):
     tahunrealisasisisa = request.session.get('realisasidankelsisa_tahun')
     danarealisasisisa_id = request.session.get('realisasidankelsisa_dana')
     tahaprealisasisisa_id = request.session.get('realisasidankelsisa_tahap')
     subopdrealisasisisa_id = request.session.get('realisasidankelsisa_subopd')
     jadwal = request.session.get('jadwal')
+    level = request.session.get('level')
 
     # Buat filter query
     filters = Q()
@@ -116,6 +134,8 @@ def get_data_context(request):
         filters &= Q(rencdankelsisa_subopd_id=subopdrealisasisisa_id)
 
     filterreals = Q()
+    if level != 'Pengguna':
+        filterreals &= Q(realisasidankelsisa_verif=1)
     if tahunrealisasisisa:
         filterreals &= Q(realisasidankelsisa_tahun=tahunrealisasisisa)
     if danarealisasisisa_id:

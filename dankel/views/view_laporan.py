@@ -28,6 +28,7 @@ template_form = 'dankel_laporan/laporan_form.html'
 template_home = 'dankel_laporan/laporan_home.html'
 sesidana = 'dana-kelurahan'
 
+
 def get_from_sessions(request):
     session_data = {
         'idsubopd': request.session.get('idsubopd'),
@@ -42,10 +43,12 @@ def get_from_sessions(request):
 def list(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    level = request.session.get('level')
     
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
-        'tombol': 'Cetak'
+        'tombol': 'Cetak',
+        'level' : level
     })
     return render(request, template, context)
 
@@ -140,12 +143,30 @@ def pdf(request):
         })
     return render(request, 'dankel_laporan/laporan_pdf.html', context)
 
+@set_submenu_session
+@menu_access_required('list')
+def apip(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    idsubopd = request.session.get('idsubopd')
+    if idsubopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+        
+    context.update({
+        'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
+        'tombol': 'Cetak',
+        'data' : data,    
+        })
+    return render(request, 'dankel_laporan/laporan_apip.html', context)
+
 def get_data_context(request):
     tahunrealisasi = request.session.get('realisasidankel_tahun')
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
     jadwal = request.session.get('jadwal')
+    level = request.session.get('level')
 
     # Buat filter query
     filters = Q()
@@ -159,8 +180,8 @@ def get_data_context(request):
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     filterreals = Q()
-    if jadwal:
-        filters &= Q(rencdankel_jadwal=jadwal)
+    if level != 'Pengguna':
+        filterreals &= Q(realisasidankel_verif=1)
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
     if danarealisasi_id:

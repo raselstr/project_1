@@ -3,6 +3,9 @@ from django.urls import path
 from ..views import view_realisasi
 
 urlpatterns = [
+    
+    path('modal_content/<int:pk>/', view_realisasi.modal_content, name='modal_content'),
+    path('toggle-verif/<int:pk>/', view_realisasi.verif, name='toggle_verif'),
     path('realisasidelete/<int:pk>', view_realisasi.delete, name="realisasidankel_delete"),
     path('realisasiupdate/<int:pk>', view_realisasi.update, name="realisasidankel_update"),
     path('realisasisimpan/', view_realisasi.simpan, name="realisasidankel_simpan"),

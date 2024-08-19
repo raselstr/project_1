@@ -22,6 +22,27 @@ template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 sesidana = 'dana-kelurahan'
 
+
+def modal_content(request, pk):
+    data = get_object_or_404(Model_data, pk=pk)
+    return render(request, 'dankel_realisasi/verifikasi_modal.html', {'data': data})
+
+@set_submenu_session
+@menu_access_required('update')
+def verif(request, pk):
+    realisasi = get_object_or_404(Model_data, pk=pk)
+    verif = request.GET.get('verif')
+    
+    if verif == '1':
+        realisasi.realisasidankel_verif = 1
+    elif verif == '0':
+        realisasi.realisasidankel_verif = 0
+    
+    realisasi.save()
+    return redirect(tag_url)
+
+
+
 @set_submenu_session
 @menu_access_required('delete')
 def delete(request, pk):
@@ -136,6 +157,7 @@ def list(request):
     # Terapkan filter ke query data
     data = Model_data.objects.filter(filters)
     
+    
     total_realisasilpj = Model_data().get_realisasilpj_total(tahun=tahunrealisasi, opd=subopdrealisasi_id, dana=danarealisasi_id)
      
 
@@ -143,7 +165,8 @@ def list(request):
         'judul' : 'Daftar Realisasi Dana Kelurahan',
         'tombol' : 'Tambah Realisasi',
         'data' : data,
-        'total_realisasilpj':total_realisasilpj
+        'total_realisasilpj':total_realisasilpj,
+        'level': request.session.get('level')
     }
     return render(request, template, context)
 
