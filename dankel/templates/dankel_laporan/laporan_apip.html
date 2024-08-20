@@ -57,8 +57,9 @@
                             <table class="table table-sm" style="border-collapse: collapse; width:100%;padding: 4px;line-height: 1.5">
                                 <tr>
                                     <th colspan="3" style="text-align:center"> 
-                                        {{judul|upper}} <br>
+                                        <h4>{{judul|upper}} <br>
                                         DAU DUKUNGAN PEMBANGUNAN SARANA DAN PRASARANA, DAN PEMBERDAYAAN MASYARAKAT DI KELURAHAN
+                                        </h4>
                                     </th>
                                 </tr>
                                 <tr>
@@ -90,10 +91,40 @@
                                     </td>
                                 </tr>
                             </table>
+                            
+                        </div>
+                        <div class="card-header">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="4">Penerimaan</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="text-align: center">No</th>
+                                        <th style="text-align: center">Tanggal Terima</th>
+                                        <th style="text-align: center">Tahap</th>
+                                        <th style="text-align: center">Nilai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for penerimaan in penerimaan %}
+                                    <tr>
+                                        <td style="text-align: center">{{forloop.counter}}</td>
+                                        <td>{{penerimaan.distri_penerimaan.penerimaan_tgl}}</td>
+                                        <td>{{penerimaan.distri_penerimaan.penerimaan_tahap}}</td>
+                                        <td style="text-align: right">{{penerimaan.distri_nilai}}</td>
+                                    </tr>   
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
                         </div>
                         <div class="card-body">
                             <table class="table table-sm table-bordered" style="width:100%">
                                 <thead>
+                                    <tr>
+                                        <th colspan="9">Pengeluaran Belanja</th>
+                                    <tr>
                                     <tr>
                                         <th colspan=3 rowspan=2 style="text-align: center">Uraian Kegiatan</th>
                                         <th colspan=3 style="text-align: center;">Rencana</th>

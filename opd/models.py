@@ -36,7 +36,7 @@ class Subopd(models.Model):
 
 
 class Pejabat(models.Model):
-    pejabat_sub = models.ForeignKey(Subopd, verbose_name='Nama OPD', on_delete=models.CASCADE, unique=True, error_messages='OPD ini sudah memiliki Pejabat')
+    pejabat_sub = models.OneToOneField(Subopd, verbose_name='Nama OPD', on_delete=models.CASCADE, unique=True, error_messages='OPD ini sudah memiliki Pejabat')
     pejabat_jabatan = models.CharField(verbose_name='Jabatan', max_length=40)
     pejabat_nama = models.CharField(verbose_name='Nama Pejabat', max_length=40)
     pejabat_nip = models.CharField(verbose_name='NIP', max_length=18, unique=True, error_messages='NIP sudah ada')

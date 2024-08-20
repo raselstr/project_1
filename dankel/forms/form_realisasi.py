@@ -24,7 +24,7 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         tahunrencana = kwargs.pop('tahunrencana', None)
         super().__init__(*args, **kwargs)
         
-        if sesiidopd is not None and sesiidopd != 125 : 
+        if sesiidopd is not None and sesiidopd != 125 and sesiidopd != 70: 
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
         else:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()

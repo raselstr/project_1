@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan,TahapDana, Subopd
 from dausg.models import DankelProg, DankelKeg, Dankelsub
+from penerimaan.models import DistribusiPenerimaan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 from opd.models import Pejabat
@@ -19,6 +20,7 @@ Model_realisasi = RealisasiDankel
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
 Model_pejabat = Pejabat
+Model_penerimaan = DistribusiPenerimaan
 
 tag_url = 'laporan_list'
 tag_home = 'laporan_home'
@@ -27,7 +29,6 @@ template_filter = 'dankel_laporan/laporan_filter.html'
 template_form = 'dankel_laporan/laporan_form.html'
 template_home = 'dankel_laporan/laporan_home.html'
 sesidana = 'dana-kelurahan'
-
 
 def get_from_sessions(request):
     session_data = {
@@ -132,9 +133,10 @@ def pdf(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
     
-    idsubopd = request.session.get('idsubopd')
-    if idsubopd:
-        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+    sesiidopd = request.session.get('realisasidankel_subopd')
+    
+    if sesiidopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
         
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
@@ -149,15 +151,20 @@ def apip(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
     
-    idsubopd = request.session.get('idsubopd')
-    if idsubopd:
-        data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
+    sesiidopd = request.session.get('idsubopd')
+    idopd = request.session.get('realisasidankel_subopd')
+    if sesiidopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
+    
+    penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
         
     context.update({
         'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
         'tombol': 'Cetak',
-        'data' : data,    
+        'data' : data,
+        'penerimaan' : penerimaan,    
         })
+    print(f'penerimaan : {penerimaan}')
     return render(request, 'dankel_laporan/laporan_apip.html', context)
 
 def get_data_context(request):

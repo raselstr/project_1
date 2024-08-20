@@ -84,19 +84,49 @@
                                         </tr>
                                         <tr>
                                             <td colspan="3">
-                                                Kami yang bertandatangan di bawah ini, menyatakan bahwa kami telah menganggarkan dan bertanggung jawab penuh
-                                                terhadap penggunaan anggaran Sisa DAU dukungan pendanaan kelurahan dalam APBD Tahun
-                                                Anggaran {{tahunrealisasisisa}} dan/atau Peraturan Kepala Daerah mengenai Perubahan Penjabaran APBD Tahun
-                                                Anggaran {{tahunrealisasisisa}}. Kemudian, laporan ini sudah melalui pengawasan dari Aparat Pengawas Internal
-                                                Pemerintah Daerah.
+                                                Kami yang bertandatangan di bawah ini, menyatakan bahwa kami telah melakukan Reviu atas Penggunaan DAU dukungan pendanaan kelurahan dalam APBD Tahun
+                                        Anggaran {{tahunrealisasisisa}} dan/atau Peraturan Kepala Daerah mengenai Perubahan Penjabaran APBD Tahun
+                                        Anggaran {{tahunrealisasisisa}}. Dan dinyatakan sudah sesuai dan benar.
+
 
                                             </td>
                                         </tr>
                                     </table>
                                 </div>
+
+                                <div class="card-header">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="4">Penerimaan</th>
+                                            </tr>
+                                            <tr>
+                                                <th style="text-align: center">No</th>
+                                                <th style="text-align: center">Tanggal Terima</th>
+                                                <th style="text-align: center">Tahap</th>
+                                                <th style="text-align: center">Nilai</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for penerimaan in penerimaan %}
+                                            <tr>
+                                                <td style="text-align: center">{{forloop.counter}}</td>
+                                                <td>{{penerimaan.distri_penerimaan.penerimaan_tgl}}</td>
+                                                <td>{{penerimaan.distri_penerimaan.penerimaan_tahap}}</td>
+                                                <td style="text-align: right">{{penerimaan.distri_nilai}}</td>
+                                            </tr>   
+                                            {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                </div>
+
                                 <div class="card-body">
                                     <table class="table table-sm table-bordered" style="width:100%">
                                         <thead>
+                                            <tr>
+                                                <th colspan="9">Pengeluaran Belanja</th>
+                                            <tr>
                                             <tr>
                                                 <th colspan=3 rowspan=2 style="text-align: center;">Uraian Kegiatan</th>
                                                 <th colspan=3 style="text-align: center;">Rencana</th>

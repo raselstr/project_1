@@ -23,7 +23,7 @@ def list(request):
     else:
         data = Model_data.objects.all().order_by('-pejabat_sub')
         
-    form = Form_data(request.POST or None)
+    form = Form_data(request.POST or None, idsubopd=idsubopd)
     
     context = {
         "judul": "Daftar Pejabat", 
@@ -38,6 +38,7 @@ def list(request):
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
+    idsubopd = request.session.get('idsubopd')
     if request.method == "POST":
         form = Form_data(request.POST or None)
         if form.is_valid():
@@ -45,9 +46,10 @@ def simpan(request):
             messages.success(request, 'Data Berhasil disimpan')
             return redirect(tag_url)
     else:
-        form = Form_data()
+        form = Form_data(idsubopd=idsubopd)
     context = {
         'form'  : form,
+        'idsubopd':idsubopd
     }
     return render(request, lokasitemplate, context)
 

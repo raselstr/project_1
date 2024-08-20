@@ -9,6 +9,7 @@ from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiD
 from project.decorators import menu_access_required, set_submenu_session
 from django.contrib.sessions.models import Session
 from opd.models import Pejabat
+from penerimaan.models import DistribusiPenerimaan
 
 
 Model_prog = DankelProg
@@ -26,6 +27,7 @@ template_filter = 'dankel_laporansisa/laporansisa_filter.html'
 template_form = 'dankel_laporansisa/laporansisa_form.html'
 template_home = 'dankel_laporansisa/laporansisa_home.html'
 sesidana = 'sisa-dana-kelurahan'
+Model_penerimaan = DistribusiPenerimaan
 
 def get_from_sessions(request):
     session_data = {
@@ -102,15 +104,18 @@ def pdf(request):
 def apip(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
-    
+    idopd = request.session.get('realisasidankelsisa_subopd')
     idsubopd = request.session.get('idsubopd')
     if idsubopd:
         data = Model_pejabat.objects.filter(pejabat_sub=idsubopd)
-        
+    
+    penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
+    
     context.update({
         'judul': 'Hasil Reviu APIP Realisasi Sisa Dana Kelurahan',
         'tombol': 'Cetak',
-        'data' : data,    
+        'data' : data,
+        'penerimaan' : penerimaan,    
         })
     return render(request, 'dankel_laporansisa/laporansisa_apip.html', context)
 

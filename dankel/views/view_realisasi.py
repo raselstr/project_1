@@ -151,7 +151,7 @@ def list(request):
         filters &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 125:
+    if subopdrealisasi_id != 125 and subopdrealisasi_id != 70:
         filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
     # Terapkan filter ke query data

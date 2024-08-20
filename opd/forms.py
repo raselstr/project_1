@@ -27,11 +27,24 @@ class PejabatForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
+        idsubopd = kwargs.pop('idsubopd', None)
         super().__init__(*args, **kwargs)
+        
         self.fields['pejabat_sub'].widget.attrs.update({'class': 'form-control'})
         self.fields['pejabat_jabatan'].widget.attrs.update({'class': 'form-control'})
         self.fields['pejabat_nama'].widget.attrs.update({'class': 'form-control'})
         self.fields['pejabat_nip'].widget.attrs.update({'class': 'form-control'})
+        
+        if idsubopd is not None and idsubopd != 125: 
+            self.fields['pejabat_sub'].queryset = Subopd.objects.filter(id=idsubopd)
+        
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+    
+    
         # self.fields['sub_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Sub OPD'})
 
 
