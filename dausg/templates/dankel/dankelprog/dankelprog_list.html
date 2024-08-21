@@ -13,6 +13,10 @@
                     <a href="{% url "dausg" %}" type="button" class="btn btn-warning mr-3">Kembali</a>
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalupload"><i class="fas fa-file-excel"></i> <i class="fas fa-file-import"></i></button>
+                        <a href="{% url 'export_dankel' %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-file-export"></i> <i class="fas fa-file-excel"></i>
+                        </a>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
                     </div>
                 </div>
@@ -117,6 +121,37 @@
         </div>
     </div>
 
+   <!-- Modal Tambah OPD -->
+<div class="modal fade" id="modalupload" tabindex="-1" role="dialog" aria-labelledby="modaluploadLabel" aria-hidden="true"> 
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahLabel">{{ upload }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" enctype="multipart/form-data" 
+                      hx-post="{% url 'upload_dankel' %}" 
+                      hx-target="#upload-result"
+                      hx-swap="innerHTML">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="customFile" name="myfile" accept=".xlsx">
+                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary float-right">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tempat menampilkan hasil upload -->
+<div id="upload-result"></div>
     
 {% endblock content %}
 {% block style %}

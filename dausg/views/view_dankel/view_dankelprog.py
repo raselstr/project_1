@@ -3,6 +3,9 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from dana.utils import datasubrinc
 from project.decorators import menu_access_required, set_submenu_session
+from django.http import HttpResponse
+from ...resources import DankelProgResource
+from tablib import Dataset
 
 
 
@@ -11,6 +14,43 @@ from ...forms.form_dankel import DankelProgForm
 
 Form_data = DankelProgForm
 Nilai_data = DankelProg
+
+@set_submenu_session
+@menu_access_required('list')
+def export(request):
+    mymodel_resource = DankelProgResource()
+    dataset = mymodel_resource.export()
+    
+    # Konversi dataset menjadi file Excel
+    excel_data = dataset.export('xlsx')
+    
+    # Buat respon HTTP dengan file Excel
+    response = HttpResponse(excel_data, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="dankelprog.xlsx"'
+    return response
+
+@set_submenu_session
+@menu_access_required('import')
+def upload(request):
+    if request.method == 'POST':
+        mymodel_resource = DankelProgResource()
+        dataset = Dataset()
+        new_data = request.FILES['myfile']
+
+        try:
+            imported_data = dataset.load(new_data.read(), format='xlsx')
+            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
+
+            if not result.has_errors():
+                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
+                return HttpResponse("Upload berhasil!", status=200)
+            else:
+                return HttpResponse("Terjadi kesalahan saat mengimpor data.", status=400)
+        except Exception as e:
+            return HttpResponse(f"Error: {e}", status=500)
+
+    return render(request, "dankel/dankelprog/dankelprog_list.html")  # Gantilah dengan nama view yang sesuai
+
 
 @set_submenu_session
 @menu_access_required('list')
@@ -24,6 +64,7 @@ def list(request):
     context = {
         "judul": "Daftar Program Dana Kelurahan", 
         "tombol" : "Tambah Program Dana Kelurahan",
+        "upload" : "Upload Program Dana Kelurahan",
         "form": form, 
         "datas": data
     }

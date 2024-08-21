@@ -15,6 +15,8 @@ urlpatterns = [
     path("dankelkeg/<int:number>/simpan", view_dankelkeg.simpan, name="simpan_dankelkeg"),
     path("dankelkeg/<int:number>/", view_dankelkeg.list, name="list_dankelkeg"),
     
+    path("dankelprog/import", view_dankelprog.upload, name="upload_dankel"),
+    path("dankelprog/export", view_dankelprog.export, name="export_dankel"),
     path("dankelprog/delete/<int:pk>", view_dankelprog.delete, name="delete_dankel"),
     path("dankelprog/update/<int:pk>", view_dankelprog.update, name="update_dankel"),
     path("dankelprog/simpan", view_dankelprog.simpan, name="simpan_dankel"),
