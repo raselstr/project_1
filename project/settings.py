@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django_htmx',
+    'import_export',
     'authapp',
     'dashboard',
     'opd',
