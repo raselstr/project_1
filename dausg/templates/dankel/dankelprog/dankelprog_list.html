@@ -121,21 +121,20 @@
         </div>
     </div>
 
-   <!-- Modal Tambah OPD -->
+<!-- Modal Tambah OPD -->
 <div class="modal fade" id="modalupload" tabindex="-1" role="dialog" aria-labelledby="modaluploadLabel" aria-hidden="true"> 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahLabel">{{ upload }}</h5>
+                <h5 class="modal-title" id="modalTambahLabel">Upload Dankel</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data" 
-                      hx-post="{% url 'upload_dankel' %}" 
-                      hx-target="#upload-result"
-                      hx-swap="innerHTML">
+                    hx-post="{% url 'upload_dankel' %}"
+                    hx-on="htmx:afterOnLoad: location.reload()">
                     {% csrf_token %}
                     <div class="form-group">
                         <div class="custom-file">
@@ -150,8 +149,6 @@
     </div>
 </div>
 
-<!-- Tempat menampilkan hasil upload -->
-<div id="upload-result"></div>
     
 {% endblock content %}
 {% block style %}
@@ -203,10 +200,16 @@
                 $('.text-danger').remove();
                 window.location.href = "{% url 'list_dankel' %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
+            $('#modalupload form').on('submit', function() {
+                $('#modalupload').modal('hide'); // Menutup modal setelah submit
+            });
+
+            $('#modalupload').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset(); // Membersihkan form setelah modal ditutup
+                $('.custom-file-label').html('Choose file'); // Reset label input file
+            });
+
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
@@ -216,6 +219,11 @@
                 });
             {% endfor %}
             {% endif %}
+
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
         });
     </script>
     <script type="text/javascript">

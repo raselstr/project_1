@@ -17,7 +17,7 @@ tag_url = 'list_dausgpuprog'
 def list(request):
     request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
-            .select_related('dausgpu_dana', 'dausgpu_subrinc')
+            .select_related('dausgpu_dana')
             .prefetch_related('dausgpukegs__dausgpusubs')
             .all())
     form = Form_data()

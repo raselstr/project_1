@@ -17,7 +17,7 @@ tag_url = 'list_dausgkesehatanprog'
 def list(request):
     request.session['next'] = request.get_full_path()
     data = (Nilai_data.objects
-            .select_related('dausgkesehatan_dana', 'dausgkesehatan_subrinc')
+            .select_related('dausgkesehatan_dana')
             .prefetch_related('dausgkesehatankegs__dausgkesehatansubs')
             .all())
     form = Form_data()

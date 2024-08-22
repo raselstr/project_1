@@ -14,6 +14,7 @@ from ...forms.form_dankel import DankelProgForm
 
 Form_data = DankelProgForm
 Nilai_data = DankelProg
+template_list = 'dankel/dankelprog/dankelprog_list.html'
 
 @set_submenu_session
 @menu_access_required('list')
@@ -30,26 +31,33 @@ def export(request):
     return response
 
 @set_submenu_session
-@menu_access_required('import')
+@menu_access_required('list')
 def upload(request):
     if request.method == 'POST':
         mymodel_resource = DankelProgResource()
         dataset = Dataset()
-        new_data = request.FILES['myfile']
+        new_data = request.FILES.get('myfile')
+
+        if not new_data:
+            messages.error(request,'File tidak ditemukan. Silakan pilih file')
+            return redirect('list_dankel')
 
         try:
             imported_data = dataset.load(new_data.read(), format='xlsx')
             result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
 
-            if not result.has_errors():
-                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
-                return HttpResponse("Upload berhasil!", status=200)
+            if result.has_errors():
+                messages.error(request,'Terjadi kesalahan saat mengimpor data')
+                return redirect('list_dankel')
             else:
-                return HttpResponse("Terjadi kesalahan saat mengimpor data.", status=400)
+                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
+                messages.success(request, 'Upload berhasil!')
+                return redirect('list_dankel')
         except Exception as e:
-            return HttpResponse(f"Error: {e}", status=500)
+            messages.error(request, f"Error: {e}")
+            return redirect('list_dankel')
 
-    return render(request, "dankel/dankelprog/dankelprog_list.html")  # Gantilah dengan nama view yang sesuai
+    return render(request, template_list)  # Gantilah dengan nama view yang sesuai
 
 
 @set_submenu_session
