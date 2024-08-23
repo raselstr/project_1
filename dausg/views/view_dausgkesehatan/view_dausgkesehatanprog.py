@@ -8,9 +8,68 @@ from project.decorators import menu_access_required, set_submenu_session
 from ...models import DausgkesehatanProg
 from ...forms.form_dausgkesehatan import DausgkesehatanProgForm
 
+from django.http import HttpResponse
+from ...resources import DausgkesehatanProgResource
+from tablib import Dataset
+
 Form_data = DausgkesehatanProgForm
 Nilai_data = DausgkesehatanProg
+lokasitemplate = 'dausgkesehatan/dausgkesehatanprog/dausgkesehatanprog_list.html'
+lokasiupdate = 'dausgkesehatan/dausgkesehatanprog/dausgkesehatanprog_edit.html'
 tag_url = 'list_dausgkesehatanprog'
+resource = DausgkesehatanProgResource
+
+
+@set_submenu_session
+@menu_access_required('list')
+def export(request):
+    mymodel_resource = resource()
+    dataset = mymodel_resource.export()
+    
+    # Konversi dataset menjadi file Excel
+    excel_data = dataset.export('xlsx')
+    
+    # Buat respon HTTP dengan file Excel
+    response = HttpResponse(excel_data, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="DAU SG Kesehatan Program.xlsx"'
+    return response
+
+@set_submenu_session
+@menu_access_required('list')
+def upload(request):
+    if request.method == 'POST':
+        mymodel_resource = resource()
+        dataset = Dataset()
+        new_data = request.FILES.get('myfile')
+
+        if not new_data:
+            messages.error(request, 'File tidak ditemukan. Silakan pilih file')
+            return redirect(tag_url)
+
+        try:
+            imported_data = dataset.load(new_data.read(), format='xlsx')
+            if not imported_data.headers:
+                messages.error(request, 'File tidak memiliki header atau struktur yang salah.')
+                return redirect(tag_url)
+
+            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
+            if result.has_errors():
+                error_messages = []
+                for row_errors in result.row_errors():
+                    row, errors = row_errors
+                    error_messages.append(f"Kesalahan di baris {row}: {', '.join([str(e.error) for e in errors])}")
+                
+                messages.error(request, f"Terjadi kesalahan saat mengimpor data: {'; '.join(error_messages)}")
+                return redirect(tag_url)
+            else:
+                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
+                messages.success(request, 'Upload berhasil!')
+                return redirect(tag_url)
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+            return redirect(tag_url)
+
+    return render(request, lokasitemplate)
 
 @set_submenu_session
 @menu_access_required('list')
@@ -27,7 +86,7 @@ def list(request):
         "form": form, 
         "datas": data
     }
-    return render(request, "dausgkesehatan/dausgkesehatanprog/dausgkesehatanprog_list.html", context) 
+    return render(request, lokasitemplate, context) 
 
 @set_submenu_session
 @menu_access_required('simpan')
@@ -46,7 +105,7 @@ def simpan(request):
         'form'  : form,
         'datas': data
     }
-    return render(request, "dausgkesehatan/dausgkesehatanprog/dausgkesehatanprog_list.html", context)
+    return render(request, lokasitemplate, context)
 
 @set_submenu_session
 @menu_access_required('update')
@@ -63,7 +122,7 @@ def update(request, pk):
         formupdate = Form_data(instance=data)
 
     context = {"form": formupdate, "datas": data, "judul": "Update dausgkesehatanprog"}
-    return render(request, "dausgkesehatan/dausgkesehatanprog/dausgkesehatanprog_edit.html", context)
+    return render(request, lokasiupdate, context)
 
 @set_submenu_session
 @menu_access_required('delete')
