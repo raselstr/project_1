@@ -18,7 +18,6 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "7575:7575"
       - "5454:5454"
 
 volumes:
