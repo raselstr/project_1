@@ -29,7 +29,7 @@ DEBUG = True
 
 CSRF_COOKIE_SECURE = True
 # CSRF_COOKIE_DOMAIN = '192.168.66.77'
-# CSRF_TRUSTED_ORIGINS = ['http://192.168.66.77:5000',]
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5000',]
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost','192.168.66.77']
 
@@ -98,7 +98,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db_data' / 'db.sqlite3',
     }
 }
 
@@ -148,7 +148,7 @@ NUMBER_FORMAT = {
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
     
