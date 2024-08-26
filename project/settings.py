@@ -31,7 +31,6 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 # CSRF_COOKIE_DOMAIN = '192.168.66.77'
 CSRF_TRUSTED_ORIGINS = [
-    'http://103.15.242.198:7575', 
     'http://localhost:5454', 
     'http://192.168.66.35:5454']
 
@@ -40,7 +39,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost',
     '192.168.66.35',
-    '103.15.242.198'
     ]
 
 
