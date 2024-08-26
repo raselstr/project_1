@@ -23,3 +23,4 @@ services:
 volumes:
   static_volume:
   media_volume:
+  sqlite_data:
