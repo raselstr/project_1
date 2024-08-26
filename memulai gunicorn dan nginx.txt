@@ -7,4 +7,64 @@ cara mengaktifkan
 3. sudo systemctl daemon-reload
 4. sudo systemctl start project_gunicorn.service
 
+buat docker image
+1. buat file docker di project
+    # Menggunakan image Python sebagai base
+    FROM python:3.11-slim
 
+    # Menentukan direktori kerja di dalam container
+    WORKDIR /app
+
+    # Menyalin file requirements.txt dan menginstal dependencies
+    COPY requirements.txt /app/
+    RUN pip install --no-cache-dir -r requirements.txt
+
+    # Menyalin seluruh kode proyek ke dalam container
+    COPY . /app/
+
+    # Menjalankan perintah untuk migrate dan collectstatic (opsional)
+    RUN python manage.py migrate
+    RUN python manage.py collectstatic --noinput
+
+    # Menentukan perintah default untuk menjalankan aplikasi Django
+    CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project.wsgi:application"]
+2. Buat docker-compose.yml (Opsional)
+    version: '3'
+
+    services:
+    db:
+        image: postgres:14
+        environment:
+        POSTGRES_DB: tkdd
+        POSTGRES_USER: raselstr
+        POSTGRES_PASSWORD: password
+
+    web:
+        build: .
+        command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
+        volumes:
+        - .:/app
+        ports:
+        - "8000:8000"
+        depends_on:
+        - db
+        environment:
+        - DATABASE_URL=postgres://raselstr:password@db:5432/tkdd
+3. Buat File requirements.txt
+    freeze > requirements.txt
+4. Bangun dan Jalankan Container
+    Jika menggunakan Dockerfile saja:
+
+    docker build -t mydjangoapp .
+    docker run -d -p 8000:8000 mydjangoapp
+
+    Jika menggunakan docker-compose:
+
+    docker-compose up --build
+
+5. Akses Aplikasi
+6. Mengelola Migration dan Superuser
+    Untuk menjalankan perintah Django lain seperti migrate atau membuat superuser, Anda bisa menjalankan perintah-perintah ini dalam container:
+
+    docker-compose run web python manage.py migrate
+    docker-compose run web python manage.py createsuperuser
