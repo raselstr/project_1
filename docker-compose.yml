@@ -3,13 +3,13 @@ version: '3'
 services:
   web:
     build: .
-    command: gunicorn project.wsgi:application --bind 0.0.0.0:5000
+    command: gunicorn project.wsgi:application --bind 0.0.0.0:5454
     volumes:
       - .:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
-      - "5000"
+      - "5454"
 
   nginx:
     image: nginx:latest
@@ -18,7 +18,7 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "5000:5000"
+      - "7575:7575"
 
 volumes:
   static_volume:
