@@ -68,3 +68,6 @@ buat docker image
 
     docker-compose run web python manage.py migrate
     docker-compose run web python manage.py createsuperuser
+
+Menjalankankan
+docker-compose up --build ini untuk membuat coutaner dan image
