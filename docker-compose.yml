@@ -1,15 +1,17 @@
-version: '3'
+version: '3'  # Pastikan versi sesuai dengan yang kamu gunakan
 
 services:
   web:
     build: .
-    command: gunicorn project.wsgi:application --bind 0.0.0.0:5454
+    command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
     volumes:
-      - .:/project_1
+      - H:/app/project_1:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
-      - "5454"
+      - "4500"
+    networks:
+      - app-network  # Tambahkan ini
 
   nginx:
     image: nginx:latest
@@ -18,9 +20,16 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "5454:5454"
+      - "4500:4500"
+    networks:
+      - app-network
+    depends_on:
+      - web  # Opsional: memastikan nginx menunggu web siap
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   static_volume:
   media_volume:
-  sqlite_data:
