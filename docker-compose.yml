@@ -20,7 +20,7 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "4500:4500"
+      - "4500:4500"  # Akses lokal
     networks:
       - app-network
     depends_on:
