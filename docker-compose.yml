@@ -24,8 +24,16 @@ services:
     networks:
       - app-network
     depends_on:
-      - web  # Opsional: memastikan nginx menunggu web siap
-
+      - web  
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080" 
+    networks:
+      - app-network
+  
 networks:
   app-network:
     driver: bridge
