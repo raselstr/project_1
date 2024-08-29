@@ -194,7 +194,7 @@ class RealisasiDankel(models.Model):
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankel_rencana = models.ForeignKey(RencDankeljadwal, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasidankel_idrencana = models.IntegerField(verbose_name="Id Rencana", editable=False)
+    realisasidankel_idrencana = models.IntegerField(verbose_name="Id Rencana")
     realisasidankel_output = models.IntegerField(verbose_name='Output')
     realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
@@ -313,7 +313,7 @@ class RealisasiDankel(models.Model):
             filters &= Q(id=self.realisasidankel_rencana_id)
         
         nilai_output = RencDankeljadwal.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_output'))['total_nilai'] or Decimal(0)
-        print(f"nilai output : {nilai_output} dan {filters}")
+        # print(f"nilai output : {nilai_output} dan {filters}")
         return nilai_output
 
     def get_realisasi_pk(self):

@@ -21,7 +21,7 @@
                         <!-- Field Tahun -->
                         
                                 <div class="form-group">
-                                    <label for="{{ form.realisasidankel_tahun.id_for_label }}" hidden>{{ form.realisasidankel_tahun.label }}</label>
+                                    <label for="{{ form.realisasidankel_tahun.id_for_label }}" >{{ form.realisasidankel_tahun.label }}</label>
                                     {{ form.realisasidankel_tahun }} 
                                     {% if form.realisasidankel_tahun.errors %}
                                         {% for error in form.realisasidankel_tahun.errors %}
@@ -36,7 +36,7 @@
                         <!-- Field Sumber Dana -->
                         
                                 <div class="form-group">
-                                    <label for="{{ form.realisasidankel_dana.id_for_label }}"hidden>{{ form.realisasidankel_dana.label }}</label>
+                                    <label for="{{ form.realisasidankel_dana.id_for_label }}">{{ form.realisasidankel_dana.label }}</label>
                                     {{ form.realisasidankel_dana }}
                                     {% if form.realisasidankel_dana.errors %}
                                         {% for error in form.realisasidankel_dana.errors %}
@@ -50,7 +50,7 @@
                         <!-- Field Tahap Realisasi -->
                        
                                 <div class="form-group">
-                                    <label for="{{ form.realisasidankel_tahap.id_for_label }}" hidden>{{ form.realisasidankel_tahap.label }}</label>
+                                    <label for="{{ form.realisasidankel_tahap.id_for_label }}" >{{ form.realisasidankel_tahap.label }}</label>
                                     {{ form.realisasidankel_tahap }}
                                     {% if form.realisasidankel_tahap.errors %}
                                         {% for error in form.realisasidankel_tahap.errors %}
@@ -64,7 +64,7 @@
                         
                         <!-- Field Sub Opd -->
                                 <div class="form-group">
-                                    <label for="{{ form.realisasidankel_subopd.id_for_label }}" hidden>{{ form.realisasidankel_subopd.label }}</label>
+                                    <label for="{{ form.realisasidankel_subopd.id_for_label }}" >{{ form.realisasidankel_subopd.label }}</label>
                                     {{ form.realisasidankel_subopd }}
                                     {% if form.realisasidankel_subopd.errors %}
                                         {% for error in form.realisasidankel_subopd.errors %}
@@ -74,9 +74,8 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                        
                                 <div class="form-group">
-                                    <label for="{{ form.realisasidankel_idrencana.id_for_label }}" hidden>{{ form.realisasidankel_idrencana.label }}</label>
+                                    <label for="{{ form.realisasidankel_idrencana.id_for_label }}" >{{ form.realisasidankel_idrencana.label }}</label>
                                     {{ form.realisasidankel_idrencana }}
                                     {% if form.realisasidankel_idrencana.errors %}
                                         {% for error in form.realisasidankel_idrencana.errors %}
@@ -86,7 +85,6 @@
                                         {% endfor %}
                                     {% endif %}
                                 </div>
-                    
                            
                         <!-- Field Kegiatan -->
                         <div class="form-row border-top border-bottom py-3">

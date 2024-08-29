@@ -6,6 +6,7 @@ from django.contrib import messages
 from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
+from django.http import JsonResponse
 
 
 Model_data = RealisasiDankel
@@ -26,6 +27,12 @@ sesidana = 'dana-kelurahan'
 def modal_content(request, pk):
     data = get_object_or_404(Model_data, pk=pk)
     return render(request, 'dankel_realisasi/verifikasi_modal.html', {'data': data})
+
+def get_idrencana(request):
+    data = {
+        'idrencana': '12345'  # Data dummy untuk uji
+    }
+    return JsonResponse(data)
 
 @set_submenu_session
 @menu_access_required('update')
