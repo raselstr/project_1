@@ -3,18 +3,18 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan
+from ..models import RealisasiDankel, RencDankel, Subkegiatan, RealisasiDankelsisa
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
-from django.http import JsonResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 Model_data = RealisasiDankel
 Model_sisa = RealisasiDankelsisa
-Model_rencana = RencDankeljadwal
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
-
 tag_url = 'realisasidankel_list'
 tag_home = 'realisasidankel_home'
 template = 'dankel_realisasi/realisasi_list.html'
@@ -23,16 +23,18 @@ template_form = 'dankel_realisasi/realisasi_form.html'
 template_home = 'dankel_realisasi/realisasi_home.html'
 sesidana = 'dana-kelurahan'
 
+def get_from_sessions(request):
+    session_data = {
+        'idsubopd': request.session.get('idsubopd'),
+        'sesitahun': request.session.get('tahun'),  # Ganti 'idsubopd_lain' dengan kunci session yang diinginkan
+        # Tambahkan lebih banyak kunci session jika diperlukan
+    }
+    
+    return session_data
 
 def modal_content(request, pk):
     data = get_object_or_404(Model_data, pk=pk)
     return render(request, 'dankel_realisasi/verifikasi_modal.html', {'data': data})
-
-def get_idrencana(request):
-    data = {
-        'idrencana': '12345'  # Data dummy untuk uji
-    }
-    return JsonResponse(data)
 
 @set_submenu_session
 @menu_access_required('update')
@@ -47,8 +49,6 @@ def verif(request, pk):
     
     realisasi.save()
     return redirect(tag_url)
-
-
 
 @set_submenu_session
 @menu_access_required('delete')
@@ -69,6 +69,7 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     realisasi_dankel = get_object_or_404(RealisasiDankel, pk=pk)
+    
     keg = {
         'tahun' : request.session.get('realisasidankel_tahun'),
         'dana' : request.session.get('realisasidankel_dana'),
@@ -85,7 +86,7 @@ def update(request, pk):
         else:
             form = Form_data(request.POST, instance=realisasi_dankel, keg=keg)
             context = {
-                'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
+                'judul': 'Form Update SP2D',
                 'form': form,
                 'btntombol': 'Update',
             }
@@ -93,18 +94,16 @@ def update(request, pk):
     else:
         form = Form_data(instance=realisasi_dankel, keg=keg)
     context = {
-        'judul': 'Form Update SP2D Realisasi Tahun Berjalan',
+        'judul': 'Form Update SP2D',
         'form': form,
         'btntombol': 'Update',
     }
     return render(request, template_form, context)
 
-
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
-      
     keg = {
         'tahun' : request.session.get('realisasidankel_tahun'),
         'dana' : request.session.get('realisasidankel_dana'),
@@ -114,18 +113,25 @@ def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
-            realisasi_dankel = form.save(commit=False)
-            realisasi_dankel.save()
-            return redirect(tag_url)  # ganti dengan halaman sukses Anda
+            logger.info("Form is valid")
+            try:
+                realisasi_dankel = form.save(commit=False)
+                realisasi_dankel.save()
+                logger.info("Form saved successfully")
+                return redirect(tag_url)  # ganti dengan halaman sukses Anda
+            except Exception as e:
+                logger.error(f"Error saving form: {e}")
         else:
-            form = Form_data(request.POST, keg=keg)
+            logger.warning("Form is not valid")
+            logger.error("Form errors: %s", form.errors)
             context = {
-                'judul': 'Form Input SP2D',
+                'judul': 'Form Input SP2D penggunaan ',
                 'form': form,
                 'btntombol': 'Simpan',
             }
             return render(request, template_form, context)
     else:
+        # Ambil data filter dari sesi
         initial_data = {
             'realisasidankel_tahun': request.session.get('realisasidankel_tahun'),
             'realisasidankel_dana': request.session.get('realisasidankel_dana'),
@@ -133,9 +139,9 @@ def simpan(request):
             'realisasidankel_subopd': request.session.get('realisasidankel_subopd')
         }
         form = Form_data(initial=initial_data, keg=keg)
-    
+        
     context = {
-        'judul': 'Form Input SP2D',
+        'judul': 'Form Input SP2D penggunaan ',
         'form': form,
         'btntombol': 'Simpan',
     }
@@ -149,7 +155,7 @@ def list(request):
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
-    
+
     # Buat filter query
     filters = Q()
     if tahunrealisasi:
@@ -164,48 +170,42 @@ def list(request):
     # Terapkan filter ke query data
     data = Model_data.objects.filter(filters)
     
-    
     total_realisasilpj = Model_data().get_realisasilpj_total(tahun=tahunrealisasi, opd=subopdrealisasi_id, dana=danarealisasi_id)
-     
 
     context = {
         'judul' : 'Daftar Realisasi Dana Kelurahan',
-        'tombol' : 'Tambah Realisasi',
+        'tombol' : 'Tambah Realisasi ',
         'data' : data,
-        'total_realisasilpj':total_realisasilpj,
-        'level': request.session.get('level')
+        'total_realisasilpj':total_realisasilpj
     }
     return render(request, template, context)
 
 @set_submenu_session
 @menu_access_required('list')    
 def filter(request):
-    sesiidopd = request.session.get('idsubopd')
-    tahunrencana = Model_rencana.objects.values_list('rencdankel_tahun', flat=True).distinct()
     request.session['next'] = request.get_full_path()
-    
+    session_data = get_from_sessions(request)
+    sesiidopd = session_data.get('idsubopd')
+    tahunrencana = RencDankel.objects.values_list('rencdankel_tahun', flat=True).distinct()
     
     if request.method == 'GET':
         form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
         if form.is_valid():
+            # Simpan data filter di sesi
             request.session['realisasidankel_tahun'] = form.cleaned_data.get('realisasidankel_tahun')
             request.session['realisasidankel_dana'] = form.cleaned_data.get('realisasidankel_dana').id if form.cleaned_data.get('realisasidankel_dana') else None
             request.session['realisasidankel_tahap'] = form.cleaned_data.get('realisasidankel_tahap').id if form.cleaned_data.get('realisasidankel_tahap') else None
             request.session['realisasidankel_subopd'] = form.cleaned_data.get('realisasidankel_subopd').id if form.cleaned_data.get('realisasidankel_subopd') else None
             
-            # print(f"Redirecting to: {tag_url}")
             return redirect(tag_url)
-        else:
-            print(f"Form gak cocok : {form.errors}")
-            # print(form.errors)
     else:
         form = Form_filter()
-    # print(form)
+    
     context = {
-        'judul' : 'Realisasi Tahun Berjalan',
-        'tombol' : 'Tambah Realisasi Tahun Berjalan',
+        'judul' : 'Realisasi',
+        'tombol' : 'Tambah Realisasi',
         'form': form
-        # 'datasisa' : total_pagu_sisa,
+        # 'data' : total_pagu_,
     }
     return render(request, template_filter, context)
 
@@ -251,4 +251,3 @@ def home(request):
         'persentasesisa' : total_persentasesisa,
     }
     return render(request, template_home, context)
-    

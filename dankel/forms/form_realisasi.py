@@ -1,6 +1,5 @@
 from django import forms
 from ..models import RealisasiDankel, Subopd, Subkegiatan, RencDankeljadwal
-from django.urls import reverse
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -25,7 +24,7 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         tahunrencana = kwargs.pop('tahunrencana', None)
         super().__init__(*args, **kwargs)
         
-        if sesiidopd is not None and sesiidopd != 125 and sesiidopd != 70: 
+        if sesiidopd is not None and sesiidopd != 125 and sesiidopd != 70:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
         else:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()
@@ -52,15 +51,8 @@ class RealisasiDankelForm(forms.ModelForm):
             'realisasidankel_dana': forms.HiddenInput(),
             'realisasidankel_tahap': forms.HiddenInput(),
             'realisasidankel_subopd': forms.HiddenInput(),
-            'realisasidankel_rencana': forms.Select(attrs={
-                'class': 'form-control select2',
-                'hx-target': '#id_realisasidankel_idrencana',
-                'hx-trigger': 'click', 
-            }),
-            'realisasidankel_idrencana': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'id':'id_realisasidankel_idrencana', 
-            }),
+            'realisasidankel_rencana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankel_idrencana': forms.HiddenInput(),
             'realisasidankel_output': forms.NumberInput(attrs={'class': 'form-control'}),
             'realisasidankel_sp2dtu': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasidankel_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -73,12 +65,10 @@ class RealisasiDankelForm(forms.ModelForm):
             'realisasidankel_stsnilai': forms.NumberInput(attrs={'class': 'form-control'}),
             'realisasidankel_verif': forms.Select(attrs={'class': 'form-control'}),
         }
-        
+    
     def __init__(self, *args, **kwargs):
         keg = kwargs.pop('keg', None)
         super().__init__(*args, **kwargs)
-        self.fields['realisasidankel_rencana'].widget.attrs['hx-get'] = reverse('getidrenc')
-        print(f"hx-get URL: {self.fields['realisasidankel_rencana'].widget.attrs['hx-get']}")
         # print(keg)
         if keg:
             subopd = keg.get('subopd', None)
@@ -95,5 +85,3 @@ class RealisasiDankelForm(forms.ModelForm):
                 )
             else:
                 self.fields['realisasidankel_rencana'].queryset = RencDankeljadwal.objects.none()
-        
-            

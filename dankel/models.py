@@ -194,7 +194,7 @@ class RealisasiDankel(models.Model):
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankel_rencana = models.ForeignKey(RencDankeljadwal, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasidankel_idrencana = models.IntegerField(verbose_name="Id Rencana")
+    realisasidankel_idrencana = models.IntegerField(verbose_name="Id Rencana", editable=False)
     realisasidankel_output = models.IntegerField(verbose_name='Output')
     realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
@@ -205,7 +205,7 @@ class RealisasiDankel(models.Model):
     realisasidankel_sts = models.CharField(verbose_name='No STS TU', max_length=100, unique=True)
     realisasidankel_ststgl = models.DateField(verbose_name='Tanggal STS TU')
     realisasidankel_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
-    realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0) 
+    realisasidankel_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
     def clean(self):
         super().clean()
@@ -214,12 +214,14 @@ class RealisasiDankel(models.Model):
         total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
         total_rencana_pk = self.get_rencana_pk()
         total_realisasi_pk = self.get_realisasi_pk()
-        total_rencanaoutputpk = self.get_rencana_outputpk()
+        total_rencanaoutput_pk = self.get_rencanaoutput_pk()
+        
+         
         
         if self.pk:
             total_realisasi_pk = total_realisasi_pk - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
             total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
-         
+        
         total_realisasi_pk += self.realisasidankel_lpjnilai
         total_realisasi += self.realisasidankel_lpjnilai
         
@@ -228,17 +230,18 @@ class RealisasiDankel(models.Model):
         formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
         formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
         formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
+        
         try:
             sp2dtu = Decimal(self.realisasidankel_nilai)
             lpj = Decimal(self.realisasidankel_lpjnilai)
             sts = Decimal(self.realisasidankel_stsnilai)
-            output = Decimal(self.realisasidankel_output or 0) 
+            output = Decimal(self.realisasidankel_output or 0)
             
         except ValueError:
             raise ValidationError('SP2D TU dan LPJ harus berupa angka.')
         
-        if output > total_rencanaoutputpk:
-            raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutputpk}')
+        if output > total_rencanaoutput_pk:
+            raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
        
         if sp2dtu < 0:
             raise ValidationError('SP2D TU tidak boleh kurang dari 0')
@@ -246,13 +249,14 @@ class RealisasiDankel(models.Model):
         if lpj > sp2dtu:
             raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
 
-        sisasts = sp2dtu - lpj
+        sts = sp2dtu - lpj
 
         if sts < 0:
             raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
 
-        if sts != sisasts:
-            raise ValidationError(f'Nilai STS tidak boleh lebih besar dari {sisasts}')        
+        if sts != sts:
+            raise ValidationError(f'Nilai STS harus sama dengan {sts}')        
+
         
         if total_realisasi_pk > total_rencana_pk:
             raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
@@ -270,6 +274,7 @@ class RealisasiDankel(models.Model):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
         if opd is not None and opd != 125 and opd != 70:
             filters &= Q(distri_subopd=opd)
+        # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
@@ -305,7 +310,7 @@ class RealisasiDankel(models.Model):
         # print(f"nilai rencana : {nilai_rencana} dan {filters}")
         return nilai_rencana
     
-    def get_rencana_outputpk(self):
+    def get_rencanaoutput_pk(self):
         filters = Q(rencdankel_tahun=self.realisasidankel_tahun) & Q(rencdankel_dana_id=self.realisasidankel_dana_id)
         if self.realisasidankel_subopd_id is not None:
             filters &= Q(rencdankel_subopd_id=self.realisasidankel_subopd_id)
@@ -313,7 +318,7 @@ class RealisasiDankel(models.Model):
             filters &= Q(id=self.realisasidankel_rencana_id)
         
         nilai_output = RencDankeljadwal.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_output'))['total_nilai'] or Decimal(0)
-        # print(f"nilai output : {nilai_output} dan {filters}")
+        # print(f"nilai rencana : {nilai_rencana} dan {filters}")
         return nilai_output
 
     def get_realisasi_pk(self):
