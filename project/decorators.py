@@ -66,7 +66,7 @@ def menu_access_required(permission):
                 status_check = any(getattr(levelsub, permission_field) for levelsub in levelsubs_for_submenu)
 
                 # Print dan log status permission
-                print(f"Permission field checked: {permission_field} - Status: {status_check} {levelsubs_for_submenu}")
+                # print(f"Permission field checked: {permission_field} - Status: {status_check} {levelsubs_for_submenu}")
 
                 if not status_check:
                     logger.warning(f"Pengguna {user} tidak memiliki izin {permission} untuk submenu {submenu_id}.")
