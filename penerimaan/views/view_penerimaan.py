@@ -18,6 +18,7 @@ tag_url = 'list_penerimaan'
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    
     data = Model_data.objects.all().order_by('penerimaan_dana')
     form = Form_data(request.POST or None)
     
