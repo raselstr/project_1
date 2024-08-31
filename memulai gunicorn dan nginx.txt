@@ -74,3 +74,24 @@ docker-compose up --build       #ini untuk membuat coutaner dan image
 docker-compose down             #menghapus seluruh cointainer
 docker system prune -a          #menghapus seluruh file
 
+
+Mengambil data dari image yang tersimpan di docker
+1. menjalankan container dari image dengan membuat nama container (temp_django_container)
+    docker run -d --name temp_django_container raselstr/project_1:30082024 tail -f /dev/null
+
+    Penjelasan:
+    a. -d: Menjalankan container dalam mode detached (background).
+    b. --name temp_django_container: Memberi nama pada container sementara.
+    c. raselstr/project_1:30082024: Nama image yang digunakan.
+    d. tail -f /dev/null: Perintah untuk menjaga container tetap berjalan tanpa keluar.
+
+2. salin seluruh file project ke folder host
+    docker cp temp_django_container:/project_1 D:/KULIAH/django/
+3. setelah dicopy hapus container sementara
+    docker rm -f temp_django_container
+4. Jalankan container dengan volume mount yg benar, jika ingin disambungkan
+    docker run -v D:/KULIAH/django/project_1:/project_1 -it --name django_container raselstr/project_1:30082024 /bin/bash
+
+
+
+
