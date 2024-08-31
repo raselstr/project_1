@@ -82,28 +82,34 @@ def list(request):
 def posting(request):
     rencana = RencDankel.objects.all()
     jadwal = None
+    opd = None
     
     if request.method == 'POST':
         form = RencDankeljadwalForm(request.POST or None)
         if form.is_valid():
             jadwal = form.cleaned_data.get('rencdankel_jadwal')  # Ambil nilai dari form
+            opd = form.cleaned_data.get('rencdankel_subopd')  # Ambil nilai dari form
             
-            if jadwal is not None:
-                for item in rencana:
-                    obj, created = Model_data.objects.update_or_create(
-                        rencdankel_id = item,
-                        rencdankel_tahun=item.rencdankel_tahun,
-                        rencdankel_dana=item.rencdankel_dana,
-                        rencdankel_subopd=item.rencdankel_subopd,
-                        rencdankel_sub=item.rencdankel_sub,
-                        rencdankel_jadwal=jadwal,
-                        defaults={
-                            'rencdankel_pagu': item.rencdankel_pagu,
-                            'rencdankel_output': item.rencdankel_output,
-                            'rencdankel_ket': item.rencdankel_ket,
-                        }
-                    )
-                return redirect(tag_url)
+            if jadwal is not None :
+                if opd is not None :
+                    rencana = rencana.filter(rencdankel_subopd=opd)
+                    for item in rencana:
+                        obj, created = Model_data.objects.update_or_create(
+                            rencdankel_id = item,
+                            rencdankel_tahun=item.rencdankel_tahun,
+                            rencdankel_dana=item.rencdankel_dana,
+                            rencdankel_subopd=item.rencdankel_subopd,
+                            rencdankel_sub=item.rencdankel_sub,
+                            rencdankel_jadwal=jadwal,
+                            defaults={
+                                'rencdankel_pagu': item.rencdankel_pagu,
+                                'rencdankel_output': item.rencdankel_output,
+                                'rencdankel_ket': item.rencdankel_ket,
+                            }
+                        )
+                    return redirect(tag_url)
+                else:
+                    print("Field jadwal atau OPD tidak ada di form.")
             else:
                 print("Field jadwal tidak ada di form.")
         else:

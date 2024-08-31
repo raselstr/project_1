@@ -88,28 +88,34 @@ def list(request):
 def posting(request):
     rencana = Model_induk.objects.all()
     jadwal = None
+    opd = None
     
     if request.method == 'POST':
         form = RencDankeljadwalsisaForm(request.POST or None)
         if form.is_valid():
             jadwal = form.cleaned_data.get('rencdankelsisa_jadwal')  # Ambil nilai dari form
+            opd = form.cleaned_data.get('rencdankelsisa_subopd')  # Ambil nilai dari form
             
             if jadwal is not None:
-                for item in rencana:
-                    obj, created = Model_data.objects.update_or_create(
-                        rencdankelsisa_id = item,
-                        rencdankelsisa_tahun=item.rencdankelsisa_tahun,
-                        rencdankelsisa_dana=item.rencdankelsisa_dana,
-                        rencdankelsisa_subopd=item.rencdankelsisa_subopd,
-                        rencdankelsisa_sub=item.rencdankelsisa_sub,
-                        rencdankelsisa_jadwal=jadwal,
-                        defaults={
-                            'rencdankelsisa_pagu': item.rencdankelsisa_pagu,
-                            'rencdankelsisa_output': item.rencdankelsisa_output,
-                            'rencdankelsisa_ket': item.rencdankelsisa_ket,
-                        }
-                    )
-                return redirect(tag_url)
+                if opd is not None:
+                    rencana = rencana.filter(rencdankelsisa_subopd=opd)
+                    for item in rencana:
+                        obj, created = Model_data.objects.update_or_create(
+                            rencdankelsisa_id = item,
+                            rencdankelsisa_tahun=item.rencdankelsisa_tahun,
+                            rencdankelsisa_dana=item.rencdankelsisa_dana,
+                            rencdankelsisa_subopd=item.rencdankelsisa_subopd,
+                            rencdankelsisa_sub=item.rencdankelsisa_sub,
+                            rencdankelsisa_jadwal=jadwal,
+                            defaults={
+                                'rencdankelsisa_pagu': item.rencdankelsisa_pagu,
+                                'rencdankelsisa_output': item.rencdankelsisa_output,
+                                'rencdankelsisa_ket': item.rencdankelsisa_ket,
+                            }
+                        )
+                    return redirect(tag_url)
+                else:
+                    print("Field jadwal atau OPD tidak ada di form.")
             else:
                 print("Field jadwal tidak ada di form.")
         else:

@@ -21,23 +21,14 @@
                         <!-- Field Tahun -->
                         
                                 <div class="form-group">
-                                    <label for="{{ form.rencdankelsisa_jadwal.id_for_label }}" hidden></label>
+                                    <label for="{{ form.rencdankelsisa_jadwal.id_for_label }}" >{{ form.rencdankelsisa_jadwal.label}}</label>
                                     {{ form.rencdankelsisa_jadwal }} 
-                                    {% if form.rencdankelsisa_jadwal.errors %}
-                                        {% for error in form.rencdankelsisa_jadwal.errors %}
-                                            <div class="text-danger">
-                                                <p>{{ error }}</p>
-                                            </div>
-                                        {% endfor %}
-                                    {% endif %}
                                 </div>
-                                {% if form.non_field_errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.non_field_errors %}
-                                            <p>{{ error }}</p>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
+                                <div class="form-group">
+                                    <label for="{{ form.rencdankelsisa_subopd.id_for_label }}" >{{ form.rencdankelsisa_subopd.label}}</label>
+                                    {{ form.rencdankelsisa_subopd }} 
+                                </div>
+                                
                         
                         <!-- Tombol Submit -->
                         <div class="form-group mt-3">
