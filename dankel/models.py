@@ -249,13 +249,13 @@ class RealisasiDankel(models.Model):
         if lpj > sp2dtu:
             raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
 
-        sts = sp2dtu - lpj
+        sisasts = sp2dtu - lpj
 
         if sts < 0:
             raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
 
-        if sts != sts:
-            raise ValidationError(f'Nilai STS harus sama dengan {sts}')        
+        if sts != sisasts:
+            raise ValidationError(f'Nilai STS harus sama dengan {sisasts}')        
 
         
         if total_realisasi_pk > total_rencana_pk:
