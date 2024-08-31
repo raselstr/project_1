@@ -46,13 +46,19 @@ class RencDankel(models.Model):
         # Check if the total planned budget does not exceed the available budget
         total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
         total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
-        total_realisasilpj = self.get_realisasilpj_total(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        total_realisasi_pk = self.get_realisasi_pk()
+        
         
         # Include the current instance's budget in the total_rencana
         if self.pk:
             total_rencana = total_rencana - RencDankel.objects.get(pk=self.pk).rencdankel_pagu
 
         total_rencana += self.rencdankel_pagu
+        
+        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
+        
+        if self.rencdankel_pagu < total_realisasi_pk :
+            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk} Nilai Rencana tidak boleh lebih kecil dari Nilai Realisasi')
         
         if total_rencana > total_pagudausg:
             raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
@@ -77,11 +83,14 @@ class RencDankel(models.Model):
         total_pagudausg = self.get_pagudausg(tahun, opd, dana)
         return total_pagudausg - total_rencana
     
-    def get_realisasilpj_total(self, tahun, opd, dana):
-        filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-        if opd is not None and opd !=125 and opd != 70:
-            filters &= Q(realisasidankel_subopd=opd)
-        return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+  
+    def get_realisasi_pk(self):
+        filters = Q(realisasidankel_tahun=self.rencdankel_tahun) & Q(realisasidankel_dana=self.rencdankel_dana_id) & Q(realisasidankel_idrencana_id = self.id)
+        if self.rencdankel_subopd is not None:
+            filters &= Q(realisasidankel_subopd=self.rencdankel_subopd_id)
+        nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+        print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
+        return nilai_realisasi
 
     def __str__(self):
         return f"{self.rencdankel_sub}"
@@ -114,12 +123,19 @@ class RencDankelsisa(models.Model):
         # Check if the total planned budget does not exceed the available budget
         total_rencana = self.get_total_sisa(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
         total_pagudausg = self.get_sisapagudausg(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
+        total_realisasi_pk = self.get_realisasi_pk()
         
         # Include the current instance's budget in the total_rencana
         if self.pk:
             total_rencana = total_rencana - RencDankelsisa.objects.get(pk=self.pk).rencdankelsisa_pagu
 
         total_rencana += self.rencdankelsisa_pagu
+        
+        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
+        
+        if self.rencdankelsisa_pagu < total_realisasi_pk :
+            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk} Nilai Rencana tidak boleh lebih kecil dari Nilai Realisasi')
+
         
         if total_rencana > total_pagudausg:
             raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
@@ -142,7 +158,15 @@ class RencDankelsisa(models.Model):
     def sisa_sisa(self, tahun, opd, dana):
         total_sisarencana = self.get_total_sisa(tahun, opd, dana)
         total_pagudausg = self.get_sisapagudausg(tahun, opd, dana)
-        return total_pagudausg - total_sisarencana 
+        return total_pagudausg - total_sisarencana
+    
+    def get_realisasi_pk(self):
+        filters = Q(realisasidankelsisa_tahun=self.rencdankelsisa_tahun) & Q(realisasidankelsisa_dana=self.rencdankelsisa_dana_id) & Q(realisasidankelsisa_idrencana_id = self.id)
+        if self.rencdankelsisa_subopd is not None:
+            filters &= Q(realisasidankelsisa_subopd=self.rencdankelsisa_subopd_id)
+        nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
+        print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
+        return nilai_realisasi
     
     def __str__(self):
         return f'{self.rencdankelsisa_sub}'
@@ -153,7 +177,7 @@ class RencDankeljadwal(models.Model):
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    rencdankel_id = models.IntegerField()
+    rencdankel_id = models.ForeignKey(RencDankel, verbose_name='Id Rencana', on_delete=models.CASCADE)
     rencdankel_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankel_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -173,7 +197,7 @@ class RencDankeljadwalsisa(models.Model):
         (2, 'Rencana Perubahan'),
     ]
     
-    rencdankelsisa_id = models.IntegerField()
+    rencdankelsisa_id = models.ForeignKey(RencDankelsisa, verbose_name='Id Rencana', on_delete=models.CASCADE)
     rencdankelsisa_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencdankelsisa_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencdankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -194,7 +218,7 @@ class RealisasiDankel(models.Model):
     realisasidankel_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankel_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankel_rencana = models.ForeignKey(RencDankeljadwal, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasidankel_idrencana = models.IntegerField(verbose_name="Id Rencana", editable=False)
+    realisasidankel_idrencana = models.ForeignKey(RencDankel, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
     realisasidankel_output = models.IntegerField(verbose_name='Output')
     realisasidankel_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankel_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
@@ -344,7 +368,7 @@ class RealisasiDankelsisa(models.Model):
     realisasidankelsisa_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasidankelsisa_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasidankelsisa_rencana = models.ForeignKey(RencDankeljadwalsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasidankelsisa_idrencana = models.IntegerField(verbose_name="Id Rencana", editable=False)
+    realisasidankelsisa_idrencana = models.ForeignKey(RencDankelsisa, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
     realisasidankelsisa_output = models.IntegerField(verbose_name='Output')
     realisasidankelsisa_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
     realisasidankelsisa_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
