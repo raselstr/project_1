@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /project_1/
 
 # Menjalankan perintah untuk migrate dan collectstatic (opsional)
-RUN python manage.py migrate
+# RUN python manage.py migrate
 RUN python manage.py collectstatic --noinput
 
 # Menentukan perintah default untuk menjalankan aplikasi Django

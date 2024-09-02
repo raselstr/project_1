@@ -1,8 +1,7 @@
-version: '3'  # Pastikan versi sesuai dengan yang kamu gunakan
-
 services:
   web:
     build: .
+    container_name: projectweb
     command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
     volumes:
       - H:/app/project_1:/project_1
@@ -15,6 +14,7 @@ services:
 
   nginx:
     image: nginx:latest
+    container_name: projectwebnginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - static_volume:/project_1/staticfiles
@@ -28,11 +28,43 @@ services:
   
   adminer:
     image: adminer
+    container_name: projectwebadminer
     restart: always
     ports:
       - "8080:8080" 
     networks:
       - app-network
+  
+  db:
+    image: postgres
+    container_name: projectwebpostgres
+    environment:
+      POSTGRES_DB: tkdd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: r283l8tr
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  
+  pgloader:
+    image: dimitri/pgloader
+    depends_on:
+      - db
+      - sqlite
+    volumes:
+      - ./migrate.load:/migrate.load
+      - ./db_data/db.sqlite3:/db_data/db.sqlite3
+    entrypoint: pgloader /migrate.load
+
+  sqlite:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./db_data/db.sqlite3:/db_data/db.sqlite3
   
 networks:
   app-network:
@@ -41,3 +73,4 @@ networks:
 volumes:
   static_volume:
   media_volume:
+  postgres_data:
