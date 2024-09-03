@@ -17,7 +17,7 @@ class Program(models.Model):
 class Kegiatan(models.Model):
     kegiatan_program = models.ForeignKey(Program, verbose_name="Program", on_delete=models.CASCADE)
     kegiatan_nama = models.CharField(verbose_name="Kegiatan", max_length=200)
-    kegiatan_slug = models.SlugField(unique=True, allow_unicode=True, editable=False)
+    kegiatan_slug = models.SlugField(unique=True, allow_unicode=True, editable=False, max_length=200)
     
     def save(self, *args, **kwargs):
         if not self.kegiatan_slug or self.kegiatan_nama != self._meta.get_field('kegiatan_nama').value_from_object(self):
@@ -30,7 +30,7 @@ class Kegiatan(models.Model):
 class Subkegiatan(models.Model):
     sub_keg  = models.ForeignKey(Kegiatan, verbose_name="Kegiatan", on_delete=models.CASCADE)
     sub_nama = models.CharField(verbose_name="Sub Kegiatan", max_length=200)
-    sub_slug = models.SlugField(unique=True, allow_unicode=True, editable=False)
+    sub_slug = models.SlugField(unique=True, allow_unicode=True, editable=False, max_length=200)
     
     def save(self, *args, **kwargs):
         if not self.sub_slug or self.sub_nama != self._meta.get_field('sub_nama').value_from_object(self):

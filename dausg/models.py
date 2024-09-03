@@ -27,14 +27,14 @@ class Dankelsub (models.Model):
 
 class DausgpendidikanProg (models.Model):
     dausgpendidikan_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgpendidikan_prog = models.CharField(verbose_name="Program DAUSG Pendidikan", max_length=200)
+    dausgpendidikan_prog = models.CharField(verbose_name="Program DAUSG Pendidikan", max_length=500)
     
     def __str__(self):
         return self.dausgpendidikan_prog
 
 class DausgpendidikanKeg (models.Model):
     dausgpendidikankeg_prog = models.ForeignKey(DausgpendidikanProg, verbose_name="Program DAUSG Pendidikan", on_delete=models.CASCADE, related_name='dausgpendidikankegs')
-    dausgpendidikankeg_nama = models.CharField(verbose_name="Kegiatan DAUSG Pendidikan", max_length=200)
+    dausgpendidikankeg_nama = models.CharField(verbose_name="Kegiatan DAUSG Pendidikan", max_length=500)
     
     def __str__(self):
         return self.dausgpendidikankeg_nama
@@ -49,14 +49,14 @@ class DausgpendidikanSub (models.Model):
 
 class DausgkesehatanProg (models.Model):
     dausgkesehatan_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgkesehatan_prog = models.CharField(verbose_name="Program DAUSG kesehatan", max_length=200)
+    dausgkesehatan_prog = models.CharField(verbose_name="Program DAUSG kesehatan", max_length=500)
     
     def __str__(self):
         return self.dausgkesehatan_prog
 
 class DausgkesehatanKeg (models.Model):
     dausgkesehatankeg_prog = models.ForeignKey(DausgkesehatanProg, verbose_name="Program DAUSG kesehatan", on_delete=models.CASCADE, related_name='dausgkesehatankegs')
-    dausgkesehatankeg_nama = models.CharField(verbose_name="Kegiatan DAUSG kesehatan", max_length=200)
+    dausgkesehatankeg_nama = models.CharField(verbose_name="Kegiatan DAUSG kesehatan", max_length=500)
     
     def __str__(self):
         return self.dausgkesehatankeg_nama
@@ -72,14 +72,14 @@ class DausgkesehatanSub (models.Model):
 
 class DausgpuProg (models.Model):
     dausgpu_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
-    dausgpu_prog = models.CharField(verbose_name="Program DAUSG Pekerjaan Umum", max_length=200)
+    dausgpu_prog = models.CharField(verbose_name="Program DAUSG Pekerjaan Umum", max_length=500)
     
     def __str__(self):
         return self.dausgpu_prog
 
 class DausgpuKeg (models.Model):
     dausgpukeg_prog = models.ForeignKey(DausgpuProg, verbose_name="Program DAUSG Pekerjaan Umum", on_delete=models.CASCADE, related_name='dausgpukegs')
-    dausgpukeg_nama = models.CharField(verbose_name="Kegiatan DAUSG Pekerjaan Umum", max_length=200)
+    dausgpukeg_nama = models.CharField(verbose_name="Kegiatan DAUSG Pekerjaan Umum", max_length=500)
     
     def __str__(self):
         return self.dausgpukeg_nama

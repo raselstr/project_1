@@ -41,25 +41,34 @@ def upload(request):
         new_data = request.FILES.get('myfile')
 
         if not new_data:
-            messages.error(request,'File tidak ditemukan. Silakan pilih file')
+            messages.error(request, 'File tidak ditemukan. Silakan pilih file.')
             return redirect(tag_url)
 
         try:
+            # Load data dari file Excel
             imported_data = dataset.load(new_data.read(), format='xlsx')
-            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
+            
+            # Coba import data secara dry run (tanpa menyimpan ke database)
+            result = mymodel_resource.import_data(imported_data, dry_run=True)
 
+            # Jika ada error saat import, tampilkan pesan error
             if result.has_errors():
-                messages.error(request,'Terjadi kesalahan saat mengimpor data')
+                error_messages = "; ".join([str(error) for row in result.row_errors() for error in row[1]])
+                messages.error(request, f'Terjadi kesalahan saat mengimpor data: {error_messages}')
                 return redirect(tag_url)
             else:
-                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
+                # Jika tidak ada error, simpan data ke database
+                mymodel_resource.import_data(imported_data, dry_run=False)
                 messages.success(request, 'Upload berhasil!')
                 return redirect(tag_url)
         except Exception as e:
+            # Tangkap dan tampilkan exception lainnya
             messages.error(request, f"Error: {e}")
             return redirect(tag_url)
 
     return render(request, template_list)
+
+
 
 
 

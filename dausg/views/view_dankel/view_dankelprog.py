@@ -40,21 +40,30 @@ def upload(request):
         new_data = request.FILES.get('myfile')
 
         if not new_data:
-            messages.error(request,'File tidak ditemukan. Silakan pilih file')
+            messages.error(request, 'File tidak ditemukan. Silakan pilih file')
             return redirect('list_dankel')
 
         try:
-            imported_data = dataset.load(new_data.read(), format='xlsx')
+            # Cek ukuran dan nama file
+            print(f"Nama file: {new_data.name}")
+            print(f"Ukuran file: {new_data.size} bytes")
+
+            # Cek format dan isi data
+            dataset.load(new_data.read(), format='xlsx')
+            print(f"Dataset: {dataset}")
+
             result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
 
             if result.has_errors():
-                messages.error(request,'Terjadi kesalahan saat mengimpor data')
+                print(f"Import Errors: {result.errors}")
+                messages.error(request, 'Terjadi kesalahan saat mengimpor data')
                 return redirect('list_dankel')
             else:
                 mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
                 messages.success(request, 'Upload berhasil!')
                 return redirect('list_dankel')
         except Exception as e:
+            print(f"Exception: {e}")
             messages.error(request, f"Error: {e}")
             return redirect('list_dankel')
 

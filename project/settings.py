@@ -120,7 +120,7 @@ DATABASES = {
         'NAME': 'tkdd',  # Nama database, biasanya 'postgres' secara default
         'USER': 'postgres',  # Nama pengguna, biasanya 'postgres' secara default
         'PASSWORD': 'r283l8tr',  # Password yang Anda set sebelumnya
-        'HOST': 'db',  # Atau nama service jika dalam Docker Compose
+        'HOST': 'localhost',  # Atau nama service jika dalam Docker Compose
         'PORT': '5432',  # Port PostgreSQL, defaultnya 5432
     }
 }

@@ -2,6 +2,8 @@ LOAD DATABASE
      FROM sqlite:///db_data/db.sqlite3
      INTO postgresql://postgres:r283l8tr@db/tkdd
 
+WITH include no empty tables
+
 SET work_mem TO '16MB';
 
 ALTER SCHEMA 'main' RENAME TO 'public';
