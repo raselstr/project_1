@@ -49,23 +49,6 @@ services:
     networks:
       - app-network
   
-  pgloader:
-    image: dimitri/pgloader
-    depends_on:
-      - db
-      - sqlite
-    volumes:
-      - ./migrate.load:/migrate.load
-      - ./db_data/db.sqlite3:/db_data/db.sqlite3
-    entrypoint: pgloader /migrate.load
-
-  sqlite:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./db_data/db.sqlite3:/db_data/db.sqlite3
-  
 networks:
   app-network:
     driver: bridge
