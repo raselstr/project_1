@@ -92,6 +92,17 @@ Mengambil data dari image yang tersimpan di docker
 4. Jalankan container dengan volume mount yg benar, jika ingin disambungkan
     docker run -v D:/KULIAH/django/project_1:/project_1 -it --name django_container raselstr/project_1:30082024 /bin/bash
 
+Mengambil seluruh depedensi yang terpasang
+    pip freeze > requirements.txt
+
+Jika Anda ingin mengelola dependensi dengan lebih baik, 
+Anda bisa menggunakan pip-tools yang menyediakan perintah pip-compile 
+untuk menghasilkan file requirements.txt dari file requirements.in 
+yang berisi dependensi utama Anda:
+1. untuk menginstall 
+    pip install pip-tools
+2. untuk menjalankan dan membuat requirements.txt
+    pip-compile requirements.in
 
 
 

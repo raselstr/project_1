@@ -14,6 +14,8 @@ import os
 
 from pathlib import Path
 
+from decouple import config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -117,11 +119,11 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tkdd',  # Nama database, biasanya 'postgres' secara default
-        'USER': 'postgres',  # Nama pengguna, biasanya 'postgres' secara default
-        'PASSWORD': 'r283l8tr',  # Password yang Anda set sebelumnya
-        'HOST': 'localhost',  # Atau nama service jika dalam Docker Compose
-        'PORT': '5432',  # Port PostgreSQL, defaultnya 5432
+        'NAME': config('DB_NAME', default='postgres'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
