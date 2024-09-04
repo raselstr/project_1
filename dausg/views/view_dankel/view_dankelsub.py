@@ -9,7 +9,7 @@ from ...models import DankelKeg,Dankelsub
 from ...forms.form_dankel import DankelSubForm
 
 from django.http import HttpResponse
-from ...resources import DausgpendidikanSubResource
+from ...resources import DankelsubResource
 from tablib import Dataset
 
 Form_data = DankelSubForm
@@ -18,7 +18,7 @@ Model_induk = DankelKeg
 lokasitemplate = 'dankel/dankelsub/dankelsub_list.html'
 lokasiupdate = 'dankel/dankelsub/dankelsub_edit.html'
 tag_url = 'list_dankelsub'
-resource = DausgpendidikanSubResource
+resource = DankelsubResource
 
 @set_submenu_session
 @menu_access_required('list')
@@ -31,7 +31,7 @@ def export(request):
     
     # Buat respon HTTP dengan file Excel
     response = HttpResponse(excel_data, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="DAU SG Pendidikan Sub Kegiatan.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="DAU Kelurahan Sub Kegiatan.xlsx"'
     return response
 
 @set_submenu_session
@@ -43,15 +43,26 @@ def upload(request):
         new_data = request.FILES.get('myfile')
 
         if not new_data:
-            messages.error(request,'File tidak ditemukan. Silakan pilih file')
+            messages.error(request, 'File tidak ditemukan. Silakan pilih file')
             return redirect(tag_url)
 
         try:
-            imported_data = dataset.load(new_data.read(), format='xlsx')
-            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
+            print(f"Nama file: {new_data.name}")
+            print(f"Ukuran file: {new_data.size} bytes")
 
+            imported_data = dataset.load(new_data.read(), format='xlsx')
+            if not imported_data.headers:
+                messages.error(request, 'File tidak memiliki header atau struktur yang salah.')
+                return redirect(tag_url)
+
+            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
             if result.has_errors():
-                messages.error(request,'Terjadi kesalahan saat mengimpor data')
+                error_messages = []
+                for row_errors in result.row_errors():
+                    row, errors = row_errors
+                    error_messages.append(f"Kesalahan di baris {row}: {', '.join([str(e.error) for e in errors])}")
+                
+                messages.error(request, f"Terjadi kesalahan saat mengimpor data: {'; '.join(error_messages)}")
                 return redirect(tag_url)
             else:
                 mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now

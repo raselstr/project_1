@@ -178,10 +178,14 @@
                 $('.text-danger').remove();
                 window.location.href = "{% url 'list_penerimaan' %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
+            $('#modalTambah').on('shown.bs.modal', function () {
+                $('.select2').select2({
+                    dropdownParent: $('#modalTambah'),  // Ensures dropdown appears within the modal
+                    width: '100%'  // Ensures Select2 takes the full width of the container
+                });
+            });
+
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
@@ -191,13 +195,6 @@
                 });
             {% endfor %}
             {% endif %}
-        });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%' // Ensure Select2 takes full width of the container
-            });
         });
     </script>
     

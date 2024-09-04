@@ -6,6 +6,9 @@
         <h1>{{judul}}</h1>
     </div>
     {% include 'includes/infobox.html' %}
+    <div id="spinner" class="spinner-border text-primary" role="status" style="display: none; margin-top: 10px;">
+        <span class="sr-only">Loading...</span>
+    </div>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-12 col-sm-12">
             <div class="card">
@@ -13,6 +16,10 @@
                     <a href="{% url "list_dankel" %}" type="button" class="btn btn-warning mr-3">Kembali</a>
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalupload"><i class="fas fa-file-excel"></i> <i class="fas fa-file-import"></i></button>
+                        <a href="{% url 'export_dankelkeg' %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-file-export"></i> <i class="fas fa-file-excel"></i>
+                        </a>
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
                     </div>
                 </div>
@@ -88,6 +95,35 @@
         </div>
     </div>
 
+    <!-- Modal-->
+    <div class="modal fade" id="modalupload" tabindex="-1" role="dialog" aria-labelledby="modaluploadLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data" 
+                        hx-post="{% url 'upload_dankelkeg' %}"
+                        hx-on="htmx:beforeRequest: startSpinner(); htmx:afterOnLoad: location.reload()">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile" name="myfile" accept=".xlsx">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary float-right">Upload</button>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
     
 {% endblock content %}
 
@@ -129,6 +165,17 @@
         
     </script>
     <script>
+        function startSpinner() {
+            $('#spinner').show();  // Tampilkan spinner
+            $('#modalupload').modal('hide');  // Tutup modal setelah submit
+            $('body').append('<div id="overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999;"></div>');  // Tambahkan overlay untuk disable halaman
+        }
+
+        function stopSpinner() {
+            $('#spinner').hide();  // Sembunyikan spinner
+            $('#overlay').remove();  // Hapus overlay
+        }
+
         $(document).ready(function() {
             {% if form.errors %}
                 $('#modalTambah').modal('show');
@@ -139,10 +186,17 @@
                 $('.text-danger').remove();
                 window.location.href = "{% url 'list_dankelkeg' number %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
+            $('#modalupload form').on('submit', function() {
+                startSpinner();
+            });
+
+            $('#modalupload').on('hidden.bs.modal', function() {
+                $('#spinner').hide();
+                $(this).find('form')[0].reset(); // Membersihkan form setelah modal ditutup
+                $('.custom-file-label').html('Choose file'); // Reset label input file
+            });
+
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
@@ -152,6 +206,16 @@
                 });
             {% endfor %}
             {% endif %}
+
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+
+            htmx.on('htmx:afterOnLoad', function() {
+                stopSpinner();  // Hentikan spinner setelah selesai upload
+                location.reload();  // Reload halaman setelah selesai upload
+            });
         });
     </script>
     <script type="text/javascript">

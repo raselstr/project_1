@@ -130,13 +130,14 @@
 {% endblock src %}
 {% block javascript %}
     <script>
+    $(document).ready(function() {
         new DataTable('#tabel1', {
             layout: {
                 topStart: {
                     pageLength: {
-                        menu: [ 
+                        menu: [
                             [10, 25, 50, -1],
-                            [10, 25, 50, 'All']    
+                            [10, 25, 50, 'All']
                         ],
                     }
                 },
@@ -149,46 +150,39 @@
                     paging: {
                         numbers: 5
                     }
-                    
                 }
             }
         });
 
-        
-    </script>
-    <script>
-        $(document).ready(function() {
-            {% if form.errors %}
-                $('#modalTambah').modal('show');
-            {% endif %}
+        {% if form.errors %}
+            $('#modalTambah').modal('show');
+        {% endif %}
 
-            $('#clear').on('click', function() {
-                $('#formTambah').find('input[type="text"]').val('');
-                $('.text-danger').remove();
-                window.location.href = "{% url 'list_pagudausg' %}";
-            });
+        $('#clear').on('click', function() {
+            $('#formTambah').find('input[type="text"]').val('');
+            $('.text-danger').remove();
+            window.location.href = "{% url 'list_pagudausg' %}";
         });
-    </script>
-    <script>
-        $(document).ready(function() {
-            {% if messages %}
-            {% for message in messages %}
-                iziToast.{{ message.tags }}({
-                    title: '{{ message.tags }}',
-                    message: '{{ message }}',
-                    position: 'topRight'
-                });
-            {% endfor %}
-            {% endif %}
-        });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
+
+        $('#modalTambah').on('shown.bs.modal', function () {
             $('.select2').select2({
-                width: '100%' // Ensure Select2 takes full width of the container
+                dropdownParent: $('#modalTambah'),  // Ensures dropdown appears within the modal
+                width: '100%'  // Ensures Select2 takes the full width of the container
             });
         });
-    </script>
+
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+    
     
 {% endblock javascript %}
 

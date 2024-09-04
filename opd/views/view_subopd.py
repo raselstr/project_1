@@ -9,11 +9,70 @@ from project.decorators import menu_access_required, set_submenu_session
 from ..models import Subopd
 from ..forms import SubopdForm
 
+from django.http import HttpResponse
+from dausg.resources import SubopdResource
+from tablib import Dataset
+
 Form_data = SubopdForm
 Model_data = Subopd    
 lokasitemplate = 'subopd/subopd_list.html'
 lokasiupdate = 'subopd/subopd_edit.html'
 tag_url = 'list_subopd'
+resource = SubopdResource
+
+@set_submenu_session
+@menu_access_required('list')
+def export(request):
+    mymodel_resource = resource()
+    dataset = mymodel_resource.export()
+    
+    # Konversi dataset menjadi file Excel
+    excel_data = dataset.export('xlsx')
+    
+    # Buat respon HTTP dengan file Excel
+    response = HttpResponse(excel_data, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="Subopd.xlsx"'
+    return response
+
+@set_submenu_session
+@menu_access_required('list')
+def upload(request):
+    if request.method == 'POST':
+        mymodel_resource = resource()
+        dataset = Dataset()
+        new_data = request.FILES.get('myfile')
+
+        if not new_data:
+            messages.error(request, 'File tidak ditemukan. Silakan pilih file')
+            return redirect(tag_url)
+
+        try:
+            print(f"Nama file: {new_data.name}")
+            print(f"Ukuran file: {new_data.size} bytes")
+
+            imported_data = dataset.load(new_data.read(), format='xlsx')
+            if not imported_data.headers:
+                messages.error(request, 'File tidak memiliki header atau struktur yang salah.')
+                return redirect(tag_url)
+
+            result = mymodel_resource.import_data(dataset, dry_run=True)  # Test the import
+            if result.has_errors():
+                error_messages = []
+                for row_errors in result.row_errors():
+                    row, errors = row_errors
+                    error_messages.append(f"Kesalahan di baris {row}: {', '.join([str(e.error) for e in errors])}")
+                
+                messages.error(request, f"Terjadi kesalahan saat mengimpor data: {'; '.join(error_messages)}")
+                return redirect(tag_url)
+            else:
+                mymodel_resource.import_data(dataset, dry_run=False)  # Actually import now
+                messages.success(request, 'Upload berhasil!')
+                return redirect(tag_url)
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+            return redirect(tag_url)
+
+    return render(request, lokasitemplate)
 
 @set_submenu_session
 @menu_access_required('list')
