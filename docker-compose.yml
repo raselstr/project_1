@@ -1,5 +1,11 @@
 services:
   web:
+    environment:
+      - DB_NAME=tkdd
+      - DB_USER=postgres
+      - DB_PASSWORD=r283l8tr
+      - DB_HOST=db  # Nama service untuk PostgreSQL di Docker Compose
+      - DB_PORT=5432
     build: .
     container_name: projectweb
     command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
