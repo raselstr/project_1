@@ -1,4 +1,7 @@
 asgiref==3.8.1
+build==1.2.1
+click==8.1.7
+colorama==0.4.6
 diff-match-patch==20230430
 distlib==0.3.8
 Django==4.2.11
@@ -9,11 +12,16 @@ filelock==3.13.4
 gunicorn==23.0.0
 openpyxl==3.1.5
 packaging==24.1
+pillow==10.4.0
+pip-tools==7.4.1
 platformdirs==4.2.0
 psycopg2==2.9.9
 psycopg2-binary==2.9.9
+pyproject_hooks==1.1.0
 python-decouple==3.8
+setuptools==74.1.1
 sqlparse==0.5.0
 tablib==3.5.0
 tzdata==2024.1
 virtualenv==20.25.2
+wheel==0.44.0

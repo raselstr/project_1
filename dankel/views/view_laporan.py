@@ -9,6 +9,7 @@ from penerimaan.models import DistribusiPenerimaan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 from opd.models import Pejabat
+from datetime import datetime
 
 
 Model_data = RealisasiDankel
@@ -49,6 +50,7 @@ def list(request):
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
         'tombol': 'Cetak',
+        'tombolsp2d': 'Cetak Daftar SP2D',
         'level' : level
     })
     return render(request, template, context)
@@ -130,6 +132,9 @@ def home(request):
 @set_submenu_session
 @menu_access_required('list')
 def pdf(request):
+    # today = datetime.now().date() tanggal sekarang
+    formatted_today = datetime.now().strftime('%d %B %Y')
+    
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
     
@@ -141,6 +146,7 @@ def pdf(request):
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
         'tombol': 'Cetak',
+        'tanggal' : formatted_today,
         'data' : data,    
         })
     return render(request, 'dankel_laporan/laporan_pdf.html', context)
@@ -156,6 +162,42 @@ def apip(request):
     if sesiidopd:
         data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
     
+    penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
+        
+    context.update({
+        'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
+        'tombol': 'Cetak',
+        'data' : data,
+        'penerimaan' : penerimaan,    
+        })
+    print(f'penerimaan : {penerimaan}')
+    return render(request, 'dankel_laporan/laporan_apip.html', context)
+
+@set_submenu_session
+@menu_access_required('list')
+def sp2d(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    sesiidopd = request.session.get('idsubopd')
+    tahunrealisasi = request.session.get('realisasidankel_tahun')
+    danarealisasi_id = request.session.get('realisasidankel_dana')
+    tahaprealisasi_id = request.session.get('realisasidankel_tahap')
+    subopdrealisasi_id = request.session.get('realisasidankel_subopd')
+    level = request.session.get('level')
+    
+    filterreals = Q()
+    if level != 'Pengguna':
+        filterreals &= Q(realisasidankel_verif=1)
+    if tahunrealisasi:
+        filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
+    if danarealisasi_id:
+        filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
+    if tahaprealisasi_id:
+        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70:
+        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+        
     penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
         
     context.update({
@@ -183,7 +225,7 @@ def get_data_context(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id != 125:
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     filterreals = Q()
@@ -195,7 +237,7 @@ def get_data_context(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 125:
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
 
     progs = Model_prog.objects.all()

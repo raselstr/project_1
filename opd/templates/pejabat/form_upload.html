@@ -1,0 +1,6 @@
+<form id="formUploadFoto" method="POST" action="{% url 'upload_foto' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="pejabat_id" value="{{ pejabat_id }}">
+    {{ form_foto.as_p }}
+    <button type="submit" class="btn btn-primary float-right">Upload</button>
+</form>

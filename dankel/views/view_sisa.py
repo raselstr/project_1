@@ -108,7 +108,7 @@ def list(request):
 
     # Membuat query secara dinamis
     query = Q(rencdankelsisa_tahun=sesitahun) & Q(rencdankelsisa_dana=dana)
-    if sesiidopd is not None and sesiidopd != 125 and sesiidopd !=70:
+    if sesiidopd is not None and sesiidopd != 124 and sesiidopd !=70:
         query &= Q(rencdankelsisa_subopd=sesiidopd)
 
     data = RencDankelsisa.objects.filter(query)

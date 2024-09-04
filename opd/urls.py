@@ -17,6 +17,8 @@ urlpatterns = [
     path("subopd/delete/<int:pk>/", view_subopd.delete, name="delete_subopd"),
     path("subopd/update/<int:pk>/", view_subopd.update, name="update_subopd"),
     
+    path('get_pejabat_foto_form/', view_pejabat.get_pejabat_foto_form, name='get_pejabat_foto_form'),
+    path('upload-foto/', view_pejabat.upload_foto, name='upload_foto'),
     path("pejabat/", view_pejabat.list, name="list_pejabat"),
     path("pejabat/simpan/", view_pejabat.simpan, name="simpan_pejabat"),
     path("pejabat/delete/<int:pk>/", view_pejabat.delete, name="delete_pejabat"),

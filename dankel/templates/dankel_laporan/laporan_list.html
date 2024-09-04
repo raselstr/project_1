@@ -19,6 +19,7 @@
                     <div class="card-header-action">
                         {% if level != "APIP"%}
                             <a href="#" onclick="openPrintWindow('{% url "laporan_pdf" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+                            <a href="#" onclick="openPrintWindow('{% url "laporan_sp2d" %}'); return false;" type="button" class="btn btn-primary">{{tombolsp2d}}</a>
                         {%else%}
                             <a href="#" onclick="openPrintWindow('{% url "laporan_apip" %}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
                         {%endif%}

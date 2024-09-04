@@ -24,7 +24,7 @@ class SubopdForm(forms.ModelForm):
 class PejabatForm(forms.ModelForm):
     class Meta:
         model = Pejabat
-        fields = '__all__'
+        fields = ['pejabat_sub', 'pejabat_jabatan', 'pejabat_nama','pejabat_nip','pejabat_lokasi']
 
     def __init__(self, *args, **kwargs):
         idsubopd = kwargs.pop('idsubopd', None)
@@ -34,6 +34,7 @@ class PejabatForm(forms.ModelForm):
         self.fields['pejabat_jabatan'].widget.attrs.update({'class': 'form-control'})
         self.fields['pejabat_nama'].widget.attrs.update({'class': 'form-control'})
         self.fields['pejabat_nip'].widget.attrs.update({'class': 'form-control'})
+        self.fields['pejabat_lokasi'].widget.attrs.update({'class': 'form-control'})
         
         if idsubopd is not None and idsubopd != 125: 
             self.fields['pejabat_sub'].queryset = Subopd.objects.filter(id=idsubopd)
@@ -43,63 +44,13 @@ class PejabatForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class PejabatFotoForm(forms.ModelForm):
+    class Meta:
+        model = Pejabat
+        fields = ['pejabat_foto']  # Hanya field untuk upload foto
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pejabat_foto'].widget.attrs.update({'class': 'form-control-file'}) 
     
-        # self.fields['sub_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Sub OPD'})
-
-
-# class BookForm(forms.ModelForm):
-#     author_name = forms.CharField(max_length=100)
-#     author_birthdate = forms.DateField(required=False)
-#     author_biography = forms.CharField(widget=forms.Textarea, required=False)
-#     publisher_name = forms.CharField(max_length=100)
-#     publisher_address = forms.CharField(max_length=255, required=False)
-#     publisher_website = forms.URLField(required=False)
-
-#     class Meta:
-#         model = Book
-#         fields = [
-#             "title",
-#             "publication_date",
-#             "isbn",
-#             "author_name",
-#             "author_birthdate",
-#             "author_biography",
-#             "publisher_name",
-#             "publisher_address",
-#             "publisher_website",
-#         ]
-
-#     def save(self, commit=True):
-#         book = super().save(commit=False)
-
-#         # Handling Author
-#         author_data = {
-#             "name": self.cleaned_data["author_name"],
-#             "birthdate": self.cleaned_data["author_birthdate"],
-#             "biography": self.cleaned_data["author_biography"],
-#         }
-#         author, created = Author.objects.get_or_create(
-#             name=author_data["name"], defaults=author_data
-#         )
-#         if not created:
-#             Author.objects.filter(pk=author.pk).update(**author_data)
-
-#         # Handling Publisher
-#         publisher_data = {
-#             "name": self.cleaned_data["publisher_name"],
-#             "address": self.cleaned_data["publisher_address"],
-#             "website": self.cleaned_data["publisher_website"],
-#         }
-#         publisher, created = Publisher.objects.get_or_create(
-#             name=publisher_data["name"], defaults=publisher_data
-#         )
-#         if not created:
-#             Publisher.objects.filter(pk=publisher.pk).update(**publisher_data)
-
-#         book.author = author
-#         book.publisher = publisher
-
-#         if commit:
-#             book.save()
-#         return book

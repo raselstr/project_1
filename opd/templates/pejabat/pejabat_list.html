@@ -28,15 +28,20 @@
                             {% for data in datas %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button> {% endcomment %}
                                         <a href="{% url 'update_pejabat' data.id %}" class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
                                         <a href="{% url 'delete_pejabat' data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
+                                        <button class="btn btn-primary btn-sm" 
+                                                hx-get="{% url 'get_pejabat_foto_form' %}?pejabat_id={{ data.id }}"
+                                                hx-target="#modalUploadFoto .modal-body"
+                                                hx-trigger="click"
+                                                data-toggle="modal" 
+                                                data-target="#modalUploadFoto">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
                                     </td>
                                     <td style="text-align: left;">{{ data.pejabat_sub }}</td>
                                     <td style="text-align: left;">{{ data.pejabat_nama }}</td>
@@ -88,6 +93,29 @@
         </div>
     </div>
 
+    <!-- Modal Upload Foto -->
+    <div class="modal fade" id="modalUploadFoto" tabindex="-1" role="dialog" aria-labelledby="modalUploadFotoLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalUploadFotoLabel">Upload KOP Surat</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear-upload">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <form id="formUploadFoto" method="POST" action="{% url 'upload_foto' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form_foto.as_p }}
+                        <button type="submit" class="btn btn-primary float-right">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     
 {% endblock content %}
 
@@ -132,6 +160,7 @@
         $(document).ready(function() {
             {% if form.errors %}
                 $('#modalTambahOPD').modal('show');
+                $('#modalUploadFoto').modal('show');
             {% endif %}
 
             $('#clear').on('click', function() {
@@ -139,10 +168,14 @@
                 $('.text-danger').remove();
                 window.location.href = "{% url 'list_pejabat' %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
+                      
+            // Reset form dan hapus pesan error saat modal ditutup
+            $('#clear-upload').on('click', function() {
+                $('#formUploadFoto').find('input[type="file"]').val('');
+                $('.text-danger').remove();
+            });
+        
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
