@@ -103,34 +103,31 @@
 {% endblock src %}
 {% block javascript %}
     <script>
-        new DataTable('#tabel1', {
-            layout: {
-                topStart: {
-                    pageLength: {
-                        menu: [ 
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']    
-                        ],
-                    }
-                },
-                topEnd: {
-                    search: {
-                        placeholder: 'cari'
-                    }
-                },
-                bottomEnd: {
-                    paging: {
-                        numbers: 5
-                    }
-                    
-                }
-            }
-        });
-
-        
-    </script>
-    <script>
         $(document).ready(function() {
+            new DataTable('#tabel1', {
+                layout: {
+                    topStart: {
+                        pageLength: {
+                            menu: [ 
+                                [10, 25, 50, -1],
+                                [10, 25, 50, 'All']    
+                            ],
+                        }
+                    },
+                    topEnd: {
+                        search: {
+                            placeholder: 'cari'
+                        }
+                    },
+                    bottomEnd: {
+                        paging: {
+                            numbers: 5
+                        }
+                        
+                    }
+                }
+            });
+
             {% if form.errors %}
                 $('#modalTambah').modal('show');
             {% endif %}
@@ -140,10 +137,14 @@
                 $('.text-danger').remove();
                 window.location.href = "{% url 'list_userlevel' %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+            
+            $('#modalTambah').on('shown.bs.modal', function () {
+                $('.select2').select2({
+                    dropdownParent: $('#modalTambah'),  // Ensures dropdown appears within the modal
+                    width: '100%'  // Ensures Select2 takes the full width of the container
+                });
+            });
+        
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
@@ -153,13 +154,8 @@
                 });
             {% endfor %}
             {% endif %}
-        });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%' // Ensure Select2 takes full width of the container
-            });
+    
+            
         });
     </script>
     
