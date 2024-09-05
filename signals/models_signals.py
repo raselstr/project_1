@@ -16,12 +16,15 @@ def prevent_deletion(sender, instance, **kwargs):
     
 # Daftar aplikasi yang ingin dihubungkan dengan sinyal
 apps_to_connect = [
-    'dana', 
     'dashboard',
-    'dausg',
     'opd',
+    'dana',
+    'dausg',
     'penerimaan',
+    'rencana',
     'dankel',
+    'pagu',
+    'pendidikan',
     ]
 
 for app_label in apps_to_connect:

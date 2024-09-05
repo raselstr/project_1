@@ -6,10 +6,10 @@ from opd.models import Subopd
 from dana.models import Subkegiatan, TahapDana
 from dausg.models import Dankelsub
 from pagu.models import Pagudausg
-from penerimaan.models import Penerimaan, DistribusiPenerimaan
+from penerimaan.models import DistribusiPenerimaan
 from datetime import datetime
 
-from decimal import Decimal, DivisionUndefined
+from decimal import Decimal
 
 # Create your models here.
 VERIF = [

@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'rencana',
     'dankel',
     'pagu',
+    'pendidikan',
 ]
 
 MIDDLEWARE = [
