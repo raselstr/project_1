@@ -17,7 +17,8 @@ tag_url = 'list_distribusi'
 @menu_access_required('list')
 def list(request, number):
     request.session['next'] = request.get_full_path()
-    data = Model_data.objects.filter(distri_penerimaan=number).order_by('distri_penerimaan')
+    idopd = request.session.get('idsubopd')
+    data = Model_data.objects.filter(distri_penerimaan=number, distri_subopd=idopd).order_by('distri_penerimaan')
     context = {
         'judul': 'Daftar Distribusi Penerimaan Dana', 
         'tombol' : 'Tambah Distribusi Dana',
