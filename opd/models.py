@@ -1,5 +1,6 @@
 from django.db import models
 from project.validations import *
+from dana.models import Subkegiatan
 
 class Opd(models.Model):
     kode_opd = models.CharField(
@@ -7,10 +8,6 @@ class Opd(models.Model):
         max_length=25,
         unique=True,
         error_messages={'unique': 'Data, nilai ini sudah ada dalam database.'},
-        # validators=[
-        #     number_validator,
-        #     # partial(unik, app_name='opd', model_name='Opd', field='kode_opd')
-        #     ]
         )
     
     nama_opd = models.CharField(
@@ -45,4 +42,11 @@ class Pejabat(models.Model):
     
     def __str__(self):
         return self.pejabat_nama
+
+class OpdDana(models.Model):
+    opddana_dana = models.ForeignKey(Subkegiatan, verbose_name='Dana', on_delete=models.CASCADE)
+    opddana_subopd = models.ForeignKey(Subopd, verbose_name='OPD Pengelola', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'{self.opddana_dana}' 
     

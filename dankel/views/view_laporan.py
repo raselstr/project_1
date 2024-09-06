@@ -8,7 +8,7 @@ from dausg.models import DankelProg, DankelKeg, Dankelsub
 from penerimaan.models import DistribusiPenerimaan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
-from opd.models import Pejabat
+from opd.models import Pejabat, OpdDana
 from datetime import datetime
 
 
@@ -88,50 +88,95 @@ def filter(request):
 @menu_access_required('list')
 def home(request):
     session_data = get_from_sessions(request)
-    sesiidopd = session_data.get('idsubopd')
     sesitahun = session_data.get('sesitahun')
+    sesiidopd = session_data.get('idsubopd')
     request.session['next'] = request.get_full_path()
-    
-    subopds = Subopd.objects.all()
-    total_per_opd = []
-    
-    for subopd in subopds:
-        sesiidopd = subopd.id
-        
+
     try:
-        dana = Subkegiatan.objects.get(sub_slug=sesidana)
+        dana = Subkegiatan.objects.get(sub_slug= sesidana)  # Sesuaikan dengan slug dana utama
         danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
     except Subkegiatan.DoesNotExist:
         dana = None
         danasisa = None
-        
-    if dana:
-        total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
-        total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-        total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-        total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+    
+    if sesiidopd is not None and sesiidopd !=70 and sesiidopd !=67:
+        subopds = OpdDana.objects.filter(opddana_dana=dana, opddana_subopd=sesiidopd)
     else:
-        total_penerimaan = None
-        total_realisasilpj = None
-        total_persentase = None
-        total_penerimaansisa = None
-        total_realisasilpjsisa = None
-        total_persentasesisa = None
+        subopds = OpdDana.objects.filter(opddana_dana=dana)
+
+    # Inisialisasi variabel untuk menyimpan total per OPD dan total global
+    total_per_opd = []
+
+    total_penerimaan_global = 0
+    total_realisasilpj_global = 0
+    total_persentase_global = 0
+    total_penerimaansisa_global = 0
+    total_realisasilpjsisa_global = 0
+    total_persentasesisa_global = 0
+
+    # Iterasi melalui setiap sub-OPD
+    for subopd in subopds:
+        sesiidopd = subopd.opddana_subopd
+        # print(sesiidopd)
+
+        if dana:
+            # Menghitung total penerimaan, realisasi LPJ, dan persentase untuk dana utama
+            total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
+
+            # Menghitung total penerimaan, realisasi LPJ, dan persentase untuk sisa dana
+            total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+            total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+            total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+        else:
+            total_penerimaan = total_realisasilpj = total_persentase = None
+            total_penerimaansisa = total_realisasilpjsisa = total_persentasesisa = None
+
+        # Menambahkan nilai OPD saat ini ke total global
+        if total_penerimaan is not None:
+            total_penerimaan_global += total_penerimaan
+        if total_realisasilpj is not None:
+            total_realisasilpj_global += total_realisasilpj
+        if total_persentase is not None:
+            total_persentase_global += total_persentase
         
+        if total_penerimaansisa is not None:
+            total_penerimaansisa_global += total_penerimaansisa
+        if total_realisasilpjsisa is not None:
+            total_realisasilpjsisa_global += total_realisasilpjsisa
+        if total_persentasesisa is not None:
+            total_persentasesisa_global += total_persentasesisa
+
+        # Menyimpan hasil per OPD
+        total_per_opd.append({
+            'opd': subopd.opddana_subopd,  # Ganti sesuai dengan nama field sub-OPD
+            'total_penerimaan': total_penerimaan,
+            'total_realisasilpj': total_realisasilpj,
+            'total_persentase': total_persentase,
+            'total_penerimaansisa': total_penerimaansisa,
+            'total_realisasilpjsisa': total_realisasilpjsisa,
+            'total_persentasesisa': total_persentasesisa,
+        })
+
+    # Menghitung rata-rata persentase global (karena ini penjumlahan, kita perlu membaginya dengan jumlah OPD)
+    opd_count = subopds.count()
+    rata_persentase_global = total_persentase_global / opd_count if opd_count > 0 else 0
+    rata_persentasesisa_global = total_persentasesisa_global / opd_count if opd_count > 0 else 0
+
     context = {
-        'judul' : 'Laporan Realisasi Belanja',
+        'judul' : 'Laporan Realisasi Belanja Dana Kelurahan',
         'tab1'      : 'Laporan Realisasi Belanja Tahun Berjalan',
         'tab2'      : 'Laporan Realisasi Belanja Sisa Tahun Lalu',
-        'datapenerimaan' : total_penerimaan,
-        'realisasilpj' : total_realisasilpj,
-        'persentase' : total_persentase,
-        'datapenerimaansisa' : total_penerimaansisa,
-        'realisasilpjsisa' : total_realisasilpjsisa,
-        'persentasesisa' : total_persentasesisa,
+        'data_per_opd': total_per_opd,
+        'total_penerimaan_global': total_penerimaan_global,
+        'total_realisasilpj_global': total_realisasilpj_global,
+        'rata_persentase_global': rata_persentase_global,
+        'total_penerimaansisa_global': total_penerimaansisa_global,
+        'total_realisasilpjsisa_global': total_realisasilpjsisa_global,
+        'rata_persentasesisa_global': rata_persentasesisa_global,
     }
-    
+    print(f"Total Penerimaan: {total_penerimaan}")
     return render(request, template_home, context)
     
 @set_submenu_session
