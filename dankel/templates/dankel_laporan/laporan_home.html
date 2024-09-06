@@ -93,6 +93,7 @@
                                 <tr>
                                     <th style="text-align: center">NO</th>
                                     <th style="text-align: center">OPD</th>
+                                    <th style="text-align: center">Total Pagu</th>
                                     <th style="text-align: center">Total Dana yang diterima</th>
                                     <th style="text-align: center">Total Realisasi</th>
                                     <th style="text-align: center">Persentase Penyerapan</th>
@@ -106,6 +107,7 @@
                                 <tr>
                                     <td style="text-align: center">{{ forloop.counter }}</td>
                                     <td>{{ item.opd }}</td>
+                                    <td style="text-align: right;">{{ item.total_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ item.total_penerimaan|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ item.total_realisasilpj|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: center;">{{ item.total_persentase|default:"0.00"|floatformat:2|intcomma }} %</td>

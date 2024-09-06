@@ -32,7 +32,6 @@ class Rencana(models.Model):
         ]
     
     def clean(self):
-        # Check if the combination already exists
         if Rencana.objects.filter(
             rencana_tahun=self.rencana_tahun,
             rencana_subopd=self.rencana_subopd,

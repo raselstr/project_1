@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Q, Sum
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, Subkegiatan,TahapDana, Subopd
+from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankeljadwal, RencDankelsisa, Subkegiatan,TahapDana, Subopd, RencDankel
 from dausg.models import DankelProg, DankelKeg, Dankelsub
 from penerimaan.models import DistribusiPenerimaan
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
@@ -16,7 +16,10 @@ Model_prog = DankelProg
 Model_keg = DankelKeg
 Model_sub = Dankelsub
 Model_rencana = RencDankeljadwal
+Model_pagu = RencDankel
+Model_pagusisa = RencDankelsisa
 Model_realisasi = RealisasiDankel
+Model_realisasisisa = RealisasiDankelsisa
 Form_filter = RealisasiDankelFilterForm
 Form_data = RealisasiDankelForm
 Model_pejabat = Pejabat
@@ -107,6 +110,8 @@ def home(request):
     # Inisialisasi variabel untuk menyimpan total per OPD dan total global
     total_per_opd = []
 
+    total_pagu_global = 0
+    total_pagusisa_global = 0
     total_penerimaan_global = 0
     total_realisasilpj_global = 0
     total_persentase_global = 0
@@ -120,20 +125,23 @@ def home(request):
         # print(sesiidopd)
 
         if dana:
-            # Menghitung total penerimaan, realisasi LPJ, dan persentase untuk dana utama
-            total_penerimaan = RealisasiDankel().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-            total_realisasilpj = RealisasiDankel().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
-            total_persentase = RealisasiDankel().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_pagu = Model_pagu().get_pagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_penerimaan = Model_realisasi().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_realisasilpj = Model_realisasi().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_persentase = Model_realisasi().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
 
             # Menghitung total penerimaan, realisasi LPJ, dan persentase untuk sisa dana
-            total_penerimaansisa = RealisasiDankelsisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-            total_realisasilpjsisa = RealisasiDankelsisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
-            total_persentasesisa = RealisasiDankelsisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+            total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_penerimaansisa = Model_realisasisisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+            total_realisasilpjsisa = Model_realisasisisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
+            total_persentasesisa = Model_realisasisisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
         else:
-            total_penerimaan = total_realisasilpj = total_persentase = None
-            total_penerimaansisa = total_realisasilpjsisa = total_persentasesisa = None
+            total_penerimaan = total_realisasilpj = total_persentase = total_pagu = None
+            total_penerimaansisa = total_realisasilpjsisa = total_persentasesisa = total_pagusisa = None
 
         # Menambahkan nilai OPD saat ini ke total global
+        if total_pagu is not None:
+            total_pagu_global += total_pagu
         if total_penerimaan is not None:
             total_penerimaan_global += total_penerimaan
         if total_realisasilpj is not None:
@@ -141,6 +149,8 @@ def home(request):
         if total_persentase is not None:
             total_persentase_global += total_persentase
         
+        if total_pagusisa is not None:
+            total_pagusisa_global += total_pagusisa
         if total_penerimaansisa is not None:
             total_penerimaansisa_global += total_penerimaansisa
         if total_realisasilpjsisa is not None:
@@ -151,9 +161,11 @@ def home(request):
         # Menyimpan hasil per OPD
         total_per_opd.append({
             'opd': subopd.opddana_subopd,  # Ganti sesuai dengan nama field sub-OPD
+            'total_pagu': total_pagu,
             'total_penerimaan': total_penerimaan,
             'total_realisasilpj': total_realisasilpj,
             'total_persentase': total_persentase,
+            'total_pagusisa': total_pagusisa,
             'total_penerimaansisa': total_penerimaansisa,
             'total_realisasilpjsisa': total_realisasilpjsisa,
             'total_persentasesisa': total_persentasesisa,
@@ -169,14 +181,17 @@ def home(request):
         'tab1'      : 'Laporan Realisasi Belanja Tahun Berjalan',
         'tab2'      : 'Laporan Realisasi Belanja Sisa Tahun Lalu',
         'data_per_opd': total_per_opd,
+        'total_pagu_global': total_pagu_global,
         'total_penerimaan_global': total_penerimaan_global,
         'total_realisasilpj_global': total_realisasilpj_global,
         'rata_persentase_global': rata_persentase_global,
+        
+        'total_pagusisa_global': total_pagusisa_global,
         'total_penerimaansisa_global': total_penerimaansisa_global,
         'total_realisasilpjsisa_global': total_realisasilpjsisa_global,
         'rata_persentasesisa_global': rata_persentasesisa_global,
     }
-    print(f"Total Penerimaan: {total_penerimaan}")
+    # print(f"Total Penerimaan: {total_penerimaan}")
     return render(request, template_home, context)
     
 @set_submenu_session
