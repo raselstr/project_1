@@ -135,7 +135,7 @@ def get_data_context(request):
         filters &= Q(rencdankelsisa_tahun=tahunrealisasisisa)
     if danarealisasisisa_id:
         filters &= Q(rencdankelsisa_dana_id=danarealisasisisa_id)
-    if subopdrealisasisisa_id != 124 and subopdrealisasisisa_id != 70:
+    if subopdrealisasisisa_id != 124 and subopdrealisasisisa_id != 70 and subopdrealisasisisa_id != 67:
         filters &= Q(rencdankelsisa_subopd_id=subopdrealisasisisa_id)
 
     filterreals = Q()
@@ -147,7 +147,7 @@ def get_data_context(request):
         filterreals &= Q(realisasidankelsisa_dana_id=danarealisasisisa_id)
     if tahaprealisasisisa_id:
         filterreals &= Q(realisasidankelsisa_tahap_id=tahaprealisasisisa_id)
-    if subopdrealisasisisa_id != 124 and subopdrealisasisisa_id != 70:
+    if subopdrealisasisisa_id != 124 and subopdrealisasisisa_id != 70 and subopdrealisasisisa_id != 67:
         filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasisisa_id)
     
     progs = Model_prog.objects.all()

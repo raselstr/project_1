@@ -92,6 +92,12 @@ def home(request):
     sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path()
     
+    subopds = Subopd.objects.all()
+    total_per_opd = []
+    
+    for subopd in subopds:
+        sesiidopd = subopd.id
+        
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
         danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
@@ -194,7 +200,7 @@ def sp2d(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124:
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
         
     sp2d = Model_realisasi.objects.filter(filterreals)
@@ -225,11 +231,11 @@ def get_data_context(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id != 124:
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
     
     filterreals = Q()
-    if level != 'Pengguna' :
+    if level == 'APIP' :
         filterreals &= Q(realisasidankel_verif=1)
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
@@ -237,7 +243,7 @@ def get_data_context(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124:
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
     progs = Model_prog.objects.all()

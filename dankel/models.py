@@ -68,13 +68,13 @@ class RencDankel(models.Model):
     
     def get_pagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None and opd !=124 and opd != 70:
+        if opd is not None and opd !=124 and opd != 70 and opd !=67:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
-        if opd is not None and opd !=124 and opd != 70:
+        if opd is not None and opd !=124 and opd != 70 and opd !=67:
             filters &= Q(rencdankel_subopd=opd)
         return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
        
@@ -145,13 +145,13 @@ class RencDankelsisa(models.Model):
     
     def get_sisapagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None and opd !=124 and opd != 70:
+        if opd is not None and opd !=124 and opd != 70 and opd !=67:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_sisa(self, tahun, opd, dana):
         filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
-        if opd is not None and opd !=124 and opd != 70:
+        if opd is not None and opd !=124 and opd != 70 and opd !=67:
             filters &= Q(rencdankelsisa_subopd=opd)
         return RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
        
@@ -296,14 +296,14 @@ class RealisasiDankel(models.Model):
 
     def get_penerimaan_total(self, tahun, opd, dana):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
-        if opd is not None and opd != 124 and opd != 70:
+        if opd is not None and opd != 124 and opd != 70 and opd !=67:
             filters &= Q(distri_subopd=opd)
         # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
         filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-        if opd is not None and opd != 124 and opd != 70:
+        if opd is not None and opd != 124 and opd != 70 and opd !=67:
             filters &= Q(realisasidankel_subopd=opd)
         return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
 
@@ -446,14 +446,14 @@ class RealisasiDankelsisa(models.Model):
 
     def get_penerimaan_total(self, tahun, opd, dana):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
-        if opd is not None and opd != 124 and opd != 70:
+        if opd is not None and opd != 124 and opd != 70 and opd !=67:
             filters &= Q(distri_subopd=opd)
         # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
         filters = Q(realisasidankelsisa_tahun=tahun) & Q(realisasidankelsisa_dana=dana)
-        if opd is not None and opd != 124 and opd != 70:
+        if opd is not None and opd != 124 and opd != 70 and opd !=67:
             filters &= Q(realisasidankelsisa_subopd=opd)
         return RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
 

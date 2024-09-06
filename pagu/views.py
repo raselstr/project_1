@@ -19,7 +19,7 @@ def list(request):
     request.session['next'] = request.get_full_path()
     total_dana = Pagudausg.total_nilai_by_dana()
     idopd = request.session.get('idsubopd')
-    if idopd is not None and idopd != 125 :
+    if idopd is not None and idopd != 125 and idopd != 67 :
         data = Model_data.objects.filter(pagudausg_opd=idopd).order_by('pagudausg_dana')
     else:
         data = Model_data.objects.all().order_by('pagudausg_dana')

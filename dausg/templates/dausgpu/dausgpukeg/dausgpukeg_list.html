@@ -13,11 +13,14 @@
                     <a href="{% url 'list_dausgpuprog' %}" type="button" class="btn btn-warning mr-3">Kembali</a>
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
-                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalupload"><i class="fas fa-file-excel"></i> <i class="fas fa-file-import"></i></button>
-                        <a href="{% url 'export_dausgpukeg' %}" class="btn btn-danger btn-sm">
-                            <i class="fas fa-file-export"></i> <i class="fas fa-file-excel"></i>
-                        </a>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalupload"><i class="fas fa-file-excel"></i> <i class="fas fa-file-import"></i></button>
+                            <a href="{% url 'export_dausgpukeg' %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-export"></i> <i class="fas fa-file-excel"></i>
+                            </a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
+                    
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">

@@ -18,7 +18,7 @@ tag_url = 'list_distribusi'
 def list(request, number):
     request.session['next'] = request.get_full_path()
     idopd = request.session.get('idsubopd')
-    if idopd is not None and idopd != 70 and idopd != 124:
+    if idopd is not None and idopd != 70 and idopd != 124 and idopd != 67:
         data = Model_data.objects.filter(distri_penerimaan=number, distri_subopd=idopd).order_by('distri_penerimaan')
     else :
         data = Model_data.objects.filter(distri_penerimaan=number).order_by('distri_penerimaan')
