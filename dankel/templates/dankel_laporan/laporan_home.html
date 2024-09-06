@@ -91,11 +91,11 @@
                         <table class="table table-sm table-bordered">
                             <thead>
                                 <tr>
-                                    <th>NO</th>
-                                    <th>OPD</th>
-                                    <th>Total Dana yang diterima</th>
-                                    <th>Total Realisasi</th>
-                                    <th>Persentase Penyerapan</th>
+                                    <th style="text-align: center">NO</th>
+                                    <th style="text-align: center">OPD</th>
+                                    <th style="text-align: center">Total Dana yang diterima</th>
+                                    <th style="text-align: center">Total Realisasi</th>
+                                    <th style="text-align: center">Persentase Penyerapan</th>
                                     {% comment %} <th>Total Dana yang diterima (Sisa)</th>
                                     <th>Total Realisasi (Sisa)</th>
                                     <th>Persentase Penyerapan (Sisa)</th> {% endcomment %}
@@ -104,11 +104,11 @@
                             <tbody>
                                 {% for item in data_per_opd %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
+                                    <td style="text-align: center">{{ forloop.counter }}</td>
                                     <td>{{ item.opd }}</td>
                                     <td style="text-align: right;">{{ item.total_penerimaan|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ item.total_realisasilpj|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ item.total_persentase|default:"0.00"|floatformat:2|intcomma }} %</td>
+                                    <td style="text-align: center;">{{ item.total_persentase|default:"0.00"|floatformat:2|intcomma }} %</td>
                                     {% comment %} <td style="text-align: right;">{{ item.total_penerimaansisa|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ item.total_realisasilpjsisa|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ item.total_persentasesisa|default:"0.00"|floatformat:2|intcomma }} %</td> {% endcomment %}
