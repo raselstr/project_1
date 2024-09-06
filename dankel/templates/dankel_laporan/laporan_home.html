@@ -133,5 +133,6 @@
 {% endblock content %}
 
 {% block style %}
-    <script src="{% static 'js/auto_refresh.js' %}"></script>
+    <meta http-equiv="refresh" content="60">
+    {% comment %} <script src="{% static 'js/auto_refresh.js' %}"></script> {% endcomment %}
 {% endblock style %}
