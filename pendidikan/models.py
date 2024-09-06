@@ -20,25 +20,25 @@ class Rencana(models.Model):
     rencana_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencana_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencana_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencana_sub = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencana_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencana_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
     rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencana_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
+    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA')
     rencana_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
     
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_sub'], name='unique_rencana')
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana')
         ]
     
-    # def clean(self):
-    #     # Check if the combination already exists
-    #     if RencDankel.objects.filter(
-    #         rencdankel_tahun=self.rencdankel_tahun,
-    #         rencdankel_subopd=self.rencdankel_subopd,
-    #         rencdankel_sub=self.rencdankel_sub
-    #     ).exclude(pk=self.pk).exists():
-    #         raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
+    def clean(self):
+        # Check if the combination already exists
+        if Rencana.objects.filter(
+            rencana_tahun=self.rencana_tahun,
+            rencana_subopd=self.rencana_subopd,
+            rencana_kegiatan=self.rencana_kegiatan
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
     #     # Check if the total planned budget does not exceed the available budget
     #     total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
@@ -60,8 +60,8 @@ class Rencana(models.Model):
     #     if total_rencana > total_pagudausg:
     #         raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
             
-    # def save(self, *args, **kwargs):
-    #     super(RencDankel, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
     
     # def get_pagudausg(self, tahun, opd, dana):
     #     filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
@@ -90,21 +90,26 @@ class Rencana(models.Model):
     #     return nilai_realisasi
 
     def __str__(self):
-        return f"{self.rencana_sub}"
+        return f"{self.rencana_kegiatan}"
 
 class Rencanaposting(models.Model):
+    VERIF = [
+        (1, 'Rencana Induk'),
+        (2, 'Rencana Perubahan'),
+    ]
     
+    rencana_id = models.ForeignKey(Rencana, verbose_name='Id Rencana', on_delete=models.CASCADE)
     rencana_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencana_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     rencana_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencana_sub = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
+    rencana_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencana_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
     rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencana_ket = models.TextField(verbose_name='Keterangan Kegiatan', blank=True)
-    rencana_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
+    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA')
+    rencana_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
     def __str__(self):
-        return f"{self.rencana_sub}"
+        return f"{self.rencana_kegiatan}"
 
 # class Realisasi(models.Model):
     
