@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load custom_filters %}
+{% load static %}
 
 {% block content %}
 <section class="section">
@@ -130,3 +131,7 @@
     </div>
 </section>
 {% endblock content %}
+
+{% block style %}
+    <script src="{% static 'js/auto_refresh.js' %}"></script>
+{% endblock style %}
