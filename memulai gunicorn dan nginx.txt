@@ -71,7 +71,7 @@ buat docker image
 
 Menjalankankan
 docker-compose up --build       #ini untuk membuat coutaner dan image
-docker-compose down             #menghapus seluruh cointainer
+docker-compose down -v            #menghapus seluruh cointainer
 docker system prune -a          #menghapus seluruh file
 
 

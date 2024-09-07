@@ -1,12 +1,13 @@
 services:
   web:
+    image: projectweb:latest
     env_file:
       - .env
     build: .
     container_name: projectweb
     command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
     volumes:
-      - ./project_1:/project_1
+      - .:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
@@ -31,7 +32,7 @@ services:
       - web  
   
   adminer:
-    image: adminer
+    image: adminer:latest
     container_name: projectwebadminer
     restart: always
     ports:
@@ -40,16 +41,16 @@ services:
       - app-network
   
   db:
-    image: postgres
+    image: postgres:latest
     container_name: projectwebpostgres
     environment:
       POSTGRES_DB: tkdd
-      POSTGRES_USER: postgres
+      POSTGRES_USER: raselstr
       POSTGRES_PASSWORD: r283l8tr
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
   
