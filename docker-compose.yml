@@ -1,12 +1,12 @@
 services:
   web:
-    environment:
+    env_file:
       - .env
     build: .
     container_name: projectweb
     command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
     volumes:
-      - H:/app/project_1:/project_1
+      - ./project_1:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
@@ -49,7 +49,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
   
