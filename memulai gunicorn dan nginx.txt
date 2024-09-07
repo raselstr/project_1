@@ -71,7 +71,8 @@ buat docker image
 
 Menjalankankan
 docker-compose up --build       #ini untuk membuat coutaner dan image
-docker-compose down -v            #menghapus seluruh cointainer
+docker-compose down             #menghapus seluruh cointainer
+docker-compose down -v            #menghapus seluruh volume yang ini bisa berakibat menghapus database dll
 docker system prune -a          #menghapus seluruh file
 
 

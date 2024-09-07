@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /project_1/
 
 RUN python manage.py collectstatic --noinput
-
+# RUN python manage.py migrate
 # Menentukan perintah default untuk menjalankan aplikasi Django
 CMD ["gunicorn", "--bind", "0.0.0.0:4500", "project.wsgi:application"]
