@@ -105,5 +105,22 @@ yang berisi dependensi utama Anda:
 2. untuk menjalankan dan membuat requirements.txt
     pip-compile requirements.in
 
+restore
+1. copyfile ke docker image postgres
+    docker cp D:/web/backup.sql cf708063974c:/backup.sql
+2. lakukan restore
+    docker exec -i cf708063974c psql -U raselstr -d tkdd -f /backup.sql
+
+beckup
+1. Sebelum membuat backup, siapkan dl mound folder di docker-compose yml
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /path/on/host:/var/lib/postgresql/host_data  # Mount folder host
+
+2. Buka docker image postgres
+    docker exec -it projectwebpostgres bash
+3. lakukan backup dan meletakkan difolder
+    pg_dump -U raselstr -d tkdd > /var/lib/postgresql/host_data/backup.sql
+
 
 
