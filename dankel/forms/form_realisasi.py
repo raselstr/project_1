@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from datetime import datetime
 from ..models import RealisasiDankel, Subopd, Subkegiatan, RencDankeljadwal
 # from django.utils import timezone
 
@@ -24,7 +26,7 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         tahunrencana = kwargs.pop('tahunrencana', None)
         super().__init__(*args, **kwargs)
         
-        if sesiidopd is not None and sesiidopd != 125 and sesiidopd != 70 and sesiidopd != 67:
+        if sesiidopd is not None and sesiidopd not in [125, 70, 67]:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
         else:
             self.fields['realisasidankel_subopd'].queryset = Subopd.objects.all()
@@ -85,3 +87,5 @@ class RealisasiDankelForm(forms.ModelForm):
                 )
             else:
                 self.fields['realisasidankel_rencana'].queryset = RencDankeljadwal.objects.none()
+    
+   

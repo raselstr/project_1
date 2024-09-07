@@ -137,7 +137,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="{{ form.realisasidankel_tgl.id_for_label }}">{{ form.realisasidankel_tgl.label }}</label>
-                                    {{ form.realisasidankel_tgl }}
+                                    <input type="date" name="realisasidankel_tgl" value="{{ form.realisasidankel_tgl.value|date:'Y-m-d' }}" class="form-control" id="id_realisasidankel_tgl">
                                     {% if form.realisasidankel_tgl.errors %}
                                         {% for error in form.realisasidankel_tgl.errors %}
                                             <div class="text-danger">
@@ -180,7 +180,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="{{ form.realisasidankel_lpjtgl.id_for_label }}">{{ form.realisasidankel_lpjtgl.label }}</label>
-                                    {{ form.realisasidankel_lpjtgl }}
+                                    <input type="date" name="realisasidankel_lpjtgl" value="{{ form.realisasidankel_lpjtgl.value|date:'Y-m-d' }}" class="form-control" id="id_realisasidankel_lpjtgl">
                                     {% if form.realisasidankel_lpjtgl.errors %}
                                         {% for error in form.realisasidankel_lpjtgl.errors %}
                                             <div class="text-danger">
@@ -223,7 +223,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="{{ form.realisasidankel_ststgl.id_for_label }}">{{ form.realisasidankel_ststgl.label }}</label>
-                                    {{ form.realisasidankel_ststgl }}
+                                    <input type="date" name="realisasidankel_ststgl" value="{{ form.realisasidankel_ststgl.value|date:'Y-m-d' }}" class="form-control" id="id_realisasidankel_ststgl">
                                     {% if form.realisasidankel_ststgl.errors %}
                                         {% for error in form.realisasidankel_ststgl.errors %}
                                             <div class="text-danger">

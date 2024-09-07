@@ -41,7 +41,7 @@
                             {% for data in data %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        {% if level == "Pengguna"%}
+                                        {% if level != "APIP"%}
                                             {% if data.realisasidankel_verif == 0 %}
                                                 <a href="{% url "realisasidankel_update" data.id %}" class="btn btn-info btn-sm">
                                                     <i class="fas fa-pencil-alt"></i>
