@@ -6,6 +6,9 @@ from django.contrib import messages
 from ..models import RealisasiDankelsisa, RencDankelsisa, Subkegiatan
 from ..forms.form_realisasisisa import RealisasiDankelsisaFilterForm, RealisasiDankelsisaForm
 from project.decorators import menu_access_required, set_submenu_session
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 Model_data = RealisasiDankelsisa
@@ -109,11 +112,17 @@ def simpan(request):
     if request.method == 'POST':
         form = Form_data(request.POST)
         if form.is_valid():
-            # Ambil data dari form yang sudah divalidasi
-            realisasisisa_dankel = form.save(commit=False)
-            realisasisisa_dankel.save()
-            return redirect(tag_url)  # ganti dengan halaman sukses Anda
+            logger.info("Form is valid")
+            try:
+                realisasisisa_dankel = form.save(commit=False)
+                realisasisisa_dankel.save()
+                logger.info("Form saved successfully")
+                return redirect(tag_url)
+            except Exception as e:
+                logger.error(f"Error saving form: {e}")
         else:
+            logger.warning("Form is not valid")
+            logger.error("Form errors: %s", form.errors)
             context = {
                 'judul': 'Form Input SP2D penggunaan Sisa',
                 'form': form,

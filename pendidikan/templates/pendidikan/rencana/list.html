@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                <th style="text-align: center;">Tahun</th>
+                                <th style="text-align: center;">OPD</th>
+                                <th style="text-align: center;">Jenis Dana</th>
+                                <th style="text-align: center;">Nilai</th>
+                                <th style="text-align: center;">Sisa Pagu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for data in datas %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="{% url 'update_pagudausg' data.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url 'delete_pagudausg' data.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;">{{ data.pagudausg_tahun }}</td>
+                                    <td style="text-align: left;">{{ data.pagudausg_opd }}</td>
+                                    <td style="text-align: left;">{{ data.pagudausg_dana }}</td>
+                                    <td style="text-align: right;">{{ data.pagudausg_nilai|default:"0,00"|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.pagudausg_sisa|default:"0,00"|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Modal Tambah OPD -->
+    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    
+                    <form id="formTambah" method="POST" action="{% url 'simpan_pagudausg'%}">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">
+                                            <p>{{ error }}</p>
+                                        </div>
+                                        {% endfor %}
+                                {% endif %}
+                                
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+{% block javascript %}
+    <script>
+    $(document).ready(function() {
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            }
+        });
+
+        {% if form.errors %}
+            $('#modalTambah').modal('show');
+        {% endif %}
+
+        $('#clear').on('click', function() {
+            $('#formTambah').find('input[type="text"]').val('');
+            $('.text-danger').remove();
+            window.location.href = "{% url 'list_pagudausg' %}";
+        });
+
+        $('#modalTambah').on('shown.bs.modal', function () {
+            $('.select2').select2({
+                dropdownParent: $('#modalTambah'),  // Ensures dropdown appears within the modal
+                width: '100%'  // Ensures Select2 takes the full width of the container
+            });
+        });
+
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+    
+    
+{% endblock javascript %}
+

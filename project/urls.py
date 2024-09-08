@@ -5,6 +5,9 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
+    
+    path('pendidikan/', include('pendidikan.urls')),
+    
     path('pagudausg/', include('pagu.urls')),
     path('dankel/', include('dankel.urls.url_realisasi')),
     path('dankel/', include('dankel.urls.url_realisasisisa')),

@@ -17,7 +17,7 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url "dankelsisa_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        <a href="{% url "dankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -66,15 +66,15 @@
                                     <td style="text-align: right;">{{ data.rencdankelsisa_output }}</td>
                                     <td>{{ data.rencdankelsisa_sub.dankelsub_satuan }}</td>
                                     <td>{{ data.rencdankelsisa_ket }}</td>
-                                    <!-- Menambahkan informasi dari RencDankelsisa -->
+                                    <!-- Menambahkan informasi dari RencDankelsisasisa -->
                                 </tr>
                                 {% endfor %}
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th colspan="2" style="text-align: left;"><strong>{{ totalsisa|default:"0.00"|floatformat:2|intcomma }}</strong></th>
-                                <th colspan="2" style="text-align: left;"></th>
+                                <th colspan="2" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2" style="text-align: right;"><strong></strong></th>
                                 
                             </tr>
                         </tfoot>

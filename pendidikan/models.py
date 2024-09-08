@@ -31,13 +31,13 @@ class Rencana(models.Model):
             UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana')
         ]
     
-    def clean(self):
-        if Rencana.objects.filter(
-            rencana_tahun=self.rencana_tahun,
-            rencana_subopd=self.rencana_subopd,
-            rencana_kegiatan=self.rencana_kegiatan
-        ).exclude(pk=self.pk).exists():
-            raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
+    # def clean(self):
+    #     if Rencana.objects.filter(
+    #         rencana_tahun=self.rencana_tahun,
+    #         rencana_subopd=self.rencana_subopd,
+    #         rencana_kegiatan=self.rencana_kegiatan
+    #     ).exclude(pk=self.pk).exists():
+    #         raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
     #     # Check if the total planned budget does not exceed the available budget
     #     total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
