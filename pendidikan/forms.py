@@ -10,3 +10,5 @@ class RencanaForm(forms.ModelForm):
             'rencana_dana': forms.Select(attrs={'class': 'form-control select2'}),
             'rencana_subopd': forms.Select(attrs={'class': 'form-control select2'}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

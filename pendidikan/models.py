@@ -31,6 +31,12 @@ class Rencana(models.Model):
             UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana')
         ]
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.rencana_kegiatan}"
+    
     # def clean(self):
     #     if Rencana.objects.filter(
     #         rencana_tahun=self.rencana_tahun,
@@ -59,8 +65,7 @@ class Rencana(models.Model):
     #     if total_rencana > total_pagudausg:
     #         raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
             
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    
     
     # def get_pagudausg(self, tahun, opd, dana):
     #     filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
@@ -88,8 +93,7 @@ class Rencana(models.Model):
     #     print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
     #     return nilai_realisasi
 
-    def __str__(self):
-        return f"{self.rencana_kegiatan}"
+    
 
 class Rencanaposting(models.Model):
     VERIF = [
