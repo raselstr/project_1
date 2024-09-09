@@ -23,7 +23,7 @@ class Rencana(models.Model):
     rencana_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan', on_delete=models.CASCADE)
     rencana_pagu = models.DecimalField(verbose_name='Pagu Anggaran',max_digits=17, decimal_places=2,default=0)
     rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA')
+    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA', max_length=17)
     rencana_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
     
     class Meta:
