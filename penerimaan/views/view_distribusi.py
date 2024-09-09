@@ -48,7 +48,7 @@ def simpan(request, number):
         form = Form_data(number=number)
     context = {
         'form'  : form,
-        'tombol' : 'Simpan',
+        # 'tombol' : 'Simpan',
         'number' : number,
         'judul': 'Form Distribusi Dana', 
         'tombol' : 'Simpan Distribusi Penerimaan',

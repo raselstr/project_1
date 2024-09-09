@@ -25,14 +25,14 @@
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">Tahun</th>
                                 <th style="text-align: center;">OPD</th>
-                                <th style="text-align: center;">Jenis Dana</th>
-                                <th style="text-align: center;">Nilai</th>
-                                <th style="text-align: center;">Sisa Pagu</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Output</th>
                             </tr>
                         </thead>
                         <tbody>
                             
-                            {% for data in datas %}
+                            {% for data in data %}
                                 <tr>
                                     <td style="text-align: center;">
                                         <a href="{% url 'update_pagudausg' data.id %}" class="btn btn-info btn-sm">
@@ -42,16 +42,16 @@
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.pagudausg_tahun }}</td>
-                                    <td style="text-align: left;">{{ data.pagudausg_opd }}</td>
-                                    <td style="text-align: left;">{{ data.pagudausg_dana }}</td>
-                                    <td style="text-align: right;">{{ data.pagudausg_nilai|default:"0,00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ data.pagudausg_sisa|default:"0,00"|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: left;">{{ data.rencana_tahun }}</td>
+                                    <td style="text-align: left;">{{ data.rencana_subopd }}</td>
+                                    <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_pagu|default:"0,00"|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_output|default:"0"|floatformat:0 }}</td>
                                 </tr>
                             {% endfor %}
-                            
-                        </tbody>
+
                     </table>
+                        </tbody>
                 </div>
             </div>
         </div>
