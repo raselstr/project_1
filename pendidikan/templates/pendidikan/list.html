@@ -15,16 +15,7 @@
                         {% comment %} <button 
                             type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}
                         </button> {% endcomment %}
-                        <button 
-                            class="btn btn-primary" 
-                            hx-get="{{link_url}}" 
-                            hx-target="#filter .modal-content"
-                            hx-trigger="click"  
-                            data-toggle="modal" 
-                            data-target="#filter"
-                            hx-indicator="#modal-spinner">
-                            {{tombol}}
-                        </button>
+                        <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -66,13 +57,7 @@
         </div>
     </div>
 </section>
-<div class="modal fade" id="filter" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-        </div>
-    </div>
-</div>
-    
+
 {% endblock content %}
 
 {% block style %}
@@ -84,6 +69,7 @@
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 {% endblock src %}
+
 
 
 

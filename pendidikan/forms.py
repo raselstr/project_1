@@ -26,6 +26,7 @@ class RencanaForm(forms.ModelForm):
             'rencana_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
             'rencana_output': forms.NumberInput(attrs={'class': 'form-control'}),
             'rencana_ket': forms.TextInput(attrs={'class': 'form-control'}),
+            'rencana_pagudpa': forms.NumberInput(attrs={'class': 'form-control'}),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

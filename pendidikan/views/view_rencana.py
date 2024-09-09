@@ -16,9 +16,10 @@ url_simpan = 'rencana_pendidikan_simpan'
 url_update = 'rencana_pendidikan_update'
 url_delete = 'rencana_pendidikan_delete'
 
-template_home = 'pendidikan/rencana/home.html'
-template_list = 'pendidikan/rencana/list.html'
-template_modal = 'pendidikan/rencana/modal.html'
+template_form = 'pendidikan/form.html'
+template_home = 'pendidikan/home.html'
+template_list = 'pendidikan/list.html'
+template_modal = 'pendidikan/modal.html'
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +86,9 @@ def simpan(request):
         'form': form,
         'judul': 'Form Rencana Kegiatan',
         'btntombol' : 'Simpan',
-        'link_url' : reverse(url_simpan),
+        'link_url' : reverse(url_list),
     }
-    return render(request, template_modal, context)
+    return render(request, template_form, context)
 
 @set_submenu_session
 @menu_access_required('list')
