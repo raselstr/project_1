@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
@@ -12,6 +13,7 @@ form_data = RencanaForm
 
 model_data = Rencana
 
+url_home = 'rencana_pendidikan_home'
 url_filter = 'rencana_pendidikan_filter'
 url_list = 'rencana_pendidikan_list'
 url_simpan = 'rencana_pendidikan_simpan'
@@ -23,54 +25,50 @@ template_home = 'pendidikan/home.html'
 template_list = 'pendidikan/list.html'
 template_modal = 'pendidikan/modal.html'
 
+sesidana = 'dau-dukungan-bidang-pendidikan'
+
 logger = logging.getLogger(__name__)
 
 
-# @set_submenu_session
-# @menu_access_required('delete')
-# def delete(request, pk):
-#     sesiidopd = session_data.get('idsubopd')
-#     sesitahun = session_data.get('sesitahun')
-#     request.session['next'] = request.get_full_path()
-#     try:
-#         data = Model_data.objects.get(id=pk)
-#         data.delete()
-#         messages.warning(request, "Data Berhasil dihapus")
-#     except Model_data.DoesNotExist:
-#         messages.error(request,"Dana tidak ditemukan")
-#     except ValidationError as e:
-#         messages.error(request, str(e))
-#     return redirect(tag_url)
+@set_submenu_session
+@menu_access_required('delete')
+def delete(request, pk):
+    request.session['next'] = request.get_full_path()
+    try:
+        data = model_data.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except model_data.DoesNotExist:
+        messages.error(request,"Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
+    return redirect(url_list)
 
-# @set_submenu_session
-# @menu_access_required('update')
-# def update(request, pk):
-#     session_data = get_from_sessions(request)
-#     sesiidopd = session_data.get('idsubopd')
-#     sesitahun = session_data.get('sesitahun')
-#     request.session['next'] = request.get_full_path()
-#     data = get_object_or_404(Model_data, id=pk)
-
-#     if request.method == 'POST':
-#         form = Form_data(request.POST or None, instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Data Berhasil Update')
-#             return redirect(tag_url)
-#     else:
-#         form = Form_data(instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
-#     context = {
-#         'form': form,
-#         'judul': 'Update Rencana Kegiatan',
-#         'btntombol' : 'Update',
-#     }
-#     return render(request, template, context)
+@set_submenu_session
+@menu_access_required('update')
+def update(request, pk):
+    request.session['next'] = request.get_full_path()
+    data = get_object_or_404(model_data, id=pk)
+    if request.method == 'POST':
+        form = form_data(request.POST or None, instance=data)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data Berhasil Update')
+            return redirect(url_list)
+    else:
+        form = form_data(instance=data)
+    context = {
+        'form': form,
+        'judul': 'Update Rencana Kegiatan',
+        'btntombol' : 'Update',
+        'link_url': reverse(url_list),
+    }
+    return render(request, template_form, context)
 
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
-
     if request.method == 'POST':
         form = form_data(request.POST or None)
         if form.is_valid():
@@ -96,12 +94,31 @@ def simpan(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    data = model_data.objects.all()
+    
+     # Buat filter query
+    filters = Q()
+    if tahunrealisasi:
+        filters &= Q(realisasidankel_tahun=tahunrealisasi)
+    if danarealisasi_id:
+        filters &= Q(realisasidankel_dana_id=danarealisasi_id)
+    if tahaprealisasi_id:
+        filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70 and subopdrealisasi_id != 67:
+        filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+    
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = None
 
     context = {
         'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
         'tombol': 'Tambah Perencanaan',
+        'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
+        'link_url_kembali': reverse(url_home),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
         'data' : data,
     }
     return render(request, template_list, context)
@@ -109,8 +126,10 @@ def list(request):
 
 def filter(request):
     if request.method == 'GET':
-        form = form_filter(request.GET or None)
         logger.debug(f"Received GET data: {request.GET}")
+        tahunrencana = model_data.objects.values_list('rencana_tahun', flat=True).distinct()
+        sesisubopd = request.session.get('idsubopd')
+        form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidana, sesisubopd=sesisubopd)
 
         if form.is_valid():
             logger.debug(f"Form is valid: {form.cleaned_data}")

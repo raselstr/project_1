@@ -12,22 +12,23 @@
                 <div class="card-header">
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
-                        {% comment %} <button 
-                            type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}
-                        </button> {% endcomment %}
-                        <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+                        <div class="btn-group">
+                            <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
+                            <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel1" style="width:100%">
+                    <table class="table table-bordered table-sm" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">Tahun</th>
                                 <th style="text-align: center;">OPD</th>
                                 <th style="text-align: center;">Kegiatan</th>
-                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Pagu DAU SG</th>
                                 <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Kode DPA Kegiatan</th>
+                                <th style="text-align: center;">Pagu DPA Kegiatan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,23 +36,26 @@
                             {% for data in data %}
                                 <tr>
                                     <td style="text-align: center;">
-                                        <a href="{% url 'update_pagudausg' data.id %}" class="btn btn-info btn-sm">
+                                        <a href="{% url link_url_update data.id %} " class="btn btn-info btn-sm">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <a href="{% url 'delete_pagudausg' data.id %}" class="btn btn-danger btn-sm">
+                                        <a href="{% url link_url_delete  data.id %}" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.rencana_tahun }}</td>
                                     <td style="text-align: left;">{{ data.rencana_subopd }}</td>
                                     <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
-                                    <td style="text-align: right;">{{ data.rencana_pagu|default:"0,00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ data.rencana_output|default:"0"|floatformat:0 }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_pagu }}</td>
+                                    <td style="text-align: center;">
+                                        {{ data.rencana_output|default:"0"|floatformat:0 }}
+                                        {{ data.rencana_kegiatan.dausgpendidikansub_satuan }}
+                                    </td>
+                                    <td style="text-align: center;">{{ data.rencana_ket }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_pagudpa }}</td>
                                 </tr>
                             {% endfor %}
-
-                    </table>
                         </tbody>
+                    </table>
                 </div>
             </div>
         </div>

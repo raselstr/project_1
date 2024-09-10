@@ -32,19 +32,13 @@ class Rencana(models.Model):
             UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana')
         ]
     
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-    
-    def __str__(self):
-        return f"{self.rencana_kegiatan}"
-    
-    # def clean(self):
-    #     if Rencana.objects.filter(
-    #         rencana_tahun=self.rencana_tahun,
-    #         rencana_subopd=self.rencana_subopd,
-    #         rencana_kegiatan=self.rencana_kegiatan
-    #     ).exclude(pk=self.pk).exists():
-    #         raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
+    def clean(self):
+        if Rencana.objects.filter(
+            rencana_tahun=self.rencana_tahun,
+            rencana_subopd=self.rencana_subopd,
+            rencana_kegiatan=self.rencana_kegiatan
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
     #     # Check if the total planned budget does not exceed the available budget
     #     total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
@@ -66,7 +60,14 @@ class Rencana(models.Model):
     #     if total_rencana > total_pagudausg:
     #         raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
             
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
     
+    # def get_total_rencana(self, tahun, opd, dana):
+    #     filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
+    #     if opd is not None and opd !=124 and opd != 70:
+    #         filters &= Q(rencdankel_subopd=opd)
+    #     return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
     
     # def get_pagudausg(self, tahun, opd, dana):
     #     filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
@@ -74,11 +75,6 @@ class Rencana(models.Model):
     #         filters &= Q(pagudausg_opd=opd)
     #     return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
-    # def get_total_rencana(self, tahun, opd, dana):
-    #     filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
-    #     if opd is not None and opd !=124 and opd != 70:
-    #         filters &= Q(rencdankel_subopd=opd)
-    #     return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
        
     # def sisa(self, tahun, opd, dana):
     #     total_rencana = self.get_total_rencana(tahun, opd, dana)
@@ -94,7 +90,8 @@ class Rencana(models.Model):
     #     print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
     #     return nilai_realisasi
 
-    
+    def __str__(self):
+        return f"{self.rencana_kegiatan}"
 
 class Rencanaposting(models.Model):
     VERIF = [
