@@ -38,7 +38,7 @@ class Pagudausg(models.Model):
             total_sisa=Sum('pagudausg_sisa')
         ).order_by('pagudausg_dana__sub_nama')
         
-        for item in result:
-            print(item)
+        # for item in result:
+        #     print(item)
         
         return result

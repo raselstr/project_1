@@ -1,6 +1,7 @@
 from import_export import resources
 from .models import DankelProg,DankelKeg,Dankelsub,DausgpendidikanProg, DausgpendidikanKeg, DausgpendidikanSub, DausgkesehatanProg, DausgkesehatanKeg, DausgkesehatanSub, DausgpuProg, DausgpuKeg, DausgpuSub
 from opd.models import Opd, Subopd
+from pagu.models import Pagudausg
 
 class DankelProgResource(resources.ModelResource):
     class Meta:
@@ -57,6 +58,10 @@ class OpdResource(resources.ModelResource):
 class SubopdResource(resources.ModelResource):
     class Meta:
         model = Subopd
+
+class PaguResource(resources.ModelResource):
+    class Meta:
+        model = Pagudausg
 
 
 

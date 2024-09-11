@@ -35,8 +35,8 @@ class Rencana(models.Model):
     def clean(self):
         if Rencana.objects.filter(
             rencana_tahun=self.rencana_tahun,
-            rencana_subopd=self.rencana_subopd,
-            rencana_kegiatan=self.rencana_kegiatan
+            rencana_subopd=self.rencana_subopd_id,
+            rencana_kegiatan=self.rencana_kegiatan_id
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         

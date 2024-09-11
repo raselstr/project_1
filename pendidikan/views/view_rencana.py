@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
@@ -94,17 +95,17 @@ def simpan(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    
+    rencana_tahun=request.session.get('rencana_tahun')
+    rencana_dana=request.session.get('rencana_dana')
+    rencana_subopd=request.session.get('rencana_subopd')
      # Buat filter query
     filters = Q()
-    if tahunrealisasi:
-        filters &= Q(realisasidankel_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filters &= Q(realisasidankel_dana_id=danarealisasi_id)
-    if tahaprealisasi_id:
-        filters &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70 and subopdrealisasi_id != 67:
-        filters &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    if rencana_subopd not in [124]:
+        filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:
         data = model_data.objects.filter(filters)
@@ -134,10 +135,8 @@ def filter(request):
         if form.is_valid():
             logger.debug(f"Form is valid: {form.cleaned_data}")
             request.session['rencana_tahun'] = form.cleaned_data.get('rencana_tahun')
-            request.session['rencana_dana'] = form.cleaned_data.get('rencana_dana').id if form.cleaned_data.get(
-                'rencana_dana') else None
-            request.session['rencana_subopd'] = form.cleaned_data.get('rencana_subopd').id if form.cleaned_data.get(
-                'rencana_subopd') else None
+            request.session['rencana_dana'] = form.cleaned_data.get('rencana_dana').id if form.cleaned_data.get('rencana_dana') else None
+            request.session['rencana_subopd'] = form.cleaned_data.get('rencana_subopd').id if form.cleaned_data.get('rencana_subopd') else None
             return redirect(url_list)
         else:
             logger.debug(f"Form errors: {form.errors}")
