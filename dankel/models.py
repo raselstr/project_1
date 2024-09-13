@@ -89,7 +89,7 @@ class RencDankel(models.Model):
         if self.rencdankel_subopd is not None:
             filters &= Q(realisasidankel_subopd=self.rencdankel_subopd_id)
         nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
-        print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
+        # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
 
     def __str__(self):
@@ -165,7 +165,7 @@ class RencDankelsisa(models.Model):
         if self.rencdankelsisa_subopd is not None:
             filters &= Q(realisasidankelsisa_subopd=self.rencdankelsisa_subopd_id)
         nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
-        print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
+        # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
     
     def __str__(self):

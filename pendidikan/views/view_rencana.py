@@ -70,16 +70,18 @@ def update(request, pk):
 @menu_access_required('simpan')
 def simpan(request):
     request.session['next'] = request.get_full_path()
+    initial_data = dict(
+        rencana_tahun=request.session.get('rencana_tahun'),
+        rencana_dana=request.session.get('rencana_dana'),
+        rencana_subopd=request.session.get('rencana_subopd')
+    )
     if request.method == 'POST':
         form = form_data(request.POST or None)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
-            return redirect(url_list)  # Ganti dengan URL redirect setelah berhasil
+            return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
     else:
-        initial_data = dict(rencana_tahun=request.session.get('rencana_tahun'),
-                            rencana_dana=request.session.get('rencana_dana'),
-                            rencana_subopd=request.session.get('rencana_subopd'))
         form = form_data(initial=initial_data)
 
     context = {

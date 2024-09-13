@@ -3,10 +3,12 @@ from datetime import datetime
 from django.db.models import Sum, Q
 from django.db.models import UniqueConstraint
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 from opd.models import Subopd
 from dana.models import Subkegiatan, TahapDana
 from dausg.models import DausgpendidikanSub
+from pagu.models import Pagudausg
 
 # Create your models here.
 VERIF = [
@@ -41,39 +43,40 @@ class Rencana(models.Model):
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
     #     # Check if the total planned budget does not exceed the available budget
-    #     total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
-    #     total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
+        total_pagudausg = self.get_pagudausg(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
     #     total_realisasi_pk = self.get_realisasi_pk()
         
         
-    #     # Include the current instance's budget in the total_rencana
-    #     if self.pk:
-    #         total_rencana = total_rencana - RencDankel.objects.get(pk=self.pk).rencdankel_pagu
+        # Include the current instance's budget in the total_rencana
+        if self.pk:
+            total_rencana = total_rencana - Rencana.objects.get(pk=self.pk).rencana_pagu
 
-    #     total_rencana += self.rencdankel_pagu
+        total_rencana += self.rencana_pagu
         
-    #     formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
+        formatted_total_rencana = "{:,.2f}".format(total_rencana)
+        formatted_total_pagudausg = "{:,.2f}".format(total_pagudausg)
         
     #     if self.rencdankel_pagu < total_realisasi_pk :
     #         raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk} Nilai Rencana tidak boleh lebih kecil dari Nilai Realisasi')
         
-    #     if total_rencana > total_pagudausg:
-    #         raise ValidationError('Total rencana anggaran tidak boleh lebih besar dari total anggaran yang tersedia.')
+        if total_rencana > total_pagudausg:
+            raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
             
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
     
-    # def get_total_rencana(self, tahun, opd, dana):
-    #     filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
-    #     if opd is not None and opd !=124 and opd != 70:
-    #         filters &= Q(rencdankel_subopd=opd)
-    #     return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
+    def get_pagudausg(self, tahun, opd, dana):
+        filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
+        if opd is not None and opd not in [124,70]:
+            filters &= Q(pagudausg_opd=opd)
+        return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
-    # def get_pagudausg(self, tahun, opd, dana):
-    #     filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-    #     if opd is not None and opd !=124 and opd != 70:
-    #         filters &= Q(pagudausg_opd=opd)
-    #     return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
+    def get_total_rencana(self, tahun, opd, dana):
+        filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
+        if opd is not None and opd not in [124,70]:
+            filters &= Q(rencana_subopd=opd)
+        return Rencana.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
     
        
     # def sisa(self, tahun, opd, dana):

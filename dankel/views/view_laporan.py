@@ -171,11 +171,17 @@ def home(request):
             'total_persentasesisa': total_persentasesisa,
         })
 
-    # Menghitung rata-rata persentase global (karena ini penjumlahan, kita perlu membaginya dengan jumlah OPD)
-    opd_count = subopds.count()
-    rata_persentase_global = total_persentase_global / opd_count if opd_count > 0 else 0
-    rata_persentasesisa_global = total_persentasesisa_global / opd_count if opd_count > 0 else 0
+    # Menghitung rata-rata persentase global
+    if total_penerimaan_global != 0:
+        rata_persentase_global = (total_realisasilpj_global / total_penerimaan_global) * 100
+    else:
+        rata_persentase_global = 0
 
+    # Menghitung rata-rata persentase sisa global (cek jika penerimaan sisa tidak nol)
+    if total_penerimaansisa_global != 0:
+        rata_persentasesisa_global = (total_realisasilpjsisa_global / total_penerimaansisa_global) * 100
+    else:
+        rata_persentasesisa_global = 0
     context = {
         'judul' : 'Laporan Realisasi Belanja Dana Kelurahan',
         'tab1'      : 'Laporan Realisasi Belanja Tahun Berjalan',
