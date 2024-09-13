@@ -135,7 +135,7 @@
             <div class="modal-body">
                 <form method="post" enctype="multipart/form-data" 
                     hx-post="{% url 'upload_pagudausg' %}"
-                    hx-on="htmx:afterOnLoad: location.reload()">
+                    hx-on="htmx:afterRequest: location.reload()">
                     {% csrf_token %}
                     <div class="form-group">
                         <div class="custom-file">
@@ -206,13 +206,20 @@
         });
 
         $('#modalupload form').on('submit', function() {
-                $('#modalupload').modal('hide'); // Menutup modal setelah submit
-            });
+            $('#modalupload').modal('hide'); // Menutup modal setelah submit
+        });
 
-            $('#modalupload').on('hidden.bs.modal', function() {
-                $(this).find('form')[0].reset(); // Membersihkan form setelah modal ditutup
-                $('.custom-file-label').html('Choose file'); // Reset label input file
-            });
+        $('#modalupload').on('hidden.bs.modal', function() {
+            $(this).find('form')[0].reset(); // Membersihkan form setelah modal ditutup
+            $('.custom-file-label').html('Choose file'); // Reset label input file
+        });
+        
+        // Tambahkan refresh setelah upload selesai
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            if(evt.detail.xhr.status === 200) {
+                location.reload(); // Refresh halaman setelah upload selesai
+            }
+        });
 
         {% if messages %}
         {% for message in messages %}

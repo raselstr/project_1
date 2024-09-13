@@ -34,7 +34,7 @@ def export(request):
     return response
 
 @set_submenu_session
-@menu_access_required('list')
+@menu_access_required('update')
 def upload(request):
     if request.method == 'POST':
         mymodel_resource = resource()
