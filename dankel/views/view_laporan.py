@@ -315,6 +315,7 @@ def get_data_context(request):
     progs = Model_prog.objects.all()
     rencanas = Model_rencana.objects.filter(filters)
     realisasis = Model_realisasi.objects.filter(filterreals)
+    
 
     # Siapkan data untuk template
     prog_data = []
@@ -357,10 +358,9 @@ def get_data_context(request):
                 total_lpj = 0
                 total_output_realisasi = 0
                 for rencana in related_rencanas:
-                    realisasi_rencana = realisasis.filter(realisasidankel_idrencana=rencana.id)
+                    realisasi_rencana = realisasis.filter(realisasidankel_rencana=rencana.id)
                     total_lpj += realisasi_rencana.aggregate(total_lpj=Sum('realisasidankel_lpjnilai'))['total_lpj'] or 0
                     total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankel_output'))['total_output'] or 0
-
                 keg_subs.append({
                     'sub': sub,
                     'pagu': pagu,
@@ -386,6 +386,7 @@ def get_data_context(request):
             total_output_prog += total_output_keg
             total_realisasi_prog += total_realisasi_keg
             total_realisasi_output_prog += total_realisasi_output_keg
+            
 
         total_pagu_keseluruhan += total_pagu_prog
         total_output_keseluruhan += total_output_prog
