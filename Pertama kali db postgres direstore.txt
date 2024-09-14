@@ -1,0 +1,24 @@
+DO $$ 
+DECLARE
+    rec RECORD;
+BEGIN
+    -- Loop through each table and sequence
+    FOR rec IN 
+        SELECT 
+            pg_class.relname AS tablename,
+            pg_attribute.attname AS columnname,
+            pg_get_serial_sequence(pg_class.relname, pg_attribute.attname) AS seqname
+        FROM 
+            pg_class
+            JOIN pg_attribute ON pg_class.oid = pg_attribute.attrelid
+            JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
+        WHERE 
+            pg_attribute.attnum > 0
+            AND pg_attribute.attisdropped = FALSE
+            AND pg_get_serial_sequence(pg_class.relname, pg_attribute.attname) IS NOT NULL
+            AND pg_namespace.nspname = 'public'  -- Change schema if necessary
+    LOOP
+        -- Update the sequence based on the maximum ID in the table
+        EXECUTE 'SELECT setval(''' || rec.seqname || ''', COALESCE(MAX(' || rec.columnname || '), 1)) FROM ' || rec.tablename;
+    END LOOP;
+END $$;
