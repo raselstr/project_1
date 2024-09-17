@@ -118,6 +118,10 @@ class Rencanaposting(models.Model):
     
 
 class Realisasi(models.Model):
+    VERIF = [
+        (0, 'Diinput Dinas'),
+        (1, 'Disetujui APIP'),
+    ]
     realisasi_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     realisasi_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasi_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
@@ -129,7 +133,7 @@ class Realisasi(models.Model):
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
-    realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
+    realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False, verbose_name='Verifikasi') 
     
     def clean(self):
         super().clean()

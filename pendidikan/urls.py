@@ -4,6 +4,8 @@ from pendidikan.views import view_rencana, view_posting, view_realisasi
 urlpatterns = [
     
     
+    path("realisasi/verif/<int:pk>/", view_realisasi.verif, name="realisasi_pendidikan_verif"),
+    path("realisasi/modal/<int:pk>/", view_realisasi.modal, name="realisasi_pendidikan_modal"),
     path("realisasi/delete/<int:pk>/", view_realisasi.delete, name="realisasi_pendidikan_delete"),
     path("realisasi/update/<int:pk>/", view_realisasi.update, name="realisasi_pendidikan_update"),
     path("realisasi/simpan/", view_realisasi.simpan, name="realisasi_pendidikan_simpan"),

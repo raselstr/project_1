@@ -4,6 +4,10 @@ from django.db.models import Q
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
+
+from django_tables2 import RequestConfig
+from ..tables import RealisasiTable
+
 import logging
 
 from pendidikan.models import Rencanaposting, Rencana, Realisasi
@@ -11,6 +15,8 @@ from dausg.models import Subkegiatan
 
 
 from pendidikan.forms import RealisasiFilterForm, RealisasiForm
+
+tabel_realisasi = RealisasiTable
 
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
@@ -26,15 +32,35 @@ url_list = 'realisasi_pendidikan_list'
 url_simpan = 'realisasi_pendidikan_simpan'
 url_update = 'realisasi_pendidikan_update'
 url_delete = 'realisasi_pendidikan_delete'
+url_verif = 'realisasi_pendidikan_delete'
 
 template_form = 'pendidikan/realisasi/form.html'
 template_home = 'pendidikan/realisasi/home.html'
 template_list = 'pendidikan/realisasi/list.html'
 template_modal = 'pendidikan/realisasi/modal.html'
+template_modal_verif = 'pendidikan/realisasi/modal_verif.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
+
+def modal(request, pk):
+    data = get_object_or_404(model_realisasi, pk=pk)
+    return render(request, template_modal_verif, {'data': data})
+
+@set_submenu_session
+@menu_access_required('update')
+def verif(request, pk):
+    realisasi = get_object_or_404(model_realisasi, pk=pk)
+    verif = request.GET.get('verif')
+    
+    if verif == '1':
+        realisasi.realisasi_verif = 1
+    elif verif == '0':
+        realisasi.realisasi_verif = 0
+    
+    realisasi.save()
+    return redirect(url_list)
 
 
 @set_submenu_session
@@ -42,10 +68,10 @@ logger = logging.getLogger(__name__)
 def delete(request, pk):
     request.session['next'] = request.get_full_path()
     try:
-        data = model_data.objects.get(id=pk)
+        data = model_realisasi.objects.get(id=pk)
         data.delete()
         messages.warning(request, "Data Berhasil dihapus")
-    except model_data.DoesNotExist:
+    except model_realisasi.DoesNotExist:
         messages.error(request,"Dana tidak ditemukan")
     except ValidationError as e:
         messages.error(request, str(e))
@@ -55,7 +81,7 @@ def delete(request, pk):
 @menu_access_required('update')
 def update(request, pk):
     request.session['next'] = request.get_full_path()
-    data = get_object_or_404(model_data, id=pk)
+    data = get_object_or_404(model_realisasi, id=pk)
     if request.method == 'POST':
         form = form_data(request.POST or None, instance=data)
         if form.is_valid():
@@ -123,6 +149,9 @@ def list(request):
         data = model_realisasi.objects.filter(filters)
     except model_realisasi.DoesNotExist:
         data = None
+    
+    table = tabel_realisasi(data)
+    RequestConfig(request).configure(table)
 
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
@@ -133,6 +162,7 @@ def list(request):
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
+        'table':table,
     }
     return render(request, template_list, context)
 

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_htmx',
     'import_export',
+    'django_tables2',
     'authapp',
     'dashboard',
     'opd',
