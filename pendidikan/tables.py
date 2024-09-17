@@ -6,11 +6,19 @@ from django.utils.html import format_html
 class RealisasiTable(tables.Table):
     aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
     verif = tables.Column(empty_values=(), orderable=False, verbose_name='Verifikasi')
+    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan')
 
     class Meta:
         model = Realisasi
-        template_name = "django_tables2/bootstrap.html"  # Menggunakan template bootstrap
-        fields = ("aksi","realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", "realisasi_tgl", "realisasi_nilai", "realisasi_output","verif")  # Kolom-kolom yang akan ditampilkan
+        template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        fields = ("aksi","realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", "realisasi_tgl", "realisasi_nilai", "output_satuan","verif")  # Kolom-kolom yang akan ditampilkan
+        attrs = {
+            "class": "display table-bordered",
+            "id":"tabel1",
+            'th': {
+                    'style':"text-align: center;"
+                },
+            }
     
     def render_aksi(self, record):
         """Render tombol edit dan delete di kolom 'Aksi'."""
@@ -36,4 +44,9 @@ class RealisasiTable(tables.Table):
             '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" data-toggle="modal" data-target="#verifikasiModal"><span class="badge badge-success">Disetujui APIP</span></a>',
             verif_url
         )
-            # return format_html('<span class="badge badge-success">Disetujui APIP</span>')
+    
+    def render_output_satuan(self, record):
+        satuan = record.realisasi_subkegiatan.dausgpendidikansub_satuan  # Ganti 'satuan' dengan nama field yang sesuai dari model Subkegiatan
+        return format_html(
+            '{} {}'.format(record.realisasi_output, satuan)  # Gabungkan output dan satuan
+        )
