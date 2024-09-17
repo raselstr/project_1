@@ -41,13 +41,10 @@ class Rencana(models.Model):
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
-    #     # Check if the total planned budget does not exceed the available budget
         total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
-        total_pagudausg = self.get_pagudausg(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
+        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
     #     total_realisasi_pk = self.get_realisasi_pk()
         
-        
-        # Include the current instance's budget in the total_rencana
         if self.pk:
             total_rencana = total_rencana - Rencana.objects.get(pk=self.pk).rencana_pagu
 
@@ -65,7 +62,7 @@ class Rencana(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
     
-    def get_pagudausg(self, tahun, opd, dana):
+    def get_pagu(self,tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
         if opd is not None and opd not in [124,70]:
             filters &= Q(pagudausg_opd=opd)
@@ -78,12 +75,11 @@ class Rencana(models.Model):
         return Rencana.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
     
        
-    # def sisa(self, tahun, opd, dana):
-    #     total_rencana = self.get_total_rencana(tahun, opd, dana)
-    #     total_pagudausg = self.get_pagudausg(tahun, opd, dana)
-    #     return total_pagudausg - total_rencana
+    def get_sisa(self, tahun, opd, dana):
+        total_rencana = self.get_total_rencana(tahun, opd, dana)
+        total_pagu = self.get_pagu(tahun, opd, dana)
+        return total_pagu - total_rencana
     
-  
     # def get_realisasi_pk(self):
     #     filters = Q(realisasidankel_tahun=self.rencdankel_tahun) & Q(realisasidankel_dana=self.rencdankel_dana_id) & Q(realisasidankel_idrencana_id = self.id)
     #     if self.rencdankel_subopd is not None:
@@ -261,5 +257,5 @@ class Rencanaposting(models.Model):
 #         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
 #         return nilai_realisasi
         
-    # def __str__(self):
-    #     return f'{self.realisasidankel_rencana}'
+    def __str__(self):
+        return f'{self.realisasidankel_rencana}'

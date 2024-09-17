@@ -8,11 +8,13 @@ import logging
 
 from pendidikan.models import Rencana
 from pendidikan.forms import RencanaFilterForm, RencanaForm
+from dausg.models import Subkegiatan
 
 form_filter = RencanaFilterForm
 form_data = RencanaForm
 
 model_data = Rencana
+model_pagu = Subkegiatan
 
 url_home = 'rencana_pendidikan_home'
 url_filter = 'rencana_pendidikan_filter'
@@ -158,9 +160,30 @@ def filter(request):
 @set_submenu_session
 @menu_access_required('list')
 def home(request):
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+    
+    try:
+        dana = model_pagu.objects.get(sub_slug=sesidana)
+    except model_pagu.DoesNotExist:
+        dana = None
+    
+    if dana:
+        pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
+        sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+    else:
+        pagu = 0
+        rencana = 0
+        sisa = 0
+    
     context = {
         'judul': 'Rencana Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Rencana Kegiatan Tahun Berjalan',
+        'datapagu': pagu,
+        'datarencana' : rencana,
+        'datasisa' : sisa,
+        
         'link_url': reverse(url_filter),
     }
     return render(request, template_home, context)

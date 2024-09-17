@@ -66,3 +66,36 @@ class RencanaPostingForm(forms.ModelForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+class RencanapostingFilterForm(forms.ModelForm):
+    posting_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
+    class Meta:
+        model = Rencanaposting
+        fields = ['posting_tahun', 'posting_dana', 'posting_subopd','posting_jadwal']
+        widgets = {
+            'posting_dana': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        sesidana = kwargs.pop('sesidana', None)
+        sesisubopd = kwargs.pop('sesisubopd', None)
+        super().__init__(*args, **kwargs)
+        
+        if sesisubopd is not None and sesisubopd not in [124,70,67]:
+            self.fields['posting_subopd'].queryset = Subopd.objects.filter(id=sesisubopd)
+        else:
+            self.fields['posting_subopd'].queryset = Subopd.objects.all()            
+        
+        if sesidana is not None:
+            self.fields['posting_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
+        else:
+            self.fields['posting_dana'].queryset = Subkegiatan.objects.all()
+        
+        if tahun is not None:
+            tahun_choices = [(tahun, tahun) for tahun in tahun]
+            self.fields['posting_tahun'].choices = tahun_choices
+        else:
+            self.fields['posting_tahun'].choices = []

@@ -1,7 +1,16 @@
 from django.urls import path # type: ignore
-from pendidikan.views import view_rencana, view_posting
+from pendidikan.views import view_rencana, view_posting, view_realisasi
 
 urlpatterns = [
+    
+    
+    path("realisasi/delete/<int:pk>/", view_realisasi.delete, name="realisasi_pendidikan_delete"),
+    path("realisasi/update/<int:pk>/", view_realisasi.update, name="realisasi_pendidikan_update"),
+    path("realisasi/simpan/", view_realisasi.simpan, name="realisasi_pendidikan_simpan"),
+    path("realisasi/daftar/", view_realisasi.list, name="realisasi_pendidikan_list"),
+    path("realisasi/filter/", view_realisasi.filter, name="realisasi_pendidikan_filter"),
+    path("realisasi/", view_realisasi.home, name="realisasi_pendidikan_home"),
+    
     path("posting/kegiatan", view_posting.posting, name="posting_pendidikan"),
     path("posting/list", view_posting.list, name="posting_pendidikan_list"),
     

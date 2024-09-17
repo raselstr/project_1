@@ -6,25 +6,25 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 import logging
 
-from pendidikan.models import Rencana
-from pendidikan.forms import RencanaFilterForm, RencanaForm
+from pendidikan.models import Rencanaposting
+from pendidikan.forms import RencanapostingFilterForm
 
-form_filter = RencanaFilterForm
-form_data = RencanaForm
+form_filter = RencanapostingFilterForm
+# form_data = RencanapostingForm
 
-model_data = Rencana
+model_data = Rencanaposting
 
-url_home = 'rencana_pendidikan_home'
-url_filter = 'rencana_pendidikan_filter'
-url_list = 'rencana_pendidikan_list'
-url_simpan = 'rencana_pendidikan_simpan'
-url_update = 'rencana_pendidikan_update'
-url_delete = 'rencana_pendidikan_delete'
+url_home = 'realisasi_pendidikan_home'
+url_filter = 'realisasi_pendidikan_filter'
+url_list = 'realisasi_pendidikan_list'
+url_simpan = 'realisasi_pendidikan_simpan'
+url_update = 'realisasi_pendidikan_update'
+url_delete = 'realisasi_pendidikan_delete'
 
-template_form = 'pendidikan/form.html'
-template_home = 'pendidikan/home.html'
-template_list = 'pendidikan/list.html'
-template_modal = 'pendidikan/modal.html'
+template_form = 'pendidikan/realisasi/form.html'
+template_home = 'pendidikan/realisasi/home.html'
+template_list = 'pendidikan/realisasi/list.html'
+template_modal = 'pendidikan/realisasi/modal.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
@@ -130,15 +130,15 @@ def list(request):
 def filter(request):
     if request.method == 'GET':
         logger.debug(f"Received GET data: {request.GET}")
-        tahunrencana = model_data.objects.values_list('rencana_tahun', flat=True).distinct()
+        tahunposting = model_data.objects.values_list('posting_tahun', flat=True).distinct()
         sesisubopd = request.session.get('idsubopd')
-        form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidana, sesisubopd=sesisubopd)
+        form = form_filter(request.GET or None, tahun=tahunposting, sesidana=sesidana, sesisubopd=sesisubopd)
 
         if form.is_valid():
             logger.debug(f"Form is valid: {form.cleaned_data}")
-            request.session['rencana_tahun'] = form.cleaned_data.get('rencana_tahun')
-            request.session['rencana_dana'] = form.cleaned_data.get('rencana_dana').id if form.cleaned_data.get('rencana_dana') else None
-            request.session['rencana_subopd'] = form.cleaned_data.get('rencana_subopd').id if form.cleaned_data.get('rencana_subopd') else None
+            request.session['posting_tahun'] = form.cleaned_data.get('posting_tahun')
+            request.session['posting_dana'] = form.cleaned_data.get('posting_dana').id if form.cleaned_data.get('posting_dana') else None
+            request.session['posting_subopd'] = form.cleaned_data.get('posting_subopd').id if form.cleaned_data.get('posting_subopd') else None
             return redirect(url_list)
         else:
             logger.debug(f"Form errors: {form.errors}")
@@ -146,8 +146,8 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Rencana Kegiatan',
-        'isi_modal': 'Ini adalah isi modal Rencana Kegiatan.',
+        'judul': 'Realisasi Kegiatan',
+        'isi_modal': 'Ini adalah isi modal Realisasi Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
         'link_url': reverse(url_filter),
@@ -159,8 +159,8 @@ def filter(request):
 @menu_access_required('list')
 def home(request):
     context = {
-        'judul': 'Rencana Kegiatan DAU Bidang Pendidikan',
-        'tab1': 'Rencana Kegiatan Tahun Berjalan',
+        'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
+        'tab1': 'Realisasi Kegiatan Tahun Berjalan',
         'link_url': reverse(url_filter),
     }
     return render(request, template_home, context)
