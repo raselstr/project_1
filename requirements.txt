@@ -7,6 +7,7 @@ distlib==0.3.8
 Django==4.2.11
 django-htmx==1.17.3
 django-import-export==4.1.1
+django-tables2==2.7.0
 et-xmlfile==1.1.0
 filelock==3.13.4
 gunicorn==23.0.0
@@ -19,9 +20,7 @@ psycopg2==2.9.9
 psycopg2-binary==2.9.9
 pyproject_hooks==1.1.0
 python-decouple==3.8
-setuptools==74.1.1
 sqlparse==0.5.0
 tablib==3.5.0
 tzdata==2024.1
 virtualenv==20.25.2
-wheel==0.44.0

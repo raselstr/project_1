@@ -51,7 +51,7 @@ buat docker image
         environment:
         - DATABASE_URL=postgres://raselstr:password@db:5432/tkdd
 3. Buat File requirements.txt
-    freeze > requirements.txt
+    pip freeze > requirements.txt
 4. Bangun dan Jalankan Container
     Jika menggunakan Dockerfile saja:
 

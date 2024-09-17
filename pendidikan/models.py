@@ -124,7 +124,7 @@ class Realisasi(models.Model):
     realisasi_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasi_rencanaposting = models.ForeignKey(Rencanaposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
     realisasi_rencana = models.ForeignKey(Rencana, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
-    realisasi_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
+    realisasi_subkegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
     realisasi_output = models.IntegerField(verbose_name='Capaian Output')
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
@@ -191,8 +191,8 @@ class Realisasi(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         if self.realisasi_rencanaposting:
-            self.realisasi_rencana = self.realisasi_rencanaposting.rencana_id
-            self.realisasi_kegiatan = self.realisasi_kegiatan.dausgpendidikansub_id
+            self.realisasi_rencana = self.realisasi_rencanaposting.posting_rencanaid
+            self.realisasi_subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan
         super().save(*args, **kwargs)
 
 #     def get_penerimaan_total(self, tahun, opd, dana):
