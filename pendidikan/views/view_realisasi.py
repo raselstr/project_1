@@ -6,13 +6,19 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 import logging
 
-from pendidikan.models import Rencanaposting
-from pendidikan.forms import RencanapostingFilterForm
+from pendidikan.models import Rencanaposting, Rencana, Realisasi
+from dausg.models import Subkegiatan
 
-form_filter = RencanapostingFilterForm
-# form_data = RencanapostingForm
+
+from pendidikan.forms import RealisasiFilterForm, RealisasiForm
+
+form_filter = RealisasiFilterForm
+form_data = RealisasiForm
 
 model_data = Rencanaposting
+model_pagu = Rencana
+model_dana = Subkegiatan
+model_realisasi = Realisasi
 
 url_home = 'realisasi_pendidikan_home'
 url_filter = 'realisasi_pendidikan_filter'
@@ -71,9 +77,10 @@ def update(request, pk):
 def simpan(request):
     request.session['next'] = request.get_full_path()
     initial_data = dict(
-        rencana_tahun=request.session.get('rencana_tahun'),
-        rencana_dana=request.session.get('rencana_dana'),
-        rencana_subopd=request.session.get('rencana_subopd')
+        realisasi_tahun=request.session.get('realisasi_tahun'),
+        realisasi_dana=request.session.get('realisasi_dana'),
+        realisasi_subopd=request.session.get('realisasi_subopd'),
+        realisasi_tahap=request.session.get('realisasi_tahap')
     )
     if request.method == 'POST':
         form = form_data(request.POST or None)
@@ -97,26 +104,29 @@ def simpan(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    rencana_tahun=request.session.get('rencana_tahun')
-    rencana_dana=request.session.get('rencana_dana')
-    rencana_subopd=request.session.get('rencana_subopd')
+    realisasi_tahun=request.session.get('realisasi_tahun')
+    realisasi_dana=request.session.get('realisasi_dana')
+    realisasi_subopd=request.session.get('realisasi_subopd')
+    realisasi_tahap=request.session.get('realisasi_tahap')
      # Buat filter query
     filters = Q()
-    if rencana_tahun:
-        filters &= Q(rencana_tahun=rencana_tahun)
-    if rencana_dana:
-        filters &= Q(rencana_dana_id=rencana_dana)
-    if rencana_subopd not in [124]:
-        filters &= Q(rencana_subopd_id=rencana_subopd)
+    if realisasi_tahun:
+        filters &= Q(realisasi_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filters &= Q(realisasi_dana_id=realisasi_dana)
+    if realisasi_tahap:
+        filters &= Q(realisasi_tahap_id=realisasi_tahap)
+    if realisasi_subopd not in [124]:
+        filters &= Q(realisasi_subopd_id=realisasi_subopd)
     
     try:
-        data = model_data.objects.filter(filters)
-    except model_data.DoesNotExist:
+        data = model_realisasi.objects.filter(filters)
+    except model_realisasi.DoesNotExist:
         data = None
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
-        'tombol': 'Tambah Perencanaan',
+        'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
+        'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
@@ -136,9 +146,10 @@ def filter(request):
 
         if form.is_valid():
             logger.debug(f"Form is valid: {form.cleaned_data}")
-            request.session['posting_tahun'] = form.cleaned_data.get('posting_tahun')
-            request.session['posting_dana'] = form.cleaned_data.get('posting_dana').id if form.cleaned_data.get('posting_dana') else None
-            request.session['posting_subopd'] = form.cleaned_data.get('posting_subopd').id if form.cleaned_data.get('posting_subopd') else None
+            request.session['realisasi_tahun'] = form.cleaned_data.get('realisasi_tahun')
+            request.session['realisasi_dana'] = form.cleaned_data.get('realisasi_dana').id if form.cleaned_data.get('realisasi_dana') else None
+            request.session['realisasi_subopd'] = form.cleaned_data.get('realisasi_subopd').id if form.cleaned_data.get('realisasi_subopd') else None
+            request.session['realisasi_tahap'] = form.cleaned_data.get('realisasi_tahap').id if form.cleaned_data.get('realisasi_tahap') else None
             return redirect(url_list)
         else:
             logger.debug(f"Form errors: {form.errors}")
@@ -158,9 +169,30 @@ def filter(request):
 @set_submenu_session
 @menu_access_required('list')
 def home(request):
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+    
+    try:
+        dana = model_dana.objects.get(sub_slug=sesidana)
+    except model_dana.DoesNotExist:
+        dana = None
+    
+    if dana:
+        pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
+        sisa = model_pagu().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+    else:
+        pagu = 0
+        rencana = 0
+        sisa = 0
+    
     context = {
         'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
+        'datapagu': pagu,
+        'datarencana' : rencana,
+        'datasisa' : sisa,
+        
         'link_url': reverse(url_filter),
     }
     return render(request, template_home, context)

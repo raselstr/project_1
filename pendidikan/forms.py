@@ -1,5 +1,5 @@
 from django import forms
-from .models import Rencana, Rencanaposting,Subkegiatan, Subopd
+from .models import Rencana, Rencanaposting,Subkegiatan, Subopd, Realisasi
 
 class RencanaFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -67,15 +67,16 @@ class RencanaPostingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class RencanapostingFilterForm(forms.ModelForm):
-    posting_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
+
+class RealisasiFilterForm(forms.ModelForm):
+    realisasi_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
-        model = Rencanaposting
-        fields = ['posting_tahun', 'posting_dana', 'posting_subopd','posting_jadwal']
+        model = Realisasi
+        fields = ['realisasi_tahun', 'realisasi_dana', 'realisasi_subopd','realisasi_tahap']
         widgets = {
-            'posting_dana': forms.Select(attrs={'class': 'form-control select2'}),
-            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
-            'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_dana': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_tahap': forms.Select(attrs={'class': 'form-control select2'}),
         }
     
     def __init__(self, *args, **kwargs):
@@ -85,17 +86,36 @@ class RencanapostingFilterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         if sesisubopd is not None and sesisubopd not in [124,70,67]:
-            self.fields['posting_subopd'].queryset = Subopd.objects.filter(id=sesisubopd)
+            self.fields['realisasi_subopd'].queryset = Subopd.objects.filter(id=sesisubopd)
         else:
-            self.fields['posting_subopd'].queryset = Subopd.objects.all()            
+            self.fields['realisasi_subopd'].queryset = Subopd.objects.all()            
         
         if sesidana is not None:
-            self.fields['posting_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
+            self.fields['realisasi_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
         else:
-            self.fields['posting_dana'].queryset = Subkegiatan.objects.all()
+            self.fields['realisasi_dana'].queryset = Subkegiatan.objects.all()
         
         if tahun is not None:
             tahun_choices = [(tahun, tahun) for tahun in tahun]
-            self.fields['posting_tahun'].choices = tahun_choices
+            self.fields['realisasi_tahun'].choices = tahun_choices
         else:
-            self.fields['posting_tahun'].choices = []
+            self.fields['realisasi_tahun'].choices = []
+
+
+class RealisasiForm(forms.ModelForm):
+    class Meta:
+        model = Realisasi
+        fields = '__all__'
+        widgets = {
+            'realisasi_tahun': forms.HiddenInput(),
+            'realisasi_dana': forms.HiddenInput(),
+            'realisasi_tahap': forms.HiddenInput(),
+            'realisasi_subopd': forms.HiddenInput(),
+            'realisasi_rencanaposting': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_sp2d': forms.TextInput(attrs={'class': 'form-control'}),
+            'realisasi_tgl': forms.DateInput(attrs={'class': 'form-control', 'type':'date'}),
+            'realisasi_nilai': forms.NumberInput(attrs={'class': 'form-control'}),
+            'realisasi_output': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

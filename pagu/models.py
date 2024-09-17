@@ -42,3 +42,4 @@ class Pagudausg(models.Model):
         #     print(item)
         
         return result
+    

@@ -107,31 +107,32 @@ class Rencanaposting(models.Model):
     posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
     posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
+    def get_total_rencana(self, tahun, opd, dana):
+        filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
+        if opd is not None and opd not in [124,70]:
+            filters &= Q(posting_subopd=opd)
+        return Rencanaposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+    
     def __str__(self):
         return f"{self.posting_subkegiatan}"
     
 
-# class Realisasi(models.Model):
-#     realisasi_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-#     realisasi_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-#     realisasi_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
-#     realisasi_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-#     realisasi_rencana = models.ForeignKey(RencDankeljadwal, verbose_name='Kegiatan', on_delete=models.CASCADE)
-#     realisasi_idrencana = models.ForeignKey(RencDankel, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
-#     realisasi_output = models.IntegerField(verbose_name='Output')
-#     realisasi_sp2dtu = models.CharField(verbose_name='No SP2D TU', max_length=100, unique=True)
-#     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D TU')
-#     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
-#     realisasi_lpj = models.CharField(verbose_name='No LPJ TU', max_length=100, unique=True)
-#     realisasi_lpjtgl = models.DateField(verbose_name='Tanggal LPJ TU')
-#     realisasi_lpjnilai = models.DecimalField(verbose_name='Nilai LPJ TU', max_digits=17, decimal_places=2,default=0)
-#     realisasi_sts = models.CharField(verbose_name='No STS TU', max_length=100, unique=True)
-#     realisasi_ststgl = models.DateField(verbose_name='Tanggal STS TU')
-#     realisasi_stsnilai = models.DecimalField(verbose_name='Nilai STS TU', max_digits=17, decimal_places=2,default=0)
-#     realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
+class Realisasi(models.Model):
+    realisasi_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    realisasi_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    realisasi_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
+    realisasi_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    realisasi_rencanaposting = models.ForeignKey(Rencanaposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencana, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+    realisasi_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
+    realisasi_output = models.IntegerField(verbose_name='Capaian Output')
+    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
+    realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
+    realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
+    realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False) 
     
-#     def clean(self):
-#         super().clean()
+    def clean(self):
+        super().clean()
         
 #         total_penerimaan = self.get_penerimaan_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
 #         total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
@@ -187,11 +188,12 @@ class Rencanaposting(models.Model):
 #         if total_realisasi > total_penerimaan:
 #             raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
         
-#     def save(self, *args, **kwargs):
-#         self.full_clean()
-#         if self.realisasidankel_rencana:
-#             self.realisasidankel_idrencana = self.realisasidankel_rencana.rencdankel_id
-#         super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.realisasi_rencanaposting:
+            self.realisasi_rencana = self.realisasi_rencanaposting.rencana_id
+            self.realisasi_kegiatan = self.realisasi_kegiatan.dausgpendidikansub_id
+        super().save(*args, **kwargs)
 
 #     def get_penerimaan_total(self, tahun, opd, dana):
 #         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
@@ -258,4 +260,4 @@ class Rencanaposting(models.Model):
 #         return nilai_realisasi
         
     def __str__(self):
-        return f'{self.realisasidankel_rencana}'
+        return f'{self.realisasi_rencanaposting}'
