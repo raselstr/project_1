@@ -100,19 +100,19 @@ class Rencanaposting(models.Model):
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    rencana_id = models.ForeignKey(Rencana, verbose_name='Id Rencana', on_delete=models.CASCADE)
-    rencana_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencana_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    rencana_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencana_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
-    rencana_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
-    rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) cth :  1.01.01.2.01.0001 ', max_length=17)
-    rencana_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
-    rencana_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
+    posting_rencanaid = models.ForeignKey(Rencana, verbose_name='Id Rencana', on_delete=models.CASCADE)
+    posting_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
+    posting_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    posting_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    posting_subkegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    posting_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
+    posting_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
+    posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) cth :  1.01.01.2.01.0001 ', max_length=17)
+    posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
+    posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
     def __str__(self):
-        return f"{self.rencana_kegiatan}"
+        return f"{self.posting_subkegiatan}"
     
 
 # class Realisasi(models.Model):

@@ -131,9 +131,11 @@ def home(request):
     request.session['next'] = request.get_full_path()
             
     context = {
-        'judul' : 'Posting Kegiatan Dana Kelurahan',
-        'tab1'      : 'Posting Kegiatan Tahun Berjalan',
-        'tab2'      : 'Posting Kegiatan Sisa Tahun Lalu',
+        'judul' : 'Posting Kegiatan',
+        'tab1'      : 'Posting Kegiatan Dana Kelurahan Tahun Berjalan',
+        'tab2'      : 'Posting Kegiatan Sisa Dana Kelurahan Tahun Lalu',
+        'tab3'      : 'Posting Kegiatan DAU SG Pendidikan Tahun Berjalan',
+        'tab4'      : 'Posting Kegiatan Sisa DAU SG Pendidikan Tahun Lalu',
        
     }
     return render(request, template_home, context)

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Rencana, Subkegiatan, Subopd
+from .models import Rencana, Rencanaposting,Subkegiatan, Subopd
 
 class RencanaFilterForm(forms.ModelForm):
     rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -52,3 +52,16 @@ class RencanaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
+
+class RencanaPostingForm(forms.ModelForm):
+    class Meta:
+        model = Rencanaposting
+        fields = ['posting_jadwal','posting_subopd']
+        
+        widgets = {
+            'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

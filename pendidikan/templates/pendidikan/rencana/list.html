@@ -1,3 +1,5 @@
+
+
 {% extends "base.html" %}
 {% load humanize %}
 
@@ -19,7 +21,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-sm" id="tabel1" style="width:100%">
+                    <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
@@ -61,7 +63,6 @@
         </div>
     </div>
 </section>
-
 {% endblock content %}
 
 {% block style %}
@@ -73,9 +74,42 @@
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 {% endblock src %}
-
-
-
-
-
-
+{% block javascript %}
+    <script>
+    $(document).ready(function() {
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            }
+        });
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+    
+    
+{% endblock javascript %}

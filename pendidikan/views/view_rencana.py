@@ -21,10 +21,10 @@ url_simpan = 'rencana_pendidikan_simpan'
 url_update = 'rencana_pendidikan_update'
 url_delete = 'rencana_pendidikan_delete'
 
-template_form = 'pendidikan/form.html'
-template_home = 'pendidikan/home.html'
-template_list = 'pendidikan/list.html'
-template_modal = 'pendidikan/modal.html'
+template_form = 'pendidikan/rencana/form.html'
+template_home = 'pendidikan/rencana/home.html'
+template_list = 'pendidikan/rencana/list.html'
+template_modal = 'pendidikan/rencana/modal.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
