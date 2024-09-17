@@ -124,14 +124,15 @@
                                 </tr>
                             {% endfor %}
                         </tbody>
-                        {% comment %} <tfoot>
+                        <tfoot>
                             <tr>
-                                <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th colspan="2" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
-                                <th colspan="2" style="text-align: right;"><strong></strong></th>
+                                <th colspan="2" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
+                                <th colspan="4" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="4" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong></strong></th>
                                 
                             </tr>
-                        </tfoot> {% endcomment %}
+                        </tfoot>
                     </table>
                 </div>
             </div>

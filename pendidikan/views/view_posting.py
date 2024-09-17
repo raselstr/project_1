@@ -35,11 +35,11 @@ def list(request):
 
     # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
     induk_dict = {
-        (item.posting_subopd_id, item.posting_tahun, item.posting_dana_id,  item.posting_subopd_id): item
+        (item.posting_subopd_id, item.posting_tahun, item.posting_dana_id,  item.posting_subkegiatan_id): item
         for item in induk
     }
     perubahan_dict = {
-        (item.posting_subopd_id, item.posting_tahun, item.posting_dana_id, item.posting_subopd_id): item
+        (item.posting_subopd_id, item.posting_tahun, item.posting_dana_id, item.posting_subkegiatan_id): item
         for item in perubahan
     }
     
@@ -98,9 +98,9 @@ def posting(request):
                             posting_tahun=item.rencana_tahun,
                             posting_dana=item.rencana_dana,
                             posting_subopd=item.rencana_subopd,
-                            posting_subkegiatan=item.rencana_kegiatan,
                             posting_jadwal=jadwal,
                             defaults={
+                                'posting_subkegiatan':item.rencana_kegiatan,
                                 'posting_pagu': item.rencana_pagu,
                                 'posting_output': item.rencana_output,
                                 'posting_ket': item.rencana_ket,

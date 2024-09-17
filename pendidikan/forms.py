@@ -2,11 +2,12 @@ from django import forms
 from .models import Rencana, Rencanaposting,Subkegiatan, Subopd
 
 class RencanaFilterForm(forms.ModelForm):
-    rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
+    # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
         model = Rencana
         fields = ['rencana_tahun', 'rencana_dana', 'rencana_subopd']
         widgets = {
+            'rencana_tahun': forms.HiddenInput(attrs={'class': 'form-control'}),
             'rencana_dana': forms.Select(attrs={'class': 'form-control select2'}),
             'rencana_subopd': forms.Select(attrs={'class': 'form-control select2'}),
         }
