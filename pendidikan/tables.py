@@ -25,8 +25,8 @@ class RealisasiTable(tables.Table):
         edit_url = reverse('realisasi_pendidikan_update', args=[record.id])  # Ganti dengan nama url Anda
         delete_url = reverse('realisasi_pendidikan_delete', args=[record.id])  # Ganti dengan nama url Anda
         return format_html(
-            '<a href="{}" class="btn btn-info btn-sm">Edit</a> '
-            '<a href="{}" class="btn btn-danger btn-sm">Delete</a>',
+            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
+            '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
             edit_url,
             delete_url
         )
