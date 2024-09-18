@@ -15,6 +15,7 @@ from dausg.models import Subkegiatan
 
 
 from pendidikan.forms import RealisasiFilterForm, RealisasiForm
+from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasiTable
 
@@ -25,6 +26,7 @@ model_data = Rencanaposting
 model_pagu = Rencana
 model_dana = Subkegiatan
 model_realisasi = Realisasi
+model_penerimaan = Penerimaan
 
 url_home = 'realisasi_pendidikan_home'
 url_filter = 'realisasi_pendidikan_filter'
@@ -119,7 +121,7 @@ def simpan(request):
 
     context = {
         'form': form,
-        'judul': 'Form Rencana Kegiatan',
+        'judul': 'Form Realisasi Kegiatan',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
     }
@@ -210,17 +212,24 @@ def home(request):
     if dana:
         pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
+        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
+        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         sisa = model_pagu().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
     else:
         pagu = 0
         rencana = 0
+        penerimaan = 0
+        realisasi = 0
         sisa = 0
+        
     
     context = {
         'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
         'datapagu': pagu,
         'datarencana' : rencana,
+        'penerimaan' : penerimaan,
+        'realisasi' : realisasi,
         'datasisa' : sisa,
         
         'link_url': reverse(url_filter),

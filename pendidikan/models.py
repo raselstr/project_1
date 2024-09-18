@@ -9,6 +9,14 @@ from opd.models import Subopd
 from dana.models import Subkegiatan, TahapDana
 from dausg.models import DausgpendidikanSub
 from pagu.models import Pagudausg
+from penerimaan.models import Penerimaan
+
+model_opd = Subopd
+model_dana = Subkegiatan
+model_tahap = TahapDana
+model_subkegiatan = DausgpendidikanSub
+model_pagu = Pagudausg
+model_penerimaan = Penerimaan
 
 # Create your models here.
 VERIF = [
@@ -24,7 +32,7 @@ class Rencana(models.Model):
     rencana_kegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
     rencana_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
     rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) cth :  1.01.01.2.01.0001 ', max_length=17)
+    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
     rencana_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
     rencana_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
     
@@ -66,7 +74,7 @@ class Rencana(models.Model):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
         if opd is not None and opd not in [124,70]:
             filters &= Q(pagudausg_opd=opd)
-        return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
+        return model_pagu.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
@@ -103,13 +111,13 @@ class Rencanaposting(models.Model):
     posting_subkegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
     posting_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
     posting_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
-    posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) cth :  1.01.01.2.01.0001 ', max_length=17)
+    posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
     posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
     posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
-        if opd is not None and opd not in [124,70]:
+        if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd=opd)
         return Rencanaposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
@@ -138,26 +146,24 @@ class Realisasi(models.Model):
     def clean(self):
         super().clean()
         
-#         total_penerimaan = self.get_penerimaan_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
-#         total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
-#         total_rencana_pk = self.get_rencana_pk()
-#         total_realisasi_pk = self.get_realisasi_pk()
+        total_penerimaan = model_penerimaan().totalpenerimaan(self.realisasi_tahun, self.realisasi_dana)
+        total_realisasi = self.get_realisasi_total(self.realisasi_tahun, self.realisasi_subopd_id, self.realisasi_dana_id)
+        total_realisasi_pk = self.get_realisasi_pk()
+        total_rencana_pk = self.get_rencana_pk()
 #         total_rencanaoutput_pk = self.get_rencanaoutput_pk()
+
+        if self.pk:
+            total_realisasi_pk = total_realisasi_pk - Realisasi.objects.get(pk=self.pk).realisasi_nilai
+            total_realisasi = total_realisasi - Realisasi.objects.get(pk=self.pk).realisasi_nilai
         
-         
-        
-#         if self.pk:
-#             total_realisasi_pk = total_realisasi_pk - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
-#             total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
-        
-#         total_realisasi_pk += self.realisasidankel_lpjnilai
-#         total_realisasi += self.realisasidankel_lpjnilai
+        total_realisasi_pk += self.realisasi_nilai
+        total_realisasi += self.realisasi_nilai
         
 #         # Format nilai menjadi string dengan pemisah ribuan
-#         formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
-#         formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
-#         formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
-#         formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
+        formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
+        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
+        formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
+        formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
         
 #         try:
 #             sp2dtu = Decimal(self.realisasidankel_nilai)
@@ -186,11 +192,11 @@ class Realisasi(models.Model):
 #             raise ValidationError(f'Nilai STS harus sama dengan {sisasts}')        
 
         
-#         if total_realisasi_pk > total_rencana_pk:
-#             raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
+        if total_realisasi_pk > total_rencana_pk:
+            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
         
-#         if total_realisasi > total_penerimaan:
-#             raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
+        if total_realisasi > total_penerimaan:
+            raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
         
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -199,18 +205,30 @@ class Realisasi(models.Model):
             self.realisasi_subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan
         super().save(*args, **kwargs)
 
-#     def get_penerimaan_total(self, tahun, opd, dana):
-#         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
-#         if opd is not None and opd != 124 and opd != 70:
-#             filters &= Q(distri_subopd=opd)
-#         # print(filters)
-#         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
+    def get_realisasi_total(self, tahun, opd, dana):
+        filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
+        if opd is not None and opd not in [124,67,70]:
+            filters &= Q(realisasi_subopd=opd)
+        return Realisasi.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 
-#     def get_realisasilpj_total(self, tahun, opd, dana):
-#         filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-#         if opd is not None and opd != 124 and opd != 70:
-#             filters &= Q(realisasidankel_subopd=opd)
-#         return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
+    def get_realisasi_pk(self):
+        filters = Q(realisasi_tahun=self.realisasi_tahun) & Q(realisasi_dana=self.realisasi_dana_id) & Q(realisasi_subkegiatan=self.realisasi_subkegiatan_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.realisasi_subopd_id)
+        nilai_realisasi = Realisasi.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
+        return nilai_realisasi
+
+    def get_rencana_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        if self.realisasi_subkegiatan_id is not None:
+            filters &= Q(posting_subkegiatan_id=self.realisasi_subkegiatan_id)
+        
+        nilai_rencana = Rencanaposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        # print(f"nilai rencana : {nilai_rencana} dan {filters}")
+        return nilai_rencana
 
 #     def get_persentase(self, tahun, opd, dana):
 #         try:
@@ -228,16 +246,6 @@ class Realisasi(models.Model):
 #         except Exception as e:
 #             return 0
 
-#     def get_rencana_pk(self):
-#         filters = Q(rencdankel_tahun=self.realisasidankel_tahun) & Q(rencdankel_dana_id=self.realisasidankel_dana_id)
-#         if self.realisasidankel_subopd_id is not None:
-#             filters &= Q(rencdankel_subopd_id=self.realisasidankel_subopd_id)
-#         if self.realisasidankel_rencana_id is not None:
-#             filters &= Q(id=self.realisasidankel_rencana_id)
-        
-#         nilai_rencana = RencDankeljadwal.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
-#         # print(f"nilai rencana : {nilai_rencana} dan {filters}")
-#         return nilai_rencana
     
 #     def get_rencanaoutput_pk(self):
 #         filters = Q(rencdankel_tahun=self.realisasidankel_tahun) & Q(rencdankel_dana_id=self.realisasidankel_dana_id)
@@ -250,18 +258,6 @@ class Realisasi(models.Model):
 #         # print(f"nilai rencana : {nilai_rencana} dan {filters}")
 #         return nilai_output
 
-#     def get_realisasi_pk(self):
-#         filters = Q(realisasidankel_tahun=self.realisasidankel_tahun) & Q(realisasidankel_dana=self.realisasidankel_dana_id)
-#         if self.realisasidankel_rencana_id:
-#             realisasidankel_idrencana = self.realisasidankel_rencana.rencdankel_id
-#             filters &= Q(realisasidankel_idrencana = realisasidankel_idrencana)
-            
-#         if self.realisasidankel_subopd_id is not None:
-#             filters &= Q(realisasidankel_subopd=self.realisasidankel_subopd_id)
-        
-#         nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
-#         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
-#         return nilai_realisasi
         
     def __str__(self):
         return f'{self.realisasi_rencanaposting}'

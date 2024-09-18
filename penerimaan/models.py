@@ -24,6 +24,15 @@ class Penerimaan(models.Model):
         constraints = [
             UniqueConstraint(fields=['penerimaan_tahun', 'penerimaan_dana', 'penerimaan_tahap'], name='unique_penerimaan')
         ]
+        
+    def totalpenerimaan(self, tahun, dana):
+        # Menghitung total penerimaan berdasarkan tahun dan dana saat ini
+        total = Penerimaan.objects.filter(
+            penerimaan_tahun=tahun,
+            penerimaan_dana=dana
+        ).aggregate(total_nilai=Sum('penerimaan_nilai'))['total_nilai']
+        
+        return total if total else 0
     
 class DistribusiPenerimaan(models.Model):
     distri_penerimaan = models.ForeignKey(Penerimaan, verbose_name='Penerimaan', on_delete=models.CASCADE)

@@ -3,10 +3,16 @@ from .models import Realisasi
 from django.urls import reverse
 from django.utils.html import format_html
 
+class totalrealisasi(tables.Column):
+    def render_footer(self, bound_column, table):
+        return sum(bound_column.accessor.resolve(row) for row in table.data)
+
 class RealisasiTable(tables.Table):
     aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
     verif = tables.Column(empty_values=(), orderable=False, verbose_name='Verifikasi')
     output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan')
+    realisasi_tgl = tables.Column(footer="Total Realisasi:")
+    realisasi_nilai = totalrealisasi()
 
     class Meta:
         model = Realisasi
@@ -16,12 +22,14 @@ class RealisasiTable(tables.Table):
             "class": "display table-bordered",
             "id":"tabel1",
             'th': {
-                    'style':"text-align: center;"
+                'style':"text-align: center;"
+                },
+            'tf': {
+                'style':"text-align: right;"
                 },
             }
     
     def render_aksi(self, record):
-        """Render tombol edit dan delete di kolom 'Aksi'."""
         edit_url = reverse('realisasi_pendidikan_update', args=[record.id])  # Ganti dengan nama url Anda
         delete_url = reverse('realisasi_pendidikan_delete', args=[record.id])  # Ganti dengan nama url Anda
         return format_html(
@@ -32,21 +40,36 @@ class RealisasiTable(tables.Table):
         )
 
     def render_verif(self, record):
-        if record.realisasi_verif == 0:
+        akun = self.request.session.get('level', None)
+        verif_status = {
+            0: 'Diinput Dinas',
+            1: 'Disetujui APIP'
+        }
+        badge_class = {
+            0: 'badge-warning',
+            1: 'badge-success'
+        }
+
+        # Ambil status verifikasi
+        status = verif_status.get(record.realisasi_verif, 'Status Tidak Diketahui')
+        badge = badge_class.get(record.realisasi_verif, 'badge-secondary')
+
+        # Jika akun adalah 'APIP', berikan link verifikasi
+        if akun == 'APIP':
             verif_url = reverse('realisasi_pendidikan_modal', args=[record.id])  # URL untuk verifikasi
             return format_html(
-            '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" data-toggle="modal" data-target="#verifikasiModal"><span class="badge badge-warning">Diinput Dinas</span></a>',
-            verif_url
-        )
+                '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" data-toggle="modal" data-target="#verifikasiModal">'
+                '<span class="badge {}">{}</span></a>',
+                verif_url, badge, status
+            )
         else:
-            verif_url = reverse('realisasi_pendidikan_modal', args=[record.id])  # URL untuk verifikasi
-            return format_html(
-            '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" data-toggle="modal" data-target="#verifikasiModal"><span class="badge badge-success">Disetujui APIP</span></a>',
-            verif_url
-        )
+            # Jika bukan 'APIP', tampilkan status tanpa link
+            return format_html('<span class="badge {}">{}</span>', badge, status)
     
     def render_output_satuan(self, record):
         satuan = record.realisasi_subkegiatan.dausgpendidikansub_satuan  # Ganti 'satuan' dengan nama field yang sesuai dari model Subkegiatan
         return format_html(
             '{} {}'.format(record.realisasi_output, satuan)  # Gabungkan output dan satuan
         )
+    def render_footer(self, bound_column, table):
+        return sum(bound_column.accessor.resolve(row) for row in table.data)
