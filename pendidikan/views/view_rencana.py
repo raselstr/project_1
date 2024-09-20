@@ -55,9 +55,13 @@ def update(request, pk):
     if request.method == 'POST':
         form = form_data(request.POST or None, instance=data)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Berhasil Update')
-            return redirect(url_list)
+            try:
+                form.save()
+                messages.success(request, 'Data Berhasil Update')
+                return redirect(url_list)
+            except ValidationError as e:
+                # Menambahkan pesan error global ke form
+                form.add_error(None, e.message)
     else:
         form = form_data(instance=data)
     context = {
@@ -108,7 +112,7 @@ def list(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    if rencana_subopd not in [124]:
+    if rencana_subopd is not None and rencana_subopd not in [124]:
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:

@@ -96,11 +96,7 @@ def list(request):
     sesiidopd = session_data.get('idsubopd')
     sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path()
-    try:
-        dana = Subkegiatan.objects.get(sub_slug=sesidana)
-    except Subkegiatan.DoesNotExist:
-        dana = None
-        
+            
     total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)

@@ -1,14 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q,Sum, DecimalField
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
+
+from decimal import Decimal
 
 from django_tables2 import RequestConfig
 from ..tables import RealisasiTable
 
 import logging
+import string
 
 from pendidikan.models import Rencanaposting, Rencana, Realisasi
 from dausg.models import Subkegiatan
@@ -28,19 +31,15 @@ model_dana = Subkegiatan
 model_realisasi = Realisasi
 model_penerimaan = Penerimaan
 
-url_home = 'realisasi_pendidikan_home'
-url_filter = 'realisasi_pendidikan_filter'
-url_list = 'realisasi_pendidikan_list'
-url_simpan = 'realisasi_pendidikan_simpan'
-url_update = 'realisasi_pendidikan_update'
-url_delete = 'realisasi_pendidikan_delete'
-url_verif = 'realisasi_pendidikan_delete'
+url_home = 'laporan_pendidikan_home'
+url_filter = 'laporan_pendidikan_filter'
+url_list = 'laporan_pendidikan_list'
 
-template_form = 'pendidikan/realisasi/form.html'
-template_home = 'pendidikan/realisasi/home.html'
-template_list = 'pendidikan/realisasi/list.html'
-template_modal = 'pendidikan/realisasi/modal.html'
-template_modal_verif = 'pendidikan/realisasi/modal_verif.html'
+template_form = 'pendidikan/laporan/form.html'
+template_home = 'pendidikan/laporan/home.html'
+template_list = 'pendidikan/laporan/list.html'
+template_modal = 'pendidikan/laporan/modal.html'
+template_modal_verif = 'pendidikan/laporan/modal_verif.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
@@ -156,13 +155,10 @@ def list(request):
     RequestConfig(request, paginate={"per_page": 25}).configure(table)
 
     context = {
-        'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
+        'judul': 'Laporan DAU Bidang Pendidikan',
         'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
-        'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
-        'link_url_update': url_update,
-        'link_url_delete': url_delete,
         'data' : data,
         'table':table,
     }
@@ -189,7 +185,7 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Realisasi Kegiatan',
+        'judul': 'Laporan Kegiatan',
         'isi_modal': 'Ini adalah isi modal Realisasi Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
@@ -227,8 +223,8 @@ def home(request):
         
     
     context = {
-        'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
-        'tab1': 'Realisasi Kegiatan Tahun Berjalan',
+        'judul': 'Laporan Kegiatan DAU Bidang Pendidikan',
+        'tab1': 'Laporan Kegiatan Tahun Berjalan',
         'datapagu': pagu,
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
@@ -239,3 +235,152 @@ def home(request):
         'link_url': reverse(url_filter),
     }
     return render(request, template_home, context)
+
+def get_data_context(request):
+    realisasi_tahun=request.session.get('realisasi_tahun')
+    realisasi_dana=request.session.get('realisasi_dana')
+    realisasi_subopd=request.session.get('realisasi_subopd')
+    realisasi_tahap=request.session.get('realisasi_tahap')
+    jadwal = request.session.get('jadwal')
+    level = request.session.get('level')
+
+    # Buat filter query
+    filters = Q()
+    if jadwal:
+        filters &= Q(posting_jadwal=jadwal)
+    if realisasi_tahun:
+        filters &= Q(posting_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filters &= Q(posting_dana_id=realisasi_dana)
+    if realisasi_subopd not in [124,67,70]:
+        filters &= Q(posting_subopd_id=realisasi_subopd)
+    
+    filterreals = Q()
+    if level == 'APIP' :
+        filterreals &= Q(realisasidankel_verif=1)
+    if realisasi_tahun:
+        filterreals &= Q(realisasi_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filterreals &= Q(realisasi_dana_id=realisasi_dana)
+    if realisasi_tahap:
+        filterreals &= Q(realisasi_tahap_id=realisasi_tahap)
+    if realisasi_subopd not in [124,67,70]:
+        filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
+    
+    progs = model_data.objects.filter(filters)
+    rencanas = model_data.objects.filter(filters)
+    realisasis = model_realisasi.objects.filter(filterreals)
+    
+    # Siapkan data untuk template
+    prog_data = []
+    total_pagu_keseluruhan = 0
+    total_output_keseluruhan = 0
+    total_realisasi_keseluruhan = 0
+    total_realisasi_output_keseluruhan = 0
+
+    # Tambahkan variabel untuk penomoran
+    program_counter = 1  # Inisialisasi angka program (numerik)
+
+    for prog in progs:
+        total_pagu_prog = 0
+        total_output_prog = 0
+        total_realisasi_prog = 0
+        total_realisasi_output_prog = 0
+        prog_kegs = []
+
+        # Tambahkan variabel untuk penomoran kegiatan
+        kegiatan_counter = 0  # Inisialisasi huruf kegiatan
+        alphabet_list = list(string.ascii_uppercase)  # Daftar alfabet A-Z
+
+        for keg in prog.posting_subkegiatan.all():
+            total_pagu_keg = 0
+            total_output_keg = 0
+            total_realisasi_keg = 0
+            total_realisasi_output_keg = 0
+            keg_subs = []
+            for sub in keg.dankelsubs.all():
+                related_rencanas = rencanas.filter(rencdankel_sub=sub)
+
+                # Ambil data pagu dan output
+                pagu = 0
+                output = 0
+                if related_rencanas.exists():
+                    pagu_output = related_rencanas.aggregate(
+                        total_pagu=Sum('rencdankel_pagu'),
+                        total_output=Sum('rencdankel_output')
+                    )
+                    pagu = pagu_output['total_pagu'] or 0
+                    output = pagu_output['total_output'] or 0
+
+                total_pagu_keg += pagu
+                total_output_keg += output
+
+                # Ambil realisasi terkait dengan `realisasidankel_idrencana`
+                total_sp2d = 0
+                total_output_realisasi = 0
+                for rencana in related_rencanas:
+                    realisasi_rencana = realisasis.filter(realisasidankel_rencana=rencana.id)
+                    total_sp2d += realisasi_rencana.aggregate(total_sp2d=Sum('realisasidankel_sp2dnilai'))['total_sp2d'] or 0
+                    total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankel_output'))['total_output'] or 0
+                keg_subs.append({
+                    'sub': sub,
+                    'pagu': pagu,
+                    'output': output,
+                    'realisasi': {
+                        'total_sp2d': total_sp2d,
+                        'total_output': total_output_realisasi
+                    }
+                })
+
+                total_realisasi_output_keg += total_output_realisasi
+                total_realisasi_keg += total_sp2d
+
+            # Gunakan huruf alphabet untuk kegiatan
+            kegiatan_number = alphabet_list[kegiatan_counter]
+            kegiatan_counter += 1
+
+            prog_kegs.append({
+                'kegiatan_number': kegiatan_number,  # Nomor kegiatan dengan huruf
+                'keg': keg,
+                'subs': keg_subs,
+                'total_pagu_keg': total_pagu_keg,
+                'total_output_keg': total_output_keg,
+                'total_realisasi_keg': total_realisasi_keg,
+                'total_realisasi_output_keg': total_realisasi_output_keg
+            })
+            total_pagu_prog += total_pagu_keg
+            total_output_prog += total_output_keg
+            total_realisasi_prog += total_realisasi_keg
+            total_realisasi_output_prog += total_realisasi_output_keg
+
+        total_pagu_keseluruhan += total_pagu_prog
+        total_output_keseluruhan += total_output_prog
+        total_realisasi_keseluruhan += total_realisasi_prog
+        total_realisasi_output_keseluruhan += total_realisasi_output_prog
+
+        # Tambahkan angka untuk program
+        prog_number = program_counter
+        program_counter += 1
+
+        prog_data.append({
+            'prog_number': prog_number,  # Nomor program dengan angka
+            'prog': prog,
+            'kegs': prog_kegs,
+            'total_pagu_prog': total_pagu_prog,
+            'total_output_prog': total_output_prog,
+            'total_realisasi_prog': total_realisasi_prog,
+            'total_realisasi_output_prog': total_realisasi_output_prog
+        })
+
+    return {
+        'prog_data': prog_data,
+        'total_pagu_keseluruhan': total_pagu_keseluruhan,
+        'total_output_keseluruhan': total_output_keseluruhan,
+        'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
+        'total_realisasi_output_keseluruhan': total_realisasi_output_keseluruhan,
+        'tahunrealisasi': realisasi_tahun,
+        'danarealisasi_id': Subkegiatan.objects.get(pk=realisasi_dana),
+        'tahaprealisasi_id': TahapDana.objects.get(pk=realisasi_tahap),
+        'subopdrealisasi_id': Subopd.objects.get(pk=realisasi_subopd),
+        'jadwal': jadwal
+    }

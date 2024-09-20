@@ -42,6 +42,7 @@ class Rencana(models.Model):
         ]
     
     def clean(self):
+        super().clean()
         if Rencana.objects.filter(
             rencana_tahun=self.rencana_tahun,
             rencana_subopd=self.rencana_subopd_id,
@@ -49,9 +50,8 @@ class Rencana(models.Model):
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
-        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
-        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana)
-        total_realisasi_pk = self.get_realisasi_rencana_pk()
+        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
+        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
         
         if self.pk:
             total_rencana = total_rencana - Rencana.objects.get(pk=self.pk).rencana_pagu
@@ -60,15 +60,16 @@ class Rencana(models.Model):
         
         formatted_total_rencana = "{:,.2f}".format(total_rencana)
         formatted_total_pagudausg = "{:,.2f}".format(total_pagudausg)
-        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
-        
-        if self.rencana_pagu < total_realisasi_pk :
-            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk} Nilai Rencana tidak boleh lebih kecil dari Nilai Realisasi')
         
         if total_rencana > total_pagudausg:
             raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
-            
+                        
     def save(self, *args, **kwargs):
+        total_realisasi_pk = self.get_realisasi_pk()
+        if self.rencana_pagu < total_realisasi_pk:
+            formatted_total_realisasi_pk = f'{total_realisasi_pk:,.2f}'.replace(',', '.')
+            formatted_total_rencana_pagu = f'{self.rencana_pagu:,.2f}'.replace(',', '.')
+            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk}. Nilai Rencana Rp. {formatted_total_rencana_pagu} tidak boleh lebih kecil dari Nilai Realisasi')
         super().save(*args, **kwargs)
     
     def get_pagu(self,tahun, opd, dana):
@@ -89,14 +90,14 @@ class Rencana(models.Model):
         total_pagu = self.get_pagu(tahun, opd, dana)
         return total_pagu - total_rencana
     
-    def get_realisasi_rencana_pk(self):
+    def get_realisasi_pk(self):
         filters = Q(realisasi_tahun=self.rencana_tahun) & Q(realisasi_dana=self.rencana_dana_id)
         if self.rencana_kegiatan_id is not None:
             filters &= Q(realisasi_subkegiatan_id=self.rencana_kegiatan_id)
         if self.rencana_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
         nilai_realisasi = Realisasi.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
-        # print(f"nilai realisasi : {nilai_realisasi}, {self.realisasi_subkegiatan_id} dan {filters}")
+        # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
 
     def __str__(self):
@@ -168,12 +169,8 @@ class Realisasi(models.Model):
         formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
         formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
         
-        try:
-            sp2d = Decimal(self.realisasi_nilai)
-            output = Decimal(self.realisasi_output or 0)
-            
-        except ValueError:
-            raise ValidationError('SP2D dan Output harus berupa angka.')
+        
+        output = Decimal(self.realisasi_output or 0)
         
         if output < 0:
             raise ValidationError(f'Output tidak boleh lebih kecil dari 0')
@@ -181,9 +178,6 @@ class Realisasi(models.Model):
         if output > total_rencanaoutput_pk:
             raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
        
-        # if sp2d <= 0:
-        #     raise ValidationError('SP2D tidak boleh kurang dari 0')
-    
         if total_realisasi_pk > total_rencana_pk:
             raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
         
