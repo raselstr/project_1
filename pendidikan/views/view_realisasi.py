@@ -214,13 +214,16 @@ def home(request):
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
-        sisa = model_pagu().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
+        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
     else:
         pagu = 0
         rencana = 0
         penerimaan = 0
         realisasi = 0
-        sisa = 0
+        persendana = 0
+        persenpagu = 0
+        
         
     
     context = {
@@ -230,7 +233,8 @@ def home(request):
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
         'realisasi' : realisasi,
-        'datasisa' : sisa,
+        'persendana' : persendana,
+        'persenpagu' : persenpagu,
         
         'link_url': reverse(url_filter),
     }

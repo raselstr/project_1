@@ -28,12 +28,7 @@
                         <h4>{{tab1}}</h4>
                         <table class="table table-sm">
                             <tr>
-                                <td>Pagu Anggaran</td>
-                                <td>:</td>
-                                <td style="text-align: right;">{{datapagu|default:"0.00"|floatformat:2|intcomma}}</td>
-                            </tr>
-                            <tr>
-                                <td>Rencana Kegiatan </td>
+                                <td>Pagu Kegiatan </td>
                                 <td> :  </td>
                                 <td style="text-align: right;">{{datarencana|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
@@ -50,7 +45,12 @@
                             <tr>
                                 <td>% Penyerapan RKUD</td>
                                 <td> :  </td>
-                                <td style="text-align: right;">{{sisarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                                <td style="text-align: right;">{{persendana|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan Pagu</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persenpagu|default:"0.00"|floatformat:2|intcomma}}%</td>
                             </tr>
                         </table>
                         <a href="#" 

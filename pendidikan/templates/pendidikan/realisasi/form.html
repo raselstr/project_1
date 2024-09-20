@@ -23,13 +23,6 @@
                             <div class="form-group">
                                 {% csrf_token %}
                                 {{ form.as_p }}
-                                {% if field.errors %}
-                                    {% for error in field.errors %}
-                                        <div class="text-danger">
-                                            <p>{{ error }}</p>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
                             </div>
                         </div>
                         <div class="modal-footer">
