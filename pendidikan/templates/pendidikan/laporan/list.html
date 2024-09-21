@@ -2,7 +2,6 @@
 
 {% extends "base.html" %}
 {% load humanize %}
-{% load django_tables2 %}
 
 {% block content %}
 <section class="section">
@@ -22,7 +21,72 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    {% render_table table %}
+                    <table class="display table-bordered" id="tabel1" witdh="100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center" rowspan="2">No</th>
+                                <th style="text-align:center" rowspan="2">Nama Program</th>
+                                <th style="text-align:center" colspan="2">Rencana</th>
+                                <th style="text-align:center" colspan="2">Realisasi</th>
+                                <th style="text-align:center" rowspan="2">Satuan</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align:center">Pagu</th>
+                                <th style="text-align:center">Output</th>
+                                <th style="text-align:center">SP2D</th>
+                                <th style="text-align:center">Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prog in prog_data %}
+                                <tr>
+                                    <td><strong>{{ prog.prog_number }}</strong></td>
+                                    <td><strong>{{ prog.prog.dausgpendidikan_prog }}</strong></td>
+                                    <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
+                                    <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
+                                    <td><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
+                                    <td style="text-align:center"><strong>{{ prog.total_realisasi_output_prog}}</strong></td>
+                                    <td><strong></strong></td>
+                                </tr>
+
+                                {% for keg in prog.kegs %}
+                                    <tr>
+                                        <td>{{ keg.kegiatan_number }}</td>
+                                        <td>&emsp;{{ keg.keg.dausgpendidikankeg_nama}}</td>
+                                        <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
+                                        <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                        <td>{{ keg.total_realisasi_keg|floatformat:2 }}</td>
+                                        <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
+                                        <td></td>
+                                    </tr>
+
+                                    {% for sub in keg.subs %}
+                                        <tr>
+                                            <td>{{ sub.sub_number }}</td>
+                                            <td>&emsp;&emsp;{{ sub.sub.dausgpendidikansub_nama }}</td>
+                                            <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
+                                            <td style="text-align:center">{{ sub.output}}</td>
+                                            <td>{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
+                                            <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
+                                            <td>{{ sub.sub.dausgpendidikansub_satuan}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Total Keseluruhan</th>
+                                <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
+                                <th style="text-align:center">{{ total_output_keseluruhan }}</th>
+                                <th>{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
+                                <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+
                 </div>
             </div>
         </div>
