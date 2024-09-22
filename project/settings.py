@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'dankel',
     'pagu',
     'pendidikan',
+    'kesehatan',
 ]
 
 MIDDLEWARE = [
