@@ -6,17 +6,13 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 from datetime import datetime
 
-from django_tables2 import RequestConfig
-from ..tables import RealisasiTable
-
 import logging
-from opd.models import Pejabat, OpdDana
+from opd.models import Pejabat, Subopd
 from pendidikan.models import Rencanaposting, Rencana, Realisasi
 from dausg.models import Subkegiatan, DausgpendidikanProg
 from pendidikan.forms import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
-
-tabel_realisasi = RealisasiTable
+from dana.models import TahapDana
 
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
@@ -28,6 +24,8 @@ model_realisasi = Realisasi
 model_penerimaan = Penerimaan
 model_program = DausgpendidikanProg
 model_pejabat = Pejabat
+model_tahap = TahapDana
+model_subopd = Subopd
 
 url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filter'
@@ -245,7 +243,12 @@ def get_data_context(request):
     if realisasi_dana:
         filterreals &= Q(realisasi_dana_id=realisasi_dana)
     if realisasi_tahap:
-        filterreals &= Q(realisasi_tahap_id=realisasi_tahap)
+        if realisasi_tahap == 1:
+            filterreals &= Q(realisasi_tahap_id=1)
+        elif realisasi_tahap == 2:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2])
+        elif realisasi_tahap == 3:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
     if realisasi_subopd and realisasi_subopd not in [124, 67, 70]:
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
@@ -360,7 +363,11 @@ def get_data_context(request):
         'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
         'total_realisasi_output_keseluruhan': total_realisasi_output_keseluruhan,
         'tahunrealisasi': realisasi_tahun,
-        'danarealisasi_id': Subkegiatan.objects.get(pk=realisasi_dana),
+        'danarealisasi_id': model_dana.objects.get(pk=realisasi_dana),
+        'tahaprealisasi_id': model_tahap.objects.get(pk=realisasi_tahap),
+        'subopdrealisasi_id': model_subopd.objects.get(pk=realisasi_subopd),
+    
+        
         'jadwal': jadwal
     }
 

@@ -44,7 +44,7 @@
                                     <td><strong>{{ prog.prog.dausgpendidikan_prog }}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
-                                    <td><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
+                                    <td style="text-align:right"><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:center"><strong>{{ prog.total_realisasi_output_prog}}</strong></td>
                                     <td><strong></strong></td>
                                 </tr>
@@ -55,7 +55,7 @@
                                         <td>&emsp;{{ keg.keg.dausgpendidikankeg_nama}}</td>
                                         <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
                                         <td style="text-align:center">{{ keg.total_output_keg}}</td>
-                                        <td>{{ keg.total_realisasi_keg|floatformat:2 }}</td>
+                                        <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
                                         <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
                                         <td></td>
                                     </tr>
@@ -66,7 +66,7 @@
                                             <td>&emsp;&emsp;{{ sub.sub.dausgpendidikansub_nama }}</td>
                                             <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
                                             <td style="text-align:center">{{ sub.output}}</td>
-                                            <td>{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
+                                            <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
                                             <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
                                             <td>{{ sub.sub.dausgpendidikansub_satuan}}</td>
                                         </tr>
@@ -79,7 +79,7 @@
                                 <th colspan="2">Total Keseluruhan</th>
                                 <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
                                 <th style="text-align:center">{{ total_output_keseluruhan }}</th>
-                                <th>{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
+                                <th style="text-align:right">{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
                                 <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
                                 <th></th>
                             </tr>

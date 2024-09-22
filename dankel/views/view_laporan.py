@@ -308,7 +308,12 @@ def get_data_context(request):
     if danarealisasi_id:
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
-        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+        if tahaprealisasi_id == 1:
+            filterreals &= Q(realisasidankel_tahap_id=1)
+        elif tahaprealisasi_id == 2:
+            filterreals &= Q(realisasidankel_tahap_id__in=[1, 2])
+        elif tahaprealisasi_id == 3:
+            filterreals &= Q(realisasidankel_tahap_id__in=[1, 2, 3])
     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
