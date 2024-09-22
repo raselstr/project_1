@@ -97,7 +97,6 @@ def list(request):
     sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path()
             
-    total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     try:
         dana = Subkegiatan.objects.get(sub_slug=sesidana)
     except Subkegiatan.DoesNotExist:
@@ -108,6 +107,7 @@ def list(request):
     if sesiidopd is not None and sesiidopd !=124 and sesiidopd !=70 and sesiidopd !=67:
         query &= Q(rencdankel_subopd=sesiidopd)
 
+    total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     data = RencDankel.objects.filter(query)
     context = {
         'judul' : 'Rencana Kegiatan',

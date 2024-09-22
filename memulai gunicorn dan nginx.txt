@@ -123,4 +123,10 @@ beckup
     pg_dump -U raselstr -d tkdd > /var/lib/postgresql/host_data/backup.sql
 
 
+JIKA AKAN MENJALANKAN MIGRATE DARI Dockerfile
+1. Buka Docker image web
+2. docker ps (Membuka seluruh docker seluruh yg aktif)
+2. docker exec -it nama_container python manage.py migrate
+
+
 

@@ -51,7 +51,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - /h/app/db_host:/var/lib/postgresql/db_host
+      - /d/web/db_host:/var/lib/postgresql/db_host
     networks:
       - app-network
   
