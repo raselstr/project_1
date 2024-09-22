@@ -34,7 +34,7 @@ def upload_foto(request):
                 pejabat.save()
                 messages.success(request, 'Foto berhasil diupload!')
             except Pejabat.DoesNotExist:
-                messages.error(request, 'Pejabat tidak ditemukan!')
+                messages.error(request, 'User ini tidak bisa upload KOP Surat!')
             return redirect(tag_url)
     else:
         form_foto = FormFoto()

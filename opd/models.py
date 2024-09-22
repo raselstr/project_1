@@ -38,7 +38,7 @@ class Pejabat(models.Model):
     pejabat_nama = models.CharField(verbose_name='Nama Pejabat', max_length=40)
     pejabat_nip = models.CharField(verbose_name='NIP', max_length=18, unique=True, error_messages='NIP sudah ada')
     pejabat_lokasi = models.CharField(verbose_name='Nama Lokasi', max_length=50)
-    pejabat_foto = models.ImageField(upload_to='kop_fotos/', verbose_name='Foto Pejabat', blank=True, null=True)
+    pejabat_foto = models.ImageField(upload_to='kop_fotos/', verbose_name='Foto KOP Surat', blank=True, null=True)
     
     def __str__(self):
         return self.pejabat_nama

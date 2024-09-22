@@ -1,23 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
-from django.db.models import Q,Sum, DecimalField
+from django.db.models import Q,Sum, Prefetch
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
-from django.db.models import Prefetch
-
-from decimal import Decimal
+from datetime import datetime
 
 from django_tables2 import RequestConfig
 from ..tables import RealisasiTable
 
 import logging
-import string
-
+from opd.models import Pejabat, OpdDana
 from pendidikan.models import Rencanaposting, Rencana, Realisasi
 from dausg.models import Subkegiatan, DausgpendidikanProg
-
-
 from pendidikan.forms import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 
@@ -32,16 +27,17 @@ model_dana = Subkegiatan
 model_realisasi = Realisasi
 model_penerimaan = Penerimaan
 model_program = DausgpendidikanProg
+model_pejabat = Pejabat
 
 url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filter'
 url_list = 'laporan_pendidikan_list'
+url_pdf = 'laporan_pendidikan_pdf'
 
-template_form = 'pendidikan/laporan/form.html'
+template_pdf = 'pendidikan/laporan/pdf.html'
 template_home = 'pendidikan/laporan/home.html'
 template_list = 'pendidikan/laporan/list.html'
 template_modal = 'pendidikan/laporan/modal.html'
-template_modal_verif = 'pendidikan/laporan/modal_verif.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
@@ -140,7 +136,10 @@ def list(request):
         'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pendidikan',
         'tombol': 'Cetak',
         'tombolsp2d': 'Cetak Daftar SP2D',
-        'level' : level
+        'link_url_kembali' : reverse(url_home),
+        'kembali' : 'Kembali',
+        'level' : level,
+        'link_cetak' : reverse(url_pdf)
     })
     return render(request, template_list, context)
 
@@ -216,6 +215,8 @@ def home(request):
     }
     return render(request, template_home, context)
 
+
+
 def get_data_context(request):
     # Ambil data dari session
     realisasi_tahun = request.session.get('realisasi_tahun')
@@ -250,7 +251,7 @@ def get_data_context(request):
 
     progs = model_program.objects.prefetch_related(
         Prefetch('dausgpendidikankegs__dausgpendidikansubs__rencanaposting_set')
-    ).filter(dausgpendidikankegs__dausgpendidikansubs__rencanaposting__isnull=False).distinct()
+    ).filter(dausgpendidikankegs__dausgpendidikansubs__rencanaposting__isnull=False).distinct().order_by('id')
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)
@@ -262,26 +263,24 @@ def get_data_context(request):
     total_realisasi_keseluruhan = 0
     total_realisasi_output_keseluruhan = 0
 
-    # Di dalam get_data_context
-    program_counter = 1
-
+    program_counter = 1  # Counter untuk program
     for prog in progs:
         total_pagu_prog = 0
         total_output_prog = 0
         total_realisasi_prog = 0
         total_realisasi_output_prog = 0
         prog_kegs = []
-        kegiatan_counter = 1  # Nomor urut kegiatan
+        kegiatan_counter = 1  # Counter untuk kegiatan
 
-        for keg in prog.dausgpendidikankegs.all():
+        for keg in prog.dausgpendidikankegs.all().order_by('id'):
             total_pagu_keg = 0
             total_output_keg = 0
             total_realisasi_keg = 0
             total_realisasi_output_keg = 0
             keg_subs = []
-            sub_kegiatan_counter = 1  # Nomor urut sub kegiatan
+            sub_kegiatan_counter = 1  # Counter untuk sub-kegiatan
 
-            for sub in keg.dausgpendidikansubs.all():
+            for sub in keg.dausgpendidikansubs.all().order_by('id'):
                 related_rencanas = rencanas.filter(posting_subkegiatan=sub)
 
                 if related_rencanas.exists():
@@ -311,13 +310,13 @@ def get_data_context(request):
                                 'total_sp2d': total_sp2d,
                                 'total_output': total_output_realisasi
                             },
-                            'sub_number': f"{program_counter}.{kegiatan_counter}.{sub_kegiatan_counter}"  # Nomor sub kegiatan
+                            'sub_number': f"{program_counter}.{kegiatan_counter}.{sub_kegiatan_counter}"  # Nomor sub-kegiatan
                         })
 
                         total_realisasi_output_keg += total_output_realisasi
                         total_realisasi_keg += total_sp2d
 
-                sub_kegiatan_counter += 1  # Increment sub kegiatan counter
+                    sub_kegiatan_counter += 1  # Increment counter sub-kegiatan
 
             if total_pagu_keg > 0:  # Hanya jika ada total pagu
                 prog_kegs.append({
@@ -329,13 +328,12 @@ def get_data_context(request):
                     'total_realisasi_output_keg': total_realisasi_output_keg,
                     'kegiatan_number': f"{program_counter}.{kegiatan_counter}"  # Nomor kegiatan
                 })
-
                 total_pagu_prog += total_pagu_keg
                 total_output_prog += total_output_keg
                 total_realisasi_prog += total_realisasi_keg
                 total_realisasi_output_prog += total_realisasi_output_keg
 
-                kegiatan_counter += 1  # Increment kegiatan counter
+            kegiatan_counter += 1  # Increment counter kegiatan
 
         if total_pagu_prog > 0:  # Hanya jika ada total pagu
             prog_data.append({
@@ -353,7 +351,7 @@ def get_data_context(request):
             total_realisasi_keseluruhan += total_realisasi_prog
             total_realisasi_output_keseluruhan += total_realisasi_output_prog
 
-            program_counter += 1  # Increment program counter
+            program_counter += 1  # Increment counter program
 
     return {
         'prog_data': prog_data,
@@ -365,3 +363,85 @@ def get_data_context(request):
         'danarealisasi_id': Subkegiatan.objects.get(pk=realisasi_dana),
         'jadwal': jadwal
     }
+
+
+@set_submenu_session
+@menu_access_required('list')
+def pdf(request):
+    # today = datetime.now().date() tanggal sekarang
+    formatted_today = datetime.now().strftime('%d %B %Y')
+    
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    realisasi_subopd = request.session.get('realisasi_subopd')
+    
+    if realisasi_subopd:
+        data = model_pejabat.objects.filter(pejabat_sub=realisasi_subopd)
+        
+    context.update({
+        'judul': 'Rekapitulasi Realisasi DAU Bidang Pendidikan',
+        'tombol': 'Cetak',
+        'tanggal' : formatted_today,
+        'data' : data,    
+        })
+    return render(request,template_pdf, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def apip(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    sesiidopd = request.session.get('idsubopd')
+    idopd = request.session.get('realisasidankel_subopd')
+    
+    if sesiidopd :
+        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
+    
+    penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
+        
+    context.update({
+        'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
+        'tombol': 'Cetak',
+        'data' : data,
+        'penerimaan' : penerimaan,    
+        })
+    # print(f'penerimaan : {penerimaan}')
+    return render(request, 'dankel_laporan/laporan_apip.html', context)
+
+@set_submenu_session
+@menu_access_required('list')
+def sp2d(request):
+    request.session['next'] = request.get_full_path()
+    context = get_data_context(request)
+    
+    tahunrealisasi = request.session.get('realisasidankel_tahun')
+    danarealisasi_id = request.session.get('realisasidankel_dana')
+    tahaprealisasi_id = request.session.get('realisasidankel_tahap')
+    subopdrealisasi_id = request.session.get('realisasidankel_subopd')
+    level = request.session.get('level')
+    
+    filterreals = Q()
+    if level != 'Pengguna':
+        filterreals &= Q(realisasidankel_verif=1)
+    if tahunrealisasi:
+        filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
+    if danarealisasi_id:
+        filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
+    if tahaprealisasi_id:
+        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+        
+    sp2d = Model_realisasi.objects.filter(filterreals)
+    if subopdrealisasi_id:
+        data = Model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
+        
+    context.update({
+        'judul': 'REKAPITULASI SP2D',
+        'sp2d' : sp2d,
+        'data' : data,
+        # 'persen': total_persentase,
+        })
+    return render(request, 'dankel_laporan/laporan_sp2d.html', context)
