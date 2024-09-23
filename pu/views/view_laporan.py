@@ -9,7 +9,7 @@ from datetime import datetime
 import logging
 from opd.models import Pejabat, Subopd
 from pu.models import Rencanapuposting, Rencanapu, Realisasipu
-from dausg.models import Subkegiatan, DausgpuSub
+from dausg.models import Subkegiatan, DausgpuProg
 from pu.forms import RealisasipuFilterForm, RealisasipuForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
@@ -22,7 +22,7 @@ model_pagu = Rencanapu
 model_dana = Subkegiatan
 model_realisasi = Realisasipu
 model_penerimaan = Penerimaan
-model_program = DausgpuSub
+model_program = DausgpuProg
 model_pejabat = Pejabat
 model_tahap = TahapDana
 model_subopd = Subopd
@@ -171,8 +171,8 @@ def get_data_context(request):
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
     progs = model_program.objects.prefetch_related(
-        Prefetch('dausgpukegs__dausgpusubs__rencanaposting_set')
-    ).filter(dausgpukegs__dausgpusubs__rencanaposting__isnull=False).distinct().order_by('id')
+        Prefetch('dausgpukegs__dausgpusubs__rencanapuposting_set')
+    ).filter(dausgpukegs__dausgpusubs__rencanapuposting__isnull=False).distinct().order_by('id')
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)

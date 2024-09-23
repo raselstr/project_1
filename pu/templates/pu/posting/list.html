@@ -57,9 +57,9 @@
                                     </td>
                                     <td>
                                         {% if data.item_induk %}
-                                            {{ data.item_induk.posting_subkegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama }}<br>{{ data.item_induk.posting_subkegiatan.dausgpendidikansub_nama }}
+                                            {{ data.item_induk.posting_subkegiatan.dausgpusub_keg.dausgpukeg_nama }}<br>{{ data.item_induk.posting_subkegiatan.dausgpusub_nama }}
                                         {% else %}
-                                            {{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama }}<br>{{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_nama }}
+                                            {{ data.item_perubahan.posting_subkegiatan.dausgpusub_keg.dausgpukeg_nama }}<br>{{ data.item_perubahan.posting_subkegiatan.dausgpusub_nama }}
                                         {% endif %}
                                     </td>
                                     <td style="text-align: right;">
@@ -78,7 +78,7 @@
                                     </td>
                                     <td>
                                         {% if data.item_induk %}
-                                            {{ data.item_induk.posting_subkegiatan.dausgpendidikansub_satuan|default:"-" }}
+                                            {{ data.item_induk.posting_subkegiatan.dausgpusub_satuan|default:"-" }}
                                         {% else %}
                                             -
                                         {% endif %}
@@ -106,7 +106,7 @@
                                     </td>
                                     <td>
                                         {% if data.item_perubahan %}
-                                            {{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_satuan|default:"-" }}
+                                            {{ data.item_perubahan.posting_subkegiatan.dausgpusub_satuan|default:"-" }}
                                         {% else %}
                                             -
                                         {% endif %}

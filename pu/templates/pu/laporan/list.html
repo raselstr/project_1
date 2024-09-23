@@ -41,7 +41,7 @@
                             {% for prog in prog_data %}
                                 <tr>
                                     <td><strong>{{ prog.prog_number }}</strong></td>
-                                    <td><strong>{{ prog.prog.dausgpendidikan_prog }}</strong></td>
+                                    <td><strong>{{ prog.prog.dausgpu_prog }}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
@@ -52,7 +52,7 @@
                                 {% for keg in prog.kegs %}
                                     <tr>
                                         <td>{{ keg.kegiatan_number }}</td>
-                                        <td>&emsp;{{ keg.keg.dausgpendidikankeg_nama}}</td>
+                                        <td>&emsp;{{ keg.keg.dausgpukeg_nama}}</td>
                                         <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
                                         <td style="text-align:center">{{ keg.total_output_keg}}</td>
                                         <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
@@ -63,12 +63,12 @@
                                     {% for sub in keg.subs %}
                                         <tr>
                                             <td>{{ sub.sub_number }}</td>
-                                            <td>&emsp;&emsp;{{ sub.sub.dausgpendidikansub_nama }}</td>
+                                            <td>&emsp;&emsp;{{ sub.sub.dausgpusub_nama }}</td>
                                             <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
                                             <td style="text-align:center">{{ sub.output}}</td>
                                             <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
                                             <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
-                                            <td>{{ sub.sub.dausgpendidikansub_satuan}}</td>
+                                            <td>{{ sub.sub.dausgpusub_satuan}}</td>
                                         </tr>
                                     {% endfor %}
                                 {% endfor %}
