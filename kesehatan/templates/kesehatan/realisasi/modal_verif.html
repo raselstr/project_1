@@ -1,0 +1,10 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi untuk {{ data.realisasi_rencanaposting }}</h5>
+</div>
+<div class="modal-body">
+    Apakah Nilai dan Nomor SP2D ini disetujui ?
+</div>
+<div class="modal-footer">
+    <a href="{% url 'realisasi_pendidikan_verif' data.id %}?verif=1" class="btn btn-success">Setuju</a>
+    <a href="{% url 'realisasi_pendidikan_verif' data.id %}?verif=0" class="btn btn-danger">Tidak Setuju</a>
+</div>

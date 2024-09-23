@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+{%load static %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-header-action mr-3">
+                        <a href="{% url "posting_home" %}" type="button" class="btn btn-warning">Kembali  </a>
+                    </div>
+                    <h4> {{judul}}</h4>
+                    <div class="card-header-action">
+                        {% if session == None %}
+                            <a href="{% url "posting_pendidikan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-sm" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="text-align: center;">Sub OPD</th>
+                                <th colspan="5" style="text-align: center;">IINDUK</th>
+                                <th colspan="4" style="text-align: center;">PERUBAHAN</th>
+                                <th rowspan="2" style="text-align: center;">Tambah/ Kurang</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;">
+                                    Kegiatan/Sub Kegiatan
+                                </th>
+                                <th style="text-align: center;">Pagu Anggaran</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Satuan</th>
+                                <th style="text-align: center;">Keterangan Kegiatan</th>
+                                <th style="text-align: center;">Pagu Anggaran</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Satuan</th>
+                                <th style="text-align: center;">Keterangan Kegiatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in combined_data %}
+                                <tr>
+                                    <td>
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_subopd.sub_nama }}
+                                        {% else %}
+                                            {{ data.item_perubahan.posting_subopd.sub_nama }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_subkegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama }}<br>{{ data.item_induk.posting_subkegiatan.dausgpendidikansub_nama }}
+                                        {% else %}
+                                            {{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama }}<br>{{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_nama }}
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_pagu|default:"0.00"|floatformat:2|intcomma }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_output|default:"0" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_subkegiatan.dausgpendidikansub_satuan|default:"-" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.item_induk %}
+                                            {{ data.item_induk.posting_ket }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        {% if data.item_perubahan %}
+                                            {{ data.item_perubahan.posting_pagu|default:"0.00"|floatformat:2|intcomma }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        {% if data.item_perubahan %}
+                                            {{ data.item_perubahan.posting_output|default:"0" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.item_perubahan %}
+                                            {{ data.item_perubahan.posting_subkegiatan.dausgpendidikansub_satuan|default:"-" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.item_perubahan %}
+                                            {{ data.item_perubahan.posting_ket }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right;">
+                                        {{ data.selisih_pagu|default:"0.00"|floatformat:2|intcomma }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
+                                <th colspan="4" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="4" style="text-align: right;"><strong>{{ rencana|default:"0.00"|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong></strong></th>
+                                
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.5.0/css/rowGroup.dataTables.css" />
+  
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.5.0/js/dataTables.rowGroup.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.5.0/js/rowGroup.dataTables.js"></script>
+  
+{% endblock src %}
+{% block javascript %}
+<script src="{% static 'js/datatable.js' %}"></script>
+    
+    <script>
+        $(document).ready(function() {
+            {% if messages %}
+            {% for message in messages %}
+                iziToast.{{ message.tags }}({
+                    title: '{{ message.tags }}',
+                    message: '{{ message }}',
+                    position: 'topRight'
+                });
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
+{% endblock javascript %}
+
