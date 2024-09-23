@@ -124,17 +124,17 @@ WSGI_APPLICATION = 'project.wsgi.application'
 if config('RUNNING_LOCALLY', default=False, cast=bool):
     DB_HOST = 'localhost'
 else:
-    DB_HOST = config('DB_HOST', default='db')
+    DB_HOST = config('DB_HOST')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='tkdd'),
-        'USER': config('DB_USER', default='raselstr'),
-        'PASSWORD': config('DB_PASSWORD', default='r283l8tr'),
-        # 'HOST': config('DB_HOST', default='localhost'),
-        'HOST': DB_HOST,
-        'PORT': config('DB_PORT', default='5432'),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        # 'HOST': DB_HOST,
+        'PORT': config('DB_PORT'),
     }
 }
 
