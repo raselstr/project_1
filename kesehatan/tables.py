@@ -30,14 +30,21 @@ class RealisasikesehatanTable(tables.Table):
             }
     
     def render_aksi(self, record):
-        edit_url = reverse('realisasi_kesehatan_update', args=[record.id])  # Ganti dengan nama url Anda
-        delete_url = reverse('realisasi_kesehatan_delete', args=[record.id])  # Ganti dengan nama url Anda
-        return format_html(
-            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
-            '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
-            edit_url,
-            delete_url
-        )
+        opd = self.request.session.get('idsubopd', None)
+        
+        # Jika akun == 'Pengguna' dan status verif != 1, maka tampilkan tombol edit dan delete
+        if opd not in [70,67,None] and record.realisasi_verif != 1:
+            edit_url = reverse('realisasi_pendidikan_update', args=[record.id])  # Ganti dengan nama url Anda
+            delete_url = reverse('realisasi_pendidikan_delete', args=[record.id])  # Ganti dengan nama url Anda
+            return format_html(
+                '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
+                '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
+                edit_url,
+                delete_url
+            )
+        
+        # Jika status verif sudah 1 (disetujui), maka tombol tidak ditampilkan
+        return format_html('<span class="text-muted">Tindakan tidak tersedia</span>')
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)

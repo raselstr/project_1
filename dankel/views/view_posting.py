@@ -138,6 +138,8 @@ def home(request):
         'tab4'      : 'Posting Kegiatan Sisa DAU SG Pendidikan Tahun Lalu',
         'tab5'      : 'Posting Kegiatan DAU SG Kesehatan Tahun Berjalan',
         'tab6'      : 'Posting Kegiatan Sisa DAU SG Kesehatan Tahun Lalu',
+        'tab7'      : 'Posting Kegiatan DAU SG Pekerjaan Umum Tahun Berjalan',
+        'tab8'      : 'Posting Kegiatan Sisa DAU SG Pekerjaan Umum Tahun Lalu',
        
     }
     return render(request, template_home, context)
