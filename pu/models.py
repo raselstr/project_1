@@ -24,7 +24,7 @@ VERIF = [
         (1, 'Disetujui'),
     ]
 
-class Rencanapekerjaanumum(models.Model):
+class Rencanapu(models.Model):
     
     rencana_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     rencana_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
@@ -38,12 +38,12 @@ class Rencanapekerjaanumum(models.Model):
     
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_pekerjaanumum')
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_pu')
         ]
     
     def clean(self):
         super().clean()
-        if Rencanapekerjaanumum.objects.filter(
+        if Rencanapu.objects.filter(
             rencana_tahun=self.rencana_tahun,
             rencana_subopd=self.rencana_subopd_id,
             rencana_kegiatan=self.rencana_kegiatan_id
@@ -54,7 +54,7 @@ class Rencanapekerjaanumum(models.Model):
         total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
         
         if self.pk:
-            total_rencana = total_rencana - Rencanapekerjaanumum.objects.get(pk=self.pk).rencana_pagu
+            total_rencana = total_rencana - Rencanapu.objects.get(pk=self.pk).rencana_pagu
 
         total_rencana += self.rencana_pagu
         
@@ -82,7 +82,7 @@ class Rencanapekerjaanumum(models.Model):
         filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
         if opd is not None and opd not in [124,70]:
             filters &= Q(rencana_subopd=opd)
-        return Rencanapekerjaanumum.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
+        return Rencanapu.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
     
        
     def get_sisa(self, tahun, opd, dana):
@@ -96,19 +96,19 @@ class Rencanapekerjaanumum(models.Model):
             filters &= Q(realisasi_subkegiatan_id=self.rencana_kegiatan_id)
         if self.rencana_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
-        nilai_realisasi = Realisasipekerjaanumum.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        nilai_realisasi = Realisasipu.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
 
     def __str__(self):
         return f"{self.rencana_kegiatan}"
 
-class Rencanapekerjaanumumposting(models.Model):
+class Rencanapuposting(models.Model):
     VERIF = [
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    posting_rencanaid = models.ForeignKey(Rencanapekerjaanumum, verbose_name='Id Rencana', on_delete=models.CASCADE)
+    posting_rencanaid = models.ForeignKey(Rencanapu, verbose_name='Id Rencana', on_delete=models.CASCADE)
     posting_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     posting_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     posting_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -123,13 +123,13 @@ class Rencanapekerjaanumumposting(models.Model):
         filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd=opd)
-        return Rencanapekerjaanumumposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        return Rencanapuposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
     def __str__(self):
         return f"{self.posting_subkegiatan}"
     
 
-class Realisasipekerjaanumum(models.Model):
+class Realisasipu(models.Model):
     VERIF = [
         (0, 'Diinput Dinas'),
         (1, 'Disetujui APIP'),
@@ -138,8 +138,8 @@ class Realisasipekerjaanumum(models.Model):
     realisasi_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     realisasi_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
     realisasi_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasi_rencanaposting = models.ForeignKey(Rencanapekerjaanumumposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasi_rencana = models.ForeignKey(Rencanapekerjaanumum, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+    realisasi_rencanaposting = models.ForeignKey(Rencanapuposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencanapu, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
     realisasi_subkegiatan = models.ForeignKey(DausgpuSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
     realisasi_output = models.IntegerField(verbose_name='Capaian Output')
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
@@ -157,8 +157,8 @@ class Realisasipekerjaanumum(models.Model):
         total_rencanaoutput_pk = self.get_rencanaoutput_pk()
 
         if self.pk:
-            total_realisasi_pk = total_realisasi_pk - Realisasipekerjaanumum.objects.get(pk=self.pk).realisasi_nilai
-            total_realisasi = total_realisasi - Realisasipekerjaanumum.objects.get(pk=self.pk).realisasi_nilai
+            total_realisasi_pk = total_realisasi_pk - Realisasipu.objects.get(pk=self.pk).realisasi_nilai
+            total_realisasi = total_realisasi - Realisasipu.objects.get(pk=self.pk).realisasi_nilai
         
         total_realisasi_pk += self.realisasi_nilai
         total_realisasi += self.realisasi_nilai
@@ -197,7 +197,7 @@ class Realisasipekerjaanumum(models.Model):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(realisasi_subopd=opd)
-        return Realisasipekerjaanumum.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        return Realisasipu.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasi_pk(self):
         filters = Q(realisasi_tahun=self.realisasi_tahun) & Q(realisasi_dana=self.realisasi_dana_id)
@@ -206,7 +206,7 @@ class Realisasipekerjaanumum(models.Model):
             filters &= Q(realisasi_subkegiatan_id=subkegiatan)
         if self.realisasi_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.realisasi_subopd_id)
-        nilai_realisasi = Realisasipekerjaanumum.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        nilai_realisasi = Realisasipu.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi}, {self.realisasi_subkegiatan_id} dan {filters}")
         return nilai_realisasi
 
@@ -218,7 +218,7 @@ class Realisasipekerjaanumum(models.Model):
         if self.realisasi_subopd_id is not None:
             filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
         
-        nilai_rencana = Rencanapekerjaanumumposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        nilai_rencana = Rencanapuposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
         # print(f"nilai rencana : {nilai_rencana}, {self.realisasi_subkegiatan_id} dan {filters}")
         return nilai_rencana
     
@@ -229,7 +229,7 @@ class Realisasipekerjaanumum(models.Model):
         if self.realisasi_output is not None:
             filters &= Q(id=self.realisasi_rencanaposting_id)
         
-        nilai_output = Rencanapekerjaanumumposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_output'))['total_nilai'] or Decimal(0)
+        nilai_output = Rencanapuposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_output'))['total_nilai'] or Decimal(0)
         # print(f"nilai rencana : {nilai_rencana} dan {filters}")
         return nilai_output
 
@@ -252,7 +252,7 @@ class Realisasipekerjaanumum(models.Model):
     def get_persenpagu(self, tahun, opd, dana):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
-            persenpagu = Rencanapekerjaanumumposting().get_total_rencana(tahun, opd, dana)
+            persenpagu = Rencanapuposting().get_total_rencana(tahun, opd, dana)
             
             if totalrealisasi is None:
                 return None

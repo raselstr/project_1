@@ -2,6 +2,7 @@
 from django.shortcuts import render,redirect
 from project.decorators import menu_access_required, set_submenu_session
 from django.db.models import Q
+from django.urls import reverse
 
 from kesehatan.models import Rencanakesehatanposting, Rencanakesehatan
 from kesehatan.forms import RencanakesehatanPostingForm
@@ -11,6 +12,7 @@ model_posting = Rencanakesehatanposting
 form_posting = RencanakesehatanPostingForm
 
 tag_url = 'posting_kesehatan_list'
+tag_posting = 'posting_kesehatan'
 
 template_form = 'kesehatan/posting/form.html'
 template_list = 'kesehatan/posting/list.html'
@@ -68,10 +70,11 @@ def list(request):
         })
     
     context = {
-        'judul': 'Posting Rencana Kegiatan Dana Kelurahan',
+        'judul': 'Posting Rencana Kegiatan DAU SG Bidang Kesehatan',
         'tombol': 'Posting',
         'combined_data': combined_data,
         'session':sesiidopd,
+        'posting': reverse(tag_posting)
     }
     return render(request, template_list, context)
 
@@ -119,9 +122,11 @@ def posting(request):
         form = form_posting()
     
     context = {
-        'judul': 'Posting Rencana Kegiatan',
+        'judul': 'Posting Rencana Kegiatan DAU SG Bidang Kesehatan',
         'tombol': 'Posting',
-        'form': form
+        'form': form,
+        'kembali' : reverse(tag_url),
+        
     }
     return render(request, template_form, context)
 

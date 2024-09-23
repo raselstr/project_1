@@ -1,0 +1,170 @@
+
+
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <div class="btn-group">
+                            <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
+                            <a href="#" onclick="openPrintWindow('{{link_cetak}}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display table-bordered" id="tabel1" witdh="100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center" rowspan="2">No</th>
+                                <th style="text-align:center" rowspan="2">Nama Program</th>
+                                <th style="text-align:center" colspan="2">Rencana</th>
+                                <th style="text-align:center" colspan="2">Realisasi</th>
+                                <th style="text-align:center" rowspan="2">Satuan</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align:center">Pagu</th>
+                                <th style="text-align:center">Output</th>
+                                <th style="text-align:center">SP2D</th>
+                                <th style="text-align:center">Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prog in prog_data %}
+                                <tr>
+                                    <td><strong>{{ prog.prog_number }}</strong></td>
+                                    <td><strong>{{ prog.prog.dausgpendidikan_prog }}</strong></td>
+                                    <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
+                                    <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
+                                    <td style="text-align:right"><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
+                                    <td style="text-align:center"><strong>{{ prog.total_realisasi_output_prog}}</strong></td>
+                                    <td><strong></strong></td>
+                                </tr>
+
+                                {% for keg in prog.kegs %}
+                                    <tr>
+                                        <td>{{ keg.kegiatan_number }}</td>
+                                        <td>&emsp;{{ keg.keg.dausgpendidikankeg_nama}}</td>
+                                        <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
+                                        <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                        <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
+                                        <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
+                                        <td></td>
+                                    </tr>
+
+                                    {% for sub in keg.subs %}
+                                        <tr>
+                                            <td>{{ sub.sub_number }}</td>
+                                            <td>&emsp;&emsp;{{ sub.sub.dausgpendidikansub_nama }}</td>
+                                            <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
+                                            <td style="text-align:center">{{ sub.output}}</td>
+                                            <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
+                                            <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
+                                            <td>{{ sub.sub.dausgpendidikansub_satuan}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2">Total Keseluruhan</th>
+                                <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
+                                <th style="text-align:center">{{ total_output_keseluruhan }}</th>
+                                <th style="text-align:right">{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
+                                <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="verifikasiModal" tabindex="-1" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Konten modal akan dimuat oleh HTMX -->
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+{% block javascript %}
+    <script>
+    $(document).ready(function() {
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            }
+        });
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+<script>
+    function openPrintWindow(url) {
+        var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+        if (printWindow) {
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+    }
+</script>
+    
+    
+{% endblock javascript %}

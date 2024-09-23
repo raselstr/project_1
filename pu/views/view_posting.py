@@ -4,18 +4,18 @@ from project.decorators import menu_access_required, set_submenu_session
 from django.db.models import Q
 from django.urls import reverse
 
-from pendidikan.models import Rencanaposting, Rencana
-from pendidikan.forms import RencanaPostingForm
+from pu.models import Rencanapuposting, Rencanapu
+from pu.forms import RencanapuPostingForm
 
-model_rencana = Rencana
-model_posting = Rencanaposting
-form_posting = RencanaPostingForm
+model_rencana = Rencanapu
+model_posting = Rencanapuposting
+form_posting = RencanapuPostingForm
 
-tag_url = 'posting_pendidikan_list'
-tag_posting = 'posting_pendidikan'
+tag_url = 'posting_pu_list'
+tag_posting = 'posting_pu'
 
-template_form = 'pendidikan/posting/form.html'
-template_list = 'pendidikan/posting/list.html'
+template_form = 'pu/posting/form.html'
+template_list = 'pu/posting/list.html'
 # sesitahun = 2024
 
 
@@ -70,11 +70,11 @@ def list(request):
         })
     
     context = {
-        'judul': 'Posting Rencana Kegiatan DAU SG Bidang Pendidikan',
+        'judul': 'Posting Rencana Kegiatan DAU SG Bidang Pekerjaan Umum',
         'tombol': 'Posting',
         'combined_data': combined_data,
         'session':sesiidopd,
-        'posting': reverse(tag_posting),
+        'posting': reverse(tag_posting)
     }
     return render(request, template_list, context)
 
@@ -122,7 +122,7 @@ def posting(request):
         form = form_posting()
     
     context = {
-        'judul': 'Posting Rencana Kegiatan DAU SG Pendidikan',
+        'judul': 'Posting Rencana Kegiatan DAU SG Bidang Pekerjaan Umum',
         'tombol': 'Posting',
         'form': form,
         'kembali' : reverse(tag_url),

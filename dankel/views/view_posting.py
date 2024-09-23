@@ -136,6 +136,8 @@ def home(request):
         'tab2'      : 'Posting Kegiatan Sisa Dana Kelurahan Tahun Lalu',
         'tab3'      : 'Posting Kegiatan DAU SG Pendidikan Tahun Berjalan',
         'tab4'      : 'Posting Kegiatan Sisa DAU SG Pendidikan Tahun Lalu',
+        'tab5'      : 'Posting Kegiatan DAU SG Kesehatan Tahun Berjalan',
+        'tab6'      : 'Posting Kegiatan Sisa DAU SG Kesehatan Tahun Lalu',
        
     }
     return render(request, template_home, context)

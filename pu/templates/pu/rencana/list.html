@@ -1,0 +1,115 @@
+
+
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <div class="btn-group">
+                            <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
+                            <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                <th style="text-align: center;">OPD</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Pagu DAU SG</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Kode DPA Kegiatan</th>
+                                <th style="text-align: center;">Pagu DPA Kegiatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            {% for data in data %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="{% url link_url_update data.id %} " class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url link_url_delete  data.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;">{{ data.rencana_subopd }}</td>
+                                    <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_pagu }}</td>
+                                    <td style="text-align: center;">
+                                        {{ data.rencana_output|default:"0"|floatformat:0 }}
+                                        {{ data.rencana_kegiatan.dausgpendidikansub_satuan }}
+                                    </td>
+                                    <td style="text-align: center;">{{ data.rencana_ket }}</td>
+                                    <td style="text-align: right;">{{ data.rencana_pagudpa }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+{% block javascript %}
+    <script>
+    $(document).ready(function() {
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            }
+        });
+        {% if messages %}
+        {% for message in messages %}
+            iziToast.{{ message.tags }}({
+                title: '{{ message.tags }}',
+                message: '{{ message }}',
+                position: 'topRight'
+            });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
+    
+    
+{% endblock javascript %}

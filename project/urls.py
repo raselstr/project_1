@@ -6,6 +6,7 @@ from . import views
 
 urlpatterns = [
     
+    path('pu/', include('pu.urls')),
     path('kesehatan/', include('kesehatan.urls')),
     path('pendidikan/', include('pendidikan.urls')),
     
