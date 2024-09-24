@@ -126,7 +126,14 @@ beckup
 JIKA AKAN MENJALANKAN MIGRATE DARI Dockerfile
 1. Buka Docker image web
 2. docker ps (Membuka seluruh docker seluruh yg aktif)
-2. docker exec -it nama_container python manage.py migrate
+3. docker exec -it nama_container python manage.py migrate
+
+MENGHAPUS DATABASE
+docker exec -i projectwebpostgres psql -U raselstr -d postgres -c "DROP DATABASE tkdd;"
 
 
+MEMBUAT DATABASE
+docker exec -i projectwebpostgres psql -U raselstr -d postgres -c "CREATE DATABASE tkdd;"
 
+RESTORE DATABASE
+docker exec -i projectwebpostgres psql -U raselstr -d tkdd < /var/lib/postgresql/db_host/backup230920240849am.sql
