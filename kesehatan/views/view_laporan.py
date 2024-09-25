@@ -155,7 +155,7 @@ def get_data_context(request):
 
     filterreals = Q()
     if level == 'APIP':
-        filterreals &= Q(realisasidankel_verif=1)
+        filterreals &= Q(realisasi_verif=1)
     if realisasi_tahun:
         filterreals &= Q(realisasi_tahun=realisasi_tahun)
     if realisasi_dana:
