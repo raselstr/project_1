@@ -49,8 +49,8 @@
                                     <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
                                     <td style="text-align: right;">{{ data.rencana_pagu }}</td>
                                     <td style="text-align: center;">
-                                        {{ data.rencana_output|default:"0"|floatformat:0 }}
-                                        {{ data.rencana_kegiatan.dausgpendidikansub_satuan }}
+                                        {{ data.rencana_output|default:"0"|floatformat:0 }}<br>
+                                        {{ data.rencana_kegiatan.dausgpusub_satuan }}
                                     </td>
                                     <td style="text-align: center;">{{ data.rencana_ket }}</td>
                                     <td style="text-align: right;">{{ data.rencana_pagudpa }}</td>
