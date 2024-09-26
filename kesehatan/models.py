@@ -120,9 +120,9 @@ class Rencanakesehatanposting(models.Model):
     posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
     def get_total_rencana(self, tahun, opd, dana):
-        filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
+        filters = Q(posting_tahun=tahun) & Q(posting_dana_id=dana)
         if opd is not None and opd not in [124,67,70]:
-            filters &= Q(posting_subopd=opd)
+            filters &= Q(posting_subopd_id=opd)
         return Rencanakesehatanposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
     def __str__(self):
@@ -141,7 +141,7 @@ class Realisasikesehatan(models.Model):
     realisasi_rencanaposting = models.ForeignKey(Rencanakesehatanposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
     realisasi_rencana = models.ForeignKey(Rencanakesehatan, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
     realisasi_subkegiatan = models.ForeignKey(DausgkesehatanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
-    realisasi_output = models.IntegerField(verbose_name='Capaian Output')
+    realisasi_output = models.DecimalField(verbose_name='Capaian Output',max_digits=8, decimal_places=2,default=0)
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)

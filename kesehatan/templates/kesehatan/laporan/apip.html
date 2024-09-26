@@ -1,0 +1,285 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>{{judul}}</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
+
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="{% static 'assets/modules/ionicons/css/ionicons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/izitoast/css/iziToast.min.css' %}">
+
+ <!-- CSS Libraries -->
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-daterangepicker/daterangepicker.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/jquery-selectric/selectric.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css' %}">
+
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
+<!-- Start GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-94034622-3');
+
+
+</script>
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.5.0/css/rowGroup.dataTables.css" />
+<!-- /END GA --></head>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="main-content">
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <table class="table table-sm" style="border-collapse: collapse; width:100%;padding: 4px;line-height: 1.5">
+                                <tr>
+                                    <th colspan="3" style="text-align:center"> 
+                                        <h4>{{judul|upper}} <br>
+                                        {{subjudul|upper}}
+                                        </h4>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td width = "15%"> Tahun Anggaran</td>
+                                    <td width = "2%"> :</td>
+                                    <td> {{tahunrealisasi}}</td>
+                                </tr>
+                                <tr>
+                                    <td> Sumber Dana</td>
+                                    <td> :</td>
+                                    <td> {{danarealisasi_id.sub_nama}}</td>
+                                </tr>
+                                <tr>
+                                    <td> Tahap</td>
+                                    <td> :</td>
+                                    <td> {{tahaprealisasi_id.tahap_dana}} *)</td>
+                                </tr>
+                                <tr>
+                                    <td> OPD</td>
+                                    <td> :</td>
+                                    <td> {{subopdrealisasi_id.sub_nama}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" style="text-align: justify">
+                                        Kami yang bertandatangan di bawah ini, menyatakan bahwa kami telah melakukan Reviu atas Penggunaan DAU Bidang Pekerjaan Umum dalam APBD Tahun
+                                        Anggaran {{tahunrealisasi}} dan/atau Peraturan Kepala Daerah mengenai Perubahan Penjabaran APBD Tahun
+                                        Anggaran {{tahunrealisasi}}. Dan dinyatakan sudah sesuai dan benar.
+
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                        </div>
+                        <div class="card-header">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="4">Penerimaan</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="text-align: center">No</th>
+                                        <th style="text-align: center">Tanggal Terima</th>
+                                        <th style="text-align: center">Tahap</th>
+                                        <th style="text-align: center">Nilai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for penerimaan in penerimaan %}
+                                    <tr>
+                                        <td style="text-align: center">{{forloop.counter}}</td>
+                                        <td style="text-align: center">{{penerimaan.penerimaan_tgl}}</td>
+                                        <td>{{penerimaan.penerimaan_tahap}}</td>
+                                        <td style="text-align: right">{{penerimaan.penerimaan_nilai}}</td>
+                                    </tr>   
+                                    {% endfor %}
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-sm " witdh="100%">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center" rowspan="2">No</th>
+                                        <th style="text-align:center" rowspan="2">Nama Program</th>
+                                        <th style="text-align:center" colspan="2">Rencana</th>
+                                        <th style="text-align:center" colspan="2">Realisasi</th>
+                                        <th style="text-align:center" rowspan="2">Satuan</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="text-align:center">Pagu</th>
+                                        <th style="text-align:center">Output</th>
+                                        <th style="text-align:center">SP2D</th>
+                                        <th style="text-align:center">Output</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for prog in prog_data %}
+                                        <tr>
+                                            <td><strong>{{ prog.prog_number }}</strong></td>
+                                            <td><strong>{{ prog.prog.dausgpu_prog }}</strong></td>
+                                            <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
+                                            <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
+                                            <td style="text-align:right"><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
+                                            <td style="text-align:center"><strong>{{ prog.total_realisasi_output_prog}}</strong></td>
+                                            <td><strong></strong></td>
+                                        </tr>
+
+                                        {% for keg in prog.kegs %}
+                                            <tr>
+                                                <td>{{ keg.kegiatan_number }}</td>
+                                                <td>&emsp;{{ keg.keg.dausgpukeg_nama}}</td>
+                                                <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
+                                                <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                                <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
+                                                <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
+                                                <td></td>
+                                            </tr>
+
+                                            {% for sub in keg.subs %}
+                                                <tr>
+                                                    <td>{{ sub.sub_number }}</td>
+                                                    <td>&emsp;&emsp;{{ sub.sub.dausgpusub_nama }}</td>
+                                                    <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
+                                                    <td style="text-align:center">{{ sub.output}}</td>
+                                                    <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
+                                                    <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
+                                                    <td>{{ sub.sub.dausgpusub_satuan}}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="2">Total Keseluruhan</th>
+                                        <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
+                                        <th style="text-align:center">{{ total_output_keseluruhan }}</th>
+                                        <th style="text-align:right">{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
+                                        <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            {% for data in data %}
+                            <table class="table table-sm" style="width:100%;padding: 4px;line-height: 1.2">
+                                <tr>
+                                    <td width="60%"></td>
+                                    <td></td>
+                                    <td>Kisaran,</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{data.pejabat_jabatan}}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{data.pejabat_nama}}</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>NIP. {{data.pejabat_nip}}</td>
+                                </tr>
+                            </table>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'assets/modules/jquery.min.js' %}"></script>
+<script src="{% static 'assets/modules/popper.js' %}"></script>
+<script src="{% static 'assets/modules/tooltip.js' %}"></script>
+<script src="{% static 'assets/modules/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/modules/nicescroll/jquery.nicescroll.min.js' %}"></script>
+<script src="{% static 'assets/modules/moment.min.js' %}"></script>
+<script src="{% static 'assets/js/stisla.js' %}"></script>
+
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.5.0/js/dataTables.rowGroup.js"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.5.0/js/rowGroup.dataTables.js"></script>
+
+
+<script src="{% static 'js/datatable.js' %}"></script>
+
+<script src="{% static 'assets/modules/izitoast/js/iziToast.min.js' %}"></script>
+<script src="{% static 'assets/js/page/modules-toastr.js' %}"></script>
+
+<!-- JS Libraies -->
+<script src="{% static 'assets/modules/cleave-js/dist/cleave.min.js' %}"></script>
+<script src="{% static 'assets/modules/cleave-js/dist/addons/cleave-phone.us.js' %}"></script>
+<script src="{% static 'assets/modules/jquery-pwstrength/jquery.pwstrength.min.js' %}"></script>
+<script src="{% static 'assets/modules/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'assets/modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js' %}"></script>
+<script src="{% static 'assets/modules/bootstrap-timepicker/js/bootstrap-timepicker.min.js' %}"></script>
+<script src="{% static 'assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js' %}"></script>
+<script src="{% static 'assets/modules/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="{% static 'assets/modules/jquery-selectric/jquery.selectric.min.js' %}"></script>
+
+<script src="{% static 'assets/js/page/forms-advanced-forms.js' %}"></script>
+<script src="{% static 'assets/js/page/components-table.js' %}"></script>
+<script src="{% static 'assets/js/scripts.js' %}"></script>
+<script src="{% static 'assets/js/custom.js' %}"></script>
+<script>
+      // Menunggu halaman sepenuhnya dimuat sebelum memanggil print()
+      window.addEventListener('load', function() {
+        window.print();
+      });
+    </script>
+</body>
+</html>     
+
+
+

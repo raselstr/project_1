@@ -3,6 +3,7 @@ from kesehatan.views import view_rencana, view_posting, view_realisasi, view_lap
 
 urlpatterns = [
 
+    path("laporan/apip/", view_laporan.apip, name="laporan_kesehatan_apip"),
     path("laporan/pdf/", view_laporan.pdf, name="laporan_kesehatan_pdf"),
     path("laporan/daftar/", view_laporan.list, name="laporan_kesehatan_list"),
     path("laporan/filter/", view_laporan.filter, name="laporan_kesehatan_filter"),

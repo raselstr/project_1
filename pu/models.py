@@ -141,7 +141,7 @@ class Realisasipu(models.Model):
     realisasi_rencanaposting = models.ForeignKey(Rencanapuposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
     realisasi_rencana = models.ForeignKey(Rencanapu, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
     realisasi_subkegiatan = models.ForeignKey(DausgpuSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
-    realisasi_output = models.IntegerField(verbose_name='Capaian Output')
+    realisasi_output = models.DecimalField(verbose_name='Capaian Output', max_digits=17, decimal_places=2,default=0)
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
