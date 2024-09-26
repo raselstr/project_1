@@ -15,18 +15,9 @@
     </div>
   </form>
   <ul class="navbar-nav navbar-right">
-    <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="fas fa-globe-asia"></i> {{ tahun }} - {{jadwal}}</a>
-      {% comment %} <div class="dropdown-menu dropdown-list dropdown-menu-right">
-        <div class="dropdown-header">Messages
-          <div class="float-right">
-            <a href="#">Mark All As Read</a>
-          </div>
-        </div>
-        <div class="dropdown-footer text-center">
-          <a href="#">View All <i class="fas fa-chevron-right"></i></a>
-        </div> 
-      </div>{% endcomment %}
-    </li>
+    <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="fas fa-globe-asia"></i> Posting</a>
+    <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle"><i class="fas fa-globe-asia"></i> Tahun Anggaran : {{ tahun }} - Jadwal Posting : {{jadwal}}</a>
+      
     {% comment %} <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link nav-link-lg message-toggle beep"><i class="far fa-envelope"></i></a> {% endcomment %}
       {% comment %} <div class="dropdown-menu dropdown-list dropdown-menu-right">
         <div class="dropdown-header">Messages
@@ -54,11 +45,24 @@
     <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
       <img alt="image" src="{% static 'media/img/avatar/avatar-1.png' %}" class="rounded-circle mr-1">
       <div class="d-sm-none d-lg-inline-block">{{user_nama}} </div></a>
-      <div class="dropdown-menu dropdown-menu-right">
-        <div class="dropdown-title">
-          Super User : {{is_superuser}}  <br>
-          OPD : {{subopd}}<br>
-          Level : {{level}}
+      <div class="dropdown-menu dropdown-list dropdown-menu-right">
+        <div class="dropdown-header">
+          Super User
+          <div class="float-right">
+            {{is_superuser}}
+          </div>
+        </div>
+        <div class="dropdown-header mt-0">
+          OPD
+          <div class="float-right">
+            {{subopd}}
+          </div>
+        </div>
+        <div class="dropdown-header">
+          Level
+          <div class="float-right">
+            {{level}}
+          </div>
         </div>
         <a href="#" class="dropdown-item has-icon">
           <i class="far fa-user"></i> Profile
