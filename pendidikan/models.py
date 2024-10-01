@@ -65,11 +65,22 @@ class Rencana(models.Model):
             raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
                         
     def save(self, *args, **kwargs):
-        total_realisasi_pk = self.get_realisasi_pk()
+        if self.pk:  # Hanya untuk objek yang sudah ada
+            original = Rencana.objects.get(pk=self.pk)
+            if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
+                total_realisasi_pk = self.get_realisasi_pk()  # Pindahkan setelah pengecekan
+                print(original.rencana_kegiatan_id, self.rencana_kegiatan_id, total_realisasi_pk)
+                if total_realisasi_pk > 0:
+                    raise ValidationError('Tidak bisa mengubah "rencana_kegiatan" karena sudah ada realisasi.')
+        else:
+            total_realisasi_pk = self.get_realisasi_pk()  # Tetap dihitung di luar saat baru buat
+            
         if self.rencana_pagu < total_realisasi_pk:
             formatted_total_realisasi_pk = f'{total_realisasi_pk:,.2f}'.replace(',', '.')
             formatted_total_rencana_pagu = f'{self.rencana_pagu:,.2f}'.replace(',', '.')
             raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk}. Nilai Rencana Rp. {formatted_total_rencana_pagu} tidak boleh lebih kecil dari Nilai Realisasi')
+        
+        
         super().save(*args, **kwargs)
     
     def get_pagu(self,tahun, opd, dana):
