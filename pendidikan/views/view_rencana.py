@@ -191,3 +191,22 @@ def home(request):
         'link_url': reverse(url_filter),
     }
     return render(request, template_home, context)
+
+def rekap_pagu_pendidikan_view(request):
+    # Filter rencana yang terkait dengan sub_slug 'dau-sg-bidang-pendidikan'
+    rekap_data = Subopd.objects.filter(
+        rencana__rencana_dana__sub_slug='dau-sg-bidang-pendidikan'
+    ).annotate(
+        total_pagu=Sum('rencana__rencana_pagu'),
+        total_rencana=Sum('rencana__rencana_pagudpa'),
+        total_posting_pagu=Sum('rencanaposting__posting_pagu'),
+    ).values('sub_nama').annotate(
+        total_pagu=Sum('rencana__rencana_pagu'),
+        total_rencana=Sum('rencana__rencana_pagudpa'),
+        total_posting_pagu=Sum('rencanaposting__posting_pagu'),
+    )
+
+    context = {
+        'rekap_data': rekap_data,
+    }
+    return render(request, 'rekap_pagu_pendidikan.html', context)
