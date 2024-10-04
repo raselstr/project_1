@@ -54,7 +54,7 @@ def rekap(request):
     jadwal = request.session.get('jadwal')
     
     filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana_id=dana.id)
-    if subopd is not None:
+    if subopd is not None and subopd not in [67,70]:
         filters &= Q(pagudausg_opd=subopd)
     pagu_list = model_pagu.objects.filter(filters)
     
