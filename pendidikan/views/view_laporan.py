@@ -13,12 +13,15 @@ from dausg.models import Subkegiatan, DausgpendidikanProg
 from pendidikan.forms import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
+from pagu.models import Pagudausg
+from ..tables import RekapPaguTable
+
 
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
 
 model_data = Rencanaposting
-model_pagu = Rencana
+model_rencana = Rencana
 model_dana = Subkegiatan
 model_realisasi = Realisasi
 model_penerimaan = Penerimaan
@@ -26,6 +29,7 @@ model_program = DausgpendidikanProg
 model_pejabat = Pejabat
 model_tahap = TahapDana
 model_subopd = Subopd
+model_pagu = Pagudausg
 
 url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filter'
@@ -37,10 +41,44 @@ template_home = 'pendidikan/laporan/home.html'
 template_list = 'pendidikan/laporan/list.html'
 template_modal = 'pendidikan/laporan/modal.html'
 
+tabel= RekapPaguTable
+
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
+def rekap(request):
+    tahun = request.session.get('tahun')
+    dana = model_dana.objects.get(sub_slug=sesidana)
+    subopd = request.session.get('idsubopd')
+    jadwal = request.session.get('jadwal')
+    
+    filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana_id=dana.id)
+    if subopd is not None:
+        filters &= Q(pagudausg_opd=subopd)
+    pagu_list = model_pagu.objects.filter(filters)
+    
+    rekap_data = []
+    # print(pagu_list)
+    for pagu in pagu_list:
+        filters_rencana = Q(rencana_tahun=tahun) & Q(rencana_dana_id=dana.id) & Q(rencana_subopd_id=pagu.pagudausg_opd_id)
+        filters_posting = Q(posting_tahun=tahun) & Q(posting_dana_id=dana.id) & Q(posting_subopd_id=pagu.pagudausg_opd_id) & Q(posting_jadwal=jadwal)
+        filters_realisasi = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id)
+        total_nilai_rencana = model_rencana.objects.filter(filters_rencana).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
+        total_nilai_posting = model_data.objects.filter(filters_posting).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
+        total_nilai_realisasi = model_realisasi.objects.filter(filters_realisasi).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+        rekap_data.append({
+            'subopd':pagu.pagudausg_opd.sub_nama,
+            'pagu':pagu.pagudausg_nilai,
+            'total_rencana':total_nilai_rencana,
+            'total_posting':total_nilai_posting,
+            'total_realisasi':total_nilai_realisasi,
+        })
+    table = tabel(rekap_data)
+    return {
+        'rekap_data' : table,
+    }
+    
 @set_submenu_session
 @menu_access_required('list')
 def list(request):
@@ -58,6 +96,7 @@ def list(request):
         'link_cetak' : reverse(url_pdf)
     })
     return render(request, template_list, context)
+
 
 
 def filter(request):
@@ -94,6 +133,7 @@ def filter(request):
 def home(request):
     tahun = request.session.get('tahun')
     sesisubopd = request.session.get('idsubopd')
+    context = rekap(request)
     
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
@@ -101,7 +141,7 @@ def home(request):
         dana = None
     
     if dana:
-        pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
@@ -114,10 +154,8 @@ def home(request):
         realisasi = 0
         persendana = 0
         persenpagu = 0
-        
-        
     
-    context = {
+    context.update({
         'judul': 'Laporan Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Laporan Kegiatan Tahun Berjalan',
         'datapagu': pagu,
@@ -128,7 +166,7 @@ def home(request):
         'persenpagu' : persenpagu,
         
         'link_url': reverse(url_filter),
-    }
+    })
     return render(request, template_home, context)
 
 
@@ -322,9 +360,9 @@ def apip(request):
     idopd = request.session.get('realisasidankel_subopd')
     
     if sesiidopd :
-        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
+        data = model_pejabat.objects.filter(pejabat_sub=sesiidopd)
     
-    penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
+    penerimaan = model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
         
     context.update({
         'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
@@ -359,9 +397,9 @@ def sp2d(request):
     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
         
-    sp2d = Model_realisasi.objects.filter(filterreals)
+    sp2d = model_realisasi.objects.filter(filterreals)
     if subopdrealisasi_id:
-        data = Model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
+        data = model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
         
     context.update({
         'judul': 'REKAPITULASI SP2D',
@@ -370,3 +408,5 @@ def sp2d(request):
         # 'persen': total_persentase,
         })
     return render(request, 'dankel_laporan/laporan_sp2d.html', context)
+
+

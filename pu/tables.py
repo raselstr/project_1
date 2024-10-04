@@ -80,3 +80,23 @@ class RealisasipuTable(tables.Table):
         )
     def render_footer(self, bound_column, table):
         return sum(bound_column.accessor.resolve(row) for row in table.data)
+    
+class RekapPaguTable(tables.Table):
+    # Mendefinisikan kolom yang akan ditampilkan
+    subopd = tables.Column(verbose_name="Sub OPD", footer="Total")
+    pagu = totalrealisasi(verbose_name="Total Pagu", attrs={"td": {"class": "text-right"}})
+    total_rencana = totalrealisasi(verbose_name="Total Rencana", attrs={"td": {"class": "text-right"}})
+    total_posting = totalrealisasi(verbose_name="Total Rencana TerValidasi", attrs={"td": {"class": "text-right"}})
+    total_realisasi = totalrealisasi(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
+
+    class Meta:
+        template_name = "django_tables2/bootstrap4-responsive.html"
+        attrs = {
+            "class": "table table-bordered border-primary table-sm",
+            'th': {
+                'style':"text-align: center;"
+                },
+            'tf': {
+                'style':"text-align: right;"
+                },
+            }

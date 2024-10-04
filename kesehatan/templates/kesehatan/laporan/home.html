@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load custom_filters %}
+{% load django_tables2 %}
 
 {% block content %}
 <section class="section">
@@ -63,6 +64,22 @@
                             hx-indicator="#modal-spinner">
                             {{tab1}}....<i class="fas fa-chevron-right"></i>
                         </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Rekap</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if rekap_data %}
+                            {% render_table rekap_data %}
+                        {% else %}
+                            <p>No data available.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
