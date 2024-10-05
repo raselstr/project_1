@@ -65,7 +65,15 @@ class Rencanakesehatan(models.Model):
             raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
                         
     def save(self, *args, **kwargs):
-        total_realisasi_pk = self.get_realisasi_pk()
+        if self.pk:  # Hanya untuk objek yang sudah ada
+            original = Rencanakesehatan.objects.get(pk=self.pk)
+            if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
+                total_realisasi_pk = self.get_realisasi_pk(original.rencana_kegiatan_id)  # Pindahkan setelah pengecekan
+                if total_realisasi_pk > 0:
+                    raise ValidationError('Tidak bisa mengubah "Sub Kegiatan DAU SG" karena sudah ada realisasi.')
+            else:
+                total_realisasi_pk = self.get_realisasi_pk(self.rencana_kegiatan_id)  # Tetap dihitung di luar saat baru buat
+            # print(original.rencana_kegiatan_id, self.rencana_kegiatan_id, total_realisasi_pk)
         if self.rencana_pagu < total_realisasi_pk:
             formatted_total_realisasi_pk = f'{total_realisasi_pk:,.2f}'.replace(',', '.')
             formatted_total_rencana_pagu = f'{self.rencana_pagu:,.2f}'.replace(',', '.')
@@ -90,10 +98,10 @@ class Rencanakesehatan(models.Model):
         total_pagu = self.get_pagu(tahun, opd, dana)
         return total_pagu - total_rencana
     
-    def get_realisasi_pk(self):
+    def get_realisasi_pk(self, kode):
         filters = Q(realisasi_tahun=self.rencana_tahun) & Q(realisasi_dana=self.rencana_dana_id)
         if self.rencana_kegiatan_id is not None:
-            filters &= Q(realisasi_subkegiatan_id=self.rencana_kegiatan_id)
+            filters &= Q(realisasi_subkegiatan_id=kode)
         if self.rencana_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
         nilai_realisasi = Realisasikesehatan.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)

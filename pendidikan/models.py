@@ -68,19 +68,16 @@ class Rencana(models.Model):
         if self.pk:  # Hanya untuk objek yang sudah ada
             original = Rencana.objects.get(pk=self.pk)
             if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
-                total_realisasi_pk = self.get_realisasi_pk()  # Pindahkan setelah pengecekan
-                print(original.rencana_kegiatan_id, self.rencana_kegiatan_id, total_realisasi_pk)
+                total_realisasi_pk = self.get_realisasi_pk(original.rencana_kegiatan_id)  # Pindahkan setelah pengecekan
                 if total_realisasi_pk > 0:
-                    raise ValidationError('Tidak bisa mengubah "rencana_kegiatan" karena sudah ada realisasi.')
-        else:
-            total_realisasi_pk = self.get_realisasi_pk()  # Tetap dihitung di luar saat baru buat
-            
+                    raise ValidationError('Tidak bisa mengubah "Sub Kegiatan DAU SG" karena sudah ada realisasi.')
+            else:
+                total_realisasi_pk = self.get_realisasi_pk(self.rencana_kegiatan_id)  # Tetap dihitung di luar saat baru buat
+            # print(original.rencana_kegiatan_id, self.rencana_kegiatan_id, total_realisasi_pk)
         if self.rencana_pagu < total_realisasi_pk:
             formatted_total_realisasi_pk = f'{total_realisasi_pk:,.2f}'.replace(',', '.')
             formatted_total_rencana_pagu = f'{self.rencana_pagu:,.2f}'.replace(',', '.')
             raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk}. Nilai Rencana Rp. {formatted_total_rencana_pagu} tidak boleh lebih kecil dari Nilai Realisasi')
-        
-        
         super().save(*args, **kwargs)
     
     def get_pagu(self,tahun, opd, dana):
@@ -101,10 +98,10 @@ class Rencana(models.Model):
         total_pagu = self.get_pagu(tahun, opd, dana)
         return total_pagu - total_rencana
     
-    def get_realisasi_pk(self):
+    def get_realisasi_pk(self, kode):
         filters = Q(realisasi_tahun=self.rencana_tahun) & Q(realisasi_dana=self.rencana_dana_id)
         if self.rencana_kegiatan_id is not None:
-            filters &= Q(realisasi_subkegiatan_id=self.rencana_kegiatan_id)
+            filters &= Q(realisasi_subkegiatan_id=kode)
         if self.rencana_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
         nilai_realisasi = Realisasi.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
