@@ -65,6 +65,7 @@ class Rencanapu(models.Model):
             raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
                         
     def save(self, *args, **kwargs):
+        total_realisasi_pk = 0
         if self.pk:  # Hanya untuk objek yang sudah ada
             original = Rencanapu.objects.get(pk=self.pk)
             if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
