@@ -108,16 +108,17 @@ def simpan(request):
         realisasi_tahun=request.session.get('realisasi_tahun'),
         realisasi_dana=request.session.get('realisasi_dana'),
         realisasi_subopd=request.session.get('realisasi_subopd'),
-        realisasi_tahap=request.session.get('realisasi_tahap')
+        realisasi_tahap=request.session.get('realisasi_tahap'),
+        jadwal = request.session.get('jadwal')
     )
     if request.method == 'POST':
-        form = form_data(request.POST or None)
+        form = form_data(request.POST or None, initial_data=initial_data)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = form_data(initial=initial_data)
+        form = form_data(initial=initial_data, initial_data=initial_data)
 
     context = {
         'form': form,
