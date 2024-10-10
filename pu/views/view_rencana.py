@@ -121,7 +121,7 @@ def list(request):
         data = None
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Daftar Kegiatan DAU Bidang Pekerjaan  Umum',
         'tombol': 'Tambah Perencanaan',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
@@ -182,7 +182,7 @@ def home(request):
         sisa = 0
     
     context = {
-        'judul': 'Rencana Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Rencana Kegiatan DAU Bidang Pekerjaan  Umum',
         'tab1': 'Rencana Kegiatan Tahun Berjalan',
         'datapagu': pagu,
         'datarencana' : rencana,

@@ -157,7 +157,7 @@ def list(request):
     RequestConfig(request, paginate={"per_page": 25}).configure(table)
 
     context = {
-        'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
+        'judul': 'Daftar Realisasi DAU Bidang Pekerjaan  Umum',
         'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
@@ -228,7 +228,7 @@ def home(request):
         
     
     context = {
-        'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Realisasi Kegiatan DAU Bidang Pekerjaan  Umum',
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
         'datapagu': pagu,
         'datarencana' : rencana,
