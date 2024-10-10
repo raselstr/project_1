@@ -74,7 +74,7 @@ services:
       app-network:
         ipv4_address: 172.16.238.13
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "raselstr"]
+      test: ["CMD", "pg_isready", "-U", "raselstr", "-d", "tkdd"]
       interval: 30s
       timeout: 10s
       retries: 3
