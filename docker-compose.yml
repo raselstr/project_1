@@ -13,9 +13,14 @@ services:
     expose:
       - "4500"
     networks:
-      - app-network  # Tambahkan ini
+      - app-network
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4500"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: nginx:latest
@@ -25,11 +30,16 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "4500:4500"  # Akses lokal
+      - "4500:4500"
     networks:
       - app-network
     depends_on:
       - web  
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4500"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   
   adminer:
     image: adminer:latest
@@ -39,7 +49,12 @@ services:
       - "8080:8080" 
     networks:
       - app-network
-  
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   db:
     image: postgres:latest
     container_name: projectwebpostgres
@@ -54,7 +69,12 @@ services:
       - /d/web/db_host:/var/lib/postgresql/db_host
     networks:
       - app-network
-  
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "raselstr"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 networks:
   app-network:
     driver: bridge
