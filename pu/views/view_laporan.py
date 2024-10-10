@@ -64,15 +64,26 @@ def rekap(request):
     for pagu in pagu_list:
         filters_rencana = Q(rencana_tahun=tahun) & Q(rencana_dana_id=dana.id) & Q(rencana_subopd_id=pagu.pagudausg_opd_id)
         filters_posting = Q(posting_tahun=tahun) & Q(posting_dana_id=dana.id) & Q(posting_subopd_id=pagu.pagudausg_opd_id) & Q(posting_jadwal=jadwal)
+        
+        filters_tahap1 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=1)
+        filters_tahap2 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=2)
+        filters_tahap3 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=3)
+        
         filters_realisasi = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id)
         total_nilai_rencana = model_rencana.objects.filter(filters_rencana).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
         total_nilai_posting = model_data.objects.filter(filters_posting).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
+        total_nilai_tahap1 = model_realisasi.objects.filter(filters_tahap1).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+        total_nilai_tahap2 = model_realisasi.objects.filter(filters_tahap2).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+        total_nilai_tahap3 = model_realisasi.objects.filter(filters_tahap3).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
         total_nilai_realisasi = model_realisasi.objects.filter(filters_realisasi).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
         rekap_data.append({
             'subopd':pagu.pagudausg_opd.sub_nama,
             'pagu':pagu.pagudausg_nilai,
             'total_rencana':total_nilai_rencana,
             'total_posting':total_nilai_posting,
+            'total_tahap1':total_nilai_tahap1,
+            'total_tahap2':total_nilai_tahap2,
+            'total_tahap3':total_nilai_tahap3,
             'total_realisasi':total_nilai_realisasi,
         })
     table = tabel(rekap_data)

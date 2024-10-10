@@ -87,6 +87,9 @@ class RekapPaguTable(tables.Table):
     pagu = totalrealisasi(verbose_name="Total Pagu", attrs={"td": {"class": "text-right"}})
     total_rencana = totalrealisasi(verbose_name="Total Rencana", attrs={"td": {"class": "text-right"}})
     total_posting = totalrealisasi(verbose_name="Total Rencana TerValidasi", attrs={"td": {"class": "text-right"}})
+    total_tahap1 = totalrealisasi(verbose_name="Tahap 1", attrs={"td": {"class": "text-right"}})
+    total_tahap2 = totalrealisasi(verbose_name="Tahap 2", attrs={"td": {"class": "text-right"}})
+    total_tahap3 = totalrealisasi(verbose_name="Tahap 3", attrs={"td": {"class": "text-right"}})
     total_realisasi = totalrealisasi(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
 
     class Meta:
@@ -100,3 +103,4 @@ class RekapPaguTable(tables.Table):
                 'style':"text-align: right;"
                 },
             }
+        
