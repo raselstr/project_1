@@ -310,7 +310,7 @@ def get_data_context(request):
                                 'tahap2': total_tahap2,
                                 'tahap3': total_tahap3
                             },
-                            'sub_number': f"{program_counter}.{kegiatan_counter}.{sub_kegiatan_counter}"  # Nomor sub-kegiatan
+                            'sub_number': f"{program_counter:02}.{kegiatan_counter:02}.{sub_kegiatan_counter:02}"  # Nomor sub-kegiatan
                         })
 
                         total_realisasi_output_keg += total_output_realisasi
@@ -332,7 +332,7 @@ def get_data_context(request):
                     'total_tahap1_keg': total_tahap1_keg,
                     'total_tahap2_keg': total_tahap2_keg,
                     'total_tahap3_keg': total_tahap3_keg,
-                    'kegiatan_number': f"{program_counter}.{kegiatan_counter}"  # Nomor kegiatan
+                    'kegiatan_number': f"{program_counter:02}.{kegiatan_counter:02}"  # Nomor kegiatan
                 })
                 total_pagu_prog += total_pagu_keg
                 total_output_prog += total_output_keg
@@ -346,7 +346,7 @@ def get_data_context(request):
 
         if total_pagu_prog > 0:  # Hanya jika ada total pagu
             prog_data.append({
-                'prog_number': program_counter,
+                'prog_number': f"{program_counter:02}",
                 'prog': prog,
                 'kegs': prog_kegs,
                 'total_pagu_prog': total_pagu_prog,
