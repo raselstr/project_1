@@ -378,8 +378,6 @@ def get_data_context(request):
 
         program_counter += 1  # Increment counter program
     
-    prog_data = sorted(prog_data, key=lambda x: x['prog_number'])
-
     return {
         'prog_data': prog_data,
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
