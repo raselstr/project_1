@@ -75,22 +75,22 @@
                                 <tr>
                                     <td width = "15%"> Tahun Anggaran</td>
                                     <td width = "2%"> :</td>
-                                    <td> {{tahunrealisasi}}</td>
+                                    <td> {{realisasi_tahun}}</td>
                                 </tr>
                                 <tr>
                                     <td> Sumber Dana</td>
                                     <td> :</td>
-                                    <td> {{danarealisasi_id.sub_nama}}</td>
+                                    <td> {{realisasi_dana}}</td>
                                 </tr>
                                 <tr>
                                     <td> Tahap</td>
                                     <td> :</td>
-                                    <td> {{tahaprealisasi_id.tahap_dana}} *)</td>
+                                    <td> {{realisasi_tahap}} *)</td>
                                 </tr>
                                 <tr>
                                     <td> OPD</td>
                                     <td> :</td>
-                                    <td> {{subopdrealisasi_id.sub_nama}}</td>
+                                    <td> {{realisasi_subopd}}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="3">
@@ -111,13 +111,16 @@
                                         <th style="text-align:center" rowspan="2">No</th>
                                         <th style="text-align:center" rowspan="2">Nama Program</th>
                                         <th style="text-align:center" colspan="2">Rencana</th>
-                                        <th style="text-align:center" colspan="2">Realisasi</th>
+                                        <th style="text-align:center" colspan="5">Realisasi</th>
                                         <th style="text-align:center" rowspan="2">Satuan</th>
                                     </tr>
                                     <tr>
                                         <th style="text-align:center">Pagu</th>
                                         <th style="text-align:center">Output</th>
-                                        <th style="text-align:center">SP2D</th>
+                                        <th style="text-align:center">Tahap 1</th>
+                                        <th style="text-align:center">Tahap 2</th>
+                                        <th style="text-align:center">Tahap 3</th>
+                                        <th style="text-align:center">Total</th>
                                         <th style="text-align:center">Output</th>
                                     </tr>
                                 </thead>
@@ -128,6 +131,9 @@
                                             <td><strong>{{ prog.prog.dausgpendidikan_prog }}</strong></td>
                                             <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
                                             <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
+                                            <td style="text-align:right"><strong>{{ prog.total_tahap1_prog|floatformat:2 }}</strong></td>
+                                            <td style="text-align:right"><strong>{{ prog.total_tahap2_prog|floatformat:2 }}</strong></td>
+                                            <td style="text-align:right"><strong>{{ prog.total_tahap3_prog|floatformat:2 }}</strong></td>
                                             <td style="text-align:right"><strong>{{ prog.total_realisasi_prog|floatformat:2 }}</strong></td>
                                             <td style="text-align:center"><strong>{{ prog.total_realisasi_output_prog}}</strong></td>
                                             <td><strong></strong></td>
@@ -139,6 +145,9 @@
                                                 <td>&emsp;{{ keg.keg.dausgpendidikankeg_nama}}</td>
                                                 <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
                                                 <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap1_keg|floatformat:2 }}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap2_keg|floatformat:2 }}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap3_keg|floatformat:2 }}</td>
                                                 <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
                                                 <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
                                                 <td></td>
@@ -150,6 +159,9 @@
                                                     <td>&emsp;&emsp;{{ sub.sub.dausgpendidikansub_nama }}</td>
                                                     <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
                                                     <td style="text-align:center">{{ sub.output}}</td>
+                                                    <td style="text-align:right">{{ sub.realisasi.tahap1|floatformat:2 }}</td>
+                                                    <td style="text-align:right">{{ sub.realisasi.tahap2|floatformat:2 }}</td>
+                                                    <td style="text-align:right">{{ sub.realisasi.tahap3|floatformat:2 }}</td>
                                                     <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
                                                     <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
                                                     <td>{{ sub.sub.dausgpendidikansub_satuan}}</td>
@@ -157,17 +169,19 @@
                                             {% endfor %}
                                         {% endfor %}
                                     {% endfor %}
-                                </tbody>
-                                <tfoot>
+                                
                                     <tr>
                                         <th colspan="2">Total Keseluruhan</th>
                                         <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
                                         <th style="text-align:center">{{ total_output_keseluruhan }}</th>
+                                        <th style="text-align:right">{{ total_tahap1_keseluruhan|floatformat:2 }}</th>
+                                        <th style="text-align:right">{{ total_tahap2_keseluruhan|floatformat:2 }}</th>
+                                        <th style="text-align:right">{{ total_tahap3_keseluruhan|floatformat:2 }}</th>
                                         <th style="text-align:right">{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
                                         <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
                                         <th></th>
                                     </tr>
-                                </tfoot>
+                                </tbody>
                             </table>
                         </div>
                         <div class="card-footer">

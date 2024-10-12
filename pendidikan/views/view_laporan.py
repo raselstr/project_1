@@ -366,7 +366,11 @@ def get_data_context(request):
             total_tahap3_keseluruhan += total_tahap3_prog
 
         program_counter += 1  # Increment counter program
-
+    
+    tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
+    subopd_laporan = model_subopd.objects.filter(id=realisasi_subopd).first().sub_nama
+    dana_laporan = model_dana.objects.filter(id=realisasi_dana).first().sub_nama
+    
     return {
         'prog_data': prog_data,
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
@@ -376,6 +380,12 @@ def get_data_context(request):
         'total_tahap1_keseluruhan': total_tahap1_keseluruhan,
         'total_tahap2_keseluruhan': total_tahap2_keseluruhan,
         'total_tahap3_keseluruhan': total_tahap3_keseluruhan,
+        'realisasi_tahun': realisasi_tahun,
+        'realisasi_dana' : dana_laporan,
+        'realisasi_subopd' : subopd_laporan,
+        'realisasi_tahap' : tahap_laporan,
+        'jadwal':jadwal
+        
     }
 
 
