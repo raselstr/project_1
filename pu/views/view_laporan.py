@@ -53,43 +53,52 @@ def rekap(request):
     dana = model_dana.objects.get(sub_slug=sesidana)
     subopd = request.session.get('idsubopd')
     jadwal = request.session.get('jadwal')
-    
-    filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana_id=dana.id)
-    if subopd is not None and subopd not in [67,70]:
+
+    filters = Q(pagudausg_tahun=tahun, pagudausg_dana_id=dana.id)
+    if subopd not in [None, 67, 70]:
         filters &= Q(pagudausg_opd=subopd)
+
     pagu_list = model_pagu.objects.filter(filters)
-    
+
     rekap_data = []
-    # print(pagu_list)
     for pagu in pagu_list:
-        filters_rencana = Q(rencana_tahun=tahun) & Q(rencana_dana_id=dana.id) & Q(rencana_subopd_id=pagu.pagudausg_opd_id)
-        filters_posting = Q(posting_tahun=tahun) & Q(posting_dana_id=dana.id) & Q(posting_subopd_id=pagu.pagudausg_opd_id) & Q(posting_jadwal=jadwal)
-        
-        filters_tahap1 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=1)
-        filters_tahap2 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=2)
-        filters_tahap3 = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id) & Q(realisasi_tahap=3)
-        
-        filters_realisasi = Q(realisasi_tahun=tahun) & Q(realisasi_dana_id=dana.id) & Q(realisasi_subopd_id=pagu.pagudausg_opd_id)
-        total_nilai_rencana = model_rencana.objects.filter(filters_rencana).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
-        total_nilai_posting = model_data.objects.filter(filters_posting).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
-        total_nilai_tahap1 = model_realisasi.objects.filter(filters_tahap1).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
-        total_nilai_tahap2 = model_realisasi.objects.filter(filters_tahap2).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
-        total_nilai_tahap3 = model_realisasi.objects.filter(filters_tahap3).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
-        total_nilai_realisasi = model_realisasi.objects.filter(filters_realisasi).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+        common_filters = {
+            'tahun': tahun,
+            'dana_id': dana.id,
+            'subopd_id': pagu.pagudausg_opd_id
+        }
+
+        total_nilai_rencana = model_rencana.objects.filter(
+            rencana_tahun=common_filters['tahun'], rencana_dana_id=common_filters['dana_id'], rencana_subopd_id=common_filters['subopd_id']
+        ).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
+
+        total_nilai_posting = model_data.objects.filter(
+            posting_tahun=common_filters['tahun'], posting_dana_id=common_filters['dana_id'], posting_subopd_id=common_filters['subopd_id'], posting_jadwal=jadwal
+        ).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
+
+        total_nilai_tahap = [
+            model_realisasi.objects.filter(
+                realisasi_tahun=common_filters['tahun'], realisasi_dana_id=common_filters['dana_id'], realisasi_subopd_id=common_filters['subopd_id'], realisasi_tahap=i
+            ).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+            for i in range(1, 4)
+        ]
+
+        total_nilai_realisasi = sum(total_nilai_tahap)
+
         rekap_data.append({
-            'subopd':pagu.pagudausg_opd.sub_nama,
-            'pagu':pagu.pagudausg_nilai,
-            'total_rencana':total_nilai_rencana,
-            'total_posting':total_nilai_posting,
-            'total_tahap1':total_nilai_tahap1,
-            'total_tahap2':total_nilai_tahap2,
-            'total_tahap3':total_nilai_tahap3,
-            'total_realisasi':total_nilai_realisasi,
+            'subopd': pagu.pagudausg_opd.sub_nama,
+            'pagu': pagu.pagudausg_nilai,
+            'total_rencana': total_nilai_rencana,
+            'total_posting': total_nilai_posting,
+            'total_tahap1': total_nilai_tahap[0],
+            'total_tahap2': total_nilai_tahap[1],
+            'total_tahap3': total_nilai_tahap[2],
+            'total_realisasi': total_nilai_realisasi,
         })
+
     table = tabel(rekap_data)
-    return {
-        'rekap_data' : table,
-    }
+    return {'rekap_data': table}
+    
 
 @set_submenu_session
 @menu_access_required('list')
@@ -212,7 +221,7 @@ def get_data_context(request):
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
         filters &= Q(posting_dana_id=realisasi_dana)
-    if realisasi_subopd and realisasi_subopd not in [124, 67, 70]:
+    if realisasi_subopd not in [None, 124, 67, 70]:
         filters &= Q(posting_subopd_id=realisasi_subopd)
 
     filterreals = Q()
@@ -229,7 +238,7 @@ def get_data_context(request):
             filterreals &= Q(realisasi_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
-    if realisasi_subopd and realisasi_subopd not in [124, 67, 70]:
+    if realisasi_subopd not in [None, 124, 67, 70]:
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
     progs = model_program.objects.prefetch_related(
@@ -245,6 +254,9 @@ def get_data_context(request):
     total_output_keseluruhan = 0
     total_realisasi_keseluruhan = 0
     total_realisasi_output_keseluruhan = 0
+    total_tahap1_keseluruhan = 0
+    total_tahap2_keseluruhan = 0
+    total_tahap3_keseluruhan = 0
 
     program_counter = 1  # Counter untuk program
     for prog in progs:
@@ -252,6 +264,9 @@ def get_data_context(request):
         total_output_prog = 0
         total_realisasi_prog = 0
         total_realisasi_output_prog = 0
+        total_tahap1_prog = 0
+        total_tahap2_prog = 0
+        total_tahap3_prog = 0
         prog_kegs = []
         kegiatan_counter = 1  # Counter untuk kegiatan
 
@@ -260,6 +275,9 @@ def get_data_context(request):
             total_output_keg = 0
             total_realisasi_keg = 0
             total_realisasi_output_keg = 0
+            total_tahap1_keg = 0
+            total_tahap2_keg = 0
+            total_tahap3_keg = 0
             keg_subs = []
             sub_kegiatan_counter = 1  # Counter untuk sub-kegiatan
 
@@ -280,10 +298,20 @@ def get_data_context(request):
 
                         total_sp2d = 0
                         total_output_realisasi = 0
+                        total_tahap1 = 0
+                        total_tahap2 = 0
+                        total_tahap3 = 0
+
                         for rencana in related_rencanas:
                             realisasi_rencana = realisasis.filter(realisasi_rencanaposting_id=rencana.id)
+                            
                             total_sp2d += realisasi_rencana.aggregate(total_sp2d=Sum('realisasi_nilai'))['total_sp2d'] or 0
                             total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasi_output'))['total_output'] or 0
+
+                            # Hitung total per tahap
+                            total_tahap1 += realisasi_rencana.filter(realisasi_tahap_id=1).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
+                            total_tahap2 += realisasi_rencana.filter(realisasi_tahap_id=2).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
+                            total_tahap3 += realisasi_rencana.filter(realisasi_tahap_id=3).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
 
                         keg_subs.append({
                             'sub': sub,
@@ -291,13 +319,19 @@ def get_data_context(request):
                             'output': output,
                             'realisasi': {
                                 'total_sp2d': total_sp2d,
-                                'total_output': total_output_realisasi
+                                'total_output': total_output_realisasi,
+                                'tahap1': total_tahap1,
+                                'tahap2': total_tahap2,
+                                'tahap3': total_tahap3
                             },
                             'sub_number': f"{program_counter}.{kegiatan_counter}.{sub_kegiatan_counter}"  # Nomor sub-kegiatan
                         })
 
                         total_realisasi_output_keg += total_output_realisasi
                         total_realisasi_keg += total_sp2d
+                        total_tahap1_keg += total_tahap1
+                        total_tahap2_keg += total_tahap2
+                        total_tahap3_keg += total_tahap3
 
                     sub_kegiatan_counter += 1  # Increment counter sub-kegiatan
 
@@ -309,12 +343,18 @@ def get_data_context(request):
                     'total_output_keg': total_output_keg,
                     'total_realisasi_keg': total_realisasi_keg,
                     'total_realisasi_output_keg': total_realisasi_output_keg,
+                    'total_tahap1_keg': total_tahap1_keg,
+                    'total_tahap2_keg': total_tahap2_keg,
+                    'total_tahap3_keg': total_tahap3_keg,
                     'kegiatan_number': f"{program_counter}.{kegiatan_counter}"  # Nomor kegiatan
                 })
                 total_pagu_prog += total_pagu_keg
                 total_output_prog += total_output_keg
                 total_realisasi_prog += total_realisasi_keg
                 total_realisasi_output_prog += total_realisasi_output_keg
+                total_tahap1_prog += total_tahap1_keg
+                total_tahap2_prog += total_tahap2_keg
+                total_tahap3_prog += total_tahap3_keg
 
             kegiatan_counter += 1  # Increment counter kegiatan
 
@@ -326,15 +366,20 @@ def get_data_context(request):
                 'total_pagu_prog': total_pagu_prog,
                 'total_output_prog': total_output_prog,
                 'total_realisasi_prog': total_realisasi_prog,
-                'total_realisasi_output_prog': total_realisasi_output_prog
+                'total_realisasi_output_prog': total_realisasi_output_prog,
+                'total_tahap1_prog': total_tahap1_prog,
+                'total_tahap2_prog': total_tahap2_prog,
+                'total_tahap3_prog': total_tahap3_prog,
             })
-
             total_pagu_keseluruhan += total_pagu_prog
             total_output_keseluruhan += total_output_prog
             total_realisasi_keseluruhan += total_realisasi_prog
             total_realisasi_output_keseluruhan += total_realisasi_output_prog
+            total_tahap1_keseluruhan += total_tahap1_prog
+            total_tahap2_keseluruhan += total_tahap2_prog
+            total_tahap3_keseluruhan += total_tahap3_prog
 
-            program_counter += 1  # Increment counter program
+        program_counter += 1  # Increment counter program
 
     return {
         'prog_data': prog_data,
@@ -342,13 +387,9 @@ def get_data_context(request):
         'total_output_keseluruhan': total_output_keseluruhan,
         'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
         'total_realisasi_output_keseluruhan': total_realisasi_output_keseluruhan,
-        'tahunrealisasi': realisasi_tahun,
-        'danarealisasi_id': model_dana.objects.get(pk=realisasi_dana),
-        'tahaprealisasi_id': model_tahap.objects.get(pk=realisasi_tahap),
-        'subopdrealisasi_id': model_subopd.objects.get(pk=realisasi_subopd),
-    
-        
-        'jadwal': jadwal
+        'total_tahap1_keseluruhan': total_tahap1_keseluruhan,
+        'total_tahap2_keseluruhan': total_tahap2_keseluruhan,
+        'total_tahap3_keseluruhan': total_tahap3_keseluruhan,
     }
 
 
