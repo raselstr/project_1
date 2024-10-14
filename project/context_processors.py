@@ -34,7 +34,7 @@ def menu_context_processor(request):
             "menus": menus,
             "submenu_dict": submenu_dict,
             "is_superuser": request.session.get('is_superuser', False),
-            "user_nama": request.session.get('user_nama', 'Admin'),
+            "user_nama": request.session.get('user_nama', 'Super'),
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
             "tahun": request.session.get('tahun', current_year),
