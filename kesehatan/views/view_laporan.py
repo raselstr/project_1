@@ -480,9 +480,9 @@ def sp2d(request):
     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
         
-    sp2d = Model_realisasi.objects.filter(filterreals)
+    sp2d = model_realisasi.objects.filter(filterreals)
     if subopdrealisasi_id:
-        data = Model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
+        data = model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
         
     context.update({
         'judul': 'REKAPITULASI SP2D',
