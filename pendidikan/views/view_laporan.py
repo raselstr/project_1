@@ -35,11 +35,13 @@ url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filter'
 url_list = 'laporan_pendidikan_list'
 url_pdf = 'laporan_pendidikan_pdf'
+url_apip = 'laporan_pendidikan_apip'
 
 template_pdf = 'pendidikan/laporan/pdf.html'
 template_home = 'pendidikan/laporan/home.html'
 template_list = 'pendidikan/laporan/list.html'
 template_modal = 'pendidikan/laporan/modal.html'
+template_apip = 'pendidikan/laporan/apip.html'
 
 tabel= RekapPaguTable
 
@@ -105,14 +107,24 @@ def list(request):
     context = get_data_context(request)
     level = request.session.get('level')
     
+    if level == 'APIP':
+        link_tombol = {
+            'tombol':'Cetak Hasil Reviu',
+            'link' : reverse(url_apip)
+        }
+    else:
+        link_tombol = {
+            'tombol':'Cetak',
+            'link' : reverse(url_pdf)
+        }
+    
     context.update({
         'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pendidikan',
-        'tombol': 'Cetak',
         'tombolsp2d': 'Cetak Daftar SP2D',
         'link_url_kembali' : reverse(url_home),
         'kembali' : 'Kembali',
         'level' : level,
-        'link_cetak' : reverse(url_pdf)
+        'link_tombol' : link_tombol
     })
     return render(request, template_list, context)
 
@@ -212,7 +224,7 @@ def get_data_context(request):
 
     filterreals = Q()
     if level == 'APIP':
-        filterreals &= Q(realisasidankel_verif=1)
+        filterreals &= Q(realisasi_verif=1)
     if realisasi_tahun:
         filterreals &= Q(realisasi_tahun=realisasi_tahun)
     if realisasi_dana:
@@ -416,23 +428,35 @@ def pdf(request):
 def apip(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    formatted_today = datetime.now().strftime('%d %B %Y')
     
     sesiidopd = request.session.get('idsubopd')
-    idopd = request.session.get('realisasidankel_subopd')
+    realisasi_tahap = request.session.get('realisasi_tahap')
     
+    filterreals = Q(penerimaan_dana__sub_slug=sesidana)
+    if realisasi_tahap:
+        if realisasi_tahap == 1:
+            filterreals &= Q(penerimaan_tahap_id=1)
+        elif realisasi_tahap == 2:
+            filterreals &= Q(penerimaan_tahap_id__in=[1, 2])
+        elif realisasi_tahap == 3:
+            filterreals &= Q(penerimaan_tahap_id__in=[1, 2, 3])
+        
     if sesiidopd :
         data = model_pejabat.objects.filter(pejabat_sub=sesiidopd)
-    
-    penerimaan = model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
+           
+    penerimaan = model_penerimaan.objects.filter(filterreals)
         
     context.update({
-        'judul': 'Hasil Reviu APIP Realisasi Dana Kelurahan',
+        'judul': 'Hasil Reviu APIP Realisasi DAU Bidang Pekerjaan Umum',
+        'subjudul': 'Pemerintah Kabupaten Asahan',
         'tombol': 'Cetak',
+        'tanggal' : formatted_today,
         'data' : data,
         'penerimaan' : penerimaan,    
         })
     # print(f'penerimaan : {penerimaan}')
-    return render(request, 'dankel_laporan/laporan_apip.html', context)
+    return render(request, template_apip, context)
 
 @set_submenu_session
 @menu_access_required('list')
