@@ -154,8 +154,8 @@ def list(request):
         data = None
     
     table = tabel_realisasi(data)
-    RequestConfig(request).configure(table)
-    # RequestConfig(request, paginate={"per_page": 10}).configure(table)
+    # RequestConfig(request).configure(table)
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Kesehatan',

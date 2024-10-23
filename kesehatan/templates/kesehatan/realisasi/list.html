@@ -22,7 +22,11 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    {% render_table table %}
+                    {% if table %}
+                        {% render_table table %}
+                    {% else %}
+                        <p>Tidak ada data yang tersedia.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
