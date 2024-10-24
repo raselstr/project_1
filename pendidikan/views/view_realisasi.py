@@ -153,8 +153,8 @@ def list(request):
     except model_realisasi.DoesNotExist:
         data = None
     
-    table = tabel_realisasi(data)
-    RequestConfig(request, paginate={"per_page": 25}).configure(table)
+    table = tabel_realisasi(data, request=request)
+    # RequestConfig(request, paginate={"per_page": 25}).configure(table)
 
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',

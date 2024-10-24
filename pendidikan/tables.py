@@ -29,6 +29,10 @@ class RealisasiTable(tables.Table):
                 },
             }
     
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)  # Ambil request dari kwargs, jika ada
+        super().__init__(*args, **kwargs)
+    
     def render_aksi(self, record):
         opd = self.request.session.get('idsubopd', None)
         
