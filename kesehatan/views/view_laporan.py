@@ -446,7 +446,7 @@ def apip(request):
     penerimaan = model_penerimaan.objects.filter(filterreals)
         
     context.update({
-        'judul': 'Hasil Reviu APIP Realisasi DAU Bidang Pekerjaan Umum',
+        'judul': 'Hasil Reviu APIP Realisasi DAU Bidang kesehatan',
         'subjudul': 'Pemerintah Kabupaten Asahan',
         'tombol': 'Cetak',
         'tanggal' : formatted_today,
