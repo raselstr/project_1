@@ -3,6 +3,7 @@ from pendidikan.views import view_rencana, view_posting, view_realisasi, view_la
 
 urlpatterns = [
 
+    path("laporan/sp2d/", view_laporan.sp2d, name="laporan_pendidikan_sp2d"),
     path("laporan/apip/", view_laporan.apip, name="laporan_pendidikan_apip"),
     path("laporan/pdf/", view_laporan.pdf, name="laporan_pendidikan_pdf"),
     path("laporan/daftar/", view_laporan.list, name="laporan_pendidikan_list"),

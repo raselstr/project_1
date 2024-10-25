@@ -109,3 +109,23 @@ class RekapPaguTable(tables.Table):
                 'style':"text-align: right;"
                 },
             }
+
+
+class Sp2dTable (tables.Table):
+    realisasi_tgl = tables.Column(footer="Total")
+    realisasi_nilai = totalrealisasi(attrs={"td": {"class": "text-right"}})
+    class Meta:
+        model = Realisasi
+        template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
+        attrs = {
+            "class": "table table-bordered",
+            # "id":"tabel1",
+            'th': {
+                'style':"text-align: center;"
+                },
+            'tf': {
+                'style':"text-align: right;"
+                },
+            }
+    

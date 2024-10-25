@@ -14,7 +14,7 @@ from pendidikan.forms import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg
-from ..tables import RekapPaguTable
+from ..tables import RekapPaguTable, Sp2dTable
 
 
 form_filter = RealisasiFilterForm
@@ -36,14 +36,17 @@ url_filter = 'laporan_pendidikan_filter'
 url_list = 'laporan_pendidikan_list'
 url_pdf = 'laporan_pendidikan_pdf'
 url_apip = 'laporan_pendidikan_apip'
+url_sp2d = 'laporan_pendidikan_sp2d'
 
 template_pdf = 'pendidikan/laporan/pdf.html'
 template_home = 'pendidikan/laporan/home.html'
 template_list = 'pendidikan/laporan/list.html'
 template_modal = 'pendidikan/laporan/modal.html'
 template_apip = 'pendidikan/laporan/apip.html'
+template_sp2d = 'pendidikan/laporan/sp2d.html'
 
 tabel= RekapPaguTable
+tabelsp2d= Sp2dTable
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
 
@@ -110,25 +113,26 @@ def list(request):
     if level == 'APIP':
         link_tombol = {
             'tombol':'Cetak Hasil Reviu',
-            'link' : reverse(url_apip)
+            'link' : reverse(url_apip),
+            'tombolsp2d' : 'SP2D',
+            'linksp2d' : reverse(url_sp2d),
         }
     else:
         link_tombol = {
             'tombol':'Cetak',
-            'link' : reverse(url_pdf)
+            'link' : reverse(url_pdf),
+            'tombolsp2d' : 'SP2D',
+            'linksp2d' : reverse(url_sp2d),
         }
     
     context.update({
         'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pendidikan',
-        'tombolsp2d': 'Cetak Daftar SP2D',
         'link_url_kembali' : reverse(url_home),
         'kembali' : 'Kembali',
         'level' : level,
         'link_tombol' : link_tombol
     })
     return render(request, template_list, context)
-
-
 
 def filter(request):
     if request.method == 'GET':
@@ -463,35 +467,33 @@ def apip(request):
 def sp2d(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    formatted_today = datetime.now().strftime('%d %B %Y')
     
-    tahunrealisasi = request.session.get('realisasidankel_tahun')
-    danarealisasi_id = request.session.get('realisasidankel_dana')
-    tahaprealisasi_id = request.session.get('realisasidankel_tahap')
-    subopdrealisasi_id = request.session.get('realisasidankel_subopd')
-    level = request.session.get('level')
+    sesiidopd = request.session.get('idsubopd')
+    realisasi_tahap = request.session.get('realisasi_tahap')
     
-    filterreals = Q()
-    if level != 'Pengguna':
-        filterreals &= Q(realisasidankel_verif=1)
-    if tahunrealisasi:
-        filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
-    if danarealisasi_id:
-        filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
-    if tahaprealisasi_id:
-        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
-        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
-        
-    sp2d = model_realisasi.objects.filter(filterreals)
-    if subopdrealisasi_id:
-        data = model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
+    filterreals = Q(realisasi_dana__sub_slug=sesidana)
+    if realisasi_tahap:
+        if realisasi_tahap == 1:
+            filterreals &= Q(realisasi_tahap_id=1)
+        elif realisasi_tahap == 2:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2])
+        elif realisasi_tahap == 3:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
+    
+    # data = model_realisasi.objects.filter(filterreals) if sesiidopd else model_realisasi.objects.none()
+    data = model_realisasi.objects.all()
+    table = tabelsp2d(data)
         
     context.update({
-        'judul': 'REKAPITULASI SP2D',
-        'sp2d' : sp2d,
-        'data' : data,
-        # 'persen': total_persentase,
+        'judul': 'Rekapitulasi SP2D',
+        'subjudul': 'Pemerintah Kabupaten Asahan',
+        'tombol': 'Cetak',
+        'tanggal' : formatted_today,
+        'tabel' : table,
         })
-    return render(request, 'dankel_laporan/laporan_sp2d.html', context)
+    # print(data)
+    # print(f'penerimaan : {penerimaan}')
+    return render(request, template_sp2d, context)
 
 
