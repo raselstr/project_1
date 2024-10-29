@@ -3,6 +3,7 @@ from pu.views import view_rencana, view_posting, view_realisasi, view_laporan
 
 urlpatterns = [
 
+    path("laporan/sp2d/", view_laporan.sp2d, name="laporan_pu_sp2d"),
     path("laporan/apip/", view_laporan.apip, name="laporan_pu_apip"),
     path("laporan/pdf/", view_laporan.pdf, name="laporan_pu_pdf"),
     path("laporan/daftar/", view_laporan.list, name="laporan_pu_list"),

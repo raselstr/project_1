@@ -469,10 +469,11 @@ def sp2d(request):
     context = get_data_context(request)
     formatted_today = datetime.now().strftime('%d %B %Y')
     
-    sesiidopd = request.session.get('idsubopd')
+    sesiidopd = request.session.get('realisasi_subopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
-    
-    filterreals = Q(realisasi_dana__sub_slug=sesidana)
+    filterreals = Q()
+    if sesiidopd not in [124]:
+        filterreals = Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:
             filterreals &= Q(realisasi_tahap_id=1)
@@ -481,8 +482,7 @@ def sp2d(request):
         elif realisasi_tahap == 3:
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
     
-    # data = model_realisasi.objects.filter(filterreals) if sesiidopd else model_realisasi.objects.none()
-    data = model_realisasi.objects.all()
+    data = model_realisasi.objects.filter(filterreals).order_by('realisasi_tahap','realisasi_subopd' )
     table = tabelsp2d(data)
         
     context.update({
@@ -492,8 +492,6 @@ def sp2d(request):
         'tanggal' : formatted_today,
         'tabel' : table,
         })
-    # print(data)
-    # print(f'penerimaan : {penerimaan}')
     return render(request, template_sp2d, context)
 
 
