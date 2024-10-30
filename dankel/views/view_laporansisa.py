@@ -45,9 +45,13 @@ def get_from_sessions(request):
 def list(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    level = request.session.get('level')
+    
     context.update({
         'judul': 'Rekapitulasi Realisasi Sisa Dana Kelurahan',
-        'tombol': 'Cetak'
+        'tombol': 'Cetak',
+        'tombolsp2d': 'Cetak Daftar SP2D Sisa',
+        'level' : level
     })
     return render(request, template, context)
 
@@ -161,7 +165,7 @@ def sp2d(request):
         'data' : data,
         # 'persen': total_persentase,
         })
-    return render(request, 'dankel_laporan/laporansisa_sp2d.html', context)
+    return render(request, 'dankel_laporansisa/laporansisa_sp2d.html', context)
 
 def get_data_context(request):
     tahunrealisasi = request.session.get('realisasidankelsisa_tahun')
@@ -190,13 +194,19 @@ def get_data_context(request):
     if danarealisasi_id:
         filterreals &= Q(realisasidankelsisa_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
-        filterreals &= Q(realisasidankelsisa_tahap_id=tahaprealisasi_id)
+        if tahaprealisasi_id == 1:
+            filterreals &= Q(realisasidankelsisa_tahap_id=1)
+        elif tahaprealisasi_id == 2:
+            filterreals &= Q(realisasidankelsisa_tahap_id__in=[1, 2])
+        elif tahaprealisasi_id == 3:
+            filterreals &= Q(realisasidankelsisa_tahap_id__in=[1, 2, 3])
     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
         filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasi_id)
     
     progs = Model_prog.objects.all()
     rencanas = Model_rencana.objects.filter(filters)
     realisasis = Model_realisasi.objects.filter(filterreals)
+    
 
     # Siapkan data untuk template
     prog_data = []
@@ -219,7 +229,7 @@ def get_data_context(request):
             keg_subs = []
             for sub in keg.dankelsubs.all():
                 # Ambil rencana terkait dengan sub
-                related_rencanas = rencanas.filter(rencdankel_sub=sub)
+                related_rencanas = rencanas.filter(rencdankelsisa_sub=sub)
 
                 # Ambil data pagu dan output
                 pagu = 0
@@ -239,10 +249,9 @@ def get_data_context(request):
                 total_lpj = 0
                 total_output_realisasi = 0
                 for rencana in related_rencanas:
-                    realisasi_rencana = realisasis.filter(realisasidankel_idrencana=rencana.id)
+                    realisasi_rencana = realisasis.filter(realisasidankelsisa_rencana=rencana.id)
                     total_lpj += realisasi_rencana.aggregate(total_lpj=Sum('realisasidankelsisa_lpjnilai'))['total_lpj'] or 0
                     total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankelsisa_output'))['total_output'] or 0
-
                 keg_subs.append({
                     'sub': sub,
                     'pagu': pagu,
@@ -268,6 +277,7 @@ def get_data_context(request):
             total_output_prog += total_output_keg
             total_realisasi_prog += total_realisasi_keg
             total_realisasi_output_prog += total_realisasi_output_keg
+            
 
         total_pagu_keseluruhan += total_pagu_prog
         total_output_keseluruhan += total_output_prog
@@ -295,5 +305,4 @@ def get_data_context(request):
         'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id),
         'jadwal': jadwal
     }
-
 
