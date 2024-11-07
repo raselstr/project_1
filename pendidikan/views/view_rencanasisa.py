@@ -72,6 +72,31 @@ def update(request, pk):
     }
     return render(request, template_form, context)
 
+# @set_submenu_session
+# @menu_access_required('simpan')
+# def simpan(request):
+#     request.session['next'] = request.get_full_path()
+#     initial_data = dict(
+#         rencana_tahun=request.session.get('rencana_tahun'),
+#         rencana_dana=request.session.get('rencana_dana'),
+#         rencana_subopd=request.session.get('rencana_subopd')
+#     )
+#     if request.method == 'POST':
+#         form = form_data(request.POST or None)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Data Berhasil Simpan')
+#             return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+#     else:
+#         form = form_data(initial=initial_data)
+
+#     context = {
+#         'form': form,
+#         'judul': 'Form Rencana Kegiatan Sisa Tahun Lalu',
+#         'btntombol': 'Simpan',
+#         'link_url': reverse(url_list),
+#     }
+#     return render(request, template_form, context)
 @set_submenu_session
 @menu_access_required('simpan')
 def simpan(request):
@@ -84,9 +109,15 @@ def simpan(request):
     if request.method == 'POST':
         form = form_data(request.POST or None)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Berhasil Simpan')
-            return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+            try:
+                form.save()
+                messages.success(request, 'Data Berhasil Simpan')
+                return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+            except Exception as e:
+                messages.error(request, 'Data gagal disimpan: {}'.format(str(e)))
+        else:
+            messages.error(request, 'Ada kesalahan dalam form, silakan periksa kembali.')
+
     else:
         form = form_data(initial=initial_data)
 
@@ -97,7 +128,6 @@ def simpan(request):
         'link_url': reverse(url_list),
     }
     return render(request, template_form, context)
-
 
 @set_submenu_session
 @menu_access_required('list')
