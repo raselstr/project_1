@@ -353,6 +353,7 @@ class Rencanasisa(models.Model):
         total_pagu = self.get_pagu(tahun, opd, dana)
         return total_pagu - total_rencana
     
+       
     def get_realisasi_pk(self, kode):
         filters = Q(realisasi_tahun=self.rencana_tahun) & Q(realisasi_dana=self.rencana_dana_id)
         if self.rencana_kegiatan_id is not None:

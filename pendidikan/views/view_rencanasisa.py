@@ -16,7 +16,7 @@ form_data = RencanaForm
 model_data = Rencanasisa
 model_pagu = Subkegiatan
 
-url_home = 'rencana_pendidikansisa_home'
+url_home = 'rencana_pendidikan_home'
 url_filter = 'rencana_pendidikansisa_filter'
 url_list = 'rencana_pendidikansisa_list'
 url_simpan = 'rencana_pendidikansisa_simpan'
@@ -28,7 +28,7 @@ template_home = 'pendidikan/rencana/home.html'
 template_list = 'pendidikan/rencana/list.html'
 template_modal = 'pendidikan/rencana/modal.html'
 
-sesidana = 'dau-dukungan-bidang-pendidikan'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ def update(request, pk):
         form = form_data(instance=data)
     context = {
         'form': form,
-        'judul': 'Update Rencana Kegiatan',
+        'judul': 'Update Rencana Kegiatan Sisa Tahun Lalu',
         'btntombol' : 'Update',
         'link_url': reverse(url_list),
     }
@@ -92,7 +92,7 @@ def simpan(request):
 
     context = {
         'form': form,
-        'judul': 'Form Rencana Kegiatan',
+        'judul': 'Form Rencana Kegiatan Sisa Tahun Lalu',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
     }
@@ -121,8 +121,8 @@ def list(request):
         data = None
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
-        'tombol': 'Tambah Perencanaan',
+        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan Sisa Tahun Lalu',
+        'tombol': 'Tambah Perencanaan Sisa Tahun Lalu',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
@@ -152,43 +152,10 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Rencana Kegiatan',
-        'isi_modal': 'Ini adalah isi modal Rencana Kegiatan.',
+        'judul': 'Rencana Kegiatan Sisa Tahun Lalu',
+        'isi_modal': 'Ini adalah isi modal Rencana Kegiatan Sisa Tahun Lalu.',
         'btntombol': 'Filter',
         'form': form,
         'link_url': reverse(url_filter),
     }
     return render(request, template_modal, context)
-
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    
-    try:
-        dana = model_pagu.objects.get(sub_slug=sesidana)
-    except model_pagu.DoesNotExist:
-        dana = None
-    
-    if dana:
-        pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
-    else:
-        pagu = 0
-        rencana = 0
-        sisa = 0
-    
-    context = {
-        'judul': 'Rencana Kegiatan DAU Bidang Pendidikan',
-        'tab1': 'Rencana Kegiatan Tahun Berjalan',
-        'datapagu': pagu,
-        'datarencana' : rencana,
-        'datasisa' : sisa,
-        
-        'link_url': reverse(url_filter),
-    }
-    return render(request, template_home, context)
-

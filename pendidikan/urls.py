@@ -30,10 +30,9 @@ urlpatterns = [
     path("rencana/", view_rencana.home, name="rencana_pendidikan_home"),
     
     # Sisa
-    path("rencana/delete/<int:pk>/", view_rencanasisa.delete, name="rencana_pendidikansisa_delete"),
-    path("rencana/update/<int:pk>/", view_rencanasisa.update, name="rencana_pendidikansisa_update"),
-    path("rencana/simpan/", view_rencanasisa.simpan, name="rencana_pendidikasisan_simpan"),
-    path("rencana/daftar/", view_rencanasisa.list, name="rencana_pendidikansisa_list"),
-    path("rencana/filter/", view_rencanasisa.filter, name="rencana_pendidikansisa_filter"),
-    path("rencana/", view_rencanasisa.home, name="rencana_pendidikansisa_home"),
+    path("rencanasisa/delete/<int:pk>/", view_rencanasisa.delete, name="rencana_pendidikansisa_delete"),
+    path("rencanasisa/update/<int:pk>/", view_rencanasisa.update, name="rencana_pendidikansisa_update"),
+    path("rencanasisa/simpan/", view_rencanasisa.simpan, name="rencana_pendidikansisa_simpan"),
+    path("rencanasisa/daftar/", view_rencanasisa.list, name="rencana_pendidikansisa_list"),
+    path("rencanasisa/filter/", view_rencanasisa.filter, name="rencana_pendidikansisa_filter"),
 ]

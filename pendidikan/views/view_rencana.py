@@ -6,7 +6,7 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 import logging
 
-from pendidikan.models import Rencana
+from pendidikan.models import Rencana, Rencanasisa
 from pendidikan.forms import RencanaFilterForm, RencanaForm
 from dausg.models import Subkegiatan
 
@@ -14,10 +14,12 @@ form_filter = RencanaFilterForm
 form_data = RencanaForm
 
 model_data = Rencana
+model_datasisa = Rencanasisa
 model_pagu = Subkegiatan
 
 url_home = 'rencana_pendidikan_home'
 url_filter = 'rencana_pendidikan_filter'
+url_filtersisa = 'rencana_pendidikansisa_filter'
 url_list = 'rencana_pendidikan_list'
 url_simpan = 'rencana_pendidikan_simpan'
 url_update = 'rencana_pendidikan_update'
@@ -29,6 +31,7 @@ template_list = 'pendidikan/rencana/list.html'
 template_modal = 'pendidikan/rencana/modal.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
+sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
@@ -169,26 +172,39 @@ def home(request):
     
     try:
         dana = model_pagu.objects.get(sub_slug=sesidana)
+        danasisa = model_pagu.objects.get(sub_slug=sesidanasisa)
     except model_pagu.DoesNotExist:
         dana = None
+        danasisa = None
     
     if dana:
         pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
         sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+        pagusisa = model_datasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        nilaisisa = model_datasisa().get_sisa(tahun=tahun, opd=sesisubopd, dana=danasisa)
     else:
         pagu = 0
         rencana = 0
         sisa = 0
+        pagusisa = 0
+        rencanasisa = 0
+        nilaisisa = 0
     
     context = {
         'judul': 'Rencana Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Rencana Kegiatan Tahun Berjalan',
+        'tab2': 'Rencana Kegiatan Sisa Tahun Lalu',
         'datapagu': pagu,
         'datarencana' : rencana,
         'datasisa' : sisa,
+        'pagusisa': pagusisa,
+        'rencanasisa' : rencanasisa,
+        'nilaisisa' : nilaisisa,
         
         'link_url': reverse(url_filter),
+        'link_urlsisa': reverse(url_filtersisa),
     }
     return render(request, template_home, context)
 
