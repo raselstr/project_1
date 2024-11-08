@@ -161,50 +161,6 @@ def filter(request):
     }
     return render(request, template_modal, context)
 
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    context = rekap(request)
-    
-    try:
-        dana = model_dana.objects.get(sub_slug=sesidana)
-    except model_dana.DoesNotExist:
-        dana = None
-    
-    if dana:
-        pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
-        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
-        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
-        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
-    else:
-        pagu = 0
-        rencana = 0
-        penerimaan = 0
-        realisasi = 0
-        persendana = 0
-        persenpagu = 0
-    
-    context.update({
-        'judul': 'Laporan Kegiatan DAU Bidang Pendidikan',
-        'tab1': 'Laporan Kegiatan Tahun Berjalan',
-        'datapagu': pagu,
-        'datarencana' : rencana,
-        'penerimaan' : penerimaan,
-        'realisasi' : realisasi,
-        'persendana' : persendana,
-        'persenpagu' : persenpagu,
-        
-        'link_url': reverse(url_filter),
-    })
-    return render(request, template_home, context)
-
-
-
 def get_data_context(request):
     # Ambil data dari session
     realisasi_tahun = request.session.get('realisasi_tahun')
