@@ -7,7 +7,7 @@ from project.decorators import menu_access_required, set_submenu_session
 import logging
 
 from pendidikan.models import Rencanasisa
-from pendidikan.forms import RencanaFilterForm, RencanaForm
+from pendidikan.forms.form_sisa import RencanaFilterForm, RencanaForm
 from dausg.models import Subkegiatan
 
 form_filter = RencanaFilterForm

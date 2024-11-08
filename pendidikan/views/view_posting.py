@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.urls import reverse
 
 from pendidikan.models import Rencanaposting, Rencana
-from pendidikan.forms import RencanaPostingForm
+from pendidikan.forms.form_pendidikan import RencanaPostingForm
 
 model_rencana = Rencana
 model_posting = Rencanaposting

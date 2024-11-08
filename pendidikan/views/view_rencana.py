@@ -7,7 +7,7 @@ from project.decorators import menu_access_required, set_submenu_session
 import logging
 
 from pendidikan.models import Rencana, Rencanasisa
-from pendidikan.forms import RencanaFilterForm, RencanaForm
+from pendidikan.forms.form_pendidikan import RencanaFilterForm, RencanaForm
 from dausg.models import Subkegiatan
 
 form_filter = RencanaFilterForm
@@ -180,10 +180,11 @@ def home(request):
     if dana:
         pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+        sisa = pagu-rencana
+        
         pagusisa = model_datasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
         rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        nilaisisa = model_datasisa().get_sisa(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        nilaisisa = pagusisa-rencanasisa 
     else:
         pagu = 0
         rencana = 0

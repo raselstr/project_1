@@ -14,7 +14,7 @@ from pendidikan.models import Rencanaposting, Rencana, Realisasi
 from dausg.models import Subkegiatan
 
 
-from pendidikan.forms import RealisasiFilterForm, RealisasiForm
+from pendidikan.forms.form_pendidikan import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasiTable

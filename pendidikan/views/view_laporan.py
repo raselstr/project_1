@@ -10,7 +10,7 @@ import logging
 from opd.models import Pejabat, Subopd
 from pendidikan.models import Rencanaposting, Rencana, Realisasi
 from dausg.models import Subkegiatan, DausgpendidikanProg
-from pendidikan.forms import RealisasiFilterForm, RealisasiForm
+from pendidikan.forms.form_pendidikan import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg

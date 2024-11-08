@@ -1,7 +1,7 @@
 from django import forms
-from .models import Rencana, Rencanaposting,Subkegiatan, Subopd, Realisasi
+from ..models import Rencanasisa, Rencanaposting,Subkegiatan, Subopd, Realisasi
 
-model_rencana = Rencana
+model_rencana = Rencanasisa
 model_posting = Rencanaposting
 model_subkegiatan = Subkegiatan
 model_subopd = Subopd

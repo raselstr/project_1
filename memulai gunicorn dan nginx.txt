@@ -107,7 +107,7 @@ yang berisi dependensi utama Anda:
 
 restore
 1. copyfile ke docker image postgres
-    docker cp D:/web/backup.sql cf708063974c:/backup.sql
+    docker cp D:/web/db_host/backup.sql cf708063974c:/backup.sql
 2. lakukan restore
     docker exec -i cf708063974c psql -U raselstr -d tkdd -f /backup.sql
 
@@ -120,6 +120,7 @@ beckup
 2. Buka docker image postgres
     docker exec -it projectwebpostgres bash
 3. lakukan backup dan meletakkan difolder
+    pg_dump -U raselstr -d tkdd > /var/lib/postgresql/db_host/backup.sql
     pg_dump -U raselstr -d tkdd --data-only > /var/lib/postgresql/db_host/backup.sql
 
 
