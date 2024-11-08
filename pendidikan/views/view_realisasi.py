@@ -10,7 +10,7 @@ from ..tables import RealisasiTable
 
 import logging
 
-from pendidikan.models import Rencanaposting, Rencana, Realisasi
+from pendidikan.models import Rencanaposting, Rencana, Realisasi, Rencanasisa, Rencanapostingsisa, Realisasisisa
 from dausg.models import Subkegiatan
 
 
@@ -24,8 +24,11 @@ form_data = RealisasiForm
 
 model_data = Rencanaposting
 model_pagu = Rencana
+model_datasisa = Rencanapostingsisa
+model_pagusisa = Rencanasisa
 model_dana = Subkegiatan
 model_realisasi = Realisasi
+model_realisasisisa = Realisasisisa
 model_penerimaan = Penerimaan
 
 url_home = 'realisasi_pendidikan_home'
@@ -208,8 +211,10 @@ def home(request):
     
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
+        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
     except model_dana.DoesNotExist:
         dana = None
+        danasisa = None
     
     if dana:
         pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
@@ -218,6 +223,12 @@ def home(request):
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
+        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
     else:
         pagu = 0
         rencana = 0
@@ -226,6 +237,12 @@ def home(request):
         persendana = 0
         persenpagu = 0
         
+        rencanasisa = 0
+        penerimaansisa = 0
+        realisasisisa = 0
+        persendanasisa = 0
+        persenpagusisa = 0
+        
         
     
     context = {
@@ -233,11 +250,19 @@ def home(request):
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
         'tab2': 'Realisasi Kegiatan Tahun Lalu',
         'datapagu': pagu,
+        
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
+        
         'realisasi' : realisasi,
         'persendana' : persendana,
         'persenpagu' : persenpagu,
+        'penerimaansisa' : penerimaansisa,
+        'rencanasisa' : rencanasisa,
+        
+        'realisasisisa' : realisasisisa,
+        'persendanasisa' : persendanasisa,
+        'persenpagusisa' : persenpagusisa,
         
         'link_url': reverse(url_filter),
     }
