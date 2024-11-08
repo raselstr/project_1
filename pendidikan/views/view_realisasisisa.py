@@ -43,7 +43,6 @@ template_modal = 'pendidikan/realisasi/modal.html'
 template_modal_verif = 'pendidikan/realisasi/modal_verif.html'
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
-sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +214,6 @@ def home(request):
         pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
-        
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
@@ -232,7 +230,6 @@ def home(request):
     context = {
         'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
-        'tab2': 'Realisasi Kegiatan Tahun Lalu',
         'datapagu': pagu,
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
