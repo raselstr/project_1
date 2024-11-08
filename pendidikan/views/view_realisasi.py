@@ -33,6 +33,7 @@ model_penerimaan = Penerimaan
 
 url_home = 'realisasi_pendidikan_home'
 url_filter = 'realisasi_pendidikan_filter'
+url_filtersisa = 'realisasi_pendidikan_filtersisa'
 url_list = 'realisasi_pendidikan_list'
 url_simpan = 'realisasi_pendidikan_simpan'
 url_update = 'realisasi_pendidikan_update'
@@ -265,5 +266,6 @@ def home(request):
         'persenpagusisa' : persenpagusisa,
         
         'link_url': reverse(url_filter),
+        'link_urlsisa': reverse(url_filtersisa),
     }
     return render(request, template_home, context)

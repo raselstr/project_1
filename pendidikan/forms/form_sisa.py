@@ -1,11 +1,11 @@
 from django import forms
-from ..models import Rencanasisa, Rencanaposting,Subkegiatan, Subopd, Realisasi
+from ..models import Rencanasisa, Rencanapostingsisa,Subkegiatan, Subopd, Realisasisisa
 
 model_rencana = Rencanasisa
-model_posting = Rencanaposting
+model_posting = Rencanapostingsisa
 model_subkegiatan = Subkegiatan
 model_subopd = Subopd
-model_realisasi = Realisasi
+model_realisasi = Realisasisisa
 
 class RencanaFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))

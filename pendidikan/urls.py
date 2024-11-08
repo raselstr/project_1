@@ -1,5 +1,5 @@
 from django.urls import path # type: ignore
-from pendidikan.views import view_rencana, view_posting, view_realisasi, view_laporan, view_rencanasisa, view_postingsisa
+from pendidikan.views import view_rencana, view_posting, view_realisasi, view_laporan, view_rencanasisa, view_postingsisa, view_realisasisisa
 
 urlpatterns = [
 
@@ -18,6 +18,14 @@ urlpatterns = [
     path("realisasi/daftar/", view_realisasi.list, name="realisasi_pendidikan_list"),
     path("realisasi/filter/", view_realisasi.filter, name="realisasi_pendidikan_filter"),
     path("realisasi/", view_realisasi.home, name="realisasi_pendidikan_home"),
+    
+    path("realisasisisa/verif/<int:pk>/", view_realisasisisa.verif, name="realisasi_pendidikan_verifsisa"),
+    path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_pendidikan_modalsisa"),
+    path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_pendidikan_deletesisa"),
+    path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_pendidikan_updatesisa"),
+    path("realisasisisa/simpan/", view_realisasisisa.simpan, name="realisasi_pendidikan_simpansisa"),
+    path("realisasisisa/daftar/", view_realisasisisa.list, name="realisasi_pendidikan_listsisa"),
+    path("realisasisisa/filter/", view_realisasisisa.filter, name="realisasi_pendidikan_filtersisa"),
     
     path("posting/kegiatan", view_posting.posting, name="posting_pendidikan"),
     path("posting/list", view_posting.list, name="posting_pendidikan_list"),

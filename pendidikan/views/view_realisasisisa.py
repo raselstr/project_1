@@ -10,11 +10,11 @@ from ..tables import RealisasiTable
 
 import logging
 
-from pendidikan.models import Rencanaposting, Rencana, Realisasi
+from pendidikan.models import Rencanapostingsisa, Rencanasisa, Realisasisisa
 from dausg.models import Subkegiatan
 
 
-from pendidikan.forms.form_pendidikan import RealisasiFilterForm, RealisasiForm
+from pendidikan.forms.form_sisa import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasiTable
@@ -22,19 +22,19 @@ tabel_realisasi = RealisasiTable
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
 
-model_data = Rencanaposting
-model_pagu = Rencana
+model_data = Rencanapostingsisa
+model_pagu = Rencanasisa
 model_dana = Subkegiatan
-model_realisasi = Realisasi
+model_realisasi = Realisasisisa
 model_penerimaan = Penerimaan
 
 url_home = 'realisasi_pendidikan_home'
-url_filter = 'realisasi_pendidikan_filter'
-url_list = 'realisasi_pendidikan_list'
-url_simpan = 'realisasi_pendidikan_simpan'
-url_update = 'realisasi_pendidikan_update'
-url_delete = 'realisasi_pendidikan_delete'
-url_verif = 'realisasi_pendidikan_delete'
+url_filter = 'realisasi_pendidikan_filtersisa'
+url_list = 'realisasi_pendidikan_listsisa'
+url_simpan = 'realisasi_pendidikan_simpansisa'
+url_update = 'realisasi_pendidikan_updatesisa'
+url_delete = 'realisasi_pendidikan_deletesisa'
+url_verif = 'realisasi_pendidikan_deletesisa'
 
 template_form = 'pendidikan/realisasi/form.html'
 template_home = 'pendidikan/realisasi/home.html'
@@ -42,7 +42,7 @@ template_list = 'pendidikan/realisasi/list.html'
 template_modal = 'pendidikan/realisasi/modal.html'
 template_modal_verif = 'pendidikan/realisasi/modal_verif.html'
 
-sesidana = 'dau-dukungan-bidang-pendidikan'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ def simpan(request):
 
     context = {
         'form': form,
-        'judul': 'Form Realisasi Kegiatan',
+        'judul': 'Form Realisasi Kegiatan Tahun Lalu',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
     }
@@ -157,8 +157,8 @@ def list(request):
     # RequestConfig(request, paginate={"per_page": 25}).configure(table)
 
     context = {
-        'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
-        'tombol': 'Tambah Realisasi',
+        'judul': 'Daftar Realisasi DAU Bidang Pendidikan Tahun Lalu',
+        'tombol': 'Tambah Realisasi Tahun Lalu',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
@@ -190,7 +190,7 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Realisasi Kegiatan',
+        'judul': 'Realisasi Kegiatan Tahun Lalu',
         'isi_modal': 'Ini adalah isi modal Realisasi Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
@@ -198,45 +198,3 @@ def filter(request):
     }
     return render(request, template_modal, context)
 
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    
-    try:
-        dana = model_dana.objects.get(sub_slug=sesidana)
-    except model_dana.DoesNotExist:
-        dana = None
-    
-    if dana:
-        pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
-        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
-        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
-        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
-    else:
-        pagu = 0
-        rencana = 0
-        penerimaan = 0
-        realisasi = 0
-        persendana = 0
-        persenpagu = 0
-        
-        
-    
-    context = {
-        'judul': 'Realisasi Kegiatan DAU Bidang Pendidikan',
-        'tab1': 'Realisasi Kegiatan Tahun Berjalan',
-        'datapagu': pagu,
-        'datarencana' : rencana,
-        'penerimaan' : penerimaan,
-        'realisasi' : realisasi,
-        'persendana' : persendana,
-        'persenpagu' : persenpagu,
-        
-        'link_url': reverse(url_filter),
-    }
-    return render(request, template_home, context)
