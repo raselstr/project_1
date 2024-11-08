@@ -31,6 +31,7 @@ model_tahap = TahapDana
 model_subopd = Subopd
 model_pagu = Pagudausg
 
+url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filtersisa'
 url_list = 'laporan_pendidikan_listsisa'
 url_pdf = 'laporan_pendidikan_pdfsisa'
@@ -125,7 +126,7 @@ def list(request):
         }
     
     context.update({
-        'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pendidikan',
+        'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pendidikan Sisa Tahun Lalu',
         'link_url_kembali' : reverse(url_home),
         'kembali' : 'Kembali',
         'level' : level,
@@ -153,7 +154,7 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Laporan Kegiatan',
+        'judul': 'Laporan Kegiatan Sisa Tahun Lalu',
         'isi_modal': 'Ini adalah isi modal Realisasi Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
@@ -375,7 +376,7 @@ def pdf(request):
         data = model_pejabat.objects.filter(pejabat_sub=realisasi_subopd)
         
     context.update({
-        'judul': 'Rekapitulasi Realisasi DAU Bidang Pendidikan',
+        'judul': 'Rekapitulasi Realisasi DAU Bidang Pendidikan Sisa Tahun Lalu',
         'tombol': 'Cetak',
         'tanggal' : formatted_today,
         'data' : data,    
@@ -407,7 +408,7 @@ def apip(request):
     penerimaan = model_penerimaan.objects.filter(filterreals)
         
     context.update({
-        'judul': 'Hasil Reviu APIP Realisasi DAU Bidang Pendidikan',
+        'judul': 'Hasil Reviu APIP Realisasi DAU Bidang Pendidikan Sisa Tahun Lalu',
         'subjudul': 'Pemerintah Kabupaten Asahan',
         'tombol': 'Cetak',
         'tanggal' : formatted_today,
@@ -441,7 +442,7 @@ def sp2d(request):
     table = tabelsp2d(data)
         
     context.update({
-        'judul': 'Rekapitulasi SP2D',
+        'judul': 'Rekapitulasi SP2D Sisa Tahun Lalu',
         'subjudul': 'Pemerintah Kabupaten Asahan',
         'tombol': 'Cetak',
         'tanggal' : formatted_today,

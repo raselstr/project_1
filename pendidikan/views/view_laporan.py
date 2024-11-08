@@ -8,7 +8,7 @@ from datetime import datetime
 
 import logging
 from opd.models import Pejabat, Subopd
-from pendidikan.models import Rencanaposting, Rencana, Realisasi
+from pendidikan.models import Rencanaposting, Rencanapostingsisa, Rencana, Rencanasisa, Realisasi, Realisasisisa
 from dausg.models import Subkegiatan, DausgpendidikanProg
 from pendidikan.forms.form_pendidikan import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
@@ -20,10 +20,15 @@ from ..tables import RekapPaguTable, Sp2dTable
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
 
+model_datasisa = Rencanapostingsisa
+model_rencanasisa = Rencanasisa
+model_realisasisisa = Realisasisisa
+
 model_data = Rencanaposting
 model_rencana = Rencana
-model_dana = Subkegiatan
 model_realisasi = Realisasi
+
+model_dana = Subkegiatan
 model_penerimaan = Penerimaan
 model_program = DausgpendidikanProg
 model_pejabat = Pejabat
@@ -33,6 +38,7 @@ model_pagu = Pagudausg
 
 url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filter'
+url_filtersisa = 'laporan_pendidikan_filtersisa'
 url_list = 'laporan_pendidikan_list'
 url_pdf = 'laporan_pendidikan_pdf'
 url_apip = 'laporan_pendidikan_apip'
@@ -49,6 +55,7 @@ tabel= RekapPaguTable
 tabelsp2d= Sp2dTable
 
 sesidana = 'dau-dukungan-bidang-pendidikan'
+sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
 
@@ -172,8 +179,10 @@ def home(request):
     
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
+        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
     except model_dana.DoesNotExist:
         dana = None
+        danasisa = None
     
     if dana:
         pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
@@ -182,6 +191,13 @@ def home(request):
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        
+        pagusisa = model_rencanasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
+        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
     else:
         pagu = 0
         rencana = 0
@@ -189,10 +205,18 @@ def home(request):
         realisasi = 0
         persendana = 0
         persenpagu = 0
+        
+        pagusisa = 0
+        rencanasisa = 0
+        penerimaansisa = 0
+        realisasisisa = 0
+        persendanasisa = 0
+        persenpagusisa = 0
     
     context.update({
         'judul': 'Laporan Kegiatan DAU Bidang Pendidikan',
         'tab1': 'Laporan Kegiatan Tahun Berjalan',
+        'tab2': 'Laporan Kegiatan Tahun Lalu',
         'datapagu': pagu,
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
@@ -200,7 +224,15 @@ def home(request):
         'persendana' : persendana,
         'persenpagu' : persenpagu,
         
+        'pagusisa': pagusisa,
+        'rencanasisa' : rencanasisa,
+        'penerimaansisa' : penerimaansisa,
+        'realisasisisa' : realisasisisa,
+        'persendanasisa' : persendanasisa,
+        'persenpagusisa' : persenpagusisa,
+        
         'link_url': reverse(url_filter),
+        'link_urlsisa': reverse(url_filtersisa),
     })
     return render(request, template_home, context)
 
