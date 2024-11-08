@@ -120,31 +120,44 @@ class Rencanasisa(BaseRencana):
         ]
         db_table = 'pendidikan_rencanasisa'
 
-class Rencanaposting(models.Model):
+class BaseRencanaposting(models.Model):
     VERIF = [
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    posting_rencanaid = models.ForeignKey(Rencana, verbose_name='Id Rencana', on_delete=models.CASCADE)
+    
     posting_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    posting_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    posting_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    posting_subkegiatan = models.ForeignKey(DausgpendidikanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    posting_dana = models.ForeignKey('dana.Subkegiatan', verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    posting_subopd = models.ForeignKey('opd.Subopd', verbose_name='Sub Opd',on_delete=models.CASCADE)
+    posting_subkegiatan = models.ForeignKey('dausg.DausgpendidikanSub', verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
     posting_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
     posting_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
     posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
     posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
+    class Meta:
+        abstract = True
+        
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd=opd)
-        return Rencanaposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
     def __str__(self):
         return f"{self.posting_subkegiatan}"
-    
+
+class Rencanaposting(BaseRencanaposting):
+    posting_rencanaid = models.ForeignKey('pendidikan.Rencana', verbose_name='Id Rencana', on_delete=models.CASCADE)
+    class Meta(BaseRencanaposting.Meta):
+        db_table = 'pendidikan_rencanaposting'
+
+class Rencanapostingsisa(BaseRencanaposting):
+    posting_rencanaid = models.ForeignKey('pendidikan.Rencanasisa', verbose_name='Id Rencana', on_delete=models.CASCADE)
+    class Meta(BaseRencanaposting.Meta):
+        db_table = 'pendidikan_rencanapostingsisa'
+
 
 class Realisasi(models.Model):
     VERIF = [
