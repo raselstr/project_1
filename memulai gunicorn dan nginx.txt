@@ -66,8 +66,9 @@ buat docker image
 6. Mengelola Migration dan Superuser
     Untuk menjalankan perintah Django lain seperti migrate atau membuat superuser, Anda bisa menjalankan perintah-perintah ini dalam container:
 
-    docker-compose run web python manage.py migrate
-    docker-compose run web python manage.py createsuperuser
+    docker exec -it projectweb bash
+    python manage.py migrate
+    python manage.py createsuperuser
 
 Menjalankankan
 docker-compose up --build       #ini untuk membuat coutaner dan image
