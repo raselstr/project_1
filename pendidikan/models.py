@@ -73,7 +73,7 @@ class BaseRencana(models.Model):
                 total_realisasi_pk = self.get_realisasi_pk(original.rencana_kegiatan_id)
                 if total_realisasi_pk > 0:
                     raise ValidationError('Tidak bisa mengubah "Sub Kegiatan DAU SG" karena sudah ada realisasi.')
-
+            
         if self.rencana_pagu < total_realisasi_pk:
             raise ValidationError(
                 f'Kegiatan ini sudah ada realisasi sebesar Rp. {total_realisasi_pk:,.2f}. Nilai Rencana Rp. {self.rencana_pagu:,.2f} tidak boleh lebih kecil dari Nilai Realisasi'

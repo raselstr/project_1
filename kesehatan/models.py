@@ -11,10 +11,10 @@ from dausg.models import DausgkesehatanSub
 from pagu.models import Pagudausg
 from penerimaan.models import Penerimaan
 
-model_opd = Subopd
-model_dana = Subkegiatan
+model_opd = 'opd.Subopd'
+model_dana = 'dana.Subkegiatan'
 model_tahap = TahapDana
-model_subkegiatan = DausgkesehatanSub
+model_subkegiatan = 'dausg.DausgkesehatanSub'
 model_pagu = Pagudausg
 model_penerimaan = Penerimaan
 
@@ -24,12 +24,12 @@ VERIF = [
         (1, 'Disetujui'),
     ]
 
-class Rencanakesehatan(models.Model):
+class BaseRencanakesehatan(models.Model):
     
     rencana_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    rencana_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    rencana_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    rencana_kegiatan = models.ForeignKey(DausgkesehatanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    rencana_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    rencana_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    rencana_kegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
     rencana_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
     rencana_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
@@ -37,13 +37,15 @@ class Rencanakesehatan(models.Model):
     rencana_verif = models.IntegerField(choices=VERIF, default = 0, editable=False)
     
     class Meta:
-        constraints = [
-            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_kesehatan')
-        ]
+        abstract = True
+        
+    
     
     def clean(self):
         super().clean()
-        if Rencanakesehatan.objects.filter(
+        model_class = self.__class__
+        
+        if model_class.objects.filter(
             rencana_tahun=self.rencana_tahun,
             rencana_subopd=self.rencana_subopd_id,
             rencana_kegiatan=self.rencana_kegiatan_id
@@ -54,31 +56,26 @@ class Rencanakesehatan(models.Model):
         total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
         
         if self.pk:
-            total_rencana = total_rencana - Rencanakesehatan.objects.get(pk=self.pk).rencana_pagu
+            total_rencana -= self.__class__.objects.get(pk=self.pk).rencana_pagu
 
         total_rencana += self.rencana_pagu
         
-        formatted_total_rencana = "{:,.2f}".format(total_rencana)
-        formatted_total_pagudausg = "{:,.2f}".format(total_pagudausg)
-        
         if total_rencana > total_pagudausg:
-            raise ValidationError(f'Total rencana anggaran Rp. {formatted_total_rencana} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {formatted_total_pagudausg}.')
+            raise ValidationError(f'Total rencana anggaran Rp. {total_rencana:,.2f} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {total_pagudausg:,.2f}.')
                         
     def save(self, *args, **kwargs):
         total_realisasi_pk = 0
         if self.pk:  # Hanya untuk objek yang sudah ada
-            original = Rencanakesehatan.objects.get(pk=self.pk)
+            original = self.__class__.objects.get(pk=self.pk)
             if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
                 total_realisasi_pk = self.get_realisasi_pk(original.rencana_kegiatan_id)  # Pindahkan setelah pengecekan
                 if total_realisasi_pk > 0:
                     raise ValidationError('Tidak bisa mengubah "Sub Kegiatan DAU SG" karena sudah ada realisasi.')
-            else:
-                total_realisasi_pk = self.get_realisasi_pk(self.rencana_kegiatan_id)  # Tetap dihitung di luar saat baru buat
+            # else:
+            #     total_realisasi_pk = self.get_realisasi_pk(self.rencana_kegiatan_id)  # Tetap dihitung di luar saat baru buat
             # print(original.rencana_kegiatan_id, self.rencana_kegiatan_id, total_realisasi_pk)
         if self.rencana_pagu < total_realisasi_pk:
-            formatted_total_realisasi_pk = f'{total_realisasi_pk:,.2f}'.replace(',', '.')
-            formatted_total_rencana_pagu = f'{self.rencana_pagu:,.2f}'.replace(',', '.')
-            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {formatted_total_realisasi_pk}. Nilai Rencana Rp. {formatted_total_rencana_pagu} tidak boleh lebih kecil dari Nilai Realisasi')
+            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {total_realisasi_pk:,.2f}. Nilai Rencana Rp. {self.rencana_pagu:,.2f} tidak boleh lebih kecil dari Nilai Realisasi')
         super().save(*args, **kwargs)
     
     def get_pagu(self,tahun, opd, dana):
@@ -91,7 +88,7 @@ class Rencanakesehatan(models.Model):
         filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
         if opd is not None and opd not in [124,70]:
             filters &= Q(rencana_subopd=opd)
-        return Rencanakesehatan.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
     
        
     def get_sisa(self, tahun, opd, dana):
@@ -112,31 +109,59 @@ class Rencanakesehatan(models.Model):
     def __str__(self):
         return f"{self.rencana_kegiatan}"
 
-class Rencanakesehatanposting(models.Model):
+class Rencanakesehatan(BaseRencanakesehatan):
+    class Meta(BaseRencanakesehatan.Meta):
+        constraints = [
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_kesehatan')
+        ]
+        db_table = 'kesehatan_rencanakesehatan'
+
+class Rencanakesehatansisa(BaseRencanakesehatan):
+    class Meta(BaseRencanakesehatan.Meta):
+        constraints = [
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_kesehatansisa')
+        ]
+        db_table = 'kesehatan_rencanakesehatansisa'
+        
+
+class BaseRencanakesehatanposting(models.Model):
     VERIF = [
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
     ]
-    posting_rencanaid = models.ForeignKey(Rencanakesehatan, verbose_name='Id Rencana', on_delete=models.CASCADE)
+    
     posting_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    posting_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    posting_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    posting_subkegiatan = models.ForeignKey(DausgkesehatanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    posting_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    posting_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    posting_subkegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
     posting_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG',max_digits=17, decimal_places=2,default=0)
     posting_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
     posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
     posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
     
+    class Meta:
+        abstract = True
+        
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(posting_tahun=tahun) & Q(posting_dana_id=dana)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd_id=opd)
-        return Rencanakesehatanposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
     def __str__(self):
         return f"{self.posting_subkegiatan}"
-    
+
+class Rencanakesehatanposting(BaseRencanakesehatanposting):
+    posting_rencanaid = models.ForeignKey('kesehatan.Rencanakesehatan', verbose_name='Id Rencana', on_delete=models.CASCADE)
+    class Meta(BaseRencanakesehatanposting.Meta):
+        db_table = 'kesehatan_rencanakesehatanposting'
+
+class Rencanakesehatanpostingsisa(BaseRencanakesehatanposting):
+    posting_rencanaid = models.ForeignKey('kesehatan.Rencanakesehatansisa', verbose_name='Id Rencana', on_delete=models.CASCADE)
+    class Meta(BaseRencanakesehatanposting.Meta):
+        db_table = 'kesehatan_rencanakesehatanpostingsisa'
+        
 
 class Realisasikesehatan(models.Model):
     VERIF = [
