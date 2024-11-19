@@ -101,8 +101,18 @@ WSGI_APPLICATION = 'project.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': env.db(),
+# }
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'tkdd',             # Nama database di container
+        'USER': 'raselstr',         # User PostgreSQL
+        'PASSWORD': 'r283l8tr',     # Password PostgreSQL
+        'HOST': 'localhost',        # Docker meneruskan port ke localhost
+        'PORT': '5432',             # Port PostgreSQL
+    }
 }
 
 # Password validation
