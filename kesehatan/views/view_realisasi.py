@@ -14,7 +14,7 @@ from kesehatan.models import Rencanakesehatanposting, Rencanakesehatan, Realisas
 from dausg.models import Subkegiatan
 
 
-from kesehatan.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
+from kesehatan.forms.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasikesehatanTable

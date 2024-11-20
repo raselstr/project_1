@@ -13,10 +13,11 @@ from penerimaan.models import Penerimaan
 
 model_opd = 'opd.Subopd'
 model_dana = 'dana.Subkegiatan'
-model_tahap = TahapDana
+model_tahap = 'dana.TahapDana'
 model_subkegiatan = 'dausg.DausgkesehatanSub'
-model_pagu = Pagudausg
-model_penerimaan = Penerimaan
+model_pagu = 'pagu.Pagudausg'
+modelpagu = Pagudausg
+model_penerimaan = 'penerimaan.Penerimaan'
 
 # Create your models here.
 VERIF = [
@@ -82,7 +83,7 @@ class BaseRencanakesehatan(models.Model):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
         if opd is not None and opd not in [124,70]:
             filters &= Q(pagudausg_opd=opd)
-        return model_pagu.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
+        return modelpagu.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
@@ -163,24 +164,25 @@ class Rencanakesehatanpostingsisa(BaseRencanakesehatanposting):
         db_table = 'kesehatan_rencanakesehatanpostingsisa'
         
 
-class Realisasikesehatan(models.Model):
+class BaseRealisasikesehatan(models.Model):
     VERIF = [
         (0, 'Diinput Dinas'),
         (1, 'Disetujui APIP'),
     ]
     realisasi_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
-    realisasi_dana = models.ForeignKey(Subkegiatan, verbose_name='Sumber Dana',on_delete=models.CASCADE)
-    realisasi_tahap = models.ForeignKey(TahapDana, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
-    realisasi_subopd = models.ForeignKey(Subopd, verbose_name='Sub Opd',on_delete=models.CASCADE)
-    realisasi_rencanaposting = models.ForeignKey(Rencanakesehatanposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
-    realisasi_rencana = models.ForeignKey(Rencanakesehatan, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
-    realisasi_subkegiatan = models.ForeignKey(DausgkesehatanSub, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
+    realisasi_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana',on_delete=models.CASCADE)
+    realisasi_tahap = models.ForeignKey(model_tahap, verbose_name='Tahap Realisasi',on_delete=models.CASCADE)
+    realisasi_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd',on_delete=models.CASCADE)
+    realisasi_subkegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
     realisasi_output = models.DecimalField(verbose_name='Capaian Output',max_digits=8, decimal_places=2,default=0)
     realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
     realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False, verbose_name='Verifikasi') 
     
+    class Meta:
+        abstract = True
+        
     def clean(self):
         super().clean()
         
@@ -191,8 +193,8 @@ class Realisasikesehatan(models.Model):
         total_rencanaoutput_pk = self.get_rencanaoutput_pk()
 
         if self.pk:
-            total_realisasi_pk = total_realisasi_pk - Realisasikesehatan.objects.get(pk=self.pk).realisasi_nilai
-            total_realisasi = total_realisasi - Realisasikesehatan.objects.get(pk=self.pk).realisasi_nilai
+            total_realisasi_pk = total_realisasi_pk - self.__class__.objects.get(pk=self.pk).realisasi_nilai
+            total_realisasi = total_realisasi - self.__class__.objects.get(pk=self.pk).realisasi_nilai
         
         total_realisasi_pk += self.realisasi_nilai
         total_realisasi += self.realisasi_nilai
@@ -218,20 +220,13 @@ class Realisasikesehatan(models.Model):
         if total_realisasi > total_penerimaan:
             raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
         
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        if self.realisasi_rencanaposting:
-            self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
-            self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
-        # print(f"Nilai realisasi_rencana_id sebelum save: {self.realisasi_rencana_id}")
-        # print(f"Nilai realisasi_subkegiatan_id sebelum save: {self.realisasi_subkegiatan_id}")
-        super().save(*args, **kwargs)
+    
 
     def get_realisasi_total(self, tahun, opd, dana):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(realisasi_subopd=opd)
-        return Realisasikesehatan.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasi_pk(self):
         filters = Q(realisasi_tahun=self.realisasi_tahun) & Q(realisasi_dana=self.realisasi_dana_id)
@@ -240,10 +235,27 @@ class Realisasikesehatan(models.Model):
             filters &= Q(realisasi_subkegiatan_id=subkegiatan)
         if self.realisasi_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.realisasi_subopd_id)
-        nilai_realisasi = Realisasikesehatan.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        nilai_realisasi = self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi}, {self.realisasi_subkegiatan_id} dan {filters}")
         return nilai_realisasi
 
+    
+class Realisasikesehatan(BaseRealisasikesehatan):
+    realisasi_rencanaposting = models.ForeignKey(Rencanakesehatanposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencanakesehatan, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+    
+    class Meta(BaseRealisasikesehatan.Meta):
+        db_table = 'kesehatan_realisasikesehatan'
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.realisasi_rencanaposting:
+            self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        # print(f"Nilai realisasi_rencana_id sebelum save: {self.realisasi_rencana_id}")
+        # print(f"Nilai realisasi_subkegiatan_id sebelum save: {self.realisasi_subkegiatan_id}")
+        super().save(*args, **kwargs)   
+    
     def get_rencana_pk(self):
         filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
         if self.realisasi_rencanaposting_id is not None:
@@ -287,6 +299,80 @@ class Realisasikesehatan(models.Model):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
             persenpagu = Rencanakesehatanposting().get_total_rencana(tahun, opd, dana)
+            
+            if totalrealisasi is None:
+                return None
+            if persenpagu is None:
+                return 0
+            return ((totalrealisasi / persenpagu) * 100)
+        
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"  # Menangani pembagian dengan nol
+        except Exception as e:
+            return 0
+
+    def __str__(self):
+        return f'{self.realisasi_rencanaposting}'
+
+class Realisasikesehatansisa(BaseRealisasikesehatan):
+    realisasi_rencanaposting = models.ForeignKey(Rencanakesehatanpostingsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencanakesehatansisa, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+    
+    class Meta(BaseRealisasikesehatan.Meta):
+        db_table = 'kesehatan_realisasikesehatansisa'
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.realisasi_rencanaposting:
+            self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        # print(f"Nilai realisasi_rencana_id sebelum save: {self.realisasi_rencana_id}")
+        # print(f"Nilai realisasi_subkegiatan_id sebelum save: {self.realisasi_subkegiatan_id}")
+        super().save(*args, **kwargs)   
+    
+    def get_rencana_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_rencanaposting_id is not None:
+            subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan_id
+            filters &= Q(posting_subkegiatan_id=subkegiatan)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        
+        nilai_rencana = Rencanakesehatanpostingsisa.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+        # print(f"nilai rencana : {nilai_rencana}, {self.realisasi_subkegiatan_id} dan {filters}")
+        return nilai_rencana
+    
+    def get_rencanaoutput_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        if self.realisasi_output is not None:
+            filters &= Q(id=self.realisasi_rencanaposting_id)
+        
+        nilai_output = Rencanakesehatanpostingsisa.objects.filter(filters).aggregate(total_nilai=Sum('posting_output'))['total_nilai'] or Decimal(0)
+        # print(f"nilai rencana : {nilai_rencana} dan {filters}")
+        return nilai_output
+
+    def get_persendana(self, tahun, opd, dana):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            penerimaan = model_penerimaan().totalpenerimaan(tahun,dana)
+            
+            if totalrealisasi is None:
+                return None
+            if penerimaan is None:
+                return 0
+            return ((totalrealisasi / penerimaan) * 100)
+        
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"  # Menangani pembagian dengan nol
+        except Exception as e:
+            return 0
+    
+    def get_persenpagu(self, tahun, opd, dana):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            persenpagu = Rencanakesehatanpostingsisa().get_total_rencana(tahun, opd, dana)
             
             if totalrealisasi is None:
                 return None

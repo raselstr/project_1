@@ -10,7 +10,7 @@ import logging
 from opd.models import Pejabat, Subopd
 from kesehatan.models import Rencanakesehatanposting, Rencanakesehatan, Realisasikesehatan
 from dausg.models import Subkegiatan, DausgkesehatanProg
-from kesehatan.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
+from kesehatan.forms.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg

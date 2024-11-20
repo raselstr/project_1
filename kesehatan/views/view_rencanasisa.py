@@ -7,7 +7,7 @@ from project.decorators import menu_access_required, set_submenu_session
 import logging
 
 from kesehatan.models import Rencanakesehatan, Rencanakesehatansisa
-from kesehatan.forms.forms import RencanakesehatanFilterForm, RencanakesehatanForm
+from kesehatan.forms.formssisa import RencanakesehatanFilterForm, RencanakesehatanForm
 from dausg.models import Subkegiatan
 
 form_filter = RencanakesehatanFilterForm
@@ -18,12 +18,11 @@ model_datasisa = Rencanakesehatansisa
 model_pagu = Subkegiatan
 
 url_home = 'rencana_kesehatan_home'
-url_filter = 'rencana_kesehatan_filter'
-url_filtersisa = 'rencana_kesehatan_filtersisa'
-url_list = 'rencana_kesehatan_list'
-url_simpan = 'rencana_kesehatan_simpan'
-url_update = 'rencana_kesehatan_update'
-url_delete = 'rencana_kesehatan_delete'
+url_filter = 'rencana_kesehatan_filtersisa'
+url_list = 'rencana_kesehatan_listsisa'
+url_simpan = 'rencana_kesehatan_simpansisa'
+url_update = 'rencana_kesehatan_updatesisa'
+url_delete = 'rencana_kesehatan_deletesisa'
 
 template_form = 'kesehatan/rencana/form.html'
 template_home = 'kesehatan/rencana/home.html'
@@ -95,7 +94,7 @@ def simpan(request):
 
     context = {
         'form': form,
-        'judul': 'Form Rencana Kegiatan',
+        'judul': 'Form Rencana Kegiatan Sisa',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
     }
@@ -124,8 +123,8 @@ def list(request):
         data = None
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Kesehatan',
-        'tombol': 'Tambah Perencanaan',
+        'judul': 'Daftar Kegiatan Sisa DAU Bidang Kesehatan',
+        'tombol': 'Tambah Perencanaan Sisa',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
@@ -141,7 +140,7 @@ def filter(request):
         logger.debug(f"Received GET data: {request.GET}")
         tahunrencana = model_data.objects.values_list('rencana_tahun', flat=True).distinct()
         sesisubopd = request.session.get('idsubopd')
-        form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidana, sesisubopd=sesisubopd)
+        form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidanasisa, sesisubopd=sesisubopd)
 
         if form.is_valid():
             logger.debug(f"Form is valid: {form.cleaned_data}")
@@ -155,58 +154,10 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Rencana Kegiatan',
+        'judul': 'Rencana Kegiatan Sisa',
         'isi_modal': 'Ini adalah isi modal Rencana Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
         'link_url': reverse(url_filter),
     }
     return render(request, template_modal, context)
-
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    
-    try:
-        dana = model_pagu.objects.get(sub_slug=sesidana)
-        danasisa = model_pagu.objects.get(sub_slug=sesidanasisa)
-    except model_pagu.DoesNotExist:
-        dana = None
-        danasisa = None
-    
-    if dana:
-        pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
-        
-        pagusisa = model_datasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        nilaisisa = pagusisa-rencanasisa
-        
-    else:
-        pagu = 0
-        rencana = 0
-        sisa = 0
-        pagusisa = 0
-        rencanasisa = 0
-        nilaisisa = 0
-    
-    context = {
-        'judul': 'Rencana Kegiatan DAU Bidang Kesehatan',
-        'tab1': 'Rencana Kegiatan Tahun Berjalan',
-        'tab2': 'Rencana Kegiatan Sisa Tahun Berjalan',
-        'datapagu': pagu,
-        'datarencana' : rencana,
-        'datasisa' : sisa,
-        'pagusisa': pagusisa,
-        'rencanasisa' : rencanasisa,
-        'nilaisisa' : nilaisisa,
-        
-        
-        'link_url': reverse(url_filter),
-        'link_urlsisa': reverse(url_filtersisa),
-    }
-    return render(request, template_home, context)

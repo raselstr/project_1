@@ -1,5 +1,5 @@
 from django import forms
-from .models import Rencanakesehatan, Rencanakesehatanposting,Subkegiatan, Subopd, Realisasikesehatan
+from ..models import Rencanakesehatan, Rencanakesehatanposting,Subkegiatan, Subopd, Realisasikesehatan
 
 model_rencana = Rencanakesehatan
 model_posting = Rencanakesehatanposting

@@ -1,5 +1,5 @@
 from django.urls import path # type: ignore
-from kesehatan.views import view_rencana, view_posting, view_realisasi, view_laporan
+from kesehatan.views import view_rencana, view_rencanasisa, view_posting, view_realisasi, view_laporan
 
 urlpatterns = [
 
@@ -28,4 +28,10 @@ urlpatterns = [
     path("rencana/daftar/", view_rencana.list, name="rencana_kesehatan_list"),
     path("rencana/filter/", view_rencana.filter, name="rencana_kesehatan_filter"),
     path("rencana/", view_rencana.home, name="rencana_kesehatan_home"),
+    
+    path("rencanasisa/delete/<int:pk>/", view_rencanasisa.delete, name="rencana_kesehatan_deletesisa"),
+    path("rencanasisa/update/<int:pk>/", view_rencanasisa.update, name="rencana_kesehatan_updatesisa"),
+    path("rencanasisa/simpan/", view_rencanasisa.simpan, name="rencana_kesehatan_simpansisa"),
+    path("rencanasisa/daftar/", view_rencanasisa.list, name="rencana_kesehatan_listsisa"),
+    path("rencanasisa/filter/", view_rencanasisa.filter, name="rencana_kesehatan_filtersisa"),
 ]
