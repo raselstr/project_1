@@ -6,15 +6,14 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 import logging
 
-from kesehatan.models import Rencanakesehatan, Rencanakesehatansisa
+from kesehatan.models import Rencanakesehatansisa
 from kesehatan.forms.formssisa import RencanakesehatanFilterForm, RencanakesehatanForm
 from dausg.models import Subkegiatan
 
 form_filter = RencanakesehatanFilterForm
 form_data = RencanakesehatanForm
 
-model_data = Rencanakesehatan
-model_datasisa = Rencanakesehatansisa
+model_data = Rencanakesehatansisa
 model_pagu = Subkegiatan
 
 url_home = 'rencana_kesehatan_home'
@@ -86,9 +85,14 @@ def simpan(request):
     if request.method == 'POST':
         form = form_data(request.POST or None)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Data Berhasil Simpan')
-            return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+            try:
+                form.save()
+                messages.success(request, 'Data Berhasil Simpan')
+                return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+            except Exception as e:
+                messages.error(request, 'Data gagal disimpan: {}'.format(str(e)))
+        else:
+            messages.error(request, 'Ada kesalahan dalam form, silakan periksa kembali.')
     else:
         form = form_data(initial=initial_data)
 
