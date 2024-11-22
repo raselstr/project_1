@@ -6,38 +6,35 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 
 from django_tables2 import RequestConfig
-from ..tables import RealisasikesehatanTable
+from ..tables import RealisasikesehatanTablesisa
 
 import logging
 
-from kesehatan.models import Rencanakesehatanposting, Rencanakesehatanpostingsisa, Rencanakesehatan, Realisasikesehatan, Realisasikesehatansisa
+from kesehatan.models import Rencanakesehatanpostingsisa, Rencanakesehatansisa, Realisasikesehatansisa
 from dausg.models import Subkegiatan
 
 
-from kesehatan.forms.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
+from kesehatan.forms.formssisa import RealisasikesehatanFilterForm, RealisasikesehatanForm
 from penerimaan.models import Penerimaan
 
-tabel_realisasi = RealisasikesehatanTable
+tabel_realisasi = RealisasikesehatanTablesisa
 
 form_filter = RealisasikesehatanFilterForm
 form_data = RealisasikesehatanForm
 
-model_data = Rencanakesehatanposting
-model_datasisa = Rencanakesehatanpostingsisa
-model_pagu = Rencanakesehatan
+model_data = Rencanakesehatanpostingsisa
+model_pagu = Rencanakesehatansisa
 model_dana = Subkegiatan
-model_realisasi = Realisasikesehatan
-model_realisasisisa = Realisasikesehatansisa
+model_realisasi = Realisasikesehatansisa
 model_penerimaan = Penerimaan
 
 url_home = 'realisasi_kesehatan_home'
-url_filter = 'realisasi_kesehatan_filter'
-url_filtersisa = 'realisasi_kesehatan_filtersisa'
-url_list = 'realisasi_kesehatan_list'
-url_simpan = 'realisasi_kesehatan_simpan'
-url_update = 'realisasi_kesehatan_update'
-url_delete = 'realisasi_kesehatan_delete'
-url_verif = 'realisasi_kesehatan_delete'
+url_filter = 'realisasi_kesehatan_filtersisa'
+url_list = 'realisasi_kesehatan_listsisa'
+url_simpan = 'realisasi_kesehatan_simpansisa'
+url_update = 'realisasi_kesehatan_updatesisa'
+url_delete = 'realisasi_kesehatan_deletesisa'
+url_verif = 'realisasi_kesehatan_deletesisa'
 
 template_form = 'kesehatan/realisasi/form.html'
 template_home = 'kesehatan/realisasi/home.html'
@@ -45,8 +42,7 @@ template_list = 'kesehatan/realisasi/list.html'
 template_modal = 'kesehatan/realisasi/modal.html'
 template_modal_verif = 'kesehatan/realisasi/modal_verif.html'
 
-sesidana = 'dau-dukungan-bidang-kesehatan'
-sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
 
 logger = logging.getLogger(__name__)
 
@@ -160,8 +156,8 @@ def list(request):
     table = tabel_realisasi(data, request=request)
 
     context = {
-        'judul': 'Daftar Realisasi DAU Bidang Kesehatan',
-        'tombol': 'Tambah Realisasi',
+        'judul': 'Daftar Realisasi Sisa DAU Bidang Kesehatan Tahun Lalu',
+        'tombol': 'Tambah Realisasi Sisa Tahun Lalu',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
@@ -201,64 +197,3 @@ def filter(request):
     }
     return render(request, template_modal, context)
 
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    
-    try:
-        dana = model_dana.objects.get(sub_slug=sesidana)
-        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
-    except model_dana.DoesNotExist:
-        dana = None
-        danasisa = None
-    
-    if dana:
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
-        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
-        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
-        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        
-        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
-        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
-    else:
-        rencana = 0
-        penerimaan = 0
-        realisasi = 0
-        persendana = 0
-        persenpagu = 0
-        
-        rencanasisa = 0
-        penerimaansisa = 0
-        realisasisisa = 0
-        persendanasisa = 0
-        persenpagusisa = 0
-        
-        
-    
-    context = {
-        'judul': 'Realisasi Kegiatan DAU Bidang Kesehatan',
-        'tab1': 'Realisasi Kegiatan Tahun Berjalan',
-        'tab2': 'Realisasi Sisa Kegiatan Tahun Lalu',
-        'datarencana' : rencana,
-        'penerimaan' : penerimaan,
-        'realisasi' : realisasi,
-        'persendana' : persendana,
-        'persenpagu' : persenpagu,
-        
-        'rencanasisa' : rencanasisa,
-        'penerimaansisa' : penerimaansisa,
-        'realisasisisa' : realisasisisa,
-        'persendanasisa' : persendanasisa,
-        'persenpagusisa' : persenpagusisa,
-        
-        'link_url': reverse(url_filter),
-        'link_urlsisa': reverse(url_filtersisa),
-    }
-    return render(request, template_home, context)

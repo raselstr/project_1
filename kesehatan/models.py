@@ -17,7 +17,7 @@ model_tahap = 'dana.TahapDana'
 model_subkegiatan = 'dausg.DausgkesehatanSub'
 model_pagu = 'pagu.Pagudausg'
 modelpagu = Pagudausg
-model_penerimaan = 'penerimaan.Penerimaan'
+model_penerimaan = Penerimaan
 
 # Create your models here.
 VERIF = [

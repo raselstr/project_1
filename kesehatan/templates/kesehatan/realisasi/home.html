@@ -66,6 +66,53 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab2}}</h4>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Pagu Kegiatan </td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{rencanasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Penerimaan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{penerimaansisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Nilai Realisasi</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{realisasisisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persendanasisa|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan Pagu</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persenpagusisa|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                        </table>
+                        <a href="#" 
+                            class="card-cta" 
+                            hx-get="{{link_urlsisa}}" 
+                            hx-target="#filter .modal-content"
+                            hx-trigger="click"  
+                            data-toggle="modal" 
+                            data-target="#filter"
+                            hx-indicator="#modal-spinner">
+                            {{tab2}}....<i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

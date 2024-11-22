@@ -8,7 +8,7 @@ from datetime import datetime
 
 import logging
 from opd.models import Pejabat, Subopd
-from kesehatan.models import Rencanakesehatanposting, Rencanakesehatanpostingsisa, Rencanakesehatan, Rencanakesehatansisa, Realisasikesehatan, Realisasikesehatansisa
+from kesehatan.models import Rencanakesehatanpostingsisa, Rencanakesehatansisa, Realisasikesehatansisa
 from dausg.models import Subkegiatan, DausgkesehatanProg
 from kesehatan.forms.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
 from penerimaan.models import Penerimaan
@@ -19,13 +19,10 @@ from ..tables import RekapPaguTable, Sp2dTable
 form_filter = RealisasikesehatanFilterForm
 form_data = RealisasikesehatanForm
 
-model_data = Rencanakesehatanposting
-model_datasisa = Rencanakesehatanpostingsisa
-model_rencana = Rencanakesehatan
-model_rencanasisa = Rencanakesehatansisa
+model_data = Rencanakesehatanpostingsisa
+model_rencana = Rencanakesehatansisa
 model_dana = Subkegiatan
-model_realisasi = Realisasikesehatan
-model_realisasisisa = Realisasikesehatansisa
+model_realisasi = Realisasikesehatansisa
 model_penerimaan = Penerimaan
 model_program = DausgkesehatanProg
 model_pejabat = Pejabat
@@ -34,13 +31,11 @@ model_subopd = Subopd
 model_pagu = Pagudausg
 
 url_home = 'laporan_kesehatan_home'
-url_filter = 'laporan_kesehatan_filter'
-url_filtersisa = 'laporan_kesehatan_filtersisa'
-url_list = 'laporan_kesehatan_list'
-url_listsisa = 'laporan_kesehatan_listsisa'
-url_pdf = 'laporan_kesehatan_pdf'
-url_apip = 'laporan_kesehatan_apip'
-url_sp2d = 'laporan_kesehatan_sp2d'
+url_filter = 'laporan_kesehatan_filtersisa'
+url_list = 'laporan_kesehatan_listsisa'
+url_pdf = 'laporan_kesehatansisa_pdf'
+url_apip = 'laporan_kesehatansisa_apip'
+url_sp2d = 'laporan_kesehatansisa_sp2d'
 
 template_apip = 'kesehatan/laporan/apip.html'
 template_pdf = 'kesehatan/laporan/pdf.html'
@@ -52,8 +47,7 @@ template_sp2d = 'pendidikan/laporan/sp2d.html'
 tabel= RekapPaguTable
 tabelsp2d= Sp2dTable
 
-sesidana = 'dau-dukungan-bidang-kesehatan'
-sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
 
 logger = logging.getLogger(__name__)
 
@@ -180,10 +174,8 @@ def home(request):
     
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
-        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
     except model_dana.DoesNotExist:
         dana = None
-        danasisa = None
     
     if dana:
         pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
@@ -192,13 +184,6 @@ def home(request):
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        
-        pagusisa = model_rencanasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
-        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
     else:
         pagu = 0
         rencana = 0
@@ -206,18 +191,10 @@ def home(request):
         realisasi = 0
         persendana = 0
         persenpagu = 0
-        
-        pagusisa = 0
-        rencanasisa = 0
-        penerimaansisa = 0
-        realisasisisa = 0
-        persendanasisa = 0
-        persenpagusisa = 0
     
     context.update({
         'judul': 'Laporan Kegiatan DAU Bidang kesehatan',
         'tab1': 'Laporan Kegiatan Tahun Berjalan',
-        'tab2': 'Laporan Sisa Kegiatan Tahun Lalu',
         'datapagu': pagu,
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
@@ -225,15 +202,7 @@ def home(request):
         'persendana' : persendana,
         'persenpagu' : persenpagu,
         
-        'pagusisa' : pagusisa,
-        'rencanasisa' : rencanasisa,
-        'penerimaansisa' : penerimaansisa,
-        'realisasisisa' : realisasisisa,
-        'persendanasisa' : persendanasisa,
-        'persenpagusisa' : persenpagusisa,
-        
         'link_url': reverse(url_filter),
-        'link_urlsisa': reverse(url_filtersisa),
     })
     return render(request, template_home, context)
 
