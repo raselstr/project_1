@@ -10,9 +10,9 @@ urlpatterns = [
     path("laporan/filter/", view_laporan.filter, name="laporan_pendidikan_filter"),
     path("laporan/", view_laporan.home, name="laporan_pendidikan_home"),
     
-    path("laporansisa/sp2d/", view_laporansisa.sp2d, name="laporan_pendidikan_sp2dsisa"),
-    path("laporansisa/apip/", view_laporansisa.apip, name="laporan_pendidikan_apipsisa"),
-    path("laporansisa/pdf/", view_laporansisa.pdf, name="laporan_pendidikan_pdfsisa"),
+    path("laporansisa/sp2d/", view_laporansisa.sp2d, name="laporan_pendidikansisa_sp2d"),
+    path("laporansisa/apip/", view_laporansisa.apip, name="laporan_pendidikansisa_apip"),
+    path("laporansisa/pdf/", view_laporansisa.pdf, name="laporan_pendidikansisa_pdf"),
     path("laporansisa/daftar/", view_laporansisa.list, name="laporan_pendidikan_listsisa"),
     path("laporansisa/filter/", view_laporansisa.filter, name="laporan_pendidikan_filtersisa"),
     
@@ -27,8 +27,8 @@ urlpatterns = [
     
     path("realisasisisa/verif/<int:pk>/", view_realisasisisa.verif, name="realisasi_pendidikan_verifsisa"),
     path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_pendidikan_modalsisa"),
-    path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_pendidikan_deletesisa"),
-    path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_pendidikan_updatesisa"),
+    path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_pendidikansisa_delete"),
+    path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_pendidikansisa_update"),
     path("realisasisisa/simpan/", view_realisasisisa.simpan, name="realisasi_pendidikan_simpansisa"),
     path("realisasisisa/daftar/", view_realisasisisa.list, name="realisasi_pendidikan_listsisa"),
     path("realisasisisa/filter/", view_realisasisisa.filter, name="realisasi_pendidikan_filtersisa"),
