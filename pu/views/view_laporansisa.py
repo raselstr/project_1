@@ -205,7 +205,6 @@ def get_data_context(request):
     progs = model_program.objects.prefetch_related(
         Prefetch('dausgpukegs__dausgpusubs__rencanapupostingsisa_set')
     ).filter(dausgpukegs__dausgpusubs__rencanapupostingsisa__isnull=False).distinct().order_by('id')
-    print(filters)
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)
