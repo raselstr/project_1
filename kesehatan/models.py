@@ -103,7 +103,7 @@ class BaseRencanakesehatan(models.Model):
             filters &= Q(realisasi_subkegiatan_id=kode)
         if self.rencana_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
-        nilai_realisasi = Realisasikesehatan.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        nilai_realisasi = self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
 
