@@ -3,6 +3,9 @@ from .models import Realisasikesehatan, Realisasikesehatansisa
 from django.urls import reverse
 from django.utils.html import format_html
 
+model = Realisasikesehatan
+model_sisa = Realisasikesehatansisa
+
 class TotalRealisasiColumn(tables.Column):
     def render_footer(self, bound_column, table):
         return sum(bound_column.accessor.resolve(row) for row in table.data)
@@ -67,7 +70,7 @@ class BaseRealisasiTable(tables.Table):
 
 class RealisasikesehatanTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
-        model = Realisasikesehatan
+        model = model
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
 
@@ -76,7 +79,7 @@ class RealisasikesehatanTable(BaseRealisasiTable):
 
 class RealisasikesehatanTablesisa(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
-        model = Realisasikesehatansisa
+        model = model_sisa
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
 
@@ -125,12 +128,12 @@ class BaseSp2dTable (tables.Table):
 
 class Sp2dTable(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
-        model = Realisasikesehatan
+        model = model
         fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
 
 class Sp2dTablesisa(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
-        model = Realisasikesehatansisa
+        model = model_sisa
         fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
         
 

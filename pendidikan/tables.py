@@ -1,13 +1,16 @@
 import django_tables2 as tables
-from .models import Realisasi, Pagudausg, Rencanaposting
+from .models import Realisasi, Realisasisisa
 from django.urls import reverse
 from django.utils.html import format_html
+
+model = Realisasi
+model_sisa = Realisasisisa
 
 class totalrealisasi(tables.Column):
     def render_footer(self, bound_column, table):
         return sum(bound_column.accessor.resolve(row) for row in table.data)
 
-class RealisasiTable(tables.Table):
+class BaseRealisasiTable(tables.Table):
     aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
     verif = tables.Column(empty_values=(), orderable=False, verbose_name='Verifikasi')
     output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan')
@@ -15,9 +18,7 @@ class RealisasiTable(tables.Table):
     realisasi_nilai = totalrealisasi()
 
     class Meta:
-        model = Realisasi
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
-        fields = ("aksi","realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", "realisasi_tgl", "realisasi_nilai", "output_satuan","verif")  # Kolom-kolom yang akan ditampilkan
         attrs = {
             "class": "display table-bordered",
             "id":"tabel1",
@@ -38,8 +39,8 @@ class RealisasiTable(tables.Table):
         
         # Jika akun == 'Pengguna' dan status verif != 1, maka tampilkan tombol edit dan delete
         if opd not in [70,67,None] and record.realisasi_verif != 1:
-            edit_url = reverse('realisasi_pendidikan_update', args=[record.id])  # Ganti dengan nama url Anda
-            delete_url = reverse('realisasi_pendidikan_delete', args=[record.id])  # Ganti dengan nama url Anda
+            edit_url = reverse(f'{self.model_name}_update', args=[record.id])
+            delete_url = reverse(f'{self.model_name}_delete', args=[record.id])
             return format_html(
                 '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
                 '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
@@ -52,38 +53,43 @@ class RealisasiTable(tables.Table):
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)
-        verif_status = {
-            0: 'Diinput Dinas',
-            1: 'Disetujui APIP'
-        }
-        badge_class = {
-            0: 'badge-warning',
-            1: 'badge-success'
-        }
+        verif_status = {0: 'Diinput Dinas', 1: 'Disetujui APIP'}
+        badge_class = {0: 'badge-warning', 1: 'badge-success'}
 
-        # Ambil status verifikasi
         status = verif_status.get(record.realisasi_verif, 'Status Tidak Diketahui')
         badge = badge_class.get(record.realisasi_verif, 'badge-secondary')
 
-        # Jika akun adalah 'APIP', berikan link verifikasi
         if akun == 'APIP':
-            verif_url = reverse('realisasi_pendidikan_modal', args=[record.id])  # URL untuk verifikasi
+            verif_url = reverse(f'{self.model_name}_modal', args=[record.id])
             return format_html(
-                '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" data-toggle="modal" data-target="#verifikasiModal">'
+                '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" '
+                'data-toggle="modal" data-target="#verifikasiModal">'
                 '<span class="badge {}">{}</span></a>',
                 verif_url, badge, status
             )
         else:
-            # Jika bukan 'APIP', tampilkan status tanpa link
             return format_html('<span class="badge {}">{}</span>', badge, status)
     
     def render_output_satuan(self, record):
-        satuan = record.realisasi_subkegiatan.dausgpendidikansub_satuan  # Ganti 'satuan' dengan nama field yang sesuai dari model Subkegiatan
-        return format_html(
-            '{} {}'.format(record.realisasi_output, satuan)  # Gabungkan output dan satuan
-        )
-    def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
+        satuan = getattr(record.realisasi_subkegiatan, 'dausgpendidikansub_satuan', '')
+        return format_html('{} {}'.format(record.realisasi_output, satuan))
+
+class RealisasiTable(BaseRealisasiTable):
+    class Meta(BaseRealisasiTable.Meta):
+        model = model
+        fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
+
+    model_name = 'realisasi'
+
+
+class RealisasiTablesisa(BaseRealisasiTable):
+    class Meta(BaseRealisasiTable.Meta):
+        model = model_sisa
+        fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
+
+    model_name = 'realisasisisa'
 
 class RekapPaguTable(tables.Table):
     # Mendefinisikan kolom yang akan ditampilkan
@@ -111,13 +117,11 @@ class RekapPaguTable(tables.Table):
             }
 
 
-class Sp2dTable (tables.Table):
+class BaseSp2dTable (tables.Table):
     realisasi_tgl = tables.Column(footer="Total")
     realisasi_nilai = totalrealisasi(attrs={"td": {"class": "text-right"}})
     class Meta:
-        model = Realisasi
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
-        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
         attrs = {
             "class": "table table-bordered",
             # "id":"tabel1",
@@ -128,4 +132,15 @@ class Sp2dTable (tables.Table):
                 'style':"text-align: right;"
                 },
             }
+
+class Sp2dTable(BaseSp2dTable):
+    class Meta(BaseSp2dTable.Meta):
+        model = model
+        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
+
+class Sp2dTablesisa(BaseSp2dTable):
+    class Meta(BaseSp2dTable.Meta):
+        model = model_sisa
+        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
+
     
