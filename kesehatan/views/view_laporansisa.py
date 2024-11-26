@@ -14,7 +14,7 @@ from kesehatan.forms.forms import RealisasikesehatanFilterForm, Realisasikesehat
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg
-from ..tables import RekapPaguTable, Sp2dTable
+from ..tables import RekapPaguTable, Sp2dTablesisa
 
 form_filter = RealisasikesehatanFilterForm
 form_data = RealisasikesehatanForm
@@ -45,7 +45,7 @@ template_modal = 'kesehatan/laporan/modal.html'
 template_sp2d = 'pendidikan/laporan/sp2d.html'
 
 tabel= RekapPaguTable
-tabelsp2d= Sp2dTable
+tabelsp2d= Sp2dTablesisa
 
 sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
 
@@ -246,8 +246,8 @@ def get_data_context(request):
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
     progs = model_program.objects.prefetch_related(
-        Prefetch('dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanposting_set')
-    ).filter(dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanposting__isnull=False).distinct().order_by('id')
+        Prefetch('dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanpostingsisa_set')
+    ).filter(dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanpostingsisa__isnull=False).distinct().order_by('id')
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)

@@ -8,24 +8,21 @@ from datetime import datetime
 
 import logging
 from opd.models import Pejabat, Subopd
-from pu.models import Rencanapuposting, Rencanapu, Realisasipu, Rencanapupostingsisa, Rencanapusisa, Realisasipusisa
+from pu.models import Rencanapupostingsisa, Rencanapusisa, Realisasipusisa
 from dausg.models import Subkegiatan, DausgpuProg
-from pu.forms.forms import RealisasipuFilterForm, RealisasipuForm
+from pu.forms.sisa import RealisasipuFilterForm, RealisasipuForm
 from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg
-from ..tables import RekapPaguTable, Sp2dTable
+from ..tables import RekapPaguTable, Sp2dTablesisa
 
 form_filter = RealisasipuFilterForm
 form_data = RealisasipuForm
 
-model_data = Rencanapuposting
-model_datasisa = Rencanapupostingsisa
-model_rencana = Rencanapu
-model_rencanasisa = Rencanapusisa
+model_data = Rencanapupostingsisa
+model_rencana = Rencanapusisa
 model_dana = Subkegiatan
-model_realisasi = Realisasipu
-model_realisasisisa = Realisasipusisa
+model_realisasi = Realisasipusisa
 model_penerimaan = Penerimaan
 model_program = DausgpuProg
 model_pejabat = Pejabat
@@ -34,12 +31,11 @@ model_subopd = Subopd
 model_pagu = Pagudausg
 
 url_home = 'laporan_pu_home'
-url_filter = 'laporan_pu_filter'
-url_filtersisa = 'laporan_pu_filtersisa'
-url_list = 'laporan_pu_list'
-url_pdf = 'laporan_pu_pdf'
-url_apip = 'laporan_pu_apip'
-url_sp2d = 'laporan_pu_sp2d'
+url_filter = 'laporan_pu_filtersisa'
+url_list = 'laporan_pu_listsisa'
+url_pdf = 'laporan_pu_pdfsisa'
+url_apip = 'laporan_pu_apipsisa'
+url_sp2d = 'laporan_pu_sp2dsisa'
 
 template_apip = 'pu/laporan/apip.html'
 template_pdf = 'pu/laporan/pdf.html'
@@ -49,10 +45,9 @@ template_modal = 'pu/laporan/modal.html'
 template_sp2d = 'pu/laporan/sp2d.html'
 
 tabel= RekapPaguTable
-tabelsp2d= Sp2dTable
+tabelsp2d= Sp2dTablesisa
 
-sesidana = 'dau-dukungan-bidang-pekerjaan-umum'
-sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +126,7 @@ def list(request):
         }
     
     context.update({
-        'judul': 'Rekapitulasi Realisasi DAU SG Bidang Pekerjaan Umum',
+        'judul': 'Rekapitulasi Realisasi Sisa DAU SG Bidang Pekerjaan Umum Tahun Lalu',
         'tombolsp2d': 'Cetak Daftar SP2D',
         'link_url_kembali' : reverse(url_home),
         'kembali' : 'Kembali',
@@ -169,71 +164,6 @@ def filter(request):
         'link_url_filter': reverse(url_filter),
     }
     return render(request, template_modal, context)
-
-
-@set_submenu_session
-@menu_access_required('list')
-def home(request):
-    tahun = request.session.get('tahun')
-    sesisubopd = request.session.get('idsubopd')
-    context = rekap(request)
-    
-    try:
-        dana = model_dana.objects.get(sub_slug=sesidana)
-        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
-    except model_dana.DoesNotExist:
-        dana = None
-        danasisa = None
-    
-    if dana:
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
-        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
-        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
-        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
-        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        
-        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
-        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
-    else:
-        rencana = 0
-        penerimaan = 0
-        realisasi = 0
-        persendana = 0
-        persenpagu = 0
-        
-        rencanasisa = 0
-        penerimaansisa = 0
-        realisasisisa = 0
-        persendanasisa = 0
-        persenpagusisa = 0
-        
-        
-    
-    context.update({
-        'judul': 'Laporan Kegiatan DAU Bidang Pekerjaan Umum',
-        'tab1': 'Laporan Kegiatan Tahun Berjalan',
-        'tab2': 'Laporan Kegiatan Sisa Tahun Lalu',
-        'datarencana' : rencana,
-        'penerimaan' : penerimaan,
-        'realisasi' : realisasi,
-        'persendana' : persendana,
-        'persenpagu' : persenpagu,
-        
-        'rencanasisa' : rencanasisa,
-        'penerimaansisa' : penerimaansisa,
-        'realisasisisa' : realisasisisa,
-        'persendanasisa' : persendanasisa,
-        'persenpagusisa' : persenpagusisa,
-        
-        'link_url': reverse(url_filter),
-        'link_urlsisa': reverse(url_filtersisa),
-    })
-    return render(request, template_home, context)
-
-
 
 def get_data_context(request):
     # Ambil data dari session
@@ -273,8 +203,9 @@ def get_data_context(request):
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
     progs = model_program.objects.prefetch_related(
-        Prefetch('dausgpukegs__dausgpusubs__rencanapuposting_set')
-    ).filter(dausgpukegs__dausgpusubs__rencanapuposting__isnull=False).distinct().order_by('id')
+        Prefetch('dausgpukegs__dausgpusubs__rencanapupostingsisa_set')
+    ).filter(dausgpukegs__dausgpusubs__rencanapupostingsisa__isnull=False).distinct().order_by('id')
+    print(filters)
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)
@@ -357,7 +288,7 @@ def get_data_context(request):
                             },
                             'sub_number': f"{program_counter:02}.{kegiatan_counter:02}.{sub_kegiatan_counter:02}"  # Nomor sub-kegiatan
                         })
-
+                        
                         total_realisasi_output_keg += total_output_realisasi
                         total_realisasi_keg += total_sp2d
                         total_tahap1_keg += total_tahap1
@@ -411,7 +342,7 @@ def get_data_context(request):
             total_tahap3_keseluruhan += total_tahap3_prog
 
         program_counter += 1  # Increment counter program
-    
+
     tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
     subopd_laporan = model_subopd.objects.filter(id=realisasi_subopd).first().sub_nama
     dana_laporan = model_dana.objects.filter(id=realisasi_dana).first().sub_nama

@@ -115,6 +115,7 @@ class BaseSp2dTable (tables.Table):
     realisasi_nilai = TotalRealisasiColumn(attrs={"td": {"class": "text-right"}})
     class Meta:
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
         attrs = {
             "class": "table table-bordered",
             # "id":"tabel1",
@@ -129,11 +130,9 @@ class BaseSp2dTable (tables.Table):
 class Sp2dTable(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
         model = model
-        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
 
 class Sp2dTablesisa(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
         model = model_sisa
-        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
         
 

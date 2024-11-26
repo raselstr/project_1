@@ -10,11 +10,11 @@ from ..tables import RealisasipuTable
 
 import logging
 
-from pu.models import Rencanapuposting, Rencanapu, Realisasipu
+from pu.models import Rencanapuposting, Rencanapu, Realisasipu, Rencanapupostingsisa, Rencanapusisa, Realisasipusisa
 from dausg.models import Subkegiatan
 
 
-from pu.forms import RealisasipuFilterForm, RealisasipuForm
+from pu.forms.forms import RealisasipuFilterForm, RealisasipuForm
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasipuTable
@@ -23,13 +23,16 @@ form_filter = RealisasipuFilterForm
 form_data = RealisasipuForm
 
 model_data = Rencanapuposting
+model_datasisa = Rencanapupostingsisa
 model_pagu = Rencanapu
 model_dana = Subkegiatan
 model_realisasi = Realisasipu
+model_realisasisisa = Realisasipusisa
 model_penerimaan = Penerimaan
 
 url_home = 'realisasi_pu_home'
 url_filter = 'realisasi_pu_filter'
+url_filtersisa = 'realisasi_pu_filtersisa'
 url_list = 'realisasi_pu_list'
 url_simpan = 'realisasi_pu_simpan'
 url_update = 'realisasi_pu_update'
@@ -43,6 +46,7 @@ template_modal = 'pu/realisasi/modal.html'
 template_modal_verif = 'pu/realisasi/modal_verif.html'
 
 sesidana = 'dau-dukungan-bidang-pekerjaan-umum'
+sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
 
 logger = logging.getLogger(__name__)
 
@@ -206,36 +210,55 @@ def home(request):
     
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
+        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
     except model_dana.DoesNotExist:
         dana = None
+        danasisa = None
     
     if dana:
-        pagu = model_pagu().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
+        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
     else:
-        pagu = 0
         rencana = 0
         penerimaan = 0
         realisasi = 0
         persendana = 0
         persenpagu = 0
         
+        rencanasisa = 0
+        penerimaansisa = 0
+        realisasisisa = 0
+        persendanasisa = 0
+        persenpagusisa = 0
+        
         
     
     context = {
         'judul': 'Realisasi Kegiatan DAU Bidang Pekerjaan  Umum',
         'tab1': 'Realisasi Kegiatan Tahun Berjalan',
-        'datapagu': pagu,
+        'tab2': 'Realisasi Kegiatan Sisa Tahun Lalu',
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
         'realisasi' : realisasi,
         'persendana' : persendana,
         'persenpagu' : persenpagu,
         
+        'rencanasisa' : rencanasisa,
+        'penerimaansisa' : penerimaansisa,
+        'realisasisisa' : realisasisisa,
+        'persendanasisa' : persendanasisa,
+        'persenpagusisa' : persenpagusisa,
+        
         'link_url': reverse(url_filter),
+        'link_urlsisa': reverse(url_filtersisa),
     }
     return render(request, template_home, context)

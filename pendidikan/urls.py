@@ -10,9 +10,9 @@ urlpatterns = [
     path("laporan/filter/", view_laporan.filter, name="laporan_pendidikan_filter"),
     path("laporan/", view_laporan.home, name="laporan_pendidikan_home"),
     
-    path("laporansisa/sp2d/", view_laporansisa.sp2d, name="laporan_pendidikansisa_sp2d"),
-    path("laporansisa/apip/", view_laporansisa.apip, name="laporan_pendidikansisa_apip"),
-    path("laporansisa/pdf/", view_laporansisa.pdf, name="laporan_pendidikansisa_pdf"),
+    path("laporansisa/sp2d/", view_laporansisa.sp2d, name="laporan_pendidikan_sp2dsisa"),
+    path("laporansisa/apip/", view_laporansisa.apip, name="laporan_pendidikan_apipsisa"),
+    path("laporansisa/pdf/", view_laporansisa.pdf, name="laporan_pendidikan_pdfsisa"),
     path("laporansisa/daftar/", view_laporansisa.list, name="laporan_pendidikan_listsisa"),
     path("laporansisa/filter/", view_laporansisa.filter, name="laporan_pendidikan_filtersisa"),
     

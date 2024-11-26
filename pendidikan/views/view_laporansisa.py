@@ -200,8 +200,8 @@ def get_data_context(request):
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
 
     progs = model_program.objects.prefetch_related(
-        Prefetch('dausgpendidikankegs__dausgpendidikansubs__rencanaposting_set')
-    ).filter(dausgpendidikankegs__dausgpendidikansubs__rencanaposting__isnull=False).distinct().order_by('id')
+        Prefetch('dausgpendidikankegs__dausgpendidikansubs__rencanapostingsisa_set')
+    ).filter(dausgpendidikankegs__dausgpendidikansubs__rencanapostingsisa__isnull=False).distinct().order_by('id')
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)

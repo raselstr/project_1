@@ -6,42 +6,42 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 
 from django_tables2 import RequestConfig
-from ..tables import RealisasikesehatanTablesisa
+from ..tables import RealisasipuTablesisa
 
 import logging
 
-from kesehatan.models import Rencanakesehatanpostingsisa, Rencanakesehatansisa, Realisasikesehatansisa
+from pu.models import Rencanapupostingsisa, Rencanapusisa, Realisasipusisa
 from dausg.models import Subkegiatan
 
 
-from kesehatan.forms.formssisa import RealisasikesehatanFilterForm, RealisasikesehatanForm
+from pu.forms.sisa import RealisasipuFilterForm, RealisasipuForm
 from penerimaan.models import Penerimaan
 
-tabel_realisasi = RealisasikesehatanTablesisa
+tabel_realisasi = RealisasipuTablesisa
 
-form_filter = RealisasikesehatanFilterForm
-form_data = RealisasikesehatanForm
+form_filter = RealisasipuFilterForm
+form_data = RealisasipuForm
 
-model_data = Rencanakesehatanpostingsisa
-model_pagu = Rencanakesehatansisa
+model_data = Rencanapupostingsisa
+model_pagu = Rencanapusisa
 model_dana = Subkegiatan
-model_realisasi = Realisasikesehatansisa
+model_realisasi = Realisasipusisa
 model_penerimaan = Penerimaan
 
-url_home = 'realisasi_kesehatan_home'
-url_filter = 'realisasi_kesehatan_filtersisa'
-url_list = 'realisasi_kesehatan_listsisa'
-url_simpan = 'realisasi_kesehatan_simpansisa'
-url_update = 'realisasi_kesehatan_updatesisa'
-url_delete = 'realisasi_kesehatan_deletesisa'
+url_home = 'realisasi_pu_home'
+url_filter = 'realisasi_pu_filtersisa'
+url_list = 'realisasi_pu_listsisa'
+url_simpan = 'realisasi_pu_simpansisa'
+url_update = 'realisasi_pusisa_update'
+url_delete = 'realisasi_pusisa_delete'
 
-template_form = 'kesehatan/realisasi/form.html'
-template_home = 'kesehatan/realisasi/home.html'
-template_list = 'kesehatan/realisasi/list.html'
-template_modal = 'kesehatan/realisasi/modal.html'
-template_modal_verif = 'kesehatan/realisasi/modal_verif.html'
+template_form = 'pu/realisasi/form.html'
+template_home = 'pu/realisasi/home.html'
+template_list = 'pu/realisasi/list.html'
+template_modal = 'pu/realisasi/modal.html'
+template_modal_verif = 'pu/realisasi/modal_verif.html'
 
-sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ def simpan(request):
 
     context = {
         'form': form,
-        'judul': 'Form Realisasi Kegiatan',
+        'judul': 'Form Realisasi Kegiatan Sisa Tahun Lalu',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
     }
@@ -155,7 +155,7 @@ def list(request):
     table = tabel_realisasi(data, request=request)
 
     context = {
-        'judul': 'Daftar Realisasi Sisa DAU Bidang Kesehatan Tahun Lalu',
+        'judul': 'Daftar Realisasi Sisa DAU Bidang Pekerjaan Umum Tahun Lalu',
         'tombol': 'Tambah Realisasi Sisa Tahun Lalu',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
@@ -188,11 +188,10 @@ def filter(request):
         form = form_filter()
 
     context = {
-        'judul': 'Realisasi Kegiatan',
+        'judul': 'Realisasi Kegiatan Sisa Tahun Lalu',
         'isi_modal': 'Ini adalah isi modal Realisasi Kegiatan.',
         'btntombol': 'Filter',
         'form': form,
         'link_url_filter': reverse(url_filter),
     }
     return render(request, template_modal, context)
-
