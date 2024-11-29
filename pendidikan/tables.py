@@ -80,7 +80,7 @@ class RealisasiTable(BaseRealisasiTable):
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
 
-    model_name = 'realisasi'
+    model_name = 'realisasi_pendidikan'
 
 
 class RealisasiTablesisa(BaseRealisasiTable):
@@ -89,7 +89,7 @@ class RealisasiTablesisa(BaseRealisasiTable):
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
 
-    model_name = 'realisasisisa'
+    model_name = 'realisasi_pendidikansisa'
 
 class RekapPaguTable(tables.Table):
     # Mendefinisikan kolom yang akan ditampilkan
