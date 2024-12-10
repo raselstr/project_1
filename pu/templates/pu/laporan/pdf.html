@@ -58,7 +58,9 @@
                                 <tr>
                                     <th colspan="3" style="text-align:center"> 
                                         {% for item in data %}
-                                            <img src="{{ item.pejabat_foto.url }}" alt="Foto" style="max-width:100%; height:auto; display:block; margin-bottom: 20px;"  />
+                                            {% if item.pejabat_foto and item.pejabat_foto.url %}
+                                                <img src="{{ item.pejabat_foto.url }}" alt="Foto" style="max-width:100%; height:auto; display:block; margin-bottom: 20px;"  />
+                                            {% endif %}
                                         {% endfor %}
                                     </th>
                                 </tr>
@@ -145,6 +147,9 @@
                                                 <td>&emsp;{{ keg.keg.dausgpukeg_nama}}</td>
                                                 <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
                                                 <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap1_keg|floatformat:2 }}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap2_keg|floatformat:2 }}</td>
+                                                <td style="text-align:right">{{ keg.total_tahap3_keg|floatformat:2 }}</td>
                                                 <td style="text-align:right">{{ keg.total_realisasi_keg|floatformat:2 }}</td>
                                                 <td style="text-align:center">{{ keg.total_realisasi_output_keg}}</td>
                                                 <td></td>
@@ -161,23 +166,11 @@
                                                     <td style="text-align:right">{{ sub.realisasi.tahap3|floatformat:2 }}</td>
                                                     <td style="text-align:right">{{ sub.realisasi.total_sp2d|floatformat:2 }}</td>
                                                     <td style="text-align:center">{{ sub.realisasi.total_output }}</td>
-                                                    <td>{{ sub.sub.dausgppusub_satuan}}</td>
+                                                    <td>{{ sub.sub.dausgpusub_satuan}}</td>
                                                 </tr>
                                             {% endfor %}
                                         {% endfor %}
                                     {% endfor %}
-                                
-                                    <tr>
-                                        <th colspan="2">Total Keseluruhan</th>
-                                        <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
-                                        <th style="text-align:center">{{ total_output_keseluruhan }}</th>
-                                        <th style="text-align:right">{{ total_tahap1_keseluruhan|floatformat:2 }}</th>
-                                        <th style="text-align:right">{{ total_tahap2_keseluruhan|floatformat:2 }}</th>
-                                        <th style="text-align:right">{{ total_tahap3_keseluruhan|floatformat:2 }}</th>
-                                        <th style="text-align:right">{{ total_realisasi_keseluruhan|floatformat:2 }}</th>
-                                        <th style="text-align:center">{{ total_realisasi_output_keseluruhan }}</th>
-                                        <th></th>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
