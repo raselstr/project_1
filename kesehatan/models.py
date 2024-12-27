@@ -144,8 +144,8 @@ class BaseRencanakesehatanposting(models.Model):
     class Meta:
         abstract = True
         
-    def get_total_rencana(self, tahun, opd, dana):
-        filters = Q(posting_tahun=tahun) & Q(posting_dana_id=dana)
+    def get_total_rencana(self, tahun, opd, dana, posting):
+        filters = Q(posting_tahun=tahun) & Q(posting_dana_id=dana) & Q(posting_jadwal=posting)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd_id=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
@@ -295,10 +295,10 @@ class Realisasikesehatan(BaseRealisasikesehatan):
         except Exception as e:
             return 0
     
-    def get_persenpagu(self, tahun, opd, dana):
+    def get_persenpagu(self, tahun, opd, dana, posting):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
-            persenpagu = Rencanakesehatanposting().get_total_rencana(tahun, opd, dana)
+            persenpagu = Rencanakesehatanposting().get_total_rencana(tahun, opd, dana, posting)
             
             if totalrealisasi is None:
                 return None
@@ -369,10 +369,10 @@ class Realisasikesehatansisa(BaseRealisasikesehatan):
         except Exception as e:
             return 0
     
-    def get_persenpagu(self, tahun, opd, dana):
+    def get_persenpagu(self, tahun, opd, dana, posting):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
-            persenpagu = Rencanakesehatanpostingsisa().get_total_rencana(tahun, opd, dana)
+            persenpagu = Rencanakesehatanpostingsisa().get_total_rencana(tahun, opd, dana, posting)
             
             if totalrealisasi is None:
                 return None

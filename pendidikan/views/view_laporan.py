@@ -175,6 +175,7 @@ def filter(request):
 def home(request):
     tahun = request.session.get('tahun')
     sesisubopd = request.session.get('idsubopd')
+    jadwal = request.session.get('jadwal')
     context = rekap(request)
     
     try:
@@ -186,18 +187,20 @@ def home(request):
     
     if dana:
         pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
-        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
+        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
-        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
+        sisadana = penerimaan-realisasi
         
         pagusisa = model_rencanasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa, posting=jadwal)
         penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa)
         realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa)
         persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa)
-        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
+        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa, posting=jadwal)
+        sisasisadana = penerimaansisa-realisasisisa
     else:
         pagu = 0
         rencana = 0
@@ -205,6 +208,7 @@ def home(request):
         realisasi = 0
         persendana = 0
         persenpagu = 0
+        sisadana=0
         
         pagusisa = 0
         rencanasisa = 0
@@ -212,6 +216,7 @@ def home(request):
         realisasisisa = 0
         persendanasisa = 0
         persenpagusisa = 0
+        sisasisadana=0
     
     context.update({
         'judul': 'Laporan Kegiatan DAU Bidang Pendidikan',
@@ -223,6 +228,7 @@ def home(request):
         'realisasi' : realisasi,
         'persendana' : persendana,
         'persenpagu' : persenpagu,
+        'sisadana' : sisadana,
         
         'pagusisa': pagusisa,
         'rencanasisa' : rencanasisa,
@@ -230,6 +236,7 @@ def home(request):
         'realisasisisa' : realisasisisa,
         'persendanasisa' : persendanasisa,
         'persenpagusisa' : persenpagusisa,
+        'sisasisadana' : sisasisadana,
         
         'link_url': reverse(url_filter),
         'link_urlsisa': reverse(url_filtersisa),

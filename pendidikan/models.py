@@ -139,8 +139,8 @@ class BaseRencanaposting(models.Model):
     class Meta:
         abstract = True
         
-    def get_total_rencana(self, tahun, opd, dana):
-        filters = Q(posting_tahun=tahun) & Q(posting_dana=dana)
+    def get_total_rencana(self, tahun, opd, dana, posting):
+        filters = Q(posting_tahun=tahun) & Q(posting_dana=dana) & Q(posting_jadwal=posting)
         if opd is not None and opd not in [124,67,70]:
             filters &= Q(posting_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
@@ -290,10 +290,10 @@ class Realisasi(BaseRealisasi):
         except Exception as e:
             return 0
     
-    def get_persenpagu(self, tahun, opd, dana):
+    def get_persenpagu(self, tahun, opd, dana, posting):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
-            persenpagu = Rencanaposting().get_total_rencana(tahun, opd, dana)
+            persenpagu = Rencanaposting().get_total_rencana(tahun, opd, dana, posting)
             
             if totalrealisasi is None:
                 return None
@@ -363,10 +363,10 @@ class Realisasisisa(BaseRealisasi):
         except Exception as e:
             return 0
     
-    def get_persenpagu(self, tahun, opd, dana):
+    def get_persenpagu(self, tahun, opd, dana, posting):
         try:
             totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
-            persenpagu = Rencanapostingsisa().get_total_rencana(tahun, opd, dana)
+            persenpagu = Rencanapostingsisa().get_total_rencana(tahun, opd, dana, posting)
             
             if totalrealisasi is None:
                 return None
