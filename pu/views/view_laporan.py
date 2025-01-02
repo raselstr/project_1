@@ -92,6 +92,7 @@ def rekap(request):
         ]
 
         total_nilai_realisasi = sum(total_nilai_tahap)
+        total_nilai_sisa = total_nilai_rencana - total_nilai_realisasi
 
         rekap_data.append({
             'subopd': pagu.pagudausg_opd.sub_nama,
@@ -102,6 +103,7 @@ def rekap(request):
             'total_tahap2': total_nilai_tahap[1],
             'total_tahap3': total_nilai_tahap[2],
             'total_realisasi': total_nilai_realisasi,
+            'total_sisa': total_nilai_sisa,
         })
 
     table = tabel(rekap_data)

@@ -95,6 +95,7 @@ def rekap(request):
         ]
 
         total_nilai_realisasi = sum(total_nilai_tahap)
+        total_nilai_sisa = total_nilai_rencana - total_nilai_realisasi
 
         rekap_data.append({
             'subopd': pagu.pagudausg_opd.sub_nama,
@@ -105,6 +106,7 @@ def rekap(request):
             'total_tahap2': total_nilai_tahap[1],
             'total_tahap3': total_nilai_tahap[2],
             'total_realisasi': total_nilai_realisasi,
+            'total_sisa': total_nilai_sisa,
         })
 
     table = tabel(rekap_data)
@@ -425,6 +427,7 @@ def get_data_context(request):
     tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
     subopd_laporan = model_subopd.objects.filter(id=realisasi_subopd).first().sub_nama
     dana_laporan = model_dana.objects.filter(id=realisasi_dana).first().sub_nama
+    sisa_dana = total_pagu_keseluruhan + total_realisasi_keseluruhan
     
     return {
         'prog_data': prog_data,
@@ -439,6 +442,7 @@ def get_data_context(request):
         'realisasi_dana' : dana_laporan,
         'realisasi_subopd' : subopd_laporan,
         'realisasi_tahap' : tahap_laporan,
+        'sisa_dana' : sisa_dana,
         'jadwal':jadwal
         
     }

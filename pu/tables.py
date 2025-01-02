@@ -112,6 +112,7 @@ class RekapPaguTable(tables.Table):
     total_tahap3 = totalrealisasi(verbose_name="Tahap 3", attrs={"td": {"class": "text-right"}})
     
     total_realisasi = totalrealisasi(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
+    total_sisa = totalrealisasi(verbose_name="Sisa Dana", attrs={"td": {"class": "text-right"}})
 
     class Meta:
         template_name = "django_tables2/bootstrap4-responsive.html"
