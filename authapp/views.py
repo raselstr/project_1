@@ -1,4 +1,5 @@
 # authapp/views.py
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
@@ -7,6 +8,8 @@ from dashboard.models import Userlevel, Levelsub
 from dankel.models import RencDankeljadwal
 
 def login_view(request):
+    year = datetime.now().year
+    years = list(range(year - 1, year + 1 ))
     
     try:
         tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
@@ -15,8 +18,18 @@ def login_view(request):
         jadwal = 1
     
     if request.method == 'POST':
+        tahun = request.POST.get('tahun')
         username = request.POST.get('username')
         password = request.POST.get('password')
+        
+        if tahun:
+            tahun = tahun.replace('.', '')  # Menghapus titik
+            try:
+                tahun = int(tahun)
+            except ValueError:
+                messages.error(request, 'Tahun yang dimasukkan tidak valid.')
+                return redirect('login')
+
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
@@ -28,6 +41,7 @@ def login_view(request):
                     # Set session untuk menunjukkan semua menu dan submenu
                     request.session['is_superuser'] = True
                     request.session['jadwal'] = jadwal
+                    request.session['tahun'] = int(tahun)
                 else:
                     # Jika bukan superuser, ambil objek Userlevel
                     try:
@@ -37,9 +51,6 @@ def login_view(request):
                         ).filter(
                             Q(lihat=True) | Q(simpan=True) | Q(edit=True) | Q(hapus=True)
                         ).values_list('levelsub_submenu__id', flat=True)
-                        
-                        
-                        
                         request.session['is_superuser'] = False
                         request.session['user_nama'] = user.username
                         request.session['subopd'] = userlevel.userlevelopd.sub_nama
@@ -47,17 +58,22 @@ def login_view(request):
                         request.session['level'] = userlevel.userlevel.level_nama
                         request.session['submenus'] = list(submenu_ids)
                         request.session['jadwal'] = jadwal
+                        request.session['tahun'] = int(tahun)
                         
                     except Userlevel.DoesNotExist:
                         messages.error(request, 'Pengaturan level pengguna tidak ditemukan. Silakan hubungi administrator.')
                         return redirect('login')
+                print(tahun)
                 return redirect('dashboard')
             else:
                 messages.error(request, 'Akun tidak aktif. Silakan hubungi administrator.')
         else:
             messages.error(request, 'Kombinasi username dan password salah.')
+    
+
+    
         
-    return render(request, 'authapp/login.html')
+    return render(request, 'authapp/login.html',{'tahun':years})
 
 def logout_view(request):
     logout(request)

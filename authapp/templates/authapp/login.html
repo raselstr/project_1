@@ -47,6 +47,20 @@
                 {% endif %}
                 <form method="POST" class="needs-validation" novalidate="">
                   {% csrf_token %}
+
+                  <div class="form-group">
+                      <label for="tahun">Tahun Anggaran</label>
+                      <select class="form-control" name="tahun" id="tahun" required>
+                          <option value="">-- Pilih Tahun Anggaran --</option>
+                          {% for tahun in tahun %}
+                          <option value="{{ tahun }}">{{ tahun }}</option>
+                          {% endfor %}
+                      </select>
+                      <div class="invalid-feedback">
+                          Pilih Tahun Anggaran
+                      </div>
+                  </div>
+
                   <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" class="form-control"  name="username" id="username" tabindex="1" required autofocus>
