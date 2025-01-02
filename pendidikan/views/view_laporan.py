@@ -283,6 +283,7 @@ def get_data_context(request):
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
     if realisasi_subopd not in [None, 124, 67, 70]:
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
+    
 
     progs = model_program.objects.prefetch_related(
         Prefetch('dausgpendidikankegs__dausgpendidikansubs__rencanaposting_set')
@@ -290,6 +291,7 @@ def get_data_context(request):
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)
+    
 
     # Siapkan data untuk template
     prog_data = []
@@ -346,7 +348,7 @@ def get_data_context(request):
                         total_tahap3 = 0
 
                         for rencana in related_rencanas:
-                            realisasi_rencana = realisasis.filter(realisasi_rencanaposting_id=rencana.id)
+                            realisasi_rencana = realisasis.filter(realisasi_rencana_id=rencana.posting_rencanaid)
                             
                             total_sp2d += realisasi_rencana.aggregate(total_sp2d=Sum('realisasi_nilai'))['total_sp2d'] or 0
                             total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasi_output'))['total_output'] or 0

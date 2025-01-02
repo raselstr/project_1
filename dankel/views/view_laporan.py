@@ -363,7 +363,7 @@ def get_data_context(request):
                 total_lpj = 0
                 total_output_realisasi = 0
                 for rencana in related_rencanas:
-                    realisasi_rencana = realisasis.filter(realisasidankel_rencana=rencana.id)
+                    realisasi_rencana = realisasis.filter(realisasidankel_idrencana=rencana.rencdankel_id)
                     total_lpj += realisasi_rencana.aggregate(total_lpj=Sum('realisasidankel_lpjnilai'))['total_lpj'] or 0
                     total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankel_output'))['total_output'] or 0
                 keg_subs.append({

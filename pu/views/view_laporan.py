@@ -343,7 +343,7 @@ def get_data_context(request):
                         total_tahap3 = 0
 
                         for rencana in related_rencanas:
-                            realisasi_rencana = realisasis.filter(realisasi_rencanaposting_id=rencana.id)
+                            realisasi_rencana = realisasis.filter(realisasi_rencana_id=rencana.posting_rencanaid)
                             
                             total_sp2d += realisasi_rencana.aggregate(total_sp2d=Sum('realisasi_nilai'))['total_sp2d'] or 0
                             total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasi_output'))['total_output'] or 0
