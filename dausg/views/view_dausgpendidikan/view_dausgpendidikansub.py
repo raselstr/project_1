@@ -26,7 +26,14 @@ resource = DausgpendidikanSubResource
 @menu_access_required('list')
 def export(request):
     mymodel_resource = resource()
-    dataset = mymodel_resource.export()
+    tahun = request.session.get('tahun')
+    
+    # Filter data berdasarkan tahun jika tahun ada
+    if tahun:
+        queryset = Model_data.objects.filter(dausgpendidikansub_keg__dausgpendidikankeg_prog__dausgpendidikan_tahun=tahun)
+    else:
+        queryset = Model_data.objects.all()
+    dataset = mymodel_resource.export(queryset)
     
     # Konversi dataset menjadi file Excel
     excel_data = dataset.export('xlsx')

@@ -76,7 +76,11 @@ def upload(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
     data = (Nilai_data.objects
+            .select_related('dausgpu_dana')
+            .prefetch_related('dausgpukegs__dausgpusubs')
+            .filter(dausgpu_tahun=tahun) if tahun else Nilai_data.objects
             .select_related('dausgpu_dana')
             .prefetch_related('dausgpukegs__dausgpusubs')
             .all())

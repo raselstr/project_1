@@ -22,7 +22,15 @@ template_list = 'dausgpendidikan/dausgpendidikanprog/dausgpendidikanprog_list.ht
 @menu_access_required('list')
 def export(request):
     mymodel_resource = DausgpendidikanProgResource()
-    dataset = mymodel_resource.export()
+    tahun = request.session.get('tahun')
+    
+    # Filter data berdasarkan tahun jika tahun ada
+    if tahun:
+        queryset = Nilai_data.objects.filter(dausgpendidikan_tahun=tahun)
+    else:
+        queryset = Nilai_data.objects.all()
+    
+    dataset = mymodel_resource.export(queryset)
     
     # Konversi dataset menjadi file Excel
     excel_data = dataset.export('xlsx')
@@ -76,7 +84,11 @@ def upload(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
     data = (Nilai_data.objects
+            .select_related('dausgpendidikan_dana')
+            .prefetch_related('dausgpendidikankegs__dausgpendidikansubs')
+            .filter(dausgpendidikan_tahun=tahun) if tahun else Nilai_data.objects
             .select_related('dausgpendidikan_dana')
             .prefetch_related('dausgpendidikankegs__dausgpendidikansubs')
             .all())

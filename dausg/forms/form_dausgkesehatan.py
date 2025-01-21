@@ -17,6 +17,7 @@ class DausgkesehatanProgForm(forms.ModelForm):
                 'class': 'form-control', 
                 }),
             'dausgkesehatan_prog': forms.TextInput(attrs={'class': 'form-control'}),
+            'dausgkesehatan_tahun': forms.TextInput(attrs={'class': 'form-control'}),
         }
         
     def __init__(self, *args, **kwargs):

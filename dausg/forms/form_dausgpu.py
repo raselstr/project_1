@@ -17,6 +17,7 @@ class DausgpuProgForm(forms.ModelForm):
                 'class': 'form-control', 
                 }),
             'dausgpu_prog': forms.TextInput(attrs={'class': 'form-control'}),
+            'dausgpu_tahun': forms.TextInput(attrs={'class': 'form-control'}),
         }
         
     def __init__(self, *args, **kwargs):

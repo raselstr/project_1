@@ -75,7 +75,11 @@ def upload(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
     data = (Nilai_data.objects
+            .select_related('dausgkesehatan_dana')
+            .prefetch_related('dausgkesehatankegs__dausgkesehatansubs')
+            .filter(dausgkesehatan_tahun=tahun) if tahun else Nilai_data.objects
             .select_related('dausgkesehatan_dana')
             .prefetch_related('dausgkesehatankegs__dausgkesehatansubs')
             .all())
