@@ -75,12 +75,14 @@ def upload(request):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
-    total_dana = Pagudausg.total_nilai_by_dana()
+    tahun = request.session.get('tahun')
+    total_dana = Pagudausg().total_nilai_by_dana(tahun=tahun)
     idopd = request.session.get('idsubopd')
+    
     if idopd is not None and idopd != 125 and idopd != 67 :
-        data = Model_data.objects.filter(pagudausg_opd=idopd).order_by('pagudausg_dana')
+        data = Model_data.objects.filter(pagudausg_opd=idopd, pagudausg_tahun=tahun).order_by('pagudausg_dana')
     else:
-        data = Model_data.objects.all().order_by('pagudausg_dana')
+        data = Model_data.objects.filter(pagudausg_tahun=tahun).order_by('pagudausg_dana')
     form = Form_data(request.POST or None)
     context = {
         "judul": "Daftar Pagu TKDD", 

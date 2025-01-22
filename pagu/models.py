@@ -31,15 +31,18 @@ class Pagudausg(models.Model):
     def __str__(self):
         return f"{self.pagudausg_opd.sub_nama}"
     
-    @classmethod
-    def total_nilai_by_dana(cls):
-        result = cls.objects.select_related('pagudausg_dana').values('pagudausg_dana__sub_nama').annotate(
+    def total_nilai_by_dana(self, tahun=None):
+        queryset = Pagudausg.objects.select_related('pagudausg_dana').values('pagudausg_dana__sub_nama')
+        
+        # Filter data berdasarkan tahun jika diberikan
+        if tahun:
+            queryset = queryset.filter(pagudausg_tahun=tahun)
+
+        # Hitung total nilai dan sisa
+        result = queryset.annotate(
             total_nilai=Sum('pagudausg_nilai'),
             total_sisa=Sum('pagudausg_sisa')
         ).order_by('pagudausg_dana__sub_nama')
-        
-        # for item in result:
-        #     print(item)
         
         return result
     
