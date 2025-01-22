@@ -82,8 +82,9 @@ def simpan(request):
         rencana_dana=request.session.get('rencana_dana'),
         rencana_subopd=request.session.get('rencana_subopd')
     )
+    tahun = request.session.get('tahun')
     if request.method == 'POST':
-        form = form_data(request.POST or None)
+        form = form_data(request.POST or None, tahun=tahun)
         if form.is_valid():
             try:
                 form.save()
@@ -94,7 +95,7 @@ def simpan(request):
         else:
             messages.error(request, 'Ada kesalahan dalam form, silakan periksa kembali.')
     else:
-        form = form_data(initial=initial_data)
+        form = form_data(initial=initial_data, tahun=tahun)
 
     context = {
         'form': form,

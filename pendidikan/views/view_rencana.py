@@ -84,14 +84,15 @@ def simpan(request):
         rencana_dana=request.session.get('rencana_dana'),
         rencana_subopd=request.session.get('rencana_subopd')
     )
+    tahun = request.session.get('tahun')
     if request.method == 'POST':
-        form = form_data(request.POST or None)
+        form = form_data(request.POST or None, tahun=tahun)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = form_data(initial=initial_data)
+        form = form_data(initial=initial_data, tahun=tahun)
 
     context = {
         'form': form,

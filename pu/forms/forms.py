@@ -1,11 +1,13 @@
 from django import forms
 from ..models import Rencanapu, Rencanapuposting,Subkegiatan, Subopd, Realisasipu
+from dausg.models import DausgpuSub
 
 model_rencana = Rencanapu
 model_posting = Rencanapuposting
 model_subkegiatan = Subkegiatan
 model_subopd = Subopd
 model_realisasi = Realisasipu
+data_subkegiatan = DausgpuSub
 
 class RencanapuFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -56,7 +58,13 @@ class RencanapuForm(forms.ModelForm):
             'rencana_pagudpa': forms.NumberInput(attrs={'class': 'form-control'}),
         }
     def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
         super().__init__(*args, **kwargs)
+    
+        if tahun:
+            self.fields['rencana_kegiatan'].queryset = data_subkegiatan.objects.filter(dausgpusub_keg__dausgpukeg_prog__dausgpu_tahun=tahun)
+        else:
+            self.fields['rencana_kegiatan'].queryset = data_subkegiatan.objects.none()  # Kosongkan jika tidak ada tahun
 
 
 
