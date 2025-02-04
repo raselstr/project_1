@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
+from django.http import HttpResponseBadRequest
 from django.db.models import Q
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 
 from django_tables2 import RequestConfig
-from ..tables import RealisasiTable
+from ..tables import RealisasiTablesisa
 
 import logging
 
@@ -17,7 +18,7 @@ from dausg.models import Subkegiatan
 from pendidikan.forms.form_sisa import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 
-tabel_realisasi = RealisasiTable
+tabel_realisasi = RealisasiTablesisa
 
 form_filter = RealisasiFilterForm
 form_data = RealisasiForm
@@ -34,7 +35,7 @@ url_list = 'realisasi_pendidikan_listsisa'
 url_simpan = 'realisasi_pendidikan_simpansisa'
 url_update = 'realisasi_pendidikan_updatesisa'
 url_delete = 'realisasi_pendidikan_deletesisa'
-url_verif = 'realisasi_pendidikan_deletesisa'
+url_verif = 'realisasi_pendidikan_verifsisa'
 
 template_form = 'pendidikan/realisasi/form.html'
 template_home = 'pendidikan/realisasi/home.html'
@@ -48,19 +49,22 @@ logger = logging.getLogger(__name__)
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
-    return render(request, template_modal_verif, {'data': data})
+    context  = {
+        'data':data,
+        'verifurl' : url_verif,
+    }
+    return render(request, template_modal_verif, context)
 
 @set_submenu_session
 @menu_access_required('update')
 def verif(request, pk):
     realisasi = get_object_or_404(model_realisasi, pk=pk)
-    verif = request.GET.get('verif')
+    verif_status = request.GET.get('verif')
     
-    if verif == '1':
-        realisasi.realisasi_verif = 1
-    elif verif == '0':
-        realisasi.realisasi_verif = 0
-    
+    if verif_status not in ('0', '1'):
+        return HttpResponseBadRequest("Parameter 'verif' tidak valid.")
+
+    realisasi.realisasi_verif = int(verif_status)
     realisasi.save()
     return redirect(url_list)
 

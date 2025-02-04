@@ -37,7 +37,7 @@ url_list = 'realisasi_pu_list'
 url_simpan = 'realisasi_pu_simpan'
 url_update = 'realisasi_pu_update'
 url_delete = 'realisasi_pu_delete'
-url_verif = 'realisasi_pu_delete'
+url_verif = 'realisasi_pu_verif'
 
 template_form = 'pu/realisasi/form.html'
 template_home = 'pu/realisasi/home.html'
@@ -52,7 +52,11 @@ logger = logging.getLogger(__name__)
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
-    return render(request, template_modal_verif, {'data': data})
+    context = {
+        'data': data,
+        'verifurl' : url_verif
+    }
+    return render(request, template_modal_verif, context)
 
 @set_submenu_session
 @menu_access_required('update')

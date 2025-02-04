@@ -26,7 +26,7 @@ urlpatterns = [
     path("realisasi/", view_realisasi.home, name="realisasi_kesehatan_home"),
     
     path("realisasisisa/verif/<int:pk>/", view_realisasisisa.verif, name="realisasi_kesehatan_verifsisa"),
-    path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_kesehatan_modalsisa"),
+    path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_kesehatansisa_modal"),
     path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_kesehatansisa_delete"),
     path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_kesehatansisa_update"),
     path("realisasisisa/simpan/", view_realisasisisa.simpan, name="realisasi_kesehatan_simpansisa"),

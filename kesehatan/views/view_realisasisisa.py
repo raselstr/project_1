@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseBadRequest
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse
@@ -34,6 +35,7 @@ url_list = 'realisasi_kesehatan_listsisa'
 url_simpan = 'realisasi_kesehatan_simpansisa'
 url_update = 'realisasi_kesehatan_updatesisa'
 url_delete = 'realisasi_kesehatan_deletesisa'
+url_verif = 'realisasi_kesehatan_verifsisa'
 
 template_form = 'kesehatan/realisasi/form.html'
 template_home = 'kesehatan/realisasi/home.html'
@@ -47,21 +49,25 @@ logger = logging.getLogger(__name__)
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
-    return render(request, template_modal_verif, {'data': data})
+    context  = {
+        'data':data,
+        'verifurl' : url_verif,
+    }
+    return render(request, template_modal_verif, context)
 
 @set_submenu_session
 @menu_access_required('update')
 def verif(request, pk):
     realisasi = get_object_or_404(model_realisasi, pk=pk)
-    verif = request.GET.get('verif')
+    verif_status = request.GET.get('verif')
     
-    if verif == '1':
-        realisasi.realisasi_verif = 1
-    elif verif == '0':
-        realisasi.realisasi_verif = 0
-    
+    if verif_status not in ('0', '1'):
+        return HttpResponseBadRequest("Parameter 'verif' tidak valid.")
+
+    realisasi.realisasi_verif = int(verif_status)
     realisasi.save()
     return redirect(url_list)
+
 
 
 @set_submenu_session

@@ -26,7 +26,7 @@ urlpatterns = [
     path("realisasi/", view_realisasi.home, name="realisasi_pendidikan_home"),
     
     path("realisasisisa/verif/<int:pk>/", view_realisasisisa.verif, name="realisasi_pendidikan_verifsisa"),
-    path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_pendidikan_modalsisa"),
+    path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_pendidikansisa_modal"),
     path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_pendidikansisa_delete"),
     path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_pendidikansisa_update"),
     path("realisasisisa/simpan/", view_realisasisisa.simpan, name="realisasi_pendidikan_simpansisa"),
