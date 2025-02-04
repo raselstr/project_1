@@ -5,17 +5,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 from django.contrib import messages
 from dashboard.models import Userlevel, Levelsub
-from dankel.models import RencDankeljadwal
+from jadwal.models import Jadwal
 
 def login_view(request):
     year = datetime.now().year
     years = list(range(year - 1, year + 1 ))
     
-    try:
-        tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
-        jadwal = tblrencana.rencdankel_jadwal
-    except RencDankeljadwal.DoesNotExist:
-        jadwal = 1
+    # try:
+    #     tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
+    #     jadwal = tblrencana.rencdankel_jadwal
+    # except RencDankeljadwal.DoesNotExist:
+    #     jadwal = 1
     
     if request.method == 'POST':
         tahun = request.POST.get('tahun')
@@ -31,6 +31,14 @@ def login_view(request):
                 return redirect('login')
 
         user = authenticate(request, username=username, password=password)
+    
+        tbljadwal=Jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True).first()
+        if tbljadwal:
+            jadwal_id = tbljadwal.id
+            jadwal_keterangan = tbljadwal.jadwal_keterangan
+        else:
+            jadwal_id = 0
+            jadwal_keterangan = "Tidak ada jadwal"
         
         if user is not None:
             if user.is_active:
@@ -40,7 +48,7 @@ def login_view(request):
                 if user.is_superuser:
                     # Set session untuk menunjukkan semua menu dan submenu
                     request.session['is_superuser'] = True
-                    request.session['jadwal'] = jadwal
+                    request.session['jadwal'] = jadwal_id
                     request.session['tahun'] = int(tahun)
                 else:
                     # Jika bukan superuser, ambil objek Userlevel
@@ -57,13 +65,13 @@ def login_view(request):
                         request.session['idsubopd'] = userlevel.userlevelopd.id
                         request.session['level'] = userlevel.userlevel.level_nama
                         request.session['submenus'] = list(submenu_ids)
-                        request.session['jadwal'] = jadwal
+                        request.session['jadwal'] = jadwal_id
+                        request.session['jadwal_ket'] = jadwal_keterangan
                         request.session['tahun'] = int(tahun)
                         
                     except Userlevel.DoesNotExist:
                         messages.error(request, 'Pengaturan level pengguna tidak ditemukan. Silakan hubungi administrator.')
                         return redirect('login')
-                print(tahun)
                 return redirect('dashboard')
             else:
                 messages.error(request, 'Akun tidak aktif. Silakan hubungi administrator.')

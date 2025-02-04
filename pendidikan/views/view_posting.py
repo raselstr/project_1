@@ -25,6 +25,7 @@ def list(request):
     request.session['next'] = request.get_full_path()
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('tahun')
+    jadwalaktif = request.session.get('jadwal')
     
     filters = Q()
     if sesiidopd:
@@ -32,7 +33,7 @@ def list(request):
     if sesitahun:
         filters &= Q(posting_tahun=sesitahun)
 
-    induk = model_posting.objects.filter(posting_jadwal=1).filter(filters).order_by('posting_subopd_id')
+    induk = model_posting.objects.filter(posting_jadwal=jadwalaktif).filter(filters).order_by('posting_subopd_id')
     perubahan = model_posting.objects.filter(posting_jadwal=2).filter(filters).order_by('posting_subopd_id')
 
     # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field

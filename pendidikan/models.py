@@ -10,6 +10,7 @@ from dana.models import Subkegiatan, TahapDana
 from dausg.models import DausgpendidikanSub
 from pagu.models import Pagudausg
 from penerimaan.models import Penerimaan
+from jadwal.models import Jadwal
 
 model_opd = Subopd
 model_dana = Subkegiatan
@@ -17,6 +18,7 @@ model_tahap = TahapDana
 model_subkegiatan = DausgpendidikanSub
 model_pagu = Pagudausg
 model_penerimaan = Penerimaan
+model_jadwal = Jadwal
 
 # Create your models here.
 VERIF = [
@@ -121,6 +123,7 @@ class Rencanasisa(BaseRencana):
         db_table = 'pendidikan_rencanasisa'
 
 class BaseRencanaposting(models.Model):
+    
     VERIF = [
         (1, 'Rencana Induk'),
         (2, 'Rencana Perubahan'),
@@ -134,8 +137,8 @@ class BaseRencanaposting(models.Model):
     posting_output = models.DecimalField(verbose_name='Output',max_digits=8, decimal_places=2,default=0)
     posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
     posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA',max_digits=17, decimal_places=2,default=0)
-    posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
-    
+    # posting_jadwal = models.IntegerField(verbose_name='Posting Jadwal', choices=VERIF, null=True)
+    posting_jadwal = models.ForeignKey('jadwal.Jadwal', verbose_name='Posting Jadwal', null=True, on_delete=models.CASCADE)
     class Meta:
         abstract = True
         

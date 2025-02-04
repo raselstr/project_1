@@ -1,20 +1,19 @@
 from datetime import datetime
 from django.urls import reverse, NoReverseMatch
 from dashboard.models import Menu, Submenu
-from dankel.models import RencDankeljadwal
+from jadwal.models import Jadwal
 
 def menu_context_processor(request):
+    tahun = request.session.get('tahun')
+    tbljadwal=Jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True).first()
+    if tbljadwal:
+        jadwal_id = tbljadwal.id
+        jadwal_keterangan = tbljadwal.jadwal_keterangan
+    else:
+        jadwal_id = 0
+        jadwal_keterangan = "Tidak ada jadwal"
     
-    # Menyimpan tahun saat ini ke dalam session
     
-    try:
-        tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')
-        jadwal = tblrencana.rencdankel_jadwal
-    except RencDankeljadwal.DoesNotExist:
-        jadwal = 1
-    
-    
-    tahun = request.session.get('tahun', 'tahun')
     if request.user.is_authenticated:
         if request.session.get('is_superuser', False):
             menus = Menu.objects.all()
@@ -33,7 +32,8 @@ def menu_context_processor(request):
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
             "tahun": tahun,
-            "jadwal": request.session.get('jadwal',jadwal),
+            "jadwal": request.session.get('jadwal',jadwal_id),
+            "jadwal_ket": request.session.get('jadwal_ket',jadwal_keterangan),
             "idsubopd" : request.session.get('idsubopd','None'),
         }
     else:
@@ -46,6 +46,7 @@ def menu_context_processor(request):
             "level": '',
             "tahun": tahun,
             "jadwal":'',
+            "jadwal_ket":'Tidak ada jadwal',
             "idsubopd":'',
         }
     
