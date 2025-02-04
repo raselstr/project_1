@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseBadRequest
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse
@@ -58,13 +59,12 @@ def modal(request, pk):
 @menu_access_required('update')
 def verif(request, pk):
     realisasi = get_object_or_404(model_realisasi, pk=pk)
-    verif = request.GET.get('verif')
+    verif_status = request.GET.get('verif')
     
-    if verif == '1':
-        realisasi.realisasi_verif = 1
-    elif verif == '0':
-        realisasi.realisasi_verif = 0
-    
+    if verif_status not in ('0', '1'):
+        return HttpResponseBadRequest("Parameter 'verif' tidak valid.")
+
+    realisasi.realisasi_verif = int(verif_status)
     realisasi.save()
     return redirect(url_list)
 
