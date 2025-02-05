@@ -6,10 +6,13 @@ from django.urls import reverse
 
 from pendidikan.models import Rencanaposting, Rencana
 from pendidikan.forms.form_pendidikan import RencanaPostingForm
+from jadwal.models import Jadwal
 
 model_rencana = Rencana
 model_posting = Rencanaposting
 form_posting = RencanaPostingForm
+model_jadwal = Jadwal
+
 
 tag_url = 'posting_pendidikan_list'
 tag_posting = 'posting_pendidikan'
@@ -25,7 +28,21 @@ def list(request):
     request.session['next'] = request.get_full_path()
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('tahun')
-    jadwalaktif = request.session.get('jadwal')
+    
+    
+    tbljadwal = model_jadwal.objects.filter(jadwal_tahun=sesitahun).distinct()
+    if tbljadwal.count() == 1:
+    # Jika hanya ada 1 data, gunakan untuk induk
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = None
+    elif tbljadwal.count() > 1:
+        # Jika lebih dari 1 data, jadwal pertama untuk induk, terakhir untuk perubahan
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = tbljadwal.last().id
+    else:
+        # Jika tidak ada data, jadwalaktif kosong
+        jadwalaktif = None
+        perubahanaktif = None
     
     filters = Q()
     if sesiidopd:
@@ -34,7 +51,7 @@ def list(request):
         filters &= Q(posting_tahun=sesitahun)
 
     induk = model_posting.objects.filter(posting_jadwal=jadwalaktif).filter(filters).order_by('posting_subopd_id')
-    perubahan = model_posting.objects.filter(posting_jadwal=2).filter(filters).order_by('posting_subopd_id')
+    perubahan = model_posting.objects.filter(posting_jadwal=perubahanaktif).filter(filters).order_by('posting_subopd_id')
 
     # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
     induk_dict = {
@@ -86,9 +103,11 @@ def posting(request):
     rencana = model_rencana.objects.all()
     jadwal = None
     opd = None
+    jadwalaktif = request.session.get('jadwal')
+    tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = form_posting(request.POST or None)
+        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
         if form.is_valid():
             jadwal = form.cleaned_data.get('posting_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('posting_subopd')  # Ambil nilai dari form
@@ -120,7 +139,7 @@ def posting(request):
             print("Form tidak valid")
             print(form.errors)  # Tampilkan error form untuk debugging
     else:
-        form = form_posting()
+        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
     
     context = {
         'judul': 'Posting Rencana Kegiatan DAU SG Pendidikan',
