@@ -37,10 +37,7 @@ class RencanapuFilterForm(forms.ModelForm):
             self.fields['rencana_dana'].queryset = model_subkegiatan.objects.all()
         
         if tahun is not None:
-            tahun_choices = [(tahun, tahun) for tahun in tahun]
-            self.fields['rencana_tahun'].choices = tahun_choices
-        else:
-            self.fields['rencana_tahun'].choices = []
+            self.fields['rencana_tahun'].initial = tahun
 
 
 class RencanapuForm(forms.ModelForm):

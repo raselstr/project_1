@@ -137,7 +137,7 @@ def list(request):
 def filter(request):
     if request.method == 'GET':
         logger.debug(f"Received GET data: {request.GET}")
-        tahunrencana = model_data.objects.values_list('rencana_tahun', flat=True).distinct()
+        tahunrencana = request.session.get('tahun')
         sesisubopd = request.session.get('idsubopd')
         form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidana, sesisubopd=sesisubopd)
 
