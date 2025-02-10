@@ -55,8 +55,9 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     data = get_object_or_404(model_data, id=pk)
+    tahun = data.rencana_tahun
     if request.method == 'POST':
-        form = form_data(request.POST or None, instance=data)
+        form = form_data(request.POST or None, instance=data, tahun=tahun)
         if form.is_valid():
             try:
                 form.save()
@@ -66,7 +67,7 @@ def update(request, pk):
                 # Menambahkan pesan error global ke form
                 form.add_error(None, e.message)
     else:
-        form = form_data(instance=data)
+        form = form_data(instance=data, tahun=tahun)
     context = {
         'form': form,
         'judul': 'Update Rencana Kegiatan',
