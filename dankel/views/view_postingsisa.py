@@ -6,11 +6,13 @@ from django.contrib import messages
 from ..models import RencDankeljadwalsisa, RencDankelsisa
 from ..forms.form_postingsisa import RencDankeljadwalsisaForm
 from project.decorators import menu_access_required, set_submenu_session
+from jadwal.models import Jadwal
 
 
 Model_data = RencDankeljadwalsisa
 Model_induk = RencDankelsisa
 Form_filter = RencDankeljadwalsisaForm
+model_jadwal = Jadwal
 tag_url = 'postingsisa_list'
 template_form = 'dankel_postingsisa/postingsisa_form.html'
 template_list = 'dankel_postingsisa/postingsisa_list.html'
@@ -89,16 +91,18 @@ def posting(request):
     rencana = Model_induk.objects.all()
     jadwal = None
     opd = None
+    jadwalaktif = request.session.get('jadwal')
+    tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = RencDankeljadwalsisaForm(request.POST or None)
+        form = RencDankeljadwalsisaForm(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
         if form.is_valid():
             jadwal = form.cleaned_data.get('rencdankelsisa_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('rencdankelsisa_subopd')  # Ambil nilai dari form
             
             if jadwal is not None:
                 if opd is not None:
-                    rencana = rencana.filter(rencdankelsisa_subopd=opd)
+                    rencana = rencana.filter(rencdankelsisa_subopd=opd, rencdankel_tahun=tahun)
                     for item in rencana:
                         obj, created = Model_data.objects.update_or_create(
                             rencdankelsisa_id = item,
@@ -122,7 +126,7 @@ def posting(request):
             print("Form tidak valid")
             print(form.errors)  # Tampilkan error form untuk debugging
     else:
-        form = Form_filter()
+        form = Form_filter(tahun=tahun, jadwal=jadwalaktif)
     
     context = {
         'judul': 'Posting Rencana Kegiatan Dana Kelurahan',

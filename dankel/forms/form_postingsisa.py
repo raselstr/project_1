@@ -1,5 +1,8 @@
 from django import forms
 from ..models import RencDankeljadwalsisa
+from jadwal.models import Jadwal
+
+model_jadwal = Jadwal
 
 class RencDankeljadwalsisaForm(forms.ModelForm):
     class Meta:
@@ -12,5 +15,9 @@ class RencDankeljadwalsisaForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        postingid = kwargs.pop('jadwal', None)
         super().__init__(*args, **kwargs)
+        self.fields['rencdankelsisa_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+
         

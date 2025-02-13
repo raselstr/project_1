@@ -6,11 +6,13 @@ from django.contrib import messages
 from ..models import RencDankeljadwal, RencDankel
 from ..forms.form_posting import RencDankeljadwalForm
 from project.decorators import menu_access_required, set_submenu_session
+from jadwal.models import Jadwal
 # from itertools import zip_longest digunakan untuk menggabungkan 2 data
 
 
 Model_data = RencDankeljadwal
 Form_filter = RencDankeljadwalForm
+model_jadwal = Jadwal
 tag_url = 'posting_list'
 template_home = 'dankel_posting/posting_home.html'
 template_form = 'dankel_posting/posting_form.html'
@@ -25,14 +27,28 @@ def list(request):
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('tahun')
     
+    tbljadwal = model_jadwal.objects.filter(jadwal_tahun=sesitahun).distinct()
+    if tbljadwal.count() == 1:
+    # Jika hanya ada 1 data, gunakan untuk induk
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = None
+    elif tbljadwal.count() > 1:
+        # Jika lebih dari 1 data, jadwal pertama untuk induk, terakhir untuk perubahan
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = tbljadwal.last().id
+    else:
+        # Jika tidak ada data, jadwalaktif kosong
+        jadwalaktif = None
+        perubahanaktif = None
+        
     filters = Q()
     if sesiidopd:
         filters &= Q(rencdankel_subopd_id=sesiidopd)
     if sesitahun:
         filters &= Q(rencdankel_tahun=sesitahun)
 
-    induk = RencDankeljadwal.objects.filter(rencdankel_jadwal=1).filter(filters).order_by('rencdankel_subopd_id')
-    perubahan = RencDankeljadwal.objects.filter(rencdankel_jadwal=2).filter(filters).order_by('rencdankel_subopd_id')
+    induk = RencDankeljadwal.objects.filter(rencdankel_jadwal=jadwalaktif).filter(filters).order_by('rencdankel_subopd_id')
+    perubahan = RencDankeljadwal.objects.filter(rencdankel_jadwal=perubahanaktif).filter(filters).order_by('rencdankel_subopd_id')
 
     # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
     induk_dict = {
@@ -83,16 +99,18 @@ def posting(request):
     rencana = RencDankel.objects.all()
     jadwal = None
     opd = None
+    jadwalaktif = request.session.get('jadwal')
+    tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = RencDankeljadwalForm(request.POST or None)
+        form = RencDankeljadwalForm(request.POST or None,tahun=tahun, jadwal=jadwalaktif)
         if form.is_valid():
             jadwal = form.cleaned_data.get('rencdankel_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('rencdankel_subopd')  # Ambil nilai dari form
             
             if jadwal is not None :
                 if opd is not None :
-                    rencana = rencana.filter(rencdankel_subopd=opd)
+                    rencana = rencana.filter(rencdankel_subopd=opd, rencdankel_tahun=tahun)
                     for item in rencana:
                         obj, created = Model_data.objects.update_or_create(
                             rencdankel_id = item,
@@ -116,7 +134,7 @@ def posting(request):
             print("Form tidak valid")
             print(form.errors)  # Tampilkan error form untuk debugging
     else:
-        form = RencDankeljadwalForm()
+        form = RencDankeljadwalForm(tahun=tahun, jadwal=jadwalaktif)
     
     context = {
         'judul': 'Posting Rencana Kegiatan Dana Kelurahan',

@@ -185,10 +185,10 @@ def filter(request):
     request.session['next'] = request.get_full_path()
     session_data = get_from_sessions(request)
     sesiidopd = session_data.get('idsubopd')
-    tahunrencana = RencDankelsisa.objects.values_list('rencdankelsisa_tahun', flat=True).distinct()
+    tahunrencana = request.session.get('tahun')
     
     if request.method == 'GET':
-        form = Form_filter(request.GET, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
+        form = Form_filter(request.GET or None, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
         if form.is_valid():
             # Simpan data filter di sesi
             request.session['realisasidankelsisa_tahun'] = form.cleaned_data.get('realisasidankelsisa_tahun')
@@ -198,7 +198,7 @@ def filter(request):
             
             return redirect(tag_url)
     else:
-        form = Form_filter()
+        form = Form_filter(request.GET or None, sesiidopd=sesiidopd, sesidana=sesidana, tahunrencana=tahunrencana)
     
     context = {
         'judul' : 'Realisasi Sisa Tahun Lalu',

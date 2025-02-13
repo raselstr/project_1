@@ -6,13 +6,13 @@ from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankeljadwals
 # YEAR_CHOICES = [(r, r) for r in range(CURRENT_YEAR - 2, CURRENT_YEAR + 3)]
 
 class RealisasiDankelsisaFilterForm(forms.ModelForm):
-    realisasidankelsisa_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
+    # realisasidankelsisa_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
         model = RealisasiDankelsisa
         fields = ['realisasidankelsisa_tahun', 'realisasidankelsisa_dana', 'realisasidankelsisa_tahap', 'realisasidankelsisa_subopd']
 
         widgets = {
-            # 'realisasidankelsisa_tahun': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasidankelsisa_tahun': forms.NumberInput(attrs={'class': 'form-control'}),
             'realisasidankelsisa_dana': forms.Select(attrs={'class': 'form-control select2'}),
             'realisasidankelsisa_tahap': forms.Select(attrs={'class': 'form-control select2'}),
             'realisasidankelsisa_subopd': forms.Select(attrs={'class': 'form-control select2'}),
@@ -35,10 +35,7 @@ class RealisasiDankelsisaFilterForm(forms.ModelForm):
             self.fields['realisasidankelsisa_dana'].queryset = Subkegiatan.objects.all()
         
         if tahunrencana is not None:
-            tahun_choices = [(tahun, tahun) for tahun in tahunrencana]
-            self.fields['realisasidankelsisa_tahun'].choices = tahun_choices
-        else:
-            self.fields['realisasidankelsisa_tahun'].choices = []
+            self.fields['realisasidankelsisa_tahun'].initial = tahunrencana
         
         
 
