@@ -9,6 +9,7 @@ urlpatterns = [
     path('pu/', include('pu.urls')),
     path('kesehatan/', include('kesehatan.urls')),
     path('pendidikan/', include('pendidikan.urls')),
+    path('jadwal/', include('jadwal.urls')),
     
     path('pagudausg/', include('pagu.urls')),
     path('dankel/', include('dankel.urls.url_realisasi')),
