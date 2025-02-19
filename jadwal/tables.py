@@ -22,8 +22,8 @@ class JadwalTable(tables.Table):
         super().__init__(*args, **kwargs)
 
     def render_aksi(self, record):
-        edit_url = reverse('jadwal_edit', args=[record.id])
-        delete_url = reverse('jadwal_delete', args=[record.id])
+        edit_url = reverse('jadwal:edit', args=[record.id])
+        delete_url = reverse('jadwal:delete', args=[record.id])
         return format_html(
             '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
             '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',

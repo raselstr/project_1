@@ -1,12 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from project.decorators import menu_access_required, set_submenu_session
-from jadwal.models import Jadwal
-from jadwal.tables import JadwalTable as tabel_jadwal
+from django.contrib import messages
+from jadwal import models, tables, forms
+from django.urls import reverse
 
+Model = models.Jadwal
+Tabel_jadwal = tables.JadwalTable
+Form_jadwal = forms.JadwalForm
 
-
-Model = Jadwal
 lokasitemplate = "list.html"
+lokasiform = "form.html"
+
+link_simpan = 'jadwal:simpan'
+link_update = 'jadwal:update'
+link_delete = 'jadwal:delete'
 
 @set_submenu_session
 @menu_access_required('list')
@@ -18,17 +25,28 @@ def list(request):
     except Model.DoesNotExist:
         data = None
     
-    table = tabel_jadwal(data, request=request)
+    table = Tabel_jadwal(data, request=request)
 
     context = {
         "judul": "Jadwal Posting Kegiatan",
         "tombol" : "Tambah",
         "table": table,
+        "link_simpan": reverse(link_simpan),
     }
     return render(request, lokasitemplate, context) 
 
+@set_submenu_session
+@menu_access_required('simpan')
 def simpan(request):
-    pass
+    if request.method == 'POST':
+        form = Form_jadwal(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data berhasil disimpan')
+            return redirect('list')
+    else:
+        form = Form_jadwal()
+    return render(request, lokasiform, {'form': form})
 
 def update(request, pk):
     pass
