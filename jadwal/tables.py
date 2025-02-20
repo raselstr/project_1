@@ -14,7 +14,8 @@ class JadwalTable(tables.Table):
             "class": "display table-bordered",
             "id": "tabel1",
             'th': {'style': "text-align: center;"},
-            'tf': {'style': "text-align: right;"},
+            'tf': {'style': "text-align: center;"},
+            'td': {'style': "text-align: center;"},
         }
 
     def __init__(self, *args, **kwargs):
