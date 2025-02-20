@@ -1,54 +1,30 @@
-{% extends "base.html" %}
-
-{% block content %}
-<section class="section">
-    <div class="section-header">
-        <h1>{{ judul }}</h1>
+<form method="post" action="{{ link_simpan }}" >
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">{{ judul }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
-    <div class="row">
-        <div id="btnSpinner" class="spinner-border text-primary" role="status" style="display: none;">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{ judul }}</h4>
-                </div>
-                <div class="card-body col-12 col-md-10 mx-auto">
-                    <form method="post">
-                        <div class="modal-header">
-                            <h5 class="modal-title">{{ judul }}</h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                            </div>
-                        </div>
-                        {% if form.non_field_errors %}
-                        <div class="text-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                        {% endif %}
-                        <div class="modal-footer">
-                            <a href="{{link_url}}" class="btn btn-warning ml-2">Batal</a>
-                            <button type="submit" class="btn btn-primary">{{btntombol}}</button>
-                        </div>
-                        <!-- Error non-field -->
-                    </form>
-                </div>
-            </div>
+    
+    <div class="modal-body">
+        <div class="form-group">
+            {{ form.as_p }}
+
+            <!-- Perbaikan Menampilkan Error -->
+            {% for field in form %}
+                {% if field.errors %}
+                    <div class="text-danger">
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
-</section>
-{% endblock content %}
 
-{% block javascript %}
-    <script>
-        $('#form_input').on('submit', function() {
-            $('#btnSubmit').prop('disabled', true); // Menonaktifkan tombol Simpan
-            $('#spinner').show(); // Menampilkan spinner
-        });
-    </script>
-{% endblock javascript %}
-
+    <div class="modal-footer bg-whitesmoke br">
+        <button type="submit" class="btn btn-primary">{{ btntombol }}</button>
+    </div>
+</form>

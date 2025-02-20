@@ -13,9 +13,17 @@
                 <div class="card-header">
                     <h4>{{judul}}</h4>
                     <div class="card-header-action">
-                        {% comment %} <div class="btn-group"> {% endcomment %}
-                            <a href="{{link_simpan}}" class="btn btn-primary">{{tombol}}</a>
-                        {% comment %} </div> {% endcomment %}
+                        <a href="#" 
+                            class="btn btn-primary" 
+                            hx-get="{{link_simpan}}" 
+                            hx-target="#filter .modal-content"
+                            hx-trigger="click"  
+                            data-toggle="modal" 
+                            data-target="#filter"
+                            hx-indicator="#modal-spinner">
+                            {{tombol}}
+                        </a>
+                        
                     </div>
                 </div>
                 <div class="card-body">
@@ -25,6 +33,12 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="filter" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
 {% endblock content %}
 
 {% block style %}

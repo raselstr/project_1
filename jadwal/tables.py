@@ -25,10 +25,10 @@ class JadwalTable(tables.Table):
         edit_url = reverse('jadwal:edit', args=[record.id])
         delete_url = reverse('jadwal:delete', args=[record.id])
         return format_html(
-            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a> '
-            '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
-            edit_url, delete_url
-        )
+        '<a href="#" class="btn btn-info btn-sm" hx-get="{}" hx-target="#filter .modal-content" hx-trigger="click" data-toggle="modal" data-target="#filter" hx-indicator="#modal-spinner"><i class="fas fa-pencil-alt"></i></a> '
+        '<a href="{}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>',
+        edit_url, delete_url
+    )
     
     def render_jadwal_aktif(self, value):
         return format_html(
@@ -36,3 +36,4 @@ class JadwalTable(tables.Table):
             "badge-success" if value else "badge-danger",
             "Aktif" if value else "Nonaktif"
         )
+
