@@ -44,6 +44,16 @@ class RencanaFilterForm(forms.ModelForm):
 
 
 class RencanaForm(forms.ModelForm):
+    rencana_satuan = forms.CharField(
+        label='Satuan', 
+        required=False, 
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control', 
+                'id': 'id_rencana_satuan'
+                }
+            )
+        )
     class Meta:
         model = model_rencana
         fields = '__all__'
@@ -51,10 +61,24 @@ class RencanaForm(forms.ModelForm):
             'rencana_tahun': forms.HiddenInput(),
             'rencana_dana': forms.HiddenInput(),
             'rencana_subopd': forms.HiddenInput(),
-            'rencana_kegiatan': forms.Select(attrs={'class': 'form-control select2'}),
+            'rencana_kegiatan': forms.Select(
+                attrs={
+                    'class': 'form-control select2',
+                    'data-placeholder': 'Pilih Kegiatan',
+                    'hx-get': '/pendidikan/rencana/satuan/',
+                    'hx-trigger': 'change',
+                    'hx-target': '#id_rencana_satuan',
+                    'hx-swap': 'outerHTML',
+                    }
+                ),
             'rencana_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
             'rencana_output': forms.NumberInput(attrs={'class': 'form-control'}),
-            'rencana_ket': forms.TextInput(attrs={'class': 'form-control'}),
+            'rencana_ket': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'Contoh : 1.01.01.2.01.0001'
+                    }
+                ),
             'rencana_pagudpa': forms.NumberInput(attrs={'class': 'form-control'}),
         }
     def __init__(self, *args, **kwargs):

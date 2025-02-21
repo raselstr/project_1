@@ -39,6 +39,7 @@ urlpatterns = [
     path("postingsisa/kegiatan", view_postingsisa.posting, name="posting_pendidikansisa"),
     path("postingsisa/list", view_postingsisa.list, name="posting_pendidikan_listsisa"),
     
+    path("rencana/satuan/", view_rencana.satuan, name="rencana_pendidikan_satuan"),
     path("rencana/delete/<int:pk>/", view_rencana.delete, name="rencana_pendidikan_delete"),
     path("rencana/update/<int:pk>/", view_rencana.update, name="rencana_pendidikan_update"),
     path("rencana/simpan/", view_rencana.simpan, name="rencana_pendidikan_simpan"),

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse
@@ -8,7 +9,8 @@ import logging
 
 from pendidikan.models import Rencana, Rencanasisa
 from pendidikan.forms.form_pendidikan import RencanaFilterForm, RencanaForm
-from dausg.models import Subkegiatan
+from dana.models import Subkegiatan
+from dausg.models import DausgpendidikanSub
 
 form_filter = RencanaFilterForm
 form_data = RencanaForm
@@ -16,6 +18,7 @@ form_data = RencanaForm
 model_data = Rencana
 model_datasisa = Rencanasisa
 model_pagu = Subkegiatan
+model_kegiatan = DausgpendidikanSub
 
 url_home = 'rencana_pendidikan_home'
 url_filter = 'rencana_pendidikan_filter'
@@ -34,6 +37,17 @@ sesidana = 'dau-dukungan-bidang-pendidikan'
 sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
+
+def satuan(request):
+    pk = request.GET.get("pk")
+    if not pk:
+        return HttpResponse("")
+    data = get_object_or_404(model_kegiatan, id=pk)
+    satuan = data.dausgpendidikansub_satuan
+    print(f"Satuan Ditemukan: {satuan}")
+    return HttpResponse(
+        f'<input type="text" id="id_rencana_satuan" name="rencana_satuan" class="form-control" value="{satuan}" readonly>'
+    )
 
 
 @set_submenu_session
