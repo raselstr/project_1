@@ -23,7 +23,7 @@ class Dankelsub (models.Model):
     dankelsub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
-        return f'{self.dankelsub_keg} - {self.dankelsub_nama}'
+        return f'{self.dankelsub_keg} - ({self.dankelsub_satuan}) {self.dankelsub_nama}'
 
 
 class DausgpendidikanProg (models.Model):
@@ -47,7 +47,7 @@ class DausgpendidikanSub (models.Model):
     dausgpendidikansub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
-        return f'{self.dausgpendidikansub_keg} - {self.dausgpendidikansub_nama}'
+        return f'{self.dausgpendidikansub_keg}-({self.dausgpendidikansub_satuan}) {self.dausgpendidikansub_nama}'
 
 class DausgkesehatanProg (models.Model):
     dausgkesehatan_tahun = models.IntegerField(verbose_name="Tahun")
@@ -70,7 +70,7 @@ class DausgkesehatanSub (models.Model):
     dausgkesehatansub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
-        return f'{self.dausgkesehatansub_keg} - {self.dausgkesehatansub_nama}'
+        return f'{self.dausgkesehatansub_keg}-({self.dausgkesehatansub_satuan}) {self.dausgkesehatansub_nama}'
 
 
 class DausgpuProg (models.Model):
@@ -94,4 +94,4 @@ class DausgpuSub (models.Model):
     dausgpusub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
     
     def __str__(self):
-        return f'{self.dausgpusub_keg} - {self.dausgpusub_nama}'
+        return f'{self.dausgpusub_keg}-({self.dausgpusub_satuan}) {self.dausgpusub_nama}'

@@ -44,16 +44,16 @@ class RencanaFilterForm(forms.ModelForm):
 
 
 class RencanaForm(forms.ModelForm):
-    rencana_satuan = forms.CharField(
-        label='Satuan', 
-        required=False, 
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control', 
-                'id': 'id_rencana_satuan'
-                }
-            )
-        )
+    # rencana_satuan = forms.CharField(
+    #     label='Satuan', 
+    #     required=False, 
+    #     widget=forms.TextInput(
+    #         attrs={
+    #             'class': 'form-control', 
+    #             'id': 'id_rencana_satuan'
+    #             }
+    #         )
+    #     )
     class Meta:
         model = model_rencana
         fields = '__all__'
@@ -65,10 +65,6 @@ class RencanaForm(forms.ModelForm):
                 attrs={
                     'class': 'form-control select2',
                     'data-placeholder': 'Pilih Kegiatan',
-                    'hx-get': '/pendidikan/rencana/satuan/',
-                    'hx-trigger': 'change',
-                    'hx-target': '#id_rencana_satuan',
-                    'hx-swap': 'outerHTML',
                     }
                 ),
             'rencana_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -100,7 +96,10 @@ class RencanaPostingForm(forms.ModelForm):
         
         widgets = {
             'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
-            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_subopd': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Sub OPD',
+                }),
         }
         
     def __init__(self, *args, **kwargs):
@@ -110,14 +109,23 @@ class RencanaPostingForm(forms.ModelForm):
         self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
         
 class RealisasiFilterForm(forms.ModelForm):
-    realisasi_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
         model = model_realisasi
         fields = ['realisasi_tahun', 'realisasi_dana', 'realisasi_subopd','realisasi_tahap']
         widgets = {
-            'realisasi_dana': forms.Select(attrs={'class': 'form-control select2'}),
-            'realisasi_subopd': forms.Select(attrs={'class': 'form-control select2'}),
-            'realisasi_tahap': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_tahun' : forms.HiddenInput(attrs={'class': 'form-control'}),
+            'realisasi_dana': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Dana',
+                }),
+            'realisasi_subopd': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Sub OPD',
+                }),
+            'realisasi_tahap': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Tahap',
+                }),
         }
     
     def __init__(self, *args, **kwargs):
@@ -137,12 +145,8 @@ class RealisasiFilterForm(forms.ModelForm):
             self.fields['realisasi_dana'].queryset = model_subkegiatan.objects.all()
         
         if tahun is not None:
-            tahun_choices = [(tahun, tahun) for tahun in tahun]
-            self.fields['realisasi_tahun'].choices = tahun_choices
-        else:
-            self.fields['realisasi_tahun'].choices = []
-
-
+            self.fields['realisasi_tahun'].initial = tahun
+            
 class RealisasiForm(forms.ModelForm):
     class Meta:
         model = model_realisasi

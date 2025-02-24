@@ -146,7 +146,7 @@ def list(request):
 def filter(request):
     if request.method == 'GET':
         logger.debug(f"Received GET data: {request.GET}")
-        tahunposting = model_data.objects.values_list('posting_tahun', flat=True).distinct()
+        tahunposting = request.session.get('tahun')
         sesisubopd = request.session.get('idsubopd')
         form = form_filter(request.GET or None, tahun=tahunposting, sesidana=sesidana, sesisubopd=sesisubopd)
 
@@ -160,7 +160,7 @@ def filter(request):
         else:
             logger.debug(f"Form errors: {form.errors}")
     else:
-        form = form_filter()
+        form = form_filter(request.GET or None, tahun=tahunposting, sesidana=sesidana, sesisubopd=sesisubopd)
 
     context = {
         'judul': 'Laporan Kegiatan',

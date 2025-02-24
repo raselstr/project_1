@@ -78,14 +78,24 @@ class RencanakesehatanPostingForm(forms.ModelForm):
 
 
 class RealisasikesehatanFilterForm(forms.ModelForm):
-    realisasi_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
+    # realisasi_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
     class Meta:
         model = model_realisasi
         fields = ['realisasi_tahun', 'realisasi_dana', 'realisasi_subopd','realisasi_tahap']
         widgets = {
-            'realisasi_dana': forms.Select(attrs={'class': 'form-control select2'}),
-            'realisasi_subopd': forms.Select(attrs={'class': 'form-control select2'}),
-            'realisasi_tahap': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_tahun': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'realisasi_dana': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Dana',
+                }),
+            'realisasi_subopd': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Sub OPD',
+                }),
+            'realisasi_tahap': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Tahap',
+                }),
         }
     
     def __init__(self, *args, **kwargs):
@@ -105,11 +115,7 @@ class RealisasikesehatanFilterForm(forms.ModelForm):
             self.fields['realisasi_dana'].queryset = model_subkegiatan.objects.all()
         
         if tahun is not None:
-            tahun_choices = [(tahun, tahun) for tahun in tahun]
-            self.fields['realisasi_tahun'].choices = tahun_choices
-        else:
-            self.fields['realisasi_tahun'].choices = []
-
+            self.fields['realisasi_tahun'].initial = tahun
 
 class RealisasikesehatanForm(forms.ModelForm):
     class Meta:
