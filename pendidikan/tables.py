@@ -146,12 +146,11 @@ class Sp2dTablesisa(BaseSp2dTable):
 
 
 class BaseRencanaTable(tables.Table):
-    rencana_kegiatan = tables.Column(footer="Total")
     rencana_pagu = totalrealisasi(attrs={"td": {"class": "text-right"}})
     nomor = tables.Column(verbose_name="No", empty_values=())
     satuan_kegiatan = tables.Column(verbose_name="Satuan Kegiatan", accessor="get_satuan_kegiatan")
     kegiatan = tables.Column(verbose_name="Kegiatan", accessor="get_kegiatan")
-    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total")
+    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
     rencana_ket = tables.Column(verbose_name="Kode Sub Kegiatan DPA")
     rencana_pagudpa = tables.Column(
         verbose_name="Nilai Pagu Sub Kegiatan sesuai DPA",
