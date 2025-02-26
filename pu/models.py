@@ -107,6 +107,16 @@ class BaseRencanapu(models.Model):
         nilai_realisasi = self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
+    
+    def get_satuan_kegiatan(self):
+        return self.rencana_kegiatan.dausgpusub_satuan if self.rencana_kegiatan else None
+    
+    def get_subkegiatan(self):
+        return self.rencana_kegiatan.dausgpusub_nama if self.rencana_kegiatan else None
+    
+    def get_kegiatan(self):
+        return self.rencana_kegiatan.dausgpusub_keg.dausgpukeg_nama if self.rencana_kegiatan else None
+
 
     def __str__(self):
         return f"{self.rencana_kegiatan}"

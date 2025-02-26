@@ -16,7 +16,9 @@
                     <div class="card-header-action">
                         <div class="btn-group">
                             <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
-                            <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+                            <a href="#" onclick="openPrintWindow('{{link_url_cetak}}'); return false;" type="button" class="btn btn-info">Cetak</a>
+                            <a href="#" onclick="openPrintWindow('{{link_url}}'); return false;" type="button" class="btn btn-primary">{{tombol}}</a>
+
                         </div>
                     </div>
                 </div>
@@ -109,6 +111,16 @@
         {% endfor %}
         {% endif %}
     });
+</script>
+<script>
+    function openPrintWindow(url) {
+        var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+        if (printWindow) {
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+    }
 </script>
     
     

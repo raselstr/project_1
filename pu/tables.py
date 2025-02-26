@@ -150,3 +150,64 @@ class Sp2dTable(BaseSp2dTable):
 class Sp2dTablesisa(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
         model = model_sisa
+
+
+class BaseRencanaTable(tables.Table):
+    rencana_kegiatan = tables.Column(footer="Total")
+    rencana_pagu = totalrealisasi(attrs={"td": {"class": "text-right"}})
+    nomor = tables.Column(verbose_name="No", empty_values=())
+    satuan_kegiatan = tables.Column(verbose_name="Satuan Kegiatan", accessor="get_satuan_kegiatan")
+    kegiatan = tables.Column(verbose_name="Kegiatan", accessor="get_kegiatan")
+    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total")
+    rencana_ket = tables.Column(verbose_name="Kode Sub Kegiatan DPA")
+    rencana_pagudpa = tables.Column(
+        verbose_name="Nilai Pagu Sub Kegiatan sesuai DPA",
+        attrs={"td": {"class": "text-right"}},  # ✅ Tambahkan class Bootstrap
+    )
+    def render_nomor(self, record, table):
+        return list(table.data).index(record) + 1
+    class Meta:
+        template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        attrs = {
+            "class": "table table-bordered",
+            # "id":"tabel1",
+            'th': {
+                'style':"text-align: center;"
+                },
+            'tf': {
+                'style':"text-align: right;"
+                },
+            }
+class RencanaTable(BaseRencanaTable):
+    class Meta(BaseRencanaTable.Meta):
+        model = model
+        order_by = ("rencana_subopd", "rencana_kegiatan")
+        fields = (
+            "nomor",
+            "rencana_subopd",
+            "kegiatan",
+            "subkegiatan",
+            "rencana_pagu",
+            "rencana_output",
+            "satuan_kegiatan",
+            "rencana_ket",
+            "rencana_pagudpa",
+        )
+        exclude = ("rencana_kegiatan",)
+
+class RencanasisaTable(BaseRencanaTable):
+    class Meta(BaseRencanaTable.Meta):
+        model = model_sisa
+        order_by = ("rencana_subopd", "rencana_kegiatan")
+        fields = (
+            "nomor",
+            "rencana_subopd",
+            "kegiatan",
+            "subkegiatan",
+            "rencana_pagu",
+            "rencana_output",
+            "satuan_kegiatan",
+            "rencana_ket",
+            "rencana_pagudpa",
+        )
+        exclude = ("rencana_kegiatan",)

@@ -5,17 +5,26 @@ from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 import logging
+from datetime import datetime
 
 from pu.models import Rencanapu, Rencanapusisa
 from pu.forms.forms import RencanapuFilterForm, RencanapuForm
 from dausg.models import Subkegiatan
+from dausg.models import DausgpuSub
+from pu.tables import RencanaTable
+from opd.models import Pejabat, Subopd
 
 form_filter = RencanapuFilterForm
 form_data = RencanapuForm
 
+tabel_rencana = RencanaTable
+
 model_data = Rencanapu
 model_datasisa = Rencanapusisa
 model_pagu = Subkegiatan
+model_kegiatan = DausgpuSub
+model_pejabat = Pejabat
+model_subopd = Subopd
 
 url_home = 'rencana_pu_home'
 url_filter = 'rencana_pu_filter'
@@ -24,11 +33,13 @@ url_list = 'rencana_pu_list'
 url_simpan = 'rencana_pu_simpan'
 url_update = 'rencana_pu_update'
 url_delete = 'rencana_pu_delete'
+url_cetak = 'rencana_pu_cetak'
 
 template_form = 'pu/rencana/form.html'
 template_home = 'pu/rencana/home.html'
 template_list = 'pu/rencana/list.html'
 template_modal = 'pu/rencana/modal.html'
+template_pdf = 'pu/rencana/pdf.html'
 
 sesidana = 'dau-dukungan-bidang-pekerjaan-umum'
 sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
@@ -131,6 +142,7 @@ def list(request):
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
+        'link_url_cetak': reverse(url_cetak),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
@@ -212,3 +224,53 @@ def home(request):
         'link_urlsisa': reverse(url_filtersisa),
     }
     return render(request, template_home, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def cetak(request):
+    request.session['next'] = request.get_full_path()
+    rencana_tahun=request.session.get('rencana_tahun')
+    rencana_dana=request.session.get('rencana_dana')
+    rencana_subopd=request.session.get('rencana_subopd')
+     # Buat filter query
+    filters = Q()
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    if rencana_subopd is not None and rencana_subopd not in [124]:
+        filters &= Q(rencana_subopd_id=rencana_subopd)
+    
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = None
+        
+   
+    if rencana_subopd:
+        ttd = model_pejabat.objects.filter(pejabat_sub=rencana_subopd)
+    else:
+        ttd = None
+        
+    tabel = tabel_rencana(data)
+    
+    subopd_laporan = model_subopd.objects.filter(id=rencana_subopd).first().sub_nama
+    dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
+
+    context = {
+        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'tombol': 'Tambah Perencanaan',
+        'kembali' : 'Kembali',
+        'link_url': reverse(url_simpan),
+        'link_url_kembali': reverse(url_home),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
+        'data' : data,
+        'tabel' : tabel,
+        'ttd' : ttd,
+        'rencana_tahun' : rencana_tahun,
+        'rencana_dana' : dana_laporan,
+        'rencana_subopd' : subopd_laporan,
+    }
+    return render(request, template_pdf, context)

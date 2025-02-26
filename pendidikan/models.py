@@ -103,6 +103,15 @@ class BaseRencana(models.Model):
             filters &= Q(realisasi_subopd=self.rencana_subopd_id)
         return Realisasi.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 
+    def get_satuan_kegiatan(self):
+        return self.rencana_kegiatan.dausgpendidikansub_satuan if self.rencana_kegiatan else None
+    
+    def get_subkegiatan(self):
+        return self.rencana_kegiatan.dausgpendidikansub_nama if self.rencana_kegiatan else None
+    
+    def get_kegiatan(self):
+        return self.rencana_kegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama if self.rencana_kegiatan else None
+    
     def __str__(self):
         return str(self.rencana_kegiatan)
 

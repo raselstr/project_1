@@ -39,6 +39,7 @@ urlpatterns = [
     path("postingsisa/kegiatan", view_postingsisa.posting, name="posting_pusisa"),
     path("postingsisa/list", view_postingsisa.list, name="posting_pu_listsisa"),
     
+    path("rencana/cetak", view_rencana.cetak, name="rencana_pu_cetak"),
     path("rencana/delete/<int:pk>/", view_rencana.delete, name="rencana_pu_delete"),
     path("rencana/update/<int:pk>/", view_rencana.update, name="rencana_pu_update"),
     path("rencana/simpan/", view_rencana.simpan, name="rencana_pu_simpan"),
@@ -46,6 +47,7 @@ urlpatterns = [
     path("rencana/filter/", view_rencana.filter, name="rencana_pu_filter"),
     path("rencana/", view_rencana.home, name="rencana_pu_home"),
     
+    path("rencanasisa/cetak", view_rencanasisa.cetak, name="rencana_pu_cetaksisa"),
     path("rencanasisa/delete/<int:pk>/", view_rencanasisa.delete, name="rencana_pu_deletesisa"),
     path("rencanasisa/update/<int:pk>/", view_rencanasisa.update, name="rencana_pu_updatesisa"),
     path("rencanasisa/simpan/", view_rencanasisa.simpan, name="rencana_pu_simpansisa"),
