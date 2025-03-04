@@ -210,7 +210,7 @@ def cetak(request):
     dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Daftar Kegiatan Sisa DAU Bidang Pendidikan',
         'tombol': 'Tambah Perencanaan',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),

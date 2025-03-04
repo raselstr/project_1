@@ -11,7 +11,7 @@ from kesehatan.models import Rencanakesehatan, Rencanakesehatansisa
 from kesehatan.forms.forms import RencanakesehatanFilterForm, RencanakesehatanForm
 from dausg.models import Subkegiatan
 from dausg.models import DausgkesehatanSub
-from pendidikan.tables import RencanaTable
+from kesehatan.tables import RencanaTable
 from opd.models import Pejabat, Subopd
 
 form_filter = RencanakesehatanFilterForm
@@ -258,7 +258,7 @@ def cetak(request):
     dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Daftar Kegiatan DAU Bidang Kesehatan',
         'tombol': 'Tambah Perencanaan',
         'kembali' : 'Kembali',
         'link_url': reverse(url_simpan),
