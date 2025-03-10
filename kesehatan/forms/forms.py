@@ -1,6 +1,7 @@
 from django import forms
 from ..models import Rencanakesehatan, Rencanakesehatanposting,Subkegiatan, Subopd, Realisasikesehatan
 from dausg.models import DausgkesehatanSub
+from jadwal.models import Jadwal
 
 model_rencana = Rencanakesehatan
 model_posting = Rencanakesehatanposting
@@ -8,6 +9,7 @@ model_subkegiatan = Subkegiatan
 model_subopd = Subopd
 model_realisasi = Realisasikesehatan
 data_subkegiatan = DausgkesehatanSub
+model_jadwal = Jadwal
 
 class RencanakesehatanFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -72,12 +74,22 @@ class RencanakesehatanPostingForm(forms.ModelForm):
         fields = ['posting_jadwal','posting_subopd']
         
         widgets = {
-            'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
-            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_jadwal': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Jadwal',
+                }),
+            'posting_subopd': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Sub OPD',
+                }),
         }
         
     def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        postingid = kwargs.pop('jadwal', None)
         super().__init__(*args, **kwargs)
+        self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+
 
 
 class RealisasikesehatanFilterForm(forms.ModelForm):

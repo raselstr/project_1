@@ -6,10 +6,12 @@ from django.urls import reverse
 
 from kesehatan.models import Rencanakesehatanpostingsisa, Rencanakesehatansisa
 from kesehatan.forms.formssisa import RencanakesehatanPostingForm
+from jadwal.models import Jadwal
 
 model_rencana = Rencanakesehatansisa
 model_posting = Rencanakesehatanpostingsisa
 form_posting = RencanakesehatanPostingForm
+model_jadwal = Jadwal
 
 tag_url = 'posting_kesehatan_listsisa'
 tag_posting = 'posting_kesehatansisa'
