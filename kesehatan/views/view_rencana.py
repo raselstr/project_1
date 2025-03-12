@@ -132,7 +132,7 @@ def list(request):
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:
-        data = model_data.objects.filter(filters)
+        data = model_data.objects.filter(filters).order_by('rencana_subopd','rencana_kegiatan_id')
     except model_data.DoesNotExist:
         data = None
 
@@ -242,7 +242,7 @@ def cetak(request):
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:
-        data = model_data.objects.filter(filters)
+        data = model_data.objects.filter(filters).order_by('rencana_subopd','-rencana_kegiatan_id')
     except model_data.DoesNotExist:
         data = None
         

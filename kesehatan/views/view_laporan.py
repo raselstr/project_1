@@ -287,7 +287,7 @@ def get_data_context(request):
 
     progs = model_program.objects.prefetch_related(
         Prefetch('dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanposting_set')
-    ).filter(dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanposting__isnull=False).distinct().order_by('id')
+    ).filter(dausgkesehatankegs__dausgkesehatansubs__rencanakesehatanposting__isnull=False, dausgkesehatan_tahun=realisasi_tahun).distinct().order_by('id')
 
     rencanas = model_data.objects.filter(filters)
     realisasis = model_realisasi.objects.filter(filterreals)
@@ -302,8 +302,7 @@ def get_data_context(request):
     total_tahap2_keseluruhan = 0
     total_tahap3_keseluruhan = 0
 
-    program_counter = 1  # Counter untuk program
-    for prog in progs:
+    for program_counter, prog in enumerate(progs, start=1):
         total_pagu_prog = 0
         total_output_prog = 0
         total_realisasi_prog = 0
@@ -423,7 +422,7 @@ def get_data_context(request):
             total_tahap2_keseluruhan += total_tahap2_prog
             total_tahap3_keseluruhan += total_tahap3_prog
 
-        program_counter += 1  # Increment counter program
+        # program_counter += 1  # Increment counter program
         
     tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
     subopd_laporan = model_subopd.objects.filter(id=realisasi_subopd).first().sub_nama
