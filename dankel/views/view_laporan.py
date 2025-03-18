@@ -212,7 +212,7 @@ def pdf(request):
     sesiidopd = request.session.get('realisasidankel_subopd')
     
     if sesiidopd:
-        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
+        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd).exclude(pejabat_foto__isnull=True).exclude(pejabat_foto="")
         
     context.update({
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
@@ -232,7 +232,7 @@ def apip(request):
     idopd = request.session.get('realisasidankel_subopd')
     
     if sesiidopd :
-        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
+        data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd).exclude(pejabat_foto__isnull=True).exclude(pejabat_foto="")
     
     penerimaan = Model_penerimaan.objects.filter(distri_subopd_id=idopd, distri_penerimaan__penerimaan_dana__sub_slug=sesidana)
         
