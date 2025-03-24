@@ -3,6 +3,7 @@ from django.urls import path
 from ..views import view_rencana
 
 urlpatterns = [
+    path('cetak/', view_rencana.cetak, name="dankel_cetak"),
     path('delete/<int:pk>', view_rencana.delete, name="dankel_delete"),
     path('update/<int:pk>', view_rencana.update, name="dankel_update"),
     path('simpan/', view_rencana.simpan, name="dankel_simpan"),

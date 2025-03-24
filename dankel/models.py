@@ -92,8 +92,20 @@ class RencDankel(models.Model):
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
 
+    def get_satuan_kegiatan(self):
+        return self.rencdankel_sub.dankelsub_satuan if self.rencdankel_sub else None
+    
+    def get_subkegiatan(self):
+        return self.rencdankel_sub.dankelsub_nama if self.rencdankel_sub else None
+    
+    def get_kegiatan(self):
+        return self.rencdankel_sub.dankelsub_keg.dankelkeg_nama if self.rencdankel_sub else None
+    
+    def get_program(self):
+        return self.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog if self.rencdankel_sub else None
+    
     def __str__(self):
-        return f"{self.rencdankel_sub}"
+        return str(self.rencdankel_sub)
 
 class RencDankelsisa(models.Model):
     

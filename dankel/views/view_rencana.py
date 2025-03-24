@@ -1,20 +1,28 @@
 # File: your_app/views.py
 from django.shortcuts import render, get_object_or_404,redirect
+from django.urls import reverse
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from ..models import RencDankel, RencDankelsisa, Subkegiatan
 from ..forms.form_rencana import RencDankelForm
 from project.decorators import menu_access_required, set_submenu_session
+from ..tables import RencanaTable
 
 
 Model_data = RencDankel
 Form_data = RencDankelForm
+tabel_rencana = RencanaTable
+
 tag_url = 'dankel_list'
+dankel_cetak = 'dankel_cetak'
 template = 'dankel_rencana/dankel_form.html'
+template_pdf = 'dankel_rencana/pdf.html'
 template_list = 'dankel_rencana/dankel_list.html'
 template_home = 'dankel_rencana/dankel_home.html'
 sesidana = 'dana-kelurahan'
+
+
 # sesitahun = 2024
 
 def get_from_sessions(request):
@@ -112,8 +120,10 @@ def list(request):
     context = {
         'judul' : 'Rencana Kegiatan',
         'tombol' : 'Tambah Perencanaan',
+        'cetak' : 'Cetak',
         'data' : data,
         'rencana' : total_rencana,
+        'dankel_cetak' : reverse('dankel_cetak'),
         # 'datasisa' : total_pagu_sisa,
     }
     return render(request, template_list, context)
@@ -161,3 +171,50 @@ def home(request):
         'sisa_rencana_sisa' : sisa_rencana_sisa,
     }
     return render(request, template_home, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def cetak(request):
+    request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+    
+     # Buat filter query
+    filters = Q()
+    if tahun:
+        filters &= Q(rencdankel_tahun=tahun)
+    if sesisubopd is not None and sesisubopd not in [124]:
+        filters &= Q(rencdankel_subopd=sesisubopd)
+    
+    try:
+        data = Model_data.objects.filter(filters)
+    except Model_data.DoesNotExist:
+        data = None
+        
+   
+    # if sesisubopd:
+    #     ttd = model_pejabat.objects.filter(pejabat_sub=sesisubopd).first()
+    # else:
+    #     ttd = None
+        
+    tabel = tabel_rencana(data)
+    
+    # subopd_laporan = model_subopd.objects.filter(id=rencana_subopd).first().sub_nama
+    # dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
+
+    context = {
+        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'tombol': 'Tambah Perencanaan',
+        'kembali' : 'Kembali',
+        # 'link_url': reverse(url_simpan),
+        # 'link_url_kembali': reverse(url_home),
+        # 'link_url_update': url_update,
+        # 'link_url_delete': url_delete,
+        'data' : data,
+        'tabel' : tabel,
+        # 'ttd' : ttd,
+        # 'rencana_tahun' : rencana_tahun,
+        # 'rencana_dana' : dana_laporan,
+        # 'rencana_subopd' : subopd_laporan,
+    }
+    return render(request, template_pdf, context)

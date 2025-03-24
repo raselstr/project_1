@@ -17,6 +17,7 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
+                        <a href="#" onclick="openPrintWindow('{{dankel_cetak}}'); return false;" type="button" class="btn btn-info">Cetak</a>
                         <a href="{% url "dankel_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
@@ -114,6 +115,16 @@
             {% endfor %}
             {% endif %}
         });
+    </script>
+    <script>
+        function openPrintWindow(url) {
+            var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
+        }
     </script>
 {% endblock javascript %}
 
