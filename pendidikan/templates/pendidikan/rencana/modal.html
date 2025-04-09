@@ -8,7 +8,7 @@
         </div>
         <div class="modal-body">
             <div class="form-group">
-                {% csrf_token %}
+                {% csrf_token %} 
                 {{ form.as_p }}
                 {% if field.errors %}
                     {% for error in field.errors %}

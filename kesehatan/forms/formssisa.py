@@ -120,13 +120,23 @@ class RealisasikesehatanFilterForm(forms.ModelForm):
 class RealisasikesehatanForm(forms.ModelForm):
     class Meta:
         model = model_realisasi
-        fields = '__all__'
+        fields = [
+            'realisasi_tahun',
+            'realisasi_dana',
+            'realisasi_tahap',
+            'realisasi_subopd',
+            'realisasi_rencanaposting',
+            'realisasi_sp2d',
+            'realisasi_tgl',
+            'realisasi_nilai',
+            'realisasi_output',
+        ]
         widgets = {
             'realisasi_tahun': forms.HiddenInput(),
             'realisasi_dana': forms.HiddenInput(),
             'realisasi_tahap': forms.HiddenInput(),
             'realisasi_subopd': forms.HiddenInput(),
-            'realisasi_rencanaposting': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_rencanaposting': forms.HiddenInput(),
             'realisasi_sp2d': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasi_tgl': forms.DateInput(attrs={'class': 'form-control', 'type':'date'}),
             'realisasi_nilai': forms.NumberInput(attrs={'class': 'form-control'}),

@@ -1,21 +1,39 @@
 import django_tables2 as tables
-from .models import Realisasikesehatan, Realisasikesehatansisa
+from .models import Realisasikesehatan, Realisasikesehatansisa, Rencanakesehatanposting, Rencanakesehatanpostingsisa
+from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
 model = Realisasikesehatan
 model_sisa = Realisasikesehatansisa
+model_rencana = Rencanakesehatanposting
+model_rencana_sisa = Rencanakesehatanpostingsisa
+
 
 class TotalRealisasiColumn(tables.Column):
+    def __init__(self, *args, getter=None, **kwargs):
+        self.getter = getter
+        super().__init__(*args, **kwargs)
+
     def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
+        total = 0
+        for row in table.data:
+            try:
+                if self.getter:
+                    total += self.getter(row)
+                else:
+                    total += bound_column.accessor.resolve(row)
+            except Exception:
+                pass
+        return f"{total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class BaseRealisasiTable(tables.Table):
-    aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
-    verif = tables.Column(empty_values=(), orderable=False, verbose_name='Verifikasi')
-    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan')
-    realisasi_tgl = tables.Column(footer="Total Realisasi:")
-    realisasi_nilai = TotalRealisasiColumn()
+    aksi = tables.Column(empty_values=(), verbose_name='Aksi')
+    verif = tables.Column(empty_values=(), verbose_name='Verifikasi')
+    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan', attrs={"td": {"class": "text-center"}})
+    realisasi_rencanaposting = tables.Column(footer="Total Realisasi:")
+    realisasi_nilai = TotalRealisasiColumn(attrs={"td": {"class": "text-right"}})
+    realisasi_tahap_id = tables.Column(attrs={"td": {"class": "text-center"}})
 
     class Meta:
         template_name = "django_tables2/bootstrap4.html"
@@ -72,7 +90,7 @@ class RealisasikesehatanTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
-                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id","verif")
 
     model_name = 'realisasi_kesehatan'
 
@@ -81,7 +99,7 @@ class RealisasikesehatanTablesisa(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model_sisa
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
-                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id", "verif")
 
     model_name = 'realisasi_kesehatansisa'
 
@@ -195,3 +213,84 @@ class RencanasisaTable(BaseRencanaTable):
             "rencana_pagudpa",
         )
         exclude = ("rencana_kegiatan",)
+
+
+class BaseMetaTable:
+    template_name = "django_tables2/bootstrap4.html"
+    fields = (
+        'nomor', 
+        'subkegiatan',
+        'posting_pagu', 
+        'posting_output', 
+        'satuan_kegiatan',
+    )
+    attrs = {
+        "class": "table table-bordered table-sm",
+        'th': {'style': "text-align: center;"},
+        'tf': {'style': "text-align: right;"},
+    }
+
+class BaseRencanaKesehatanpostingTable(tables.Table):
+    nomor = tables.Column(empty_values=(), verbose_name="No")
+    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
+    posting_pagu = TotalRealisasiColumn(verbose_name="Pagu", attrs={"td": {"class": "text-right"}})
+    total_realisasi_pk = TotalRealisasiColumn(
+        verbose_name="Realisasi",
+        getter=lambda row: row.get_total_realisasi_pk(),
+        empty_values=(),
+        attrs={"td": {"class": "text-right"}},
+    )
+    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan', attrs={"td": {"class": "text-center"}})
+
+    class Meta(BaseMetaTable):
+        fields = (
+            'nomor',
+            'subkegiatan',
+            'posting_pagu',
+            'output_satuan',
+            'total_realisasi_pk',
+        )
+    
+    def __init__(self, *args, show_aksi=False, **kwargs):
+        extra = []
+        if show_aksi:
+            extra.append((
+                'aksi',
+                tables.Column(
+                    empty_values=(),
+                    verbose_name='SP2D',
+                    attrs={"td": {"class": "text-center"}}
+                )
+            ))
+        super().__init__(*args, extra_columns=extra, **kwargs)
+
+
+    def render_nomor(self, record, table):
+        return list(table.data).index(record) + 1
+    
+    def get_sp2d_url_name(self):
+        return 'realisasi_kesehatan_sp2dsisa' if self._meta.model == model_rencana_sisa else 'realisasi_kesehatan_sp2d'
+
+
+    def render_aksi(self, record):
+        url_name = self.get_sp2d_url_name()
+        sp2dinput = reverse(url_name, args=[record.id])
+        return format_html(
+            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a>',
+            sp2dinput,
+        )
+    
+    def render_total_realisasi_pk(self, record):
+        value = record.get_total_realisasi_pk()
+        return value
+
+    def render_output_satuan(self, record):
+        return f'{record.posting_output} {record.get_satuan_kegiatan()}'
+
+class RencanakesehatanpostingTable(BaseRencanaKesehatanpostingTable):
+    class Meta(BaseRencanaKesehatanpostingTable.Meta):
+        model = model_rencana
+
+class RencanakesehatanpostingsisaTable(BaseRencanaKesehatanpostingTable):
+    class Meta(BaseRencanaKesehatanpostingTable.Meta):
+        model = model_rencana_sisa

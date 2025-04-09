@@ -137,11 +137,6 @@ class Rencanakesehatansisa(BaseRencanakesehatan):
         
 
 class BaseRencanakesehatanposting(models.Model):
-    VERIF = [
-        (1, 'Rencana Induk'),
-        (2, 'Rencana Perubahan'),
-    ]
-    
     posting_tahun = models.IntegerField(verbose_name="Tahun",default=datetime.now().year)
     posting_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana',on_delete=models.CASCADE)
     posting_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd',on_delete=models.CASCADE)
@@ -160,6 +155,33 @@ class BaseRencanakesehatanposting(models.Model):
             filters &= Q(posting_subopd_id=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
+    def get_satuan_kegiatan(self):
+        return self.posting_subkegiatan.dausgkesehatansub_satuan if self.posting_subkegiatan else None
+    
+    def get_subkegiatan(self):
+        return self.posting_subkegiatan.dausgkesehatansub_nama if self.posting_subkegiatan else None
+    
+    def get_kegiatan(self):
+        return self.posting_subkegiatan.dausgkesehatansub_keg.dausgkesehatankeg_nama if self.posting_subkegiatan else None
+    
+    def get_total_realisasi_pk(self):
+        from kesehatan.models import Realisasikesehatan, Realisasikesehatansisa
+
+        model = None
+        if self.__class__.__name__.endswith('sisa'):
+            model = Realisasikesehatansisa
+        else:
+            model = Realisasikesehatan
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
     def __str__(self):
         return f"{self.posting_subkegiatan}"
 
@@ -225,12 +247,13 @@ class BaseRealisasikesehatan(models.Model):
             raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
        
         if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
-        
-        if total_realisasi > total_penerimaan:
-            raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
-        
-    
+            raise ValidationError(
+                f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} '
+                f'tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
+        elif total_realisasi > total_penerimaan:
+            raise ValidationError(
+                f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} '
+                f'tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
 
     def get_realisasi_total(self, tahun, opd, dana):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)

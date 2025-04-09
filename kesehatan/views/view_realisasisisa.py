@@ -5,12 +5,10 @@ from django.db.models import Q
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
-
-from django_tables2 import RequestConfig
-from ..tables import RealisasikesehatanTablesisa
-
 import logging
 
+from django_tables2 import RequestConfig
+from ..tables import RealisasikesehatanTablesisa, RencanakesehatanpostingsisaTable
 from kesehatan.models import Rencanakesehatanpostingsisa, Rencanakesehatansisa, Realisasikesehatansisa
 from dausg.models import Subkegiatan
 
@@ -19,6 +17,7 @@ from kesehatan.forms.formssisa import RealisasikesehatanFilterForm, Realisasikes
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasikesehatanTablesisa
+tabel_rencana = RencanakesehatanpostingsisaTable
 
 form_filter = RealisasikesehatanFilterForm
 form_data = RealisasikesehatanForm
@@ -28,6 +27,7 @@ model_pagu = Rencanakesehatansisa
 model_dana = Subkegiatan
 model_realisasi = Realisasikesehatansisa
 model_penerimaan = Penerimaan
+model_rencana = Rencanakesehatanpostingsisa
 
 url_home = 'realisasi_kesehatan_home'
 url_filter = 'realisasi_kesehatan_filtersisa'
@@ -36,10 +36,12 @@ url_simpan = 'realisasi_kesehatan_simpansisa'
 url_update = 'realisasi_kesehatan_updatesisa'
 url_delete = 'realisasi_kesehatan_deletesisa'
 url_verif = 'realisasi_kesehatan_verifsisa'
+url_sp2d = 'realisasi_kesehatan_sp2dsisa'
 
 template_form = 'kesehatan/realisasi/form.html'
 template_home = 'kesehatan/realisasi/home.html'
 template_list = 'kesehatan/realisasi/list.html'
+template_sp2d = 'kesehatan/realisasi/sp2d.html'
 template_modal = 'kesehatan/realisasi/modal.html'
 template_modal_verif = 'kesehatan/realisasi/modal_verif.html'
 
@@ -107,21 +109,28 @@ def update(request, pk):
 
 @set_submenu_session
 @menu_access_required('simpan')
-def simpan(request):
+def simpan(request, pk=None):
     request.session['next'] = request.get_full_path()
+    try:
+        rencana_posting = model_realisasi.objects.get(pk=pk)
+    except model_realisasi.DoesNotExist:
+        messages.error(request, "Data tidak ditemukan.")
+        return redirect(reverse(url_list))
+    
     initial_data = dict(
         realisasi_tahun=request.session.get('realisasi_tahun'),
         realisasi_dana=request.session.get('realisasi_dana'),
         realisasi_subopd=request.session.get('realisasi_subopd'),
         realisasi_tahap=request.session.get('realisasi_tahap'),
-        jadwal = request.session.get('jadwal')
+        jadwal = request.session.get('jadwal'),
+        realisasi_rencanaposting=rencana_posting.id
     )
     if request.method == 'POST':
         form = form_data(request.POST or None, initial_data=initial_data)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
-            return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
+            return redirect(reverse(url_sp2d,args=[pk]))  # Ganti dengan URL redirect setelah berhasil
     else:
         form = form_data(initial=initial_data, initial_data=initial_data)
 
@@ -133,6 +142,65 @@ def simpan(request):
     }
     return render(request, template_form, context)
 
+@set_submenu_session
+@menu_access_required('list')
+def sp2d(request, pk=None):
+    request.session['next'] = request.get_full_path()
+    realisasi_tahun=request.session.get('realisasi_tahun')
+    realisasi_dana=request.session.get('realisasi_dana')
+    realisasi_subopd=request.session.get('realisasi_subopd')
+    realisasi_tahap=request.session.get('realisasi_tahap')
+     # Buat filter query
+    filters = Q(realisasi_rencanaposting_id=pk)
+    if realisasi_tahun:
+        filters &= Q(realisasi_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filters &= Q(realisasi_dana_id=realisasi_dana)
+    if realisasi_tahap:
+        if realisasi_tahap == 1:
+            filters &= Q(realisasi_tahap_id=1)
+        elif realisasi_tahap == 2:
+            filters &= Q(realisasi_tahap_id__in=[1, 2])
+        elif realisasi_tahap == 3:
+            filters &= Q(realisasi_tahap_id__in=[1, 2, 3])
+    if realisasi_subopd not in [124]:
+        filters &= Q(realisasi_subopd_id=realisasi_subopd)
+    
+    filterkeg = Q(pk=pk)
+    if realisasi_tahun:
+        filterkeg &= Q(posting_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filterkeg &= Q(posting_dana_id=realisasi_dana)
+    # if realisasi_tahap:
+    #     filterkeg &= Q(realisasi_tahap_id=realisasi_tahap)
+    if realisasi_subopd not in [124]:
+        filterkeg &= Q(posting_subopd_id=realisasi_subopd)
+        
+    try:
+        data = model_realisasi.objects.filter(filters)
+        datarencana = model_rencana.objects.filter(filterkeg)
+    except (model_realisasi.DoesNotExist, model_rencana.DoesNotExist):
+        data = None
+        datarencana = None
+    
+    table = tabel_realisasi(data, request=request)
+    tabelrencana = tabel_rencana(datarencana, request=request)
+    
+    context = {
+        'judul': 'Daftar Realisasi DAU Bidang Kesehatan Sisa Tahun Lalu',
+        'subjudul': 'Daftar Kegiatan Realisasi Sisa Tahun Lalu',
+        'tombol': 'Tambah Realisasi',
+        'kembali' : 'Kembali',
+        'link_url': reverse(url_simpan, args=[pk]),
+        'link_url_kembali': reverse(url_list),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
+        'data' : data,
+        'table':table,
+        'datarencana' : datarencana,
+        'tabelrencana':tabelrencana,
+    }
+    return render(request, template_sp2d, context)
 
 @set_submenu_session
 @menu_access_required('list')
@@ -145,31 +213,33 @@ def list(request):
      # Buat filter query
     filters = Q()
     if realisasi_tahun:
-        filters &= Q(realisasi_tahun=realisasi_tahun)
+        filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
-        filters &= Q(realisasi_dana_id=realisasi_dana)
-    if realisasi_tahap:
-        filters &= Q(realisasi_tahap_id=realisasi_tahap)
+        filters &= Q(posting_dana_id=realisasi_dana)
+    # if realisasi_tahap:
+    #     filters &= Q(realisasi_tahap_id=realisasi_tahap)
     if realisasi_subopd not in [124]:
-        filters &= Q(realisasi_subopd_id=realisasi_subopd)
+        filters &= Q(posting_subopd_id=realisasi_subopd)
     
     try:
-        data = model_realisasi.objects.filter(filters)
-    except model_realisasi.DoesNotExist:
-        data = None
+        # data = model_realisasi.objects.filter(filters)
+        datarencana = model_rencana.objects.filter(filters)
+    except model_rencana.DoesNotExist:
+        # data = None
+        datarencana = None
     
-    table = tabel_realisasi(data, request=request)
+    tabelrencana = tabel_rencana(datarencana, request=request, show_aksi=True)
 
     context = {
         'judul': 'Daftar Realisasi Sisa DAU Bidang Kesehatan Tahun Lalu',
         'tombol': 'Tambah Realisasi Sisa Tahun Lalu',
         'kembali' : 'Kembali',
-        'link_url': reverse(url_simpan),
+        # 'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
-        'data' : data,
-        'table':table,
+        'datarencana' : datarencana,
+        'tabelrencana':tabelrencana,
     }
     return render(request, template_list, context)
 
