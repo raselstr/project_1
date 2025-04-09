@@ -81,24 +81,25 @@
 {% block javascript %}
     <script>
     $(document).ready(function() {
-        new DataTable('#tabel1', {
+    $('.tabel-dinamis').each(function() {
+        new DataTable(this, {
             layout: {
                 topStart: {
                     pageLength: {
                         menu: [
                             [10, 25, 50, -1],
                             [10, 25, 50, 'All']
-                        ],
+                        ]
                     }
                 },
                 topEnd: {
                     search: {
                         placeholder: 'cari'
                     }
-                },
-                
+                }
             }
         });
+    });
         {% if messages %}
         {% for message in messages %}
             iziToast.{{ message.tags }}({

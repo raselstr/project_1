@@ -191,6 +191,7 @@ def sp2d(request, pk=None):
     table = tabel_realisasi(data, request=request)
     tabelrencana = tabel_rencana(datarencana, request=request)
     
+    
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Kesehatan',
         'subjudul': 'Daftar Kegiatan',
@@ -234,7 +235,8 @@ def list(request):
         datarencana = None
     
     # table = tabel_realisasi(data, request=request)
-    tabelrencana = tabel_rencana(datarencana, request=request, show_aksi=True)
+    tabelrencana = tabel_rencana(datarencana,  show_aksi=True)
+    tabelrencana.paginate = False
 
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Kesehatan',

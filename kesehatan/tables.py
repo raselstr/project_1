@@ -1,8 +1,10 @@
-import django_tables2 as tables
+import django_tables2 as tables # type: ignore
 from .models import Realisasikesehatan, Realisasikesehatansisa, Rencanakesehatanposting, Rencanakesehatanpostingsisa
 from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
+# from django_tables2.views import SingleTableMixin # type: ignore
+# from django_filters.views import FilterView # type: ignore
 
 model = Realisasikesehatan
 model_sisa = Realisasikesehatansisa
@@ -38,7 +40,7 @@ class BaseRealisasiTable(tables.Table):
     class Meta:
         template_name = "django_tables2/bootstrap4.html"
         attrs = {
-            "class": "display table-bordered",
+            "class": "display table-bordered tabel-dinamis",
             "id": "tabel1",
             "width": "100%",
             'th': {'style': "text-align: center;"},
@@ -218,14 +220,15 @@ class RencanasisaTable(BaseRencanaTable):
 class BaseMetaTable:
     template_name = "django_tables2/bootstrap4.html"
     fields = (
-        'nomor', 
+        'nomor',
         'subkegiatan',
-        'posting_pagu', 
-        'posting_output', 
-        'satuan_kegiatan',
+        'posting_pagu',
+        'output_satuan',
+        'total_realisasi_pk',
     )
     attrs = {
-        "class": "table table-bordered table-sm",
+        'class': 'table table-bordered table-sm',
+        'id':'tabel1',
         'th': {'style': "text-align: center;"},
         'tf': {'style': "text-align: right;"},
     }
@@ -243,13 +246,8 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
     output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan', attrs={"td": {"class": "text-center"}})
 
     class Meta(BaseMetaTable):
-        fields = (
-            'nomor',
-            'subkegiatan',
-            'posting_pagu',
-            'output_satuan',
-            'total_realisasi_pk',
-        )
+        pass
+        
     
     def __init__(self, *args, show_aksi=False, **kwargs):
         extra = []
