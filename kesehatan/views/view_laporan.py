@@ -47,7 +47,7 @@ template_pdf = 'kesehatan/laporan/pdf.html'
 template_home = 'kesehatan/laporan/home.html'
 template_list = 'kesehatan/laporan/list.html'
 template_modal = 'kesehatan/laporan/modal.html'
-template_sp2d = 'pendidikan/laporan/sp2d.html'
+template_sp2d = 'kesehatan/laporan/sp2d.html'
 
 tabel= RekapPaguTable
 tabelsp2d= Sp2dTable
@@ -511,7 +511,10 @@ def sp2d(request):
     
     sesiidopd = request.session.get('realisasi_subopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
+    tahun = request.session.get('tahun')
     filterreals = Q()
+    if tahun:
+        filterreals &= Q(realisasi_tahun=tahun)
     if sesiidopd not in [124]:
         filterreals = Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
