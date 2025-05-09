@@ -5,20 +5,20 @@ services:
       - .env
     build: .
     container_name: projectweb
-    command: gunicorn project.wsgi:application --bind 0.0.0.0:4500
+    command: gunicorn project.wsgi:application --bind 0.0.0.0:3000
     volumes:
       - .:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
-      - "4500"
+      - "3000"
     networks:
       app-network:
         ipv4_address: 172.16.238.10
     depends_on:
       - db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4500"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -31,14 +31,14 @@ services:
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     ports:
-      - "4500:4500"
+      - "3000:3000"
     networks:
       app-network:
         ipv4_address: 172.16.238.11
     depends_on:
       - web  
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4500"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3

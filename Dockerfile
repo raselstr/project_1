@@ -12,4 +12,4 @@ COPY . /project_1/
 RUN python manage.py collectstatic --noinput
 # RUN python manage.py migrate
 # Menentukan perintah default untuk menjalankan aplikasi Django
-CMD ["gunicorn", "--bind", "0.0.0.0:4500", "project.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "project.wsgi:application"]
