@@ -1,29 +1,27 @@
-version: '3.9'
-
 services:
   web:
     image: projectweb:latest
-    container_name: projectweb
     env_file:
       - .env
     build: .
-    command: ["/bin/bash", "-c", "/wait_for_db.sh && gunicorn project.wsgi:application --bind 0.0.0.0:3000"]
+    container_name: projectweb
+    command: gunicorn project.wsgi:application --bind 0.0.0.0:3000
     volumes:
       - .:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
     expose:
       - "3000"
+    networks:
+      app-network:
+        ipv4_address: 172.16.238.10
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - app-network
 
   nginx:
     image: nginx:latest
@@ -34,52 +32,59 @@ services:
       - media_volume:/project_1/media
     ports:
       - "3000:3000"
+    networks:
+      app-network:
+        ipv4_address: 172.16.238.11
     depends_on:
-      - web
+      - web  
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - app-network
-
+  
   adminer:
     image: adminer:latest
     container_name: projectwebadminer
     restart: always
     ports:
-      - "8080:8080"
+      - "8080:8080" 
+    networks:
+      app-network:
+        ipv4_address: 172.16.238.12
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - app-network
 
   db:
-    image: postgres:14
+    image: postgres:latest
     container_name: projectwebpostgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: tkdd
+      POSTGRES_USER: raselstr
+      POSTGRES_PASSWORD: r283l8tr
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - /d/web/db_host:/var/lib/postgresql/db_host
     networks:
-      - app-network
+      app-network:
+        ipv4_address: 172.16.238.13
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "raselstr", "-d", "tkdd"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   app-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
 
 volumes:
   static_volume:
