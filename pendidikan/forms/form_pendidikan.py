@@ -150,7 +150,17 @@ class RealisasiFilterForm(forms.ModelForm):
 class RealisasiForm(forms.ModelForm):
     class Meta:
         model = model_realisasi
-        fields = '__all__'
+        fields = [
+                  'realisasi_tahun',
+                  'realisasi_dana',
+                  'realisasi_tahap',
+                  'realisasi_subopd',
+                  'realisasi_rencanaposting',
+                  'realisasi_sp2d',
+                  'realisasi_tgl',
+                  'realisasi_nilai',
+                  'realisasi_output',
+                  ]
         widgets = {
             'realisasi_tahun': forms.HiddenInput(),
             'realisasi_dana': forms.HiddenInput(),
