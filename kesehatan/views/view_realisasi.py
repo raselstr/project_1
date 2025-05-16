@@ -113,8 +113,8 @@ def update(request, pk):
 def simpan(request, pk=None):
     request.session['next'] = request.get_full_path()
     try:
-        rencana_posting = model_realisasi.objects.get(pk=pk)
-    except model_realisasi.DoesNotExist:
+        rencana_posting = model_data.objects.get(pk=pk)
+    except model_data.DoesNotExist:
         messages.error(request, "Data tidak ditemukan.")
         return redirect(reverse(url_list))
     
