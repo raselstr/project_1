@@ -235,6 +235,7 @@ class BaseMetaTable:
 
 class BaseRencanaKesehatanpostingTable(tables.Table):
     nomor = tables.Column(empty_values=(), verbose_name="No")
+    posting_subopd = tables.Column(verbose_name="Sub OPD", accessor="get_subopd")
     subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
     posting_pagu = TotalRealisasiColumn(verbose_name="Pagu", attrs={"td": {"class": "text-right"}})
     total_realisasi_pk = TotalRealisasiColumn(
@@ -243,10 +244,20 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
         empty_values=(),
         attrs={"td": {"class": "text-right"}},
     )
-    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan', attrs={"td": {"class": "text-center"}})
+    output_satuan = tables.Column(empty_values=(), verbose_name='Rencana Output', attrs={"td": {"class": "text-center"}})
+    realisasi_output = tables.Column(empty_values=(), verbose_name='Realisasi Output', attrs={"td": {"class": "text-center"}})
 
     class Meta(BaseMetaTable):
-        pass
+        sequence = (
+            'nomor',
+            'posting_subopd',
+            'subkegiatan',
+            'posting_pagu',
+            'output_satuan',
+            'total_realisasi_pk',
+            'realisasi_output',
+            'aksi',
+        )
         
     
     def __init__(self, *args, show_aksi=False, **kwargs):
@@ -284,6 +295,10 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
 
     def render_output_satuan(self, record):
         return f'{record.posting_output} {record.get_satuan_kegiatan()}'
+    
+    def render_realisasi_output(self, record):
+        value = record.get_total_realisasi_output_pk()
+        return f'{value} {record.get_satuan_kegiatan()}' if value else '0'
 
 class RencanakesehatanpostingTable(BaseRencanaKesehatanpostingTable):
     class Meta(BaseRencanaKesehatanpostingTable.Meta):
