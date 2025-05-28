@@ -11,5 +11,7 @@ done
 
 echo "Database sudah siap!"
 
+python manage.py migrate --noinput
+
 # Menjalankan perintah yang diteruskan dari CMD
 exec "$@"

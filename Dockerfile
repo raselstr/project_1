@@ -28,6 +28,7 @@ COPY . /project_1/
 # Jalankan collectstatic setelah semua file tersedia
 RUN python manage.py collectstatic --noinput
 
+
 # Menentukan entrypoint untuk menunggu database siap
 ENTRYPOINT ["/wait_for_db.sh"]
 

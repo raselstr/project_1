@@ -61,7 +61,7 @@ services:
       - app-network
 
   db:
-    image: postgres:14
+    image: postgres:latest
     container_name: projectwebpostgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
