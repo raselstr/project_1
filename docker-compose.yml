@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     build: .
-    command: ["/bin/bash", "-c", "/wait_for_db.sh && gunicorn project.wsgi:application --bind 0.0.0.0:3000"]
+    command: ["/bin/bash", "-c", "/project_1/wait_for_db.sh && gunicorn project.wsgi:application --bind 0.0.0.0:3000"]
     volumes:
       - .:/project_1
       - static_volume:/project_1/staticfiles
