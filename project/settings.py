@@ -124,14 +124,15 @@ if USE_ENV_DATABASE:
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': env('DB_ENGINE'),
-            'NAME': env('DB_NAME'),
-            'USER': env('DB_USERNAME'),
-            'PASSWORD': env('DB_PASSWORD'),
-            'HOST': env('DB_HOST'),
-            'PORT': env('DB_PORT'),
-        }
+        'default': dj_database_url.config(default=env('DATABASE_URL_LOCAL'))
+        # 'default': {
+        #     'ENGINE': env('DB_ENGINE'),
+        #     'NAME': env('DB_NAME'),
+        #     'USER': env('DB_USERNAME'),
+        #     'PASSWORD': env('DB_PASSWORD'),
+        #     'HOST': env('DB_HOST'),
+        #     'PORT': env('DB_PORT'),
+        # }
     }
 
 # Password validation
