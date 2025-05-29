@@ -26,7 +26,6 @@ model_dana = Subkegiatan
 model_realisasi = Realisasikesehatan
 model_realisasisisa = Realisasikesehatansisa
 model_penerimaan = Penerimaan
-model_rencana = Rencanakesehatanposting
 
 url_home = 'realisasi_kesehatan_home'
 url_filter = 'realisasi_kesehatan_filter'
@@ -183,8 +182,8 @@ def sp2d(request, pk=None):
         
     try:
         data = model_realisasi.objects.filter(filters)
-        datarencana = model_rencana.objects.filter(filterkeg)
-    except (model_realisasi.DoesNotExist, model_rencana.DoesNotExist):
+        datarencana = model_data.objects.filter(filterkeg)
+    except (model_realisasi.DoesNotExist, model_data.DoesNotExist):
         data = None
         datarencana = None
     
@@ -229,8 +228,8 @@ def list(request):
     
     try:
         # data = model_realisasi.objects.filter(filters)
-        datarencana = model_rencana.objects.filter(filters)
-    except model_rencana.DoesNotExist:
+        datarencana = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
         # data = None
         datarencana = None
     
