@@ -1,6 +1,8 @@
 import environ
 import os
 import dj_database_url
+import socket
+
 
 from pathlib import Path
 
@@ -21,7 +23,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = env('DEBUG')
+# DEBUG = env('DEBUG')
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
@@ -92,47 +94,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db_data' / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': env.db(),
-# }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'tkdd'),
-#         'USER': os.getenv('POSTGRES_USER', 'raselstr'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'r283l8tr'),
-#         'HOST': os.getenv('DATABASE_HOST', 'db'),
-#         'PORT': '5432',
-#     }
-# }
-
-USE_ENV_DATABASE = env.bool("USE_ENV_DATABASE", default=True)
-if USE_ENV_DATABASE:
+try:
+    socket.gethostbyname('db')
+    print("INFO: Detected Docker environment, using DATABASE_URL")
+    DEBUG = False
     DATABASES = {
         'default': dj_database_url.config(default=env('DATABASE_URL'))
     }
-else:
+except (socket.gaierror, socket.error):
+    print("INFO: Detected local environment, using DATABASE_URL_LOCAL")
+    DEBUG = True
     DATABASES = {
-        'default': dj_database_url.config(default=env('DATABASE_URL_LOCAL'))
-        # 'default': {
-        #     'ENGINE': env('DB_ENGINE'),
-        #     'NAME': env('DB_NAME'),
-        #     'USER': env('DB_USERNAME'),
-        #     'PASSWORD': env('DB_PASSWORD'),
-        #     'HOST': env('DB_HOST'),
-        #     'PORT': env('DB_PORT'),
-        # }
+        # 'default': dj_database_url.config(default=env('DATABASE_URL_LOCAL'))
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'tkdd',
+            'USER': 'raselstr',
+            'PASSWORD': 'r283l8tr',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
     }
 
 # Password validation
