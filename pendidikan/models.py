@@ -157,6 +157,55 @@ class BaseRencanaposting(models.Model):
             filters &= Q(posting_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
+    def get_satuan_kegiatan(self):
+        return self.posting_subkegiatan.dausgpendidikansub_satuan if self.posting_subkegiatan else None
+    
+    def get_subopd(self):
+        return self.posting_subopd.sub_nama if self.posting_subopd else None
+    
+    def get_subkegiatan(self):
+        return self.posting_subkegiatan.dausgpendidikansub_nama if self.posting_subkegiatan else None
+    
+    def get_kegiatan(self):
+        return self.posting_subkegiatan.dausgpendidikansub_keg.dausgpendidikankeg_nama if self.posting_subkegiatan else None
+    
+    def get_total_realisasi_pk(self):
+        from pendidikan.models import Realisasi, Realisasisisa
+
+        model = None
+        if self.__class__.__name__.endswith('sisa'):
+            model = Realisasisisa
+        else:
+            model = Realisasi
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+    
+    def get_total_realisasi_output_pk(self):
+        from pendidikan.models import Realisasi, Realisasisisa
+
+        model = None
+        if self.__class__.__name__.endswith('sisa'):
+            model = Realisasisisa
+        else:
+            model = Realisasi
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_output'))['total_nilai'] or Decimal(0)
+
+    
     def __str__(self):
         return f"{self.posting_subkegiatan}"
 

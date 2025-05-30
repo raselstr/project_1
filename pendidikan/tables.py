@@ -1,14 +1,29 @@
 import django_tables2 as tables
-from .models import Realisasi, Realisasisisa
+from .models import Realisasi, Realisasisisa, Rencanaposting, Rencanapostingsisa
 from django.urls import reverse
 from django.utils.html import format_html
 
 model = Realisasi
 model_sisa = Realisasisisa
+model_rencana = Rencanaposting
+model_rencana_sisa = Rencanapostingsisa
 
 class totalrealisasi(tables.Column):
+    def __init__(self, *args, getter=None, **kwargs):
+        self.getter = getter
+        super().__init__(*args, **kwargs)
+
     def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
+        total = 0
+        for row in table.data:
+            try:
+                if self.getter:
+                    total += self.getter(row)
+                else:
+                    total += bound_column.accessor.resolve(row)
+            except Exception:
+                pass
+        return f"{total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class BaseRealisasiTable(tables.Table):
     aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
@@ -20,7 +35,7 @@ class BaseRealisasiTable(tables.Table):
     class Meta:
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
         attrs = {
-            "class": "display table-bordered",
+            "class": "display table-bordered tabel-dinamis",
             "id":"tabel1",
             'th': {
                 'style':"text-align: center;"
@@ -123,6 +138,7 @@ class BaseSp2dTable (tables.Table):
     realisasi_nilai = totalrealisasi(attrs={"td": {"class": "text-right"}})
     class Meta:
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
         attrs = {
             "class": "table table-bordered",
             # "id":"tabel1",
@@ -137,12 +153,10 @@ class BaseSp2dTable (tables.Table):
 class Sp2dTable(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
         model = model
-        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
 
 class Sp2dTablesisa(BaseSp2dTable):
     class Meta(BaseSp2dTable.Meta):
         model = model_sisa
-        fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
 
 
 class BaseRencanaTable(tables.Table):
@@ -207,3 +221,93 @@ class RencanasisaTable(BaseRencanaTable):
             "rencana_pagudpa",
         )
         exclude = ("rencana_kegiatan",)
+
+class BaseMetaTable:
+    template_name = "django_tables2/bootstrap4.html"
+    fields = (
+        'nomor',
+        'subkegiatan',
+        'posting_pagu',
+        'output_satuan',
+        'total_realisasi_pk',
+    )
+    attrs = {
+        'class': 'table table-bordered table-sm',
+        'id':'tabel1',
+        'th': {'style': "text-align: center;"},
+        'tf': {'style': "text-align: right;"},
+    }
+
+class BaseRencanapendidikanpostingTable(tables.Table):
+    nomor = tables.Column(empty_values=(), verbose_name="No")
+    posting_subopd = tables.Column(verbose_name="Sub OPD", accessor="get_subopd",order_by="posting_subopd__sub_nama")
+    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
+    posting_pagu = totalrealisasi(verbose_name="Pagu", attrs={"td": {"class": "text-right"}})
+    total_realisasi_pk = totalrealisasi(
+        verbose_name="Realisasi",
+        getter=lambda row: row.get_total_realisasi_pk(),
+        empty_values=(),
+        attrs={"td": {"class": "text-right"}},
+    )
+    output_satuan = tables.Column(empty_values=(), verbose_name='Rencana Output', attrs={"td": {"class": "text-center"}})
+    realisasi_output = tables.Column(empty_values=(), verbose_name='Realisasi Output', attrs={"td": {"class": "text-center"}})
+
+    class Meta(BaseMetaTable):
+        sequence = (
+            'nomor',
+            'posting_subopd',
+            'subkegiatan',
+            'posting_pagu',
+            'output_satuan',
+            'total_realisasi_pk',
+            'realisasi_output',
+        )
+        
+    
+    def __init__(self, *args, show_aksi=False, **kwargs):
+        extra = []
+        if show_aksi:
+            extra.append((
+                'aksi',
+                tables.Column(
+                    empty_values=(),
+                    verbose_name='SP2D',
+                    attrs={"td": {"class": "text-center"}}
+                )
+            ))
+        super().__init__(*args, extra_columns=extra, **kwargs)
+
+
+    def render_nomor(self, record, table):
+        return list(table.data).index(record) + 1
+    
+    def get_sp2d_url_name(self):
+        return 'realisasi_pendidikan_sp2dsisa' if self._meta.model == model_rencana_sisa else 'realisasi_pendidikan_sp2d'
+
+
+    def render_aksi(self, record):
+        url_name = self.get_sp2d_url_name()
+        sp2dinput = reverse(url_name, args=[record.id])
+        return format_html(
+            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a>',
+            sp2dinput,
+        )
+    
+    def render_total_realisasi_pk(self, record):
+        value = record.get_total_realisasi_pk()
+        return value
+
+    def render_output_satuan(self, record):
+        return f'{record.posting_output} {record.get_satuan_kegiatan()}'
+    
+    def render_realisasi_output(self, record):
+        value = record.get_total_realisasi_output_pk()
+        return f'{value} {record.get_satuan_kegiatan()}' if value else '0'
+
+class RencanapendidikanpostingTable(BaseRencanapendidikanpostingTable):
+    class Meta(BaseRencanapendidikanpostingTable.Meta):
+        model = model_rencana
+
+class RencanapendidikanpostingsisaTable(BaseRencanapendidikanpostingTable):
+    class Meta(BaseRencanapendidikanpostingTable.Meta):
+        model = model_rencana_sisa
