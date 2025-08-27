@@ -256,7 +256,6 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
             'output_satuan',
             'total_realisasi_pk',
             'realisasi_output',
-            'aksi',
         )
         
     
