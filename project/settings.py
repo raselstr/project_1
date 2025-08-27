@@ -92,47 +92,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db_data' / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': env.db(),
-# }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'tkdd'),
-#         'USER': os.getenv('POSTGRES_USER', 'raselstr'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'r283l8tr'),
-#         'HOST': os.getenv('DATABASE_HOST', 'db'),
-#         'PORT': '5432',
-#     }
-# }
-
 USE_ENV_DATABASE = env.bool("USE_ENV_DATABASE", default=True)
 if USE_ENV_DATABASE:
     DATABASES = {
-        'default': dj_database_url.config(default=env('DATABASE_URL'))
+        'default': dj_database_url.parse(env('DATABASE_URL'))
     }
 else:
     DATABASES = {
-        'default': dj_database_url.config(default=env('DATABASE_URL_LOCAL'))
-        # 'default': {
-        #     'ENGINE': env('DB_ENGINE'),
-        #     'NAME': env('DB_NAME'),
-        #     'USER': env('DB_USERNAME'),
-        #     'PASSWORD': env('DB_PASSWORD'),
-        #     'HOST': env('DB_HOST'),
-        #     'PORT': env('DB_PORT'),
-        # }
+        'default': dj_database_url.parse(env('DATABASE_URL_LOCAL'))
     }
 
 # Password validation
@@ -205,42 +172,6 @@ SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
 SESSION_COOKIE_AGE = 1200  # Durasi sesi dalam detik 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Apakah session berakhir saat browser ditutup
 
-# # Konfigurasi default (misalnya untuk pengembangan)
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
 
-# # Jika lingkungan adalah produksi
-# if os.getenv('DJANGO_ENV') == 'production':
-#     LOGGING = {
-#         'version': 1,
-#         'disable_existing_loggers': False,
-#         'handlers': {
-#             'file': {
-#                 'level': 'DEBUG',
-#                 'class': 'logging.FileHandler',
-#                 'filename': '/var/log/project_1/django.log',
-#             },
-#         },
-#         'loggers': {
-#             'django': {
-#                 'handlers': ['file'],
-#                 'level': 'DEBUG',
-#                 'propagate': True,
-#             },
-#         },
-#     }
+print("USE_ENV_DATABASE =", USE_ENV_DATABASE)
+print("DATABASE_URL_LOCAL =", env('DATABASE_URL_LOCAL'))

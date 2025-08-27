@@ -316,9 +316,10 @@ def get_data_context(request):
                             total_tahap1 += realisasi_rencana.filter(realisasi_tahap_id=1).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                             total_tahap2 += realisasi_rencana.filter(realisasi_tahap_id=2).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                             total_tahap3 += realisasi_rencana.filter(realisasi_tahap_id=3).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
-
+                        posting_subopd = related_rencanas.first().posting_subopd if related_rencanas.exists() else None
                         keg_subs.append({
                             'sub': sub,
+                            'posting_subopd':posting_subopd,
                             'pagu': pagu,
                             'output': output,
                             'realisasi': {
