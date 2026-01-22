@@ -1,6 +1,7 @@
 from django import forms
 from ..models import Rencanapu, Rencanapuposting,Subkegiatan, Subopd, Realisasipu
 from dausg.models import DausgpuSub
+from jadwal.models import Jadwal
 
 model_rencana = Rencanapu
 model_posting = Rencanapuposting
@@ -8,6 +9,7 @@ model_subkegiatan = Subkegiatan
 model_subopd = Subopd
 model_realisasi = Realisasipu
 data_subkegiatan = DausgpuSub
+model_jadwal = Jadwal
 
 class RencanapuFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -76,7 +78,10 @@ class RencanapuPostingForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        postingid = kwargs.pop('jadwal', None)
         super().__init__(*args, **kwargs)
+        self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
 
 
 class RealisasipuFilterForm(forms.ModelForm):

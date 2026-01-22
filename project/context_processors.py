@@ -5,13 +5,19 @@ from jadwal.models import Jadwal
 
 def menu_context_processor(request):
     tahun = request.session.get('tahun')
-    tbljadwal=Jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True).first()
+    tbljadwal=Jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True).last()
     if tbljadwal:
         jadwal_id = tbljadwal.id
         jadwal_keterangan = tbljadwal.jadwal_keterangan
     else:
         jadwal_id = 0
         jadwal_keterangan = "Tidak ada jadwal"
+    
+    session_jadwal = request.session.get('jadwal')
+    if session_jadwal != jadwal_id:
+        request.session['jadwal'] = jadwal_id
+        request.session['jadwal_ket'] = jadwal_keterangan
+        request.session.modified = True
     
     
     if request.user.is_authenticated:
@@ -32,8 +38,8 @@ def menu_context_processor(request):
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
             "tahun": tahun,
-            "jadwal": request.session.get('jadwal',jadwal_id),
-            "jadwal_ket": request.session.get('jadwal_ket',jadwal_keterangan),
+            "jadwal": jadwal_id,
+            "jadwal_ket": jadwal_keterangan,
             "idsubopd" : request.session.get('idsubopd','None'),
         }
     else:

@@ -87,9 +87,11 @@ def posting(request):
     rencana = model_rencana.objects.all()
     jadwal = None
     opd = None
+    jadwalaktif = request.session.get('jadwal')
+    tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = form_posting(request.POST or None)
+        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
         if form.is_valid():
             jadwal = form.cleaned_data.get('posting_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('posting_subopd')  # Ambil nilai dari form
@@ -121,7 +123,7 @@ def posting(request):
             print("Form tidak valid")
             print(form.errors)  # Tampilkan error form untuk debugging
     else:
-        form = form_posting()
+        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
     
     context = {
         'judul': 'Posting Rencana Sisa Kegiatan DAU SG Bidang Kesehatan',

@@ -1,6 +1,7 @@
 from django import forms
 from ..models import Rencanakesehatansisa, Rencanakesehatanpostingsisa,Subkegiatan, Subopd, Realisasikesehatansisa
 from dausg.models import DausgkesehatanSub
+from jadwal.models import Jadwal
 
 model_rencana = Rencanakesehatansisa
 model_posting = Rencanakesehatanpostingsisa
@@ -8,6 +9,7 @@ model_subkegiatan = Subkegiatan
 model_subopd = Subopd
 model_realisasi = Realisasikesehatansisa
 data_subkegiatan = DausgkesehatanSub
+model_jadwal = Jadwal
 
 class RencanakesehatanFilterForm(forms.ModelForm):
     # rencana_tahun = forms.ChoiceField(label='Tahun', widget=forms.Select(attrs={'class': 'form-control select2'}))
@@ -74,7 +76,10 @@ class RencanakesehatanPostingForm(forms.ModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        postingid = kwargs.pop('jadwal', None)
         super().__init__(*args, **kwargs)
+        self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
 
 
 class RealisasikesehatanFilterForm(forms.ModelForm):
