@@ -12,7 +12,6 @@ model_rencana = Rencanapusisa
 model_posting = Rencanapupostingsisa
 form_posting = RencanapuPostingForm
 model_jadwal = Jadwal
-c
 tag_url = 'posting_pu_listsisa'
 tag_posting = 'posting_pusisa'
 
