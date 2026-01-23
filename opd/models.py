@@ -27,6 +27,7 @@ class Opd(models.Model):
 class Subopd(models.Model):
     sub_opd = models.ForeignKey(Opd, verbose_name='Sub Opd', on_delete=models.CASCADE)
     sub_nama = models.CharField(verbose_name='Nama Sub Opd', max_length=200)
+    sub_opd_kode = models.CharField(verbose_name='Kode Sub Opd', max_length=50, unique=True, error_messages='Kode Sub Opd sudah ada')
     
     def __str__(self):
         return self.sub_nama
