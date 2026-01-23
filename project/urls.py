@@ -6,6 +6,8 @@ from . import views
 
 urlpatterns = [
     
+    path('sipd/', include('sipd.urls')),
+    
     path('pu/', include('pu.urls')),
     path('kesehatan/', include('kesehatan.urls')),
     path('pendidikan/', include('pendidikan.urls')),
@@ -32,6 +34,11 @@ urlpatterns = [
     path('auth/', include('authapp.urls')),
     path('admin/', admin.site.urls),
     
+    
 ]
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

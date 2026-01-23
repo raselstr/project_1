@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'kesehatan',
     'pu',
     'jadwal',
+    'sipd',
 ]
 
 MIDDLEWARE = [
