@@ -117,13 +117,14 @@ def export_sipd_excel(request):
     # ================= HEADER =================
     headers = [
         "Tahun",
-        "Kode Sub SKPD",
-        "Nama Sub SKPD",
-        "Kode Program",
-        "Nama Program",
-        "Kode Kegiatan",
-        "Nama Kegiatan",
-        "Nilai Realisasi",
+        "nama_sub_skpd",
+        "kode_sub_kegiatan",
+        "nama_sub_kegiatan",
+        "kode_rekening",
+        "nama_rekening",
+        "nomor_dokumen",
+        "nomor_sp2d",
+        "nilai_realisasi",
     ]
     ws.append(headers)
 
@@ -131,12 +132,13 @@ def export_sipd_excel(request):
     for obj in qs:
         ws.append([
             obj.tahun,
-            obj.kode_sub_skpd,
             obj.nama_sub_skpd,
-            obj.kode_program,
-            obj.nama_program,
-            obj.kode_kegiatan,
-            obj.nama_kegiatan,
+            obj.kode_sub_kegiatan,
+            obj.nama_sub_kegiatan,
+            obj.kode_rekening,
+            obj.nama_rekening,
+            obj.nomor_dokumen,
+            obj.nomor_sp2d,
             obj.nilai_realisasi,
         ])
 
