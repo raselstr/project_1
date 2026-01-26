@@ -1,12 +1,13 @@
-asgiref==3.8.1
+asgiref==3.11.0
 build==1.2.1
 click==8.1.7
 colorama==0.4.6
 diff-match-patch==20230430
 distlib==0.3.8
 dj-database-url==2.3.0
-Django==4.2.11
+Django==6.0.1
 django-environ==0.11.2
+django-filter==25.2
 django-htmx==1.17.3
 django-import-export==4.1.1
 django-tables2==2.7.0

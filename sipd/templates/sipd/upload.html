@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load django_tables2 %}
 {% load humanize %}
 
 {% block content %}
@@ -41,12 +42,98 @@
             </div>
         </div>
     </div>
+    <div class="row mt-2">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Data SIPD Tahun {{tahun}}</h4>
+                </div>
+                <div class="card-body col-12 col-md-12 mx-auto">
+                    <form method="get" class="mb-3">
+                        <div class="row align-items-end g-2">
+
+                            <!-- SEARCH -->
+                            <div class="col-md-6">
+                                <label class="form-label mb-1">Cari</label>
+                                <div class="position-relative">
+                                    <input
+                                        type="text"
+                                        name="q"
+                                        id="searchInput"
+                                        class="form-control pe-5"
+                                        placeholder="Cari data SIPD..."
+                                        value="{{ request.GET.q }}"
+                                        hx-get="{% url 'upload_sipd' %}"
+                                        hx-trigger="keyup changed delay:400ms"
+                                        hx-target="#table-wrapper"
+                                        hx-push-url="true"
+                                    >
+
+                                    <button type="button"
+                                            id="clearSearch"
+                                            class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                                            style="display:none; z-index:5">
+                                        <i class="fa fa-times text-muted"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- PER PAGE -->
+                            <div class="col-md-3 col-sm-6">
+                                <div class="position-relative">
+                                    <label class="form-label mb-1">Baris</label>
+                                    <select
+                                        name="per_page"
+                                        class="form-control pe-5"
+                                        hx-get="{% url 'upload_sipd' %}"
+                                        hx-trigger="change"
+                                        hx-target="#table-wrapper"
+                                        hx-push-url="true"
+                                        hx-include="[name='q']"
+                                    >
+                                        <option value="10" {% if request.GET.per_page == "10" %}selected{% endif %}>10</option>
+                                        <option value="25" {% if request.GET.per_page == "25" %}selected{% endif %}>25</option>
+                                        <option value="50" {% if request.GET.per_page == "50" %}selected{% endif %}>50</option>
+                                        <option value="all" {% if request.GET.per_page == "all" %}selected{% endif %}>Semua</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- EXPORT -->
+                            <div class="col-md-3 text-md-end">
+                                <a href="{% url 'export_sipd_excel' %}?{{ request.GET.urlencode }}"
+                                class="btn btn-success w-100 w-md-auto">
+                                    <i class="fa fa-file-excel me-1"></i> Export Excel
+                                </a>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    
+                    <div id="table-wrapper" hx-indicator="#btnSpinner">
+                        {% include "sipd/partials/table.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </section>
 
 {% endblock content %}
 
 {% block style %}
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <style>
+    /* Hilangkan tombol clear bawaan browser */
+    input[type="search"]::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+    }
+    input[type="search"]::-ms-clear {
+        display: none;
+    }
+</style>
 {% endblock style %}
 
 {% block src %}
@@ -74,7 +161,27 @@
         {% endif %}
     });
 </script>
-    
-    
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearSearch");
+
+        function toggleClear() {
+            clearBtn.style.display = input.value ? "block" : "none";
+        }
+
+        input.addEventListener("input", toggleClear);
+
+        clearBtn.addEventListener("click", function () {
+            input.value = "";
+            toggleClear();
+            input.dispatchEvent(new Event("change")); // trigger HTMX
+            input.focus();
+        });
+
+        toggleClear();
+    });
+</script>
+
 {% endblock javascript %}
 

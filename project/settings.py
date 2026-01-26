@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_htmx',
     'import_export',
     'django_tables2',
+    'django_filters',
     'authapp',
     'dashboard',
     'opd',

@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .views import upload_sipd
+from . import views
 
 urlpatterns = [
-    path("", upload_sipd, name="upload_sipd"),
-    
+    path("", views.upload_sipd, name="upload_sipd"),
+    path("export/", views.export_sipd_excel, name="export_sipd_excel"),
+
 ]
