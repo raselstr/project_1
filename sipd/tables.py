@@ -16,6 +16,7 @@ class SipdTable(tables.Table):
             "kode_rekening",
             "nama_rekening",
             "nomor_dokumen",
+            "nomor_sp2d",
             "nilai_realisasi",
         )
         attrs = {
