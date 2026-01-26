@@ -1,2 +1,6 @@
 {% load django_tables2 %}
-{% render_table table %}
+<div class="table-responsive">
+    <div class="overflow-auto">
+        {% render_table table %}
+    </div>
+</div>

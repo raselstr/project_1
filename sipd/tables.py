@@ -10,12 +10,12 @@ class SipdTable(tables.Table):
         template_name = "django_tables2/bootstrap4.html"
         fields = (
             "no",
-            "kode_sub_skpd",
             "nama_sub_skpd",
-            "kode_program",
-            "nama_program",
-            "kode_kegiatan",
-            "nama_kegiatan",
+            "kode_sub_kegiatan",
+            "nama_sub_kegiatan",
+            "kode_rekening",
+            "nama_rekening",
+            "nomor_dokumen",
             "nilai_realisasi",
         )
         attrs = {
