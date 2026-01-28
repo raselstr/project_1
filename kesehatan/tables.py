@@ -62,7 +62,7 @@ class BaseRealisasiTable(tables.Table):
                 edit_url,
                 delete_url
             )
-        return format_html('<span class="text-muted">Tindakan tidak tersedia</span>')
+        return '<span class="text-muted">Tindakan tidak tersedia</span>'
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)
@@ -84,9 +84,11 @@ class BaseRealisasiTable(tables.Table):
             return format_html('<span class="badge {}">{}</span>', badge, status)
 
     def render_output_satuan(self, record):
-        satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
-        return format_html('{} {}'.format(record.realisasi_output, satuan))
-
+        try:
+            satuan = getattr(record.realisasi_subkegiatan, 'dausgpendidikansub_satuan', '')
+            return f"{record.realisasi_output or 0} {satuan}"
+        except Exception:
+            return ""
 
 class RealisasikesehatanTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
