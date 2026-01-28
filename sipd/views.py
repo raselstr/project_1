@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.management import call_command
 from django_tables2 import RequestConfig
+from project.decorators import menu_access_required, set_submenu_session
 
 from .forms import SipdUploadForm
 from .models import Sipd
@@ -152,3 +153,109 @@ def export_sipd_excel(request):
 
     wb.save(response)
     return response
+
+from django.db.models import Q
+from django.contrib import messages
+from sipd.models import Sipd
+from pendidikan.models import Realisasi
+from pendidikan.models import Rencanaposting
+from datetime import date
+
+model_rencana = Rencanaposting
+model_sipd = Sipd
+
+
+@set_submenu_session
+@menu_access_required('list')
+def view_sipd(request, pk):
+    request.session['next'] = request.get_full_path()
+
+    # =============================
+    # AMBIL RENCANA
+    # =============================
+    rencana = model_rencana.objects.select_related(
+        'posting_subopd',
+        'posting_subkegiatan',
+        'posting_dana'
+    ).filter(pk=pk).first()
+
+    if not rencana:
+        messages.error(request, 'Data rencana tidak ditemukan')
+        return redirect('url_list_rencana')
+
+    # =============================
+    # FILTER SIPD SESUAI RENCANA
+    # =============================
+    filters = Q(
+        tahun=rencana.posting_tahun,
+        kode_sub_kegiatan=rencana.posting_ket,
+        kode_sub_skpd=rencana.posting_subopd.sub_opd_kode
+    )
+
+    sipd_qs = Sipd.objects.filter(filters).order_by(
+        'tanggal_sp2d',
+        'nomor_sp2d'
+    )
+
+    # =============================
+    # SP2D YANG SUDAH MASUK REALISASI
+    # =============================
+    sp2d_sudah_realisasi = set(
+        Realisasi.objects.filter(
+            realisasi_rencanaposting=rencana
+        ).values_list('realisasi_sp2d', flat=True)
+    )
+
+    # =============================
+    # SIMPAN DATA TERPILIH
+    # =============================
+    if request.method == "POST":
+        selected_sp2d = request.POST.getlist('sp2d')
+
+        sipd_terpilih = sipd_qs.filter(
+            nomor_sp2d__in=selected_sp2d
+        ).exclude(
+            nomor_sp2d__in=sp2d_sudah_realisasi
+        )
+
+        data_realisasi = []
+
+        for row in sipd_terpilih:
+            data_realisasi.append(
+                Realisasi(
+                    realisasi_dana_id=request.session.get('realisasi_dana'),
+                    realisasi_tahap_id=request.session.get('realisasi_tahap'),
+                    realisasi_subopd_id=request.session.get('realisasi_subopd'),
+
+                    realisasi_rencanaposting=rencana,
+                    realisasi_rencana=rencana.posting_rencanaid,
+                    realisasi_subkegiatan=rencana.posting_subkegiatan,
+
+                    realisasi_tahun=request.session.get('realisasi_tahun'),
+                    realisasi_output=0,
+                    realisasi_sp2d=row.nomor_sp2d,
+                    realisasi_tgl=row.tanggal_sp2d or date.today(),
+                    realisasi_nilai=row.nilai_realisasi,
+                )
+            )
+
+        Realisasi.objects.bulk_create(data_realisasi)
+
+        messages.success(
+            request,
+            f'{len(data_realisasi)} SP2D berhasil disimpan ke Realisasi'
+        )
+        return redirect(request.path)
+
+    # =============================
+    # CONTEXT
+    # =============================
+    context = {
+        'judul': 'Realisasi SIPD',
+        'subjudul': rencana.posting_subkegiatan.dausgpendidikansub_nama,
+        'rencana': rencana,
+        'data': sipd_qs,
+        'sp2d_sudah_realisasi': sp2d_sudah_realisasi,
+    }
+
+    return render(request, 'sipd/view_sipd.html', context)

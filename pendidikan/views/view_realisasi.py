@@ -18,6 +18,7 @@ from dausg.models import Subkegiatan
 from pendidikan.forms.form_pendidikan import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
 
+
 tabel_realisasi = RealisasiTable
 tabel_rencana = RencanapendidikanpostingTable
 
@@ -54,6 +55,18 @@ sesidana = 'dau-dukungan-bidang-pendidikan'
 sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
+
+from django.urls import reverse
+
+def safe_reverse(name, args=None, kwargs=None):
+    try:
+        if name and (args or kwargs):
+            return reverse(name, args=args, kwargs=kwargs)
+        elif name:
+            return reverse(name)
+    except Exception as e:
+        print(f"⚠️ reverse gagal [{name}]:", e)
+    return '#'
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
@@ -180,31 +193,39 @@ def sp2d(request, pk=None):
     if realisasi_subopd not in [124]:
         filterkeg &= Q(posting_subopd_id=realisasi_subopd)
         
+    data = model_realisasi.objects.none()
+    datarencana = model_data.objects.none()
+    table = None
+    tabelrencana = None
     try:
         data = model_realisasi.objects.filter(filters)
         datarencana = model_data.objects.filter(filterkeg)
-    except (model_realisasi.DoesNotExist, model_data.DoesNotExist):
-        data = None
-        datarencana = None
-    
-    table = tabel_realisasi(data, request=request)
-    tabelrencana = tabel_rencana(datarencana, request=request)
-    
+        table = tabel_realisasi(data, request=request)
+        tabelrencana = tabel_rencana(datarencana, request=request)
+        
+    except Exception as e:
+        print("⚠️ ERROR DIBYPASS:", e)
+        
+    print("DEBUG url_simpan:", url_simpan, type(url_simpan))
+    print("DEBUG url_list:", url_list, type(url_list))
+    print("DEBUG pk:", pk, type(pk))
     
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
         'subjudul': 'Daftar Kegiatan',
         'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
-        'link_url': reverse(url_simpan, args=[pk]),
-        'link_url_kembali': reverse(url_list),
+        'link_url': safe_reverse(url_simpan, args=[pk]) if pk else '#',
+        'link_url_kembali': safe_reverse(url_list),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
         'table':table,
         'datarencana' : datarencana,
         'tabelrencana':tabelrencana,
+        # 'sipd':'SIPD',
     }
+    print(filters)
     return render(request, template_sp2d, context)
 
 @set_submenu_session
@@ -340,3 +361,5 @@ def home(request):
         'link_urlsisa': reverse(url_filtersisa),
     }
     return render(request, template_home, context)
+
+

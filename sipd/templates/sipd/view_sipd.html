@@ -1,0 +1,44 @@
+<form method="post">
+  {% csrf_token %}
+
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Tanggal SP2D</th>
+        <th>Nomor SP2D</th>
+        <th>Rekening</th>
+        <th class="text-end">Nilai</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in data %}
+      <tr class="{% if row.nomor_sp2d in sp2d_sudah_realisasi %}table-secondary{% endif %}">
+        <td>
+          <input type="checkbox"
+                 name="sp2d"
+                 value="{{ row.nomor_sp2d }}"
+                 {% if row.nomor_sp2d in sp2d_sudah_realisasi %}disabled{% endif %}>
+        </td>
+        <td>{{ row.tanggal_sp2d }}</td>
+        <td>{{ row.nomor_sp2d }}</td>
+        <td>{{ row.nama_rekening }}</td>
+        <td class="text-end">
+          {{ row.nilai_realisasi|floatformat:2 }}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          Data SIPD tidak ditemukan
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <button class="btn btn-success">
+    Simpan ke Realisasi
+  </button>
+</form>
