@@ -17,12 +17,18 @@
                     <div class="card-header-action">
                         <div class="btn-group">
                             <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
-                            <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+                            {% comment %} <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a> {% endcomment %}
                         </div>
                     </div>
                 </div>
                 <div class="card-body">
-                    {% render_table table %}
+                    <div style="overflow-x: auto;">
+                        {% if tabelrencana %}
+                            {% render_table tabelrencana %}
+                        {% else %}
+                            <p>Tidak ada data yang tersedia.</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,7 +37,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="verifikasiModal" tabindex="-1" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi</h5>

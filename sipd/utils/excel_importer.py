@@ -39,7 +39,7 @@ def parse_decimal(value):
 
 
 @transaction.atomic
-def import_sipd_excel(file_path, tahun, chunk_size=1000):
+def import_sipd_excel(file_path, tahun, chunk_size=10000):
     created = 0
     updated = 0
     skipped = 0

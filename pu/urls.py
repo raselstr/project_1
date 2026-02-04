@@ -20,8 +20,9 @@ urlpatterns = [
     path("realisasi/modal/<int:pk>/", view_realisasi.modal, name="realisasi_pu_modal"),
     path("realisasi/delete/<int:pk>/", view_realisasi.delete, name="realisasi_pu_delete"),
     path("realisasi/update/<int:pk>/", view_realisasi.update, name="realisasi_pu_update"),
-    path("realisasi/simpan/", view_realisasi.simpan, name="realisasi_pu_simpan"),
+    path("realisasi/simpan/<int:pk>/", view_realisasi.simpan, name="realisasi_pu_simpan"),
     path("realisasi/daftar/", view_realisasi.list, name="realisasi_pu_list"),
+    path("realisasi/sp2d/<int:pk>/", view_realisasi.sp2d, name="realisasi_pu_sp2d"),
     path("realisasi/filter/", view_realisasi.filter, name="realisasi_pu_filter"),
     path("realisasi/", view_realisasi.home, name="realisasi_pu_home"),
     
@@ -29,7 +30,8 @@ urlpatterns = [
     path("realisasisisa/modal/<int:pk>/", view_realisasisisa.modal, name="realisasi_pusisa_modal"),
     path("realisasisisa/delete/<int:pk>/", view_realisasisisa.delete, name="realisasi_pusisa_delete"),
     path("realisasisisa/update/<int:pk>/", view_realisasisisa.update, name="realisasi_pusisa_update"),
-    path("realisasisisa/simpan/", view_realisasisisa.simpan, name="realisasi_pu_simpansisa"),
+    path("realisasisisa/simpan/<int:pk>/", view_realisasisisa.simpan, name="realisasi_pu_simpansisa"),
+    path("realisasisisa/sp2d/<int:pk>/", view_realisasisisa.sp2d, name="realisasi_pu_sp2dsisa"),
     path("realisasisisa/daftar/", view_realisasisisa.list, name="realisasi_pu_listsisa"),
     path("realisasisisa/filter/", view_realisasisisa.filter, name="realisasi_pu_filtersisa"),
     

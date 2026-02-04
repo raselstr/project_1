@@ -6,7 +6,7 @@ from django.core.management import call_command
 from django_tables2 import RequestConfig
 from project.decorators import menu_access_required, set_submenu_session
 
-from sipd.registry import SIPD_REGISTRY
+from sipd.registry import SIPD_REGISTRY, get_rencana_by_pk, get_sp2d_sudah_realisasi_global
 
 
 from django.db import transaction
@@ -167,8 +167,6 @@ def export_sipd_excel(request):
     wb.save(response)
     return response
 
-
-
 @set_submenu_session
 @menu_access_required('list')
 def view_sipd(request, mode, pk):
@@ -178,24 +176,32 @@ def view_sipd(request, mode, pk):
         return HttpResponseBadRequest('Mode SIPD tidak valid')
     
     model_rencanaposting = config['model_rencana']
+    model_rencanaposting_sisa = config['model_rencana_sisa']
     model_realisasi = config['model_realisasi']
+    model_realisasi_sisa = config.get('model_realisasi_sisa')
     # model_sipd = config['model_sipd']
     url_sp2d = config['url_sp2d']
 
     # =====================================================
     # AMBIL RENCANA
     # =====================================================
-    rencana = (
-        model_rencanaposting.objects
-        .select_related(
-            'posting_subopd',
-            'posting_subkegiatan',
-            'posting_dana'
-        )
-        .filter(pk=pk)
-        .first()
+    # rencana = (
+    #     model_rencanaposting.objects
+    #     .select_related(
+    #         'posting_subopd',
+    #         'posting_subkegiatan',
+    #         'posting_dana'
+    #     )
+    #     .filter(pk=pk)
+    #     .first()
+    # )
+    # print(rencana)
+    
+    rencana = get_rencana_by_pk(
+        pk,
+        model_rencanaposting,
+        model_rencanaposting_sisa
     )
-    print(rencana)
 
     if not rencana:
         messages.error(request, 'Data rencana tidak ditemukan')
@@ -218,12 +224,15 @@ def view_sipd(request, mode, pk):
     # =====================================================
     # SP2D YANG SUDAH MASUK REALISASI
     # =====================================================
-    sp2d_sudah_realisasi = set(
-        model_realisasi.objects.filter(
-            realisasi_rencanaposting=rencana
-        ).values_list('realisasi_sp2d', flat=True)
-    )
+    sp2d_sudah_realisasi = set()
 
+    sp2d_sudah_realisasi = get_sp2d_sudah_realisasi_global(
+        rencana,
+        model_rencanaposting,
+        model_realisasi,
+        model_rencanaposting_sisa,
+        model_realisasi_sisa,
+    )
     # =====================================================
     # QUERYSET SIPD UNTUK DITAMPILKAN (GROUP + SUM)
     # =====================================================

@@ -1,34 +1,50 @@
-import django_tables2 as tables
-from .models import Realisasipu, Realisasipusisa
+import django_tables2 as tables # type: ignore
+from .models import Realisasipu, Realisasipusisa, Rencanapuposting, Rencanapupostingsisa
+from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
 model = Realisasipu
 model_sisa = Realisasipusisa
+model_rencana = Rencanapuposting
+model_rencana_sisa = Rencanapupostingsisa
 
-class totalrealisasi(tables.Column):
+
+
+class TotalRealisasiColumn(tables.Column):
+    def __init__(self, *args, getter=None, **kwargs):
+        self.getter = getter
+        super().__init__(*args, **kwargs)
+
     def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
+        total = 0
+        for row in table.data:
+            try:
+                if self.getter:
+                    total += self.getter(row)
+                else:
+                    total += bound_column.accessor.resolve(row)
+            except Exception:
+                pass
+        return f"{total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 class BaseRealisasiTable(tables.Table):
     aksi = tables.Column(empty_values=(), orderable=False, verbose_name='Aksi')
     verif = tables.Column(empty_values=(), orderable=False, verbose_name='Verifikasi')
-    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan')
-    realisasi_tgl = tables.Column(footer="Total Realisasi:")
-    realisasi_nilai = totalrealisasi()
+    output_satuan = tables.Column(empty_values=(), verbose_name='Output dan Satuan', attrs={"td": {"class": "text-center"}})
+    realisasi_rencanaposting = tables.Column(footer="Total Realisasi:")
+    realisasi_nilai = TotalRealisasiColumn(attrs={"td": {"class": "text-right"}})
+    realisasi_tahap_id = tables.Column(attrs={"td": {"class": "text-center"}})
 
     class Meta:
-        template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
+        template_name = "django_tables2/bootstrap4.html"
         attrs = {
-            "class": "display table-bordered",
-            "id":"tabel1",
-            'th': {
-                'style':"text-align: center;"
-                },
-            'tf': {
-                'style':"text-align: right;"
-                },
-            }
+            "class": "display table-bordered tabel-dinamis",
+            "id": "tabel1",
+            "width": "100%",
+            'th': {'style': "text-align: center;"},
+            'tf': {'style': "text-align: right;"},
+        }
     
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)  # Ambil request dari kwargs
@@ -49,22 +65,14 @@ class BaseRealisasiTable(tables.Table):
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)
-        verif_status = {
-            0: 'Diinput Dinas',
-            1: 'Disetujui APIP'
-        }
-        badge_class = {
-            0: 'badge-warning',
-            1: 'badge-success'
-        }
+        verif_status = {0: 'Diinput Dinas', 1: 'Disetujui APIP'}
+        badge_class = {0: 'badge-warning', 1: 'badge-success'}
 
-        # Ambil status verifikasi
         status = verif_status.get(record.realisasi_verif, 'Status Tidak Diketahui')
         badge = badge_class.get(record.realisasi_verif, 'badge-secondary')
 
-        # Jika akun adalah 'APIP', berikan link verifikasi
         if akun == 'APIP':
-            verif_url = reverse(f'{self.model_name}_modal', args=[record.id])  # URL untuk verifikasi
+            verif_url = reverse(f'{self.model_name}_modal', args=[record.id])
             return format_html(
                 '<a href="#" hx-get="{}" hx-target="#verifikasiModal .modal-body" hx-trigger="click" '
                 'data-toggle="modal" data-target="#verifikasiModal">'
@@ -72,12 +80,11 @@ class BaseRealisasiTable(tables.Table):
                 verif_url, badge, status
             )
         else:
-            # Jika bukan 'APIP', tampilkan status tanpa link
             return format_html('<span class="badge {}">{}</span>', badge, status)
-    
+
     def render_output_satuan(self, record):
         try:
-            satuan = getattr(record.realisasi_subkegiatan, 'dausgpusub_satuan', '')
+            satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
             return f"{record.realisasi_output or 0} {satuan}"
         except Exception:
             return ""
@@ -85,8 +92,9 @@ class BaseRealisasiTable(tables.Table):
 class RealisasipuTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model
-        fields = ("aksi","realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
-                  "realisasi_tgl", "realisasi_nilai", "output_satuan","verif")  # Kolom-kolom yang akan ditampilkan
+        fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id","verif")
+
     model_name = 'realisasi_pu'
 
 
@@ -94,7 +102,7 @@ class RealisasipuTablesisa(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model_sisa
         fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
-                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "verif")
+                  "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id", "verif")
 
     model_name = 'realisasi_pusisa'
 
@@ -104,16 +112,16 @@ class RealisasipuTablesisa(BaseRealisasiTable):
 class RekapPaguTable(tables.Table):
     # Mendefinisikan kolom yang akan ditampilkan
     subopd = tables.Column(verbose_name="Sub OPD", footer="Total")
-    pagu = totalrealisasi(verbose_name="Total Pagu", attrs={"td": {"class": "text-right"}})
-    total_rencana = totalrealisasi(verbose_name="Total Rencana", attrs={"td": {"class": "text-right"}})
-    total_posting = totalrealisasi(verbose_name="Total Rencana TerValidasi", attrs={"td": {"class": "text-right"}})
+    pagu = TotalRealisasiColumn(verbose_name="Total Pagu", attrs={"td": {"class": "text-right"}})
+    total_rencana = TotalRealisasiColumn(verbose_name="Total Rencana", attrs={"td": {"class": "text-right"}})
+    total_posting = TotalRealisasiColumn(verbose_name="Total Rencana TerValidasi", attrs={"td": {"class": "text-right"}})
     
-    total_tahap1 = totalrealisasi(verbose_name="Tahap 1", attrs={"td": {"class": "text-right"}})
-    total_tahap2 = totalrealisasi(verbose_name="Tahap 2", attrs={"td": {"class": "text-right"}})
-    total_tahap3 = totalrealisasi(verbose_name="Tahap 3", attrs={"td": {"class": "text-right"}})
+    total_tahap1 = TotalRealisasiColumn(verbose_name="Tahap 1", attrs={"td": {"class": "text-right"}})
+    total_tahap2 = TotalRealisasiColumn(verbose_name="Tahap 2", attrs={"td": {"class": "text-right"}})
+    total_tahap3 = TotalRealisasiColumn(verbose_name="Tahap 3", attrs={"td": {"class": "text-right"}})
     
-    total_realisasi = totalrealisasi(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
-    total_sisa = totalrealisasi(verbose_name="Sisa Dana", attrs={"td": {"class": "text-right"}})
+    total_realisasi = TotalRealisasiColumn(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
+    total_sisa = TotalRealisasiColumn(verbose_name="Sisa Dana", attrs={"td": {"class": "text-right"}})
 
     class Meta:
         template_name = "django_tables2/bootstrap4-responsive.html"
@@ -129,7 +137,7 @@ class RekapPaguTable(tables.Table):
         
 class BaseSp2dTable (tables.Table):
     realisasi_tgl = tables.Column(footer="Total")
-    realisasi_nilai = totalrealisasi(attrs={"td": {"class": "text-right"}})
+    realisasi_nilai = TotalRealisasiColumn(attrs={"td": {"class": "text-right"}})
     class Meta:
         template_name = "django_tables2/bootstrap4.html"  # Menggunakan template bootstrap
         fields = ("realisasi_subopd","realisasi_sp2d","realisasi_tgl", "realisasi_nilai","realisasi_tahap_id","realisasi_verif")  # Kolom-kolom yang akan ditampilkan
@@ -154,7 +162,7 @@ class Sp2dTablesisa(BaseSp2dTable):
 
 
 class BaseRencanaTable(tables.Table):
-    rencana_pagu = totalrealisasi(attrs={"td": {"class": "text-right"}})
+    rencana_pagu = TotalRealisasiColumn(attrs={"td": {"class": "text-right"}})
     nomor = tables.Column(verbose_name="No", empty_values=())
     satuan_kegiatan = tables.Column(verbose_name="Satuan Kegiatan", accessor="get_satuan_kegiatan")
     kegiatan = tables.Column(verbose_name="Kegiatan", accessor="get_kegiatan")
@@ -211,3 +219,93 @@ class RencanasisaTable(BaseRencanaTable):
             "rencana_pagudpa",
         )
         exclude = ("rencana_kegiatan",)
+        
+class BaseMetaTable:
+    template_name = "django_tables2/bootstrap4.html"
+    fields = (
+        'nomor',
+        'subkegiatan',
+        'posting_pagu',
+        'output_satuan',
+        'total_realisasi_pk',
+    )
+    attrs = {
+        'class': 'table table-bordered table-sm',
+        'id':'tabel1',
+        'th': {'style': "text-align: center;"},
+        'tf': {'style': "text-align: right;"},
+    }
+    
+class BaseRencanapupostingTable(tables.Table):
+    nomor = tables.Column(empty_values=(), verbose_name="No")
+    posting_subopd = tables.Column(verbose_name="Sub OPD", accessor="get_subopd")
+    subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
+    posting_pagu = TotalRealisasiColumn(verbose_name="Pagu", attrs={"td": {"class": "text-right"}})
+    total_realisasi_pk = TotalRealisasiColumn(
+        verbose_name="Realisasi",
+        getter=lambda row: row.get_total_realisasi_pk(),
+        empty_values=(),
+        attrs={"td": {"class": "text-right"}},
+    )
+    output_satuan = tables.Column(empty_values=(), verbose_name='Rencana Output', attrs={"td": {"class": "text-center"}})
+    realisasi_output = tables.Column(empty_values=(), verbose_name='Realisasi Output', attrs={"td": {"class": "text-center"}})
+
+    class Meta(BaseMetaTable):
+        sequence = (
+            'nomor',
+            'posting_subopd',
+            'subkegiatan',
+            'posting_pagu',
+            'output_satuan',
+            'total_realisasi_pk',
+            'realisasi_output',
+        )
+        
+    
+    def __init__(self, *args, show_aksi=False, **kwargs):
+        extra = []
+        if show_aksi:
+            extra.append((
+                'aksi',
+                tables.Column(
+                    empty_values=(),
+                    verbose_name='SP2D',
+                    attrs={"td": {"class": "text-center"}}
+                )
+            ))
+        super().__init__(*args, extra_columns=extra, **kwargs)
+
+
+    def render_nomor(self, record, table):
+        return list(table.data).index(record) + 1
+    
+    def get_sp2d_url_name(self):
+        return 'realisasi_pu_sp2dsisa' if self._meta.model == model_rencana_sisa else 'realisasi_pu_sp2d'
+
+
+    def render_aksi(self, record):
+        url_name = self.get_sp2d_url_name()
+        sp2dinput = reverse(url_name, args=[record.id])
+        return format_html(
+            '<a href="{}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a>',
+            sp2dinput,
+        )
+    
+    def render_total_realisasi_pk(self, record):
+        value = record.get_total_realisasi_pk()
+        return value
+
+    def render_output_satuan(self, record):
+        return f'{record.posting_output} {record.get_satuan_kegiatan()}'
+    
+    def render_realisasi_output(self, record):
+        value = record.get_total_realisasi_output_pk()
+        return f'{value} {record.get_satuan_kegiatan()}' if value else '0'
+
+class RencanapupostingTable(BaseRencanapupostingTable):
+    class Meta(BaseRencanapupostingTable.Meta):
+        model = model_rencana
+
+class RencanapupostingsisaTable(BaseRencanapupostingTable):
+    class Meta(BaseRencanapupostingTable.Meta):
+        model = model_rencana_sisa

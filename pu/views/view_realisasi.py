@@ -6,8 +6,10 @@ from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 
+from sipd.registry import SIPD_REGISTRY
+
 from django_tables2 import RequestConfig
-from ..tables import RealisasipuTable
+from ..tables import RealisasipuTable, RencanapupostingTable
 
 import logging
 
@@ -19,6 +21,7 @@ from pu.forms.forms import RealisasipuFilterForm, RealisasipuForm
 from penerimaan.models import Penerimaan
 
 tabel_realisasi = RealisasipuTable
+tabel_rencana = RencanapupostingTable
 
 form_filter = RealisasipuFilterForm
 form_data = RealisasipuForm
@@ -39,10 +42,13 @@ url_simpan = 'realisasi_pu_simpan'
 url_update = 'realisasi_pu_update'
 url_delete = 'realisasi_pu_delete'
 url_verif = 'realisasi_pu_verif'
+url_sp2d = 'realisasi_kesehatan_sp2d'
+url_sipd = 'data_sipd'
 
 template_form = 'pu/realisasi/form.html'
 template_home = 'pu/realisasi/home.html'
 template_list = 'pu/realisasi/list.html'
+template_sp2d = 'pu/realisasi/sp2d.html'
 template_modal = 'pu/realisasi/modal.html'
 template_modal_verif = 'pu/realisasi/modal_verif.html'
 
@@ -50,6 +56,18 @@ sesidana = 'dau-dukungan-bidang-pekerjaan-umum'
 sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
 
 logger = logging.getLogger(__name__)
+
+from django.urls import reverse
+
+def safe_reverse(name, args=None, kwargs=None):
+    try:
+        if name and (args or kwargs):
+            return reverse(name, args=args, kwargs=kwargs)
+        elif name:
+            return reverse(name)
+    except Exception as e:
+        print(f"⚠️ reverse gagal [{name}]:", e)
+    return '#'
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
@@ -136,6 +154,70 @@ def simpan(request):
     }
     return render(request, template_form, context)
 
+@set_submenu_session
+@menu_access_required('list')
+def sp2d(request, pk=None):
+    request.session['next'] = request.get_full_path()
+    realisasi_tahun=request.session.get('realisasi_tahun')
+    realisasi_dana=request.session.get('realisasi_dana')
+    realisasi_subopd=request.session.get('realisasi_subopd')
+    realisasi_tahap=request.session.get('realisasi_tahap')
+     # Buat filter query
+    filters = Q(realisasi_rencanaposting_id=pk)
+    if realisasi_tahun:
+        filters &= Q(realisasi_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filters &= Q(realisasi_dana_id=realisasi_dana)
+    if realisasi_tahap:
+        if realisasi_tahap == 1:
+            filters &= Q(realisasi_tahap_id=1)
+        elif realisasi_tahap == 2:
+            filters &= Q(realisasi_tahap_id__in=[1, 2])
+        elif realisasi_tahap == 3:
+            filters &= Q(realisasi_tahap_id__in=[1, 2, 3])
+    if realisasi_subopd not in [124]:
+        filters &= Q(realisasi_subopd_id=realisasi_subopd)
+    
+    filterkeg = Q(pk=pk)
+    if realisasi_tahun:
+        filterkeg &= Q(posting_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filterkeg &= Q(posting_dana_id=realisasi_dana)
+    # if realisasi_tahap:
+    #     filterkeg &= Q(realisasi_tahap_id=realisasi_tahap)
+    if realisasi_subopd not in [124]:
+        filterkeg &= Q(posting_subopd_id=realisasi_subopd)
+        
+    try:
+        data = model_realisasi.objects.filter(filters)
+        datarencana = model_data.objects.filter(filterkeg)
+    except (model_realisasi.DoesNotExist, model_data.DoesNotExist):
+        data = None
+        datarencana = None
+    
+    table = tabel_realisasi(data, request=request)
+    tabelrencana = tabel_rencana(datarencana, request=request)
+    
+    SIPD_REGISTRY = 'realisasi_pu'
+    
+    context = {
+        'judul': 'Daftar Realisasi DAU Bidang Kesehatan',
+        'subjudul': 'Daftar Kegiatan',
+        'tombol': 'Tambah Realisasi',
+        'kembali' : 'Kembali',
+        'link_url': safe_reverse(url_simpan, args=[pk]) if pk else '#',
+        'link_url_kembali': safe_reverse(url_list),
+        'link_url_sipd': (safe_reverse(url_sipd, args=[SIPD_REGISTRY, pk]) if pk else '#'),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
+        'data' : data,
+        'table':table,
+        'datarencana' : datarencana,
+        'tabelrencana':tabelrencana,
+        'sipd':'SIPD',
+    }
+    return render(request, template_sp2d, context)
+
 
 @set_submenu_session
 @menu_access_required('list')
@@ -148,31 +230,35 @@ def list(request):
      # Buat filter query
     filters = Q()
     if realisasi_tahun:
-        filters &= Q(realisasi_tahun=realisasi_tahun)
+        filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
-        filters &= Q(realisasi_dana_id=realisasi_dana)
-    if realisasi_tahap:
-        filters &= Q(realisasi_tahap_id=realisasi_tahap)
+        filters &= Q(posting_dana_id=realisasi_dana)
+    # if realisasi_tahap:
+    #     filters &= Q(realisasi_tahap_id=realisasi_tahap)
     if realisasi_subopd not in [124]:
-        filters &= Q(realisasi_subopd_id=realisasi_subopd)
+        filters &= Q(posting_subopd_id=realisasi_subopd)
     
     try:
-        data = model_realisasi.objects.filter(filters)
-    except model_realisasi.DoesNotExist:
-        data = None
+        # data = model_realisasi.objects.filter(filters)
+        datarencana = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        # data = None
+        datarencana = None
     
-    table = tabel_realisasi(data, request=request)
+    # table = tabel_realisasi(data, request=request)
+    tabelrencana = tabel_rencana(datarencana,  show_aksi=True)
+    tabelrencana.paginate = False
 
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pekerjaan  Umum',
         'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
-        'link_url': reverse(url_simpan),
+        # 'link_url': reverse(url_simpan),
         'link_url_kembali': reverse(url_home),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
-        'data' : data,
-        'table':table,
+        'datarencana' : datarencana,
+        'tabelrencana':tabelrencana,
     }
     return render(request, template_list, context)
 

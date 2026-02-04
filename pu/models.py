@@ -159,6 +159,54 @@ class BaseRencanapuposting(models.Model):
             filters &= Q(posting_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
+    def get_satuan_kegiatan(self):
+        return self.posting_subkegiatan.dausgpusub_satuan if self.posting_subkegiatan else None
+    
+    def get_subopd(self):
+        return self.posting_subopd.sub_nama if self.posting_subopd else None
+    
+    def get_subkegiatan(self):
+        return self.posting_subkegiatan.dausgpusub_nama if self.posting_subkegiatan else None
+    
+    def get_kegiatan(self):
+        return self.posting_subkegiatan.dausgpusub_keg.dausgpukeg_nama if self.posting_subkegiatan else None
+    
+    def get_total_realisasi_pk(self):
+        from pu.models import Realisasipu, Realisasipusisa
+
+        model = None
+        if self.__class__.__name__.endswith('sisa'):
+            model = Realisasipusisa
+        else:
+            model = Realisasipu
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+    
+    def get_total_realisasi_output_pk(self):
+        from pu.models import Realisasipu, Realisasipusisa
+
+        model = None
+        if self.__class__.__name__.endswith('sisa'):
+            model = Realisasipusisa
+        else:
+            model = Realisasipu
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_output'))['total_nilai'] or Decimal(0)
+
     def __str__(self):
         return f"{self.posting_subkegiatan}"
 
@@ -184,7 +232,7 @@ class BaseRealisasipu(models.Model):
     realisasi_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasi_subkegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
     realisasi_output = models.DecimalField(verbose_name='Capaian Output', max_digits=17, decimal_places=2,default=0)
-    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
+    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
     realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False, verbose_name='Verifikasi') 
