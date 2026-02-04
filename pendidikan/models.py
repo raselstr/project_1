@@ -231,7 +231,7 @@ class BaseRealisasi(models.Model):
     realisasi_subopd = models.ForeignKey('opd.Subopd', verbose_name='Sub Opd',on_delete=models.CASCADE)
     realisasi_subkegiatan = models.ForeignKey('dausg.DausgpendidikanSub', verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
     realisasi_output = models.IntegerField(verbose_name='Capaian Output')
-    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100, unique=True)
+    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100)
     realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
     realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2,default=0)
     realisasi_verif = models.IntegerField(choices=VERIF, default = 0, editable=False, verbose_name='Verifikasi')

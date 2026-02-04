@@ -7,6 +7,7 @@ from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 
 from django_tables2 import RequestConfig
+from sipd.registry import SIPD_REGISTRY
 from ..tables import RealisasiTablesisa, RencanapendidikanpostingsisaTable
 
 import logging
@@ -38,6 +39,7 @@ url_update = 'realisasi_pendidikan_updatesisa'
 url_delete = 'realisasi_pendidikan_deletesisa'
 url_verif = 'realisasi_pendidikan_verifsisa'
 url_sp2d = 'realisasi_pendidikan_sp2dsisa'
+url_sipd = 'data_sipd'
 
 template_form = 'pendidikan/realisasi/form.html'
 template_home = 'pendidikan/realisasi/home.html'
@@ -49,6 +51,18 @@ template_modal_verif = 'pendidikan/realisasi/modal_verif.html'
 sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 
 logger = logging.getLogger(__name__)
+
+from django.urls import reverse
+
+def safe_reverse(name, args=None, kwargs=None):
+    try:
+        if name and (args or kwargs):
+            return reverse(name, args=args, kwargs=kwargs)
+        elif name:
+            return reverse(name)
+    except Exception as e:
+        print(f"⚠️ reverse gagal [{name}]:", e)
+    return '#'
 
 def modal(request, pk):
     data = get_object_or_404(model_realisasi, pk=pk)
@@ -187,20 +201,22 @@ def sp2d(request, pk=None):
     table = tabel_realisasi(data, request=request)
     tabelrencana = tabel_rencana(datarencana, request=request)
     
-    
+    SIPD_REGISTRY = 'realisasisisa'
     context = {
         'judul': 'Daftar Realisasi Sisa DAU Bidang Pendidikan',
         'subjudul': 'Daftar Kegiatan',
         'tombol': 'Tambah Realisasi',
         'kembali' : 'Kembali',
-        'link_url': reverse(url_simpan, args=[pk]),
-        'link_url_kembali': reverse(url_list),
+        'link_url': safe_reverse(url_simpan, args=[pk]) if pk else '#',
+        'link_url_kembali': safe_reverse(url_list),
+        'link_url_sipd': (safe_reverse(url_sipd, args=[SIPD_REGISTRY, pk]) if pk else '#'),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
         'table':table,
         'datarencana' : datarencana,
         'tabelrencana':tabelrencana,
+        'sipd':'SIPD',
     }
     return render(request, template_sp2d, context)
 

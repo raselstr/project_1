@@ -6,9 +6,15 @@ from django.core.management import call_command
 from django_tables2 import RequestConfig
 from project.decorators import menu_access_required, set_submenu_session
 
+from sipd.registry import SIPD_REGISTRY
+
+
+from django.db import transaction
+from django.core.exceptions import ValidationError
 
 from openpyxl import Workbook
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 
 from django.db.models import Q, Sum, Min
 from datetime import date
@@ -18,16 +24,9 @@ from .models import Sipd
 from .tables import SipdTable
 from .filters import SipdFilter
 
-from pendidikan.models import Realisasi, Rencanaposting
-
 model_sipd = Sipd
-model_realisasi = Realisasi
-model_rencanaposting = Rencanaposting
 
 url_upload_sipd = "upload_sipd"
-url_sp2d = "realisasi_pendidikan_sp2d"
-
-
 
 def upload_sipd(request):
     tahun = request.session.get("tahun")
@@ -168,10 +167,20 @@ def export_sipd_excel(request):
     wb.save(response)
     return response
 
+
+
 @set_submenu_session
 @menu_access_required('list')
-def view_sipd(request, pk):
+def view_sipd(request, mode, pk):
     request.session['next'] = request.get_full_path()
+    config = SIPD_REGISTRY.get(mode)
+    if not config:
+        return HttpResponseBadRequest('Mode SIPD tidak valid')
+    
+    model_rencanaposting = config['model_rencana']
+    model_realisasi = config['model_realisasi']
+    # model_sipd = config['model_sipd']
+    url_sp2d = config['url_sp2d']
 
     # =====================================================
     # AMBIL RENCANA
@@ -186,6 +195,7 @@ def view_sipd(request, pk):
         .filter(pk=pk)
         .first()
     )
+    print(rencana)
 
     if not rencana:
         messages.error(request, 'Data rencana tidak ditemukan')
@@ -269,7 +279,17 @@ def view_sipd(request, pk):
             for row in agregat_sp2d
         ]
 
-        model_realisasi.objects.bulk_create(data_realisasi)
+        try:
+            with transaction.atomic():
+                for obj in data_realisasi:
+                    obj.save()  # 🔥 full_clean + clean otomatis
+
+        except ValidationError as e:
+            messages.error(
+                request,
+                f'Gagal menyimpan Realisasi: {e.messages}'
+            )
+            return redirect(url_sp2d, pk=rencana.pk)
 
         messages.success(
             request,
@@ -278,17 +298,12 @@ def view_sipd(request, pk):
 
         return redirect(url_sp2d, pk=rencana.pk)
 
-    nama_subkegiatan = rencana.posting_subkegiatan.dausgpendidikansub_nama
-
     # =====================================================
     # CONTEXT
     # =====================================================
     context = {
-        'judul': 'Realisasi SIPD',
-        'subjudul': nama_subkegiatan,
         'rencana': rencana,
         'data': sipd_qs,
         'sp2d_sudah_realisasi': sp2d_sudah_realisasi,
     }
-
     return render(request, 'sipd/view_sipd.html', context)

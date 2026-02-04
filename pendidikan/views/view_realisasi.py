@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
+from sipd.registry import SIPD_REGISTRY
 
 from django_tables2 import RequestConfig
 from ..tables import RealisasiTable, RencanapendidikanpostingTable
@@ -207,6 +208,8 @@ def sp2d(request, pk=None):
     except Exception as e:
         print("⚠️ ERROR DIBYPASS:", e)
 
+    SIPD_REGISTRY = 'realisasi'
+    
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
         'subjudul': 'Daftar Kegiatan',
@@ -214,7 +217,7 @@ def sp2d(request, pk=None):
         'kembali' : 'Kembali',
         'link_url': safe_reverse(url_simpan, args=[pk]) if pk else '#',
         'link_url_kembali': safe_reverse(url_list),
-        'link_url_sipd': safe_reverse(url_sipd, args=[pk]) if pk else '#',
+        'link_url_sipd': (safe_reverse(url_sipd, args=[SIPD_REGISTRY, pk]) if pk else '#'),
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
