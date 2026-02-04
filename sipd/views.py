@@ -6,13 +6,27 @@ from django.core.management import call_command
 from django_tables2 import RequestConfig
 from project.decorators import menu_access_required, set_submenu_session
 
+
+from openpyxl import Workbook
+from django.http import HttpResponse
+
+from django.db.models import Q, Sum, Min
+from datetime import date
+
 from .forms import SipdUploadForm
 from .models import Sipd
 from .tables import SipdTable
 from .filters import SipdFilter
 
-from openpyxl import Workbook
-from django.http import HttpResponse
+from pendidikan.models import Realisasi, Rencanaposting
+
+model_sipd = Sipd
+model_realisasi = Realisasi
+model_rencanaposting = Rencanaposting
+
+url_upload_sipd = "upload_sipd"
+url_sp2d = "realisasi_pendidikan_sp2d"
+
 
 
 def upload_sipd(request):
@@ -44,7 +58,7 @@ def upload_sipd(request):
                     request,
                     f"Import SIPD berhasil untuk Tahun Anggaran {tahun}"
                 )
-                return redirect("upload_sipd")
+                return redirect(url_upload_sipd)
 
             except Exception as e:
                 messages.error(request, f"Gagal import data: {e}")
@@ -54,7 +68,7 @@ def upload_sipd(request):
     # =======================
     # QUERYSET
     # =======================
-    qs = Sipd.objects.all()
+    qs = model_sipd.objects.all()
     if tahun:
         qs = qs.filter(tahun=tahun)
 
@@ -99,7 +113,7 @@ def export_sipd_excel(request):
     tahun = request.session.get("tahun")
     q = request.GET.get("q")
 
-    qs = Sipd.objects.all()
+    qs = model_sipd.objects.all()
 
     if tahun:
         qs = qs.filter(tahun=tahun)
@@ -154,105 +168,124 @@ def export_sipd_excel(request):
     wb.save(response)
     return response
 
-from django.db.models import Q
-from django.contrib import messages
-from sipd.models import Sipd
-from pendidikan.models import Realisasi
-from pendidikan.models import Rencanaposting
-from datetime import date
-
-model_rencana = Rencanaposting
-model_sipd = Sipd
-
-
 @set_submenu_session
 @menu_access_required('list')
 def view_sipd(request, pk):
     request.session['next'] = request.get_full_path()
 
-    # =============================
+    # =====================================================
     # AMBIL RENCANA
-    # =============================
-    rencana = model_rencana.objects.select_related(
-        'posting_subopd',
-        'posting_subkegiatan',
-        'posting_dana'
-    ).filter(pk=pk).first()
+    # =====================================================
+    rencana = (
+        model_rencanaposting.objects
+        .select_related(
+            'posting_subopd',
+            'posting_subkegiatan',
+            'posting_dana'
+        )
+        .filter(pk=pk)
+        .first()
+    )
 
     if not rencana:
         messages.error(request, 'Data rencana tidak ditemukan')
         return redirect('url_list_rencana')
 
-    # =============================
-    # FILTER SIPD SESUAI RENCANA
-    # =============================
+    # =====================================================
+    # FILTER DASAR SIPD SESUAI RENCANA
+    # =====================================================
     filters = Q(
         tahun=rencana.posting_tahun,
         kode_sub_kegiatan=rencana.posting_ket,
         kode_sub_skpd=rencana.posting_subopd.sub_opd_kode
     )
 
-    sipd_qs = Sipd.objects.filter(filters).order_by(
-        'tanggal_sp2d',
-        'nomor_sp2d'
-    )
+    # =====================================================
+    # QUERYSET SIPD ASLI (UNTUK POST)
+    # =====================================================
+    sipd_qs_raw = model_sipd.objects.filter(filters)
 
-    # =============================
+    # =====================================================
     # SP2D YANG SUDAH MASUK REALISASI
-    # =============================
+    # =====================================================
     sp2d_sudah_realisasi = set(
-        Realisasi.objects.filter(
+        model_realisasi.objects.filter(
             realisasi_rencanaposting=rencana
         ).values_list('realisasi_sp2d', flat=True)
     )
 
-    # =============================
+    # =====================================================
+    # QUERYSET SIPD UNTUK DITAMPILKAN (GROUP + SUM)
+    # =====================================================
+    sipd_qs = (
+        sipd_qs_raw
+        .exclude(nomor_sp2d__in=sp2d_sudah_realisasi)
+        .values('nomor_sp2d')
+        .annotate(
+            tanggal_sp2d=Min('tanggal_sp2d'),
+            nilai_realisasi=Sum('nilai_realisasi'),
+        )
+        .order_by('tanggal_sp2d', 'nomor_sp2d')
+    )
+
+    # =====================================================
     # SIMPAN DATA TERPILIH
-    # =============================
+    # =====================================================
     if request.method == "POST":
         selected_sp2d = request.POST.getlist('sp2d')
 
-        sipd_terpilih = sipd_qs.filter(
-            nomor_sp2d__in=selected_sp2d
-        ).exclude(
-            nomor_sp2d__in=sp2d_sudah_realisasi
+        if not selected_sp2d:
+            messages.warning(request, 'Tidak ada SP2D yang dipilih')
+            return redirect(request.path)
+
+        # ambil data sipd asli lalu agregasi ulang
+        agregat_sp2d = (
+            sipd_qs_raw
+            .filter(nomor_sp2d__in=selected_sp2d)
+            .exclude(nomor_sp2d__in=sp2d_sudah_realisasi)
+            .values('nomor_sp2d')
+            .annotate(
+                tgl=Min('tanggal_sp2d'),
+                total=Sum('nilai_realisasi')
+            )
         )
 
-        data_realisasi = []
+        data_realisasi = [
+            model_realisasi(
+                realisasi_dana_id=request.session.get('realisasi_dana'),
+                realisasi_tahap_id=request.session.get('realisasi_tahap'),
+                realisasi_subopd_id=request.session.get('realisasi_subopd'),
 
-        for row in sipd_terpilih:
-            data_realisasi.append(
-                Realisasi(
-                    realisasi_dana_id=request.session.get('realisasi_dana'),
-                    realisasi_tahap_id=request.session.get('realisasi_tahap'),
-                    realisasi_subopd_id=request.session.get('realisasi_subopd'),
+                realisasi_rencanaposting=rencana,
+                realisasi_rencana=rencana.posting_rencanaid,
+                realisasi_subkegiatan=rencana.posting_subkegiatan,
 
-                    realisasi_rencanaposting=rencana,
-                    realisasi_rencana=rencana.posting_rencanaid,
-                    realisasi_subkegiatan=rencana.posting_subkegiatan,
-
-                    realisasi_tahun=request.session.get('realisasi_tahun'),
-                    realisasi_output=0,
-                    realisasi_sp2d=row.nomor_sp2d,
-                    realisasi_tgl=row.tanggal_sp2d or date.today(),
-                    realisasi_nilai=row.nilai_realisasi,
-                )
+                realisasi_tahun=request.session.get('realisasi_tahun'),
+                realisasi_output=0,
+                realisasi_sp2d=row['nomor_sp2d'],
+                realisasi_tgl=row['tgl'] or date.today(),
+                realisasi_nilai=row['total'],
             )
+            for row in agregat_sp2d
+        ]
 
-        Realisasi.objects.bulk_create(data_realisasi)
+        model_realisasi.objects.bulk_create(data_realisasi)
 
         messages.success(
             request,
             f'{len(data_realisasi)} SP2D berhasil disimpan ke Realisasi'
         )
-        return redirect(request.path)
 
-    # =============================
+        return redirect(url_sp2d, pk=rencana.pk)
+
+    nama_subkegiatan = rencana.posting_subkegiatan.dausgpendidikansub_nama
+
+    # =====================================================
     # CONTEXT
-    # =============================
+    # =====================================================
     context = {
         'judul': 'Realisasi SIPD',
-        'subjudul': rencana.posting_subkegiatan.dausgpendidikansub_nama,
+        'subjudul': nama_subkegiatan,
         'rencana': rencana,
         'data': sipd_qs,
         'sp2d_sudah_realisasi': sp2d_sudah_realisasi,

@@ -43,6 +43,7 @@ url_update = 'realisasi_pendidikan_update'
 url_delete = 'realisasi_pendidikan_delete'
 url_verif = 'realisasi_pendidikan_verif'
 url_sp2d = 'realisasi_pendidikan_sp2d'
+url_sipd = 'data_sipd'
 
 template_form = 'pendidikan/realisasi/form.html'
 template_home = 'pendidikan/realisasi/home.html'
@@ -205,11 +206,7 @@ def sp2d(request, pk=None):
         
     except Exception as e:
         print("⚠️ ERROR DIBYPASS:", e)
-        
-    print("DEBUG url_simpan:", url_simpan, type(url_simpan))
-    print("DEBUG url_list:", url_list, type(url_list))
-    print("DEBUG pk:", pk, type(pk))
-    
+
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
         'subjudul': 'Daftar Kegiatan',
@@ -217,15 +214,15 @@ def sp2d(request, pk=None):
         'kembali' : 'Kembali',
         'link_url': safe_reverse(url_simpan, args=[pk]) if pk else '#',
         'link_url_kembali': safe_reverse(url_list),
+        'link_url_sipd': safe_reverse(url_sipd, args=[pk]) if pk else '#',
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'data' : data,
         'table':table,
         'datarencana' : datarencana,
         'tabelrencana':tabelrencana,
-        # 'sipd':'SIPD',
+        'sipd':'SIPD',
     }
-    print(filters)
     return render(request, template_sp2d, context)
 
 @set_submenu_session

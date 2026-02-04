@@ -64,7 +64,7 @@ class BaseRealisasiTable(tables.Table):
             )
         
         # Jika status verif sudah 1 (disetujui), maka tombol tidak ditampilkan
-        return '<span class="text-muted">Tindakan tidak tersedia</span>'
+        return 'Tindakan tidak tersedia'
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)

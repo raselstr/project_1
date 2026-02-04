@@ -32,8 +32,20 @@
                     <div class="card-header-action">
                         <div class="btn-group">
                             <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
-                            <a href="{{link_url}}" class="btn btn-danger">{{sipd}}</a>
+                            {% comment %} <a href="{{link_url_sipd}}" class="btn btn-danger">{{sipd}}</a> {% endcomment %}
+                            <a
+                                href="#"
+                                class="btn btn-danger"
+                                hx-get="{{link_url_sipd}}"
+                                hx-target="#verifikasiModal .modal-body"
+                                hx-trigger="click"
+                                data-toggle="modal"
+                                data-target="#verifikasiModal"
+                            >
+                                {{ sipd }}
+                            </a>
                             <a href="{{link_url}}" class="btn btn-primary">{{tombol}}</a>
+
                         </div>
                     </div>
                 </div>
@@ -53,7 +65,7 @@
 
 <!-- Modal -->
 <div class="modal fade" id="verifikasiModal" tabindex="-1" aria-labelledby="verifikasiModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="verifikasiModalLabel">Konfirmasi Verifikasi</h5>

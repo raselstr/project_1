@@ -1,36 +1,36 @@
-<form method="post">
+<form method="post" action="{{ request.path }}">
   {% csrf_token %}
 
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
-        <th></th>
+        <th class="text-center">
+          <input type="checkbox" id="check-all">
+        </th>
         <th>Tanggal SP2D</th>
         <th>Nomor SP2D</th>
-        <th>Rekening</th>
         <th class="text-end">Nilai</th>
       </tr>
     </thead>
 
     <tbody>
       {% for row in data %}
-      <tr class="{% if row.nomor_sp2d in sp2d_sudah_realisasi %}table-secondary{% endif %}">
-        <td>
+      <tr>
+        <td class="text-center">
           <input type="checkbox"
-                 name="sp2d"
-                 value="{{ row.nomor_sp2d }}"
-                 {% if row.nomor_sp2d in sp2d_sudah_realisasi %}disabled{% endif %}>
+                class="check-item"
+                name="sp2d"
+                value="{{ row.nomor_sp2d }}">
         </td>
         <td>{{ row.tanggal_sp2d }}</td>
         <td>{{ row.nomor_sp2d }}</td>
-        <td>{{ row.nama_rekening }}</td>
         <td class="text-end">
           {{ row.nilai_realisasi|floatformat:2 }}
         </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="5" class="text-center text-muted">
+        <td colspan="4" class="text-center text-muted">
           Data SIPD tidak ditemukan
         </td>
       </tr>
@@ -38,7 +38,30 @@
     </tbody>
   </table>
 
-  <button class="btn btn-success">
+  <button type="submit" class="btn btn-success"
+          onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
     Simpan ke Realisasi
   </button>
 </form>
+
+<script>
+document.body.addEventListener('htmx:afterSwap', function (evt) {
+  // pastikan yang di-swap adalah modal
+  if (!evt.target.closest('#verifikasiModal')) return;
+
+  const checkAll = document.getElementById('check-all');
+  const items = document.querySelectorAll('.check-item');
+
+  if (!checkAll || items.length === 0) return;
+
+  checkAll.addEventListener('change', function () {
+    items.forEach(cb => cb.checked = checkAll.checked);
+  });
+
+  items.forEach(cb => {
+    cb.addEventListener('change', function () {
+      checkAll.checked = [...items].every(i => i.checked);
+    });
+  });
+});
+</script>

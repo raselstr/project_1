@@ -62,7 +62,7 @@ class BaseRealisasiTable(tables.Table):
                 edit_url,
                 delete_url
             )
-        return '<span class="text-muted">Tindakan tidak tersedia</span>'
+        return 'Tindakan tidak tersedia'
 
     def render_verif(self, record):
         akun = self.request.session.get('level', None)
@@ -85,7 +85,7 @@ class BaseRealisasiTable(tables.Table):
 
     def render_output_satuan(self, record):
         try:
-            satuan = getattr(record.realisasi_subkegiatan, 'dausgpendidikansub_satuan', '')
+            satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
             return f"{record.realisasi_output or 0} {satuan}"
         except Exception:
             return ""
