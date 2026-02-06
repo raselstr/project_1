@@ -1,8 +1,8 @@
-import pandas as pd
+from pathlib import Path
 import csv
 from decimal import Decimal
-from pathlib import Path
-from datetime import date
+from datetime import datetime
+import pandas as pd
 
 from django.conf import settings
 from django.core.cache import cache
@@ -11,9 +11,8 @@ from django.db import transaction
 from sipd.models import Sipd
 from .mapping import EXCEL_FIELD_MAPPING
 
-# ================= CONFIG =================
-READ_CHUNK = 2000   # jumlah baris per chunk RAM-safe
-DB_CHUNK = 500      # jumlah baris untuk bulk_create DB
+READ_CHUNK = 2000
+DB_CHUNK = 500
 
 DATE_FIELDS = {
     "tanggal_dokumen",
@@ -54,10 +53,8 @@ def to_date(val):
     try:
         if pd.isna(val):
             return None
-        # pandas Timestamp / datetime
         if hasattr(val, "date"):
             return val.date()
-        # string → parse pakai pandas
         parsed = pd.to_datetime(val, errors="coerce")
         if pd.isna(parsed):
             return None
@@ -68,8 +65,9 @@ def to_date(val):
 # ================= IMPORT FUNCTION =================
 def import_sipd_excel(file_path: str, tahun: int, cache_key: str):
     """
-    Import Excel SIPD per chunk tanpa menggunakan chunksize (RAM-safe).
-    Menyimpan progress ke cache dan skipped rows ke CSV.
+    Import Excel SIPD per chunk tanpa chunksize.
+    Hanya menulis CSV skipped untuk baris kosong/invalid,
+    tidak menulis baris yang sudah ada di DB.
     """
 
     # total rows
@@ -84,19 +82,18 @@ def import_sipd_excel(file_path: str, tahun: int, cache_key: str):
     # duplikat di file
     seen_in_file = set()
 
-    # skipped CSV
-    skipped_path = Path(settings.MEDIA_ROOT) / f"sipd_skipped_{tahun}.csv"
+    # lokasi CSV skipped
+    skipped_path = Path(settings.MEDIA_ROOT) / "import" / f"sipd_skipped_{tahun}.csv"
     skipped_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(skipped_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["row", "reason"])
+        writer.writerow(["row", "reason", "tanggal_import"])
 
-        # ===== baca per-chunk =====
         for start in range(0, total_rows, READ_CHUNK):
             df_chunk = pd.read_excel(
                 file_path,
-                skiprows=range(1, start + 1),  # skip header + processed rows
+                skiprows=range(1, start + 1),
                 nrows=READ_CHUNK
             )
 
@@ -104,16 +101,14 @@ def import_sipd_excel(file_path: str, tahun: int, cache_key: str):
 
             for idx, row in df_chunk.iterrows():
                 processed += 1
-                # update progress cache
                 cache.set(cache_key, {"current": processed, "total": total_rows}, 3600)
 
                 try:
                     data = {"tahun": tahun}
 
-                    # mapping kolom Excel → model
+                    # mapping kolom
                     for excel_col, model_field in EXCEL_FIELD_MAPPING.items():
                         val = row.get(excel_col)
-
                         if "nilai" in model_field:
                             data[model_field] = to_decimal(val)
                         elif model_field in DATE_FIELDS:
@@ -121,32 +116,37 @@ def import_sipd_excel(file_path: str, tahun: int, cache_key: str):
                         else:
                             data[model_field] = clean_str(val)
 
-                    # validasi unique kosong
+                    # validasi unique kosong → HANYA INI yang masuk CSV
                     if any(not data.get(f) for f in UNIQUE_FIELDS):
                         skipped += 1
-                        writer.writerow([processed, "unique kosong/draft"])
+                        writer.writerow([
+                            processed,
+                            "unique kosong/draft",
+                            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        ])
                         continue
 
                     key = tuple(data[f] for f in UNIQUE_FIELDS)
 
-                    # duplikat di file
+                    # duplikat di file → skip, tapi tidak masuk CSV
                     if key in seen_in_file:
-                        skipped += 1
-                        writer.writerow([processed, "duplikat di file excel"])
                         continue
                     seen_in_file.add(key)
 
-                    # duplikat di DB
+                    # duplikat di DB → skip, tapi tidak masuk CSV
                     if key in existing_keys:
-                        skipped += 1
-                        writer.writerow([processed, "sudah ada di database"])
                         continue
 
+                    # jika lolos semua, tambahkan ke batch
                     batch.append(Sipd(**data))
 
                 except Exception as e:
                     skipped += 1
-                    writer.writerow([processed, str(e)])
+                    writer.writerow([
+                        processed,
+                        f"error: {str(e)}",
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    ])
                     continue
 
                 # bulk insert per DB_CHUNK
@@ -156,7 +156,7 @@ def import_sipd_excel(file_path: str, tahun: int, cache_key: str):
                     saved += len(batch)
                     batch.clear()
 
-            # proses sisa batch di chunk
+            # sisa batch tiap chunk
             if batch:
                 with transaction.atomic():
                     Sipd.objects.bulk_create(batch, ignore_conflicts=True)

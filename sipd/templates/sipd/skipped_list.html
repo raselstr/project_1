@@ -1,18 +1,26 @@
-{% if rows %}
-<table class="table table-sm">
-    <tr>
-        <th>No</th>
-        <th>Alasan</th>
-    </tr>
-    {% for r in rows %}
-    <tr>
-        <td>{{ r.row_number }}</td>
-        <td>{{ r.reason }}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% else %}
-<div class="alert alert-success mt-3">
-    Tidak ada data yang di-skip 🎉
+<div class="table-responsive">
+    <table class="table table-bordered table-hover table-sm">
+        <thead class="table-light">
+            <tr>
+                <th>No</th>
+                <th>Row</th>
+                <th>Reason</th>
+                <th>Tanggal Import</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ row.row }}</td>
+                <td>{{ row.reason }}</td>
+                <td>{{ row.tanggal_import }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Tidak ada data skipped</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endif %}

@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 from django.conf import settings
 from django.http import JsonResponse
@@ -73,16 +74,23 @@ def sipd_import_progress(request, task_id):
 
 
 
-def sipd_skipped_view(request, tahun):
-    file = Path(settings.MEDIA_ROOT) / f"sipd_skipped_{tahun}.csv"
-
+def skipped_sipd_view(request, tahun):
+    skipped_path = Path(settings.MEDIA_ROOT) / "import" / f"sipd_skipped_{tahun}.csv"
     rows = []
-    if file.exists():
-        import csv
-        with open(file, encoding="utf-8") as f:
-            rows = list(csv.reader(f))
 
-    return render(request, "sipd/skipped_list.html", {"rows": rows})
+    if skipped_path.exists():
+        with open(skipped_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # pastikan semua key ada, strip whitespace
+                clean_row = {k.strip(): v.strip() if v else "" for k, v in row.items()}
+                rows.append(clean_row)
+
+    context = {
+        "tahun": tahun,
+        "rows": rows,
+    }
+    return render(request, "sipd/skipped_list.html", context)
 
 
 
@@ -109,6 +117,7 @@ def export_sipd_excel(request):
         "Nama Rekening",
         "Nomor Dokumen",
         "Nomor SP2D",
+        "Tanggal SP2D",
         "Nilai Realisasi",
     ]
     ws.append(headers)
@@ -122,6 +131,7 @@ def export_sipd_excel(request):
         "nama_rekening",
         "nomor_dokumen",
         "nomor_sp2d",
+        "tanggal_sp2d",
         "nilai_realisasi",
     ):
         ws.append(row)
