@@ -3,11 +3,6 @@
 {% load humanize %}
 
 {% block content %}
-
-
-
-
-
 <section class="section">
     <div class="section-header">
         <h1>{{ judul }}</h1>
@@ -22,19 +17,49 @@
                 </div>
                 <div class="card-body col-12 col-md-10 mx-auto">
                     <form id="uploadForm" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ judul }}</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                            </div>
+                        </div>
+                        {% if form.non_field_errors %}
+                        <div class="text-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        <div class="modal-footer">
+                            {% comment %} <a href="{{link_url}}" class="btn btn-warning ml-2">Batal</a> {% endcomment %}
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
                     </form>
-
                     <div class="progress mt-2" style="height:25px; display:none;" id="progressWrapper">
-                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">0%</div>
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                            role="progressbar" style="width:0%" id="progressBar">0%</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- PROGRESS BAR -->
+    <div class="row mt-2">
+        <div class="col-lg-12">
+            <div class="progress mb-3" style="height: 25px; display:none;" id="progressWrapper">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     style="width:0%"
+                     id="progressBar">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABEL SIPD -->
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
@@ -106,28 +131,14 @@
                     </div>
 
                     <!-- SKIPPED ROWS -->
-                    
-                </div>
-            </div>
-        </div>
-        
-    </div>
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{ judulskip }}</h4>
-                </div>
-                <div class="card-body col-12 col-md-10 mx-auto">
-                    <div id="skippedRows"
-                        hx-get="{% url 'sipd-skipped' tahun %}"
-                        hx-trigger="load"
-                        hx-swap="innerHTML">
+                    <div id="skippedRows" hx-get="{% url 'sipd-skipped' tahun %}" hx-trigger="load" hx-swap="innerHTML">
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+
 </section>
 {% endblock content %}
 
@@ -145,15 +156,25 @@ input[type="search"]::-ms-clear { display: none; }
 
 {% block javascript %}
 <script>
+$(document).ready(function() {
+    // Refresh tabel HTMX setelah upload selesai
+    document.body.addEventListener('htmx:afterRequest', function(evt) {
+        if(evt.detail.xhr.status === 200) location.reload();
+    });
+
+    {% if messages %}
+    {% for message in messages %}
+        iziToast.{{ message.tags }}({
+            title: '{{ message.tags }}',
+            message: '{{ message }}',
+            position: 'topRight'
+        });
+    {% endfor %}
+    {% endif %}
+});
+
+// SEARCH CLEAR BUTTON
 document.addEventListener("DOMContentLoaded", function () {
-
-    const form = document.getElementById("uploadForm");
-    const progressWrapper = document.getElementById("progressWrapper");
-    const progressBar = document.getElementById("progressBar");
-
-    // =============================
-    // SEARCH CLEAR BUTTON
-    // =============================
     const input = document.getElementById("searchInput");
     const clearBtn = document.getElementById("clearSearch");
 
@@ -161,77 +182,89 @@ document.addEventListener("DOMContentLoaded", function () {
         clearBtn.style.display = input.value ? "block" : "none";
     }
 
-    if (input) {
-        input.addEventListener("input", toggleClear);
-        clearBtn.addEventListener("click", function () {
-            input.value = "";
-            toggleClear();
-            input.dispatchEvent(new Event("change"));
-            input.focus();
-        });
+    input.addEventListener("input", toggleClear);
+    clearBtn.addEventListener("click", function () {
+        input.value = "";
         toggleClear();
-    }
-
-    // =============================
-    // UPLOAD + PROGRESS BAR
-    // =============================
-    form.addEventListener("submit", function(e){
-        e.preventDefault();
-
-        const formData = new FormData(form);
-
-        progressWrapper.style.display = "block";
-        progressBar.style.width = "0%";
-        progressBar.innerText = "0%";
-        progressBar.classList.add("progress-bar-animated");
-        progressBar.classList.remove("bg-success");
-
-        fetch("{% url 'upload_sipd' %}", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            if (!data.task_id) {
-                alert("Upload gagal");
-                return;
-            }
-
-            const taskId = data.task_id;
-
-            const interval = setInterval(() => {
-                fetch(`{% url 'sipd-progress' 'TASKID' %}`.replace('TASKID', taskId))
-                .then(res => res.json())
-                .then(p => {
-
-                    if (p.done) {
-                        progressBar.style.width = "100%";
-                        progressBar.innerText = "100%";
-                        progressBar.classList.remove("progress-bar-animated");
-                        progressBar.classList.add("bg-success");
-
-                        clearInterval(interval);
-
-                        // reload tabel + skipped
-                        htmx.ajax('GET', "{% url 'upload_sipd' %}", '#table-wrapper');
-                        htmx.ajax('GET', "{% url 'sipd-skipped' tahun %}", '#skippedRows');
-
-                        return;
-                    }
-
-                    if (p.current && p.total) {
-                        let percent = Math.round((p.current / p.total) * 100);
-                        progressBar.style.width = percent + "%";
-                        progressBar.innerText = percent + "%";
-                    }
-                });
-            }, 1000);
-        });
+        input.dispatchEvent(new Event("change"));
+        input.focus();
     });
 
+    toggleClear();
+});
 
+// UPLOAD FORM + PROGRESS BAR
+document.getElementById("uploadForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
+    progressWrapper.style.display = "block";
+
+    fetch("{% url 'upload_sipd' %}", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        const taskId = data.task_id;
+
+        // polling progress via HTMX/JSON
+        const interval = setInterval(() => {
+            fetch(`/sipd/progress/${taskId}/`)
+            .then(res => res.json())
+            .then(p => {
+                if(!p.current || !p.total) return;
+                let percent = Math.round((p.current / p.total) * 100);
+                progressBar.style.width = percent + "%";
+                progressBar.innerText = percent + "%";
+                if(percent >= 100) {
+                    clearInterval(interval);
+                    progressBar.classList.remove("progress-bar-animated");
+                    progressBar.classList.add("bg-success");
+                }
+            });
+        }, 1000);
+    });
+});
+<script>
+document.getElementById("uploadForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
+
+    progressWrapper.style.display = "block";
+    progressBar.style.width = "0%";
+    progressBar.innerText = "0%";
+
+    fetch("{% url 'upload_sipd' %}", { method:"POST", body:formData })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error){
+            alert("Error: "+JSON.stringify(data.error));
+            return;
+        }
+
+        const tahun = {{ tahun }};
+        const interval = setInterval(() => {
+            fetch(`/sipd/progress/${tahun}/`)
+            .then(res => res.json())
+            .then(p => {
+                if(p.done){
+                    progressBar.style.width = "100%";
+                    progressBar.innerText = "100%";
+                    progressBar.classList.remove("progress-bar-animated");
+                    progressBar.classList.add("bg-success");
+                    clearInterval(interval);
+                    location.reload();
+                    return;
+                }
+                if(p.current && p.total){
+                    let percent = Math.round((p.current / p.total) * 100);
+                    progressBar.style.width = percent + "%";
+                    progressBar.innerText = percent + "%";
+                }
+            });
+        }, 1000);
+    });
 });
 </script>
-
 {% endblock javascript %}

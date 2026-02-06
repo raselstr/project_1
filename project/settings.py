@@ -78,7 +78,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -174,6 +174,21 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default, menggunakan d
 SESSION_COOKIE_NAME = 'sessionid'  # Nama cookie session
 SESSION_COOKIE_AGE = 1200  # Durasi sesi dalam detik 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Apakah session berakhir saat browser ditutup
+
+# Development / Windows
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/0")
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Jakarta'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+    }
+}
 
 
 print("USE_ENV_DATABASE =", USE_ENV_DATABASE)

@@ -1,0 +1,13 @@
+# Dockerfile-flower
+FROM python:3.12-bullseye
+
+WORKDIR /project_1
+
+# Install dependencies sistem
+RUN apt-get update && apt-get install -y python3-distutils gcc && rm -rf /var/lib/apt/lists/*
+
+# Install Flower versi 2.x
+RUN pip install --no-cache-dir flower==2.0.1
+
+# Default CMD untuk Flower 2.x
+CMD ["python", "-m", "flower", "flower", "--broker=redis://redis:6379/0", "--port=5555"]

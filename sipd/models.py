@@ -70,7 +70,10 @@ class Sipd(models.Model):
             'kode_sub_kegiatan',
             'kode_rekening',
             'nomor_dokumen',
+            'nomor_spm',
+            'nomor_sp2d',
         )
 
     def __str__(self):
         return f"{self.kode_sub_skpd} - {self.kode_sub_kegiatan} - {self.kode_rekening} - {self.nomor_dokumen}"
+

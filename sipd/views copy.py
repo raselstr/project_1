@@ -1,23 +1,40 @@
-from pathlib import Path
+import csv
+import os
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.cache import cache
+from django.contrib import messages
+from django.core.management import call_command
 from django_tables2 import RequestConfig
+from project.decorators import menu_access_required, set_submenu_session
+from .tasks import import_sipd_task
+
+from sipd.registry import SIPD_REGISTRY, get_rencana_by_pk, get_sp2d_sudah_realisasi_global
+
+
+from django.db import transaction
+from django.core.exceptions import ValidationError
+
 from openpyxl import Workbook
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 
-from .tasks import import_sipd_task
+from django.db.models import Q, Sum, Min
+from datetime import date
 
 from .forms import SipdUploadForm
 from .models import Sipd
 from .tables import SipdTable
 from .filters import SipdFilter
 
+from pathlib import Path
+
+from .tasks import import_sipd_task
+
 model_sipd = Sipd
 
 url_upload_sipd = "upload_sipd"
-
 
 def upload_sipd(request):
     tahun = request.session.get("tahun")
@@ -27,8 +44,6 @@ def upload_sipd(request):
         form = SipdUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = form.cleaned_data["file"]
-            request.session["tahun"] = tahun     # ← SIMPAN KE SESSION
-
             upload_dir = Path(settings.MEDIA_ROOT) / "import"
             upload_dir.mkdir(parents=True, exist_ok=True)
 
@@ -53,97 +68,145 @@ def upload_sipd(request):
     per_page = request.GET.get("per_page", "10")
     if per_page != "all":
         RequestConfig(request, paginate={"per_page": int(per_page)}).configure(table)
-    
+
     context = {
         "form": form,
         "table": table,
         "filter": sipd_filter,
         "judul": "Upload Excel SIPD",
-        "judulskip" : "Daftar yang di lewati",
         "tahun": tahun,
     }
-    if request.htmx:
-        return render(request, "sipd/partials/table.html", context)
 
     return render(request, "sipd/upload.html", context)
 
 
-def sipd_import_progress(request, task_id):
-    return JsonResponse(cache.get(f"sipd_{task_id}", {"current": 0, "total": 1}))
-
+def sipd_import_progress(request, tahun):
+    data = cache.get(f"sipd_import_{tahun}")
+    if not data:
+        return JsonResponse({"done": True})
+    return JsonResponse(data)
 
 
 def sipd_skipped_view(request, tahun):
-    file = Path(settings.MEDIA_ROOT) / f"sipd_skipped_{tahun}.csv"
-
+    file_path = Path(settings.MEDIA_ROOT) / "import" / f"sipd_skipped_{tahun}.csv"
     rows = []
-    if file.exists():
+    if file_path.exists():
         import csv
-        with open(file, encoding="utf-8") as f:
-            rows = list(csv.reader(f))
-
-    return render(request, "sipd/skipped_list.html", {"rows": rows})
-
-
+        with open(file_path, encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+    return render(request, "sipd/skipped_list.html", {"tahun": tahun, "rows": rows})
 
 
 def export_sipd_excel(request):
     tahun = request.session.get("tahun")
-
     qs = Sipd.objects.all()
     if tahun:
         qs = qs.filter(tahun=tahun)
-
-    qs = SipdFilter(request.GET, queryset=qs).qs
 
     wb = Workbook()
     ws = wb.active
     ws.title = "Data SIPD"
 
     headers = [
-        "Tahun",
-        "Nama Sub SKPD",
-        "Kode Sub Kegiatan",
-        "Nama Sub Kegiatan",
-        "Kode Rekening",
-        "Nama Rekening",
-        "Nomor Dokumen",
-        "Nomor SP2D",
-        "Nilai Realisasi",
+        "Tahun","nama_sub_skpd","kode_sub_kegiatan","nama_sub_kegiatan",
+        "kode_rekening","nama_rekening","nomor_dokumen","nomor_sp2d","nilai_realisasi"
     ]
     ws.append(headers)
 
-    for row in qs.values_list(
-        "tahun",
-        "nama_sub_skpd",
-        "kode_sub_kegiatan",
-        "nama_sub_kegiatan",
-        "kode_rekening",
-        "nama_rekening",
-        "nomor_dokumen",
-        "nomor_sp2d",
-        "nilai_realisasi",
-    ):
-        ws.append(row)
+    for obj in qs:
+        ws.append([
+            obj.tahun, obj.nama_sub_skpd, obj.kode_sub_kegiatan, obj.nama_sub_kegiatan,
+            obj.kode_rekening, obj.nama_rekening, obj.nomor_dokumen, obj.nomor_sp2d,
+            obj.nilai_realisasi
+        ])
 
     response = HttpResponse(
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
     response["Content-Disposition"] = f'attachment; filename="sipd_{tahun or "all"}.xlsx"'
     wb.save(response)
-
     return response
 
-from sipd.registry import SIPD_REGISTRY, get_rencana_by_pk, get_sp2d_sudah_realisasi_global
-from django.http import HttpResponseBadRequest
-from django.db.models import Q, Sum, Min
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.db import transaction
-from django.core.exceptions import ValidationError
-from datetime import date
-from django.shortcuts import render
-from project.decorators import menu_access_required, set_submenu_session
+
+# def upload_sipd(request):
+#     tahun = request.session.get("tahun")
+
+#     # =======================
+#     # UPLOAD & IMPORT
+#     # =======================
+#     if request.method == "POST":
+#         form = SipdUploadForm(request.POST, request.FILES)
+
+#         if form.is_valid():
+#             file = form.cleaned_data["file"]
+#             upload_dir = settings.MEDIA_ROOT / "import"
+#             os.makedirs(upload_dir, exist_ok=True)
+
+#             file_path = upload_dir / file.name
+#             with open(file_path, "wb+") as destination:
+#                 for chunk in file.chunks():
+#                     destination.write(chunk)
+
+#             try:
+#                 call_command(
+#                     "import_sipd_excel",
+#                     str(file_path),
+#                     tahun=tahun,
+#                 )
+#                 messages.success(
+#                     request,
+#                     f"Import SIPD berhasil untuk Tahun Anggaran {tahun}"
+#                 )
+#                 return redirect(url_upload_sipd)
+
+#             except Exception as e:
+#                 messages.error(request, f"Gagal import data: {e}")
+#     else:
+#         form = SipdUploadForm()
+
+#     # =======================
+#     # QUERYSET
+#     # =======================
+#     qs = model_sipd.objects.all()
+#     if tahun:
+#         qs = qs.filter(tahun=tahun)
+
+#     # =======================
+#     # SEARCH (django-filter)
+#     # =======================
+#     sipd_filter = SipdFilter(request.GET, queryset=qs)
+#     qs = sipd_filter.qs
+
+#     # =======================
+#     # TABLE + PAGINATION
+#     # =======================
+#     table = SipdTable(qs)
+
+#     per_page = request.GET.get("per_page", "10")
+#     if per_page == "all":
+#         table.paginate = False
+#         # RequestConfig(request).configure(table)   # ⛔ TANPA paginate
+#     else:
+#         RequestConfig(
+#         request,
+#         paginate={"per_page": int(per_page)}
+#     ).configure(table)
+        
+#     context = {
+#         "form": form,
+#         "table": table,
+#         "filter": sipd_filter,
+#         "judul": "Upload Excel SIPD",
+#         "btntombol": "Upload",
+#         "tahun": tahun,
+#     }
+    
+#     # 🔥 kalau HTMX → render table saja
+    
+#     if request.htmx:
+#         return render(request, "sipd/partials/table.html", context)
+
+#     return render(request, "sipd/upload.html", context)
 
 
 @set_submenu_session

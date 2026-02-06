@@ -1,0 +1,18 @@
+{% if rows %}
+<table class="table table-sm">
+    <tr>
+        <th>No</th>
+        <th>Alasan</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+        <td>{{ r.row_number }}</td>
+        <td>{{ r.reason }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div class="alert alert-success mt-3">
+    Tidak ada data yang di-skip 🎉
+</div>
+{% endif %}

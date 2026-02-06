@@ -1,6 +1,21 @@
 version: '3.9'
 
 services:
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+    - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
   web:
     image: projectweb:latest
     container_name: projectweb
@@ -25,6 +40,39 @@ services:
       retries: 3
     networks:
       - app-network
+    
+  celery:
+    build: .
+    container_name: project_celery
+    command: celery -A project worker --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - media_volume:/project_1/media
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile-flower
+    container_name: project_flower
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    volumes:
+      - media_volume:/project_1/media
+    restart: always
+    networks:
+      - app-network
+
 
   nginx:
     image: nginx:latest
