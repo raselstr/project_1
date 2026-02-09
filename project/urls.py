@@ -7,7 +7,7 @@ from . import views
 urlpatterns = [
     
     path('sipd/', include('sipd.urls')),
-    
+    path('djpk/', include('djpk.urls')),
     path('pu/', include('pu.urls')),
     path('kesehatan/', include('kesehatan.urls')),
     path('pendidikan/', include('pendidikan.urls')),

@@ -9,7 +9,7 @@ from jadwal.models import Jadwal
 
 def login_view(request):
     year = datetime.now().year
-    years = list(range(year - 1, year + 1 ))
+    years = list(range(year - 2, year + 1 ))
     
     # try:
     #     tblrencana=RencDankeljadwal.objects.latest('rencdankel_jadwal')

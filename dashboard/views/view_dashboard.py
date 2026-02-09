@@ -1,13 +1,42 @@
-# view_dashboard.py
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ..models import Menu, Submenu
 from project.context_processors import menu_context_processor
-from project.decorators import menu_access_required  # Impor decorator dari project
+from project.decorators import menu_access_required  # decorator akses menu
+
+from core.forms.filters import RekapRealisasiFilterForm
+from core.services.realisasi_service import RealisasiService
 
 @login_required
-
+@menu_access_required("dashboard")
 def index(request):
+    # Ambil context menu
     context = menu_context_processor(request)
-    context['judul'] = 'Dashboard'
+
+    # Ambil form filter
+    form = RekapRealisasiFilterForm(request.GET or None)
+
+    tahun = dana = tahap = None
+    if form.is_valid():
+        tahun = form.cleaned_data.get("tahun")
+        dana = form.cleaned_data.get("dana")
+        tahap = form.cleaned_data.get("tahap")
+
+    # Hitung total dan rekap
+    total_pagu = RealisasiService.get_total_pagu(tahun, dana, tahap)
+    total_realisasi = RealisasiService.get_total_realisasi(tahun, dana, tahap)
+    total_sisa = RealisasiService.get_total_sisa(tahun, dana, tahap)
+
+    rekap_tahap = RealisasiService.get_rekap_per_tahap(tahun, dana)
+
+    # Update context
+    context.update({
+        "judul": "Dashboard Realisasi",
+        "form": form,
+        "total_pagu": total_pagu,
+        "total_realisasi": total_realisasi,
+        "total_sisa": total_sisa,
+        "rekap_tahap": rekap_tahap,
+    })
+
     return render(request, "dashboard/dashboard.html", context)

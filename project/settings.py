@@ -58,6 +58,8 @@ INSTALLED_APPS = [
     'pu',
     'jadwal',
     'sipd',
+    'djpk',
+    'core',
 ]
 
 MIDDLEWARE = [
