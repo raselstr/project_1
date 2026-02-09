@@ -281,6 +281,146 @@ def sp2d(request):
         })
     return render(request, 'dankel_laporan/laporan_sp2d.html', context)
 
+# def get_data_context(request):
+#     tahunrealisasi = request.session.get('realisasidankel_tahun')
+#     danarealisasi_id = request.session.get('realisasidankel_dana')
+#     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
+#     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
+#     jadwal = request.session.get('jadwal')
+#     level = request.session.get('level')
+
+#     # Buat filter query
+#     filters = Q()
+#     if jadwal:
+#         filters &= Q(rencdankel_jadwal=jadwal)
+#     if tahunrealisasi:
+#         filters &= Q(rencdankel_tahun=tahunrealisasi)
+#     if danarealisasi_id:
+#         filters &= Q(rencdankel_dana_id=danarealisasi_id)
+#     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+#         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
+    
+#     filterreals = Q()
+#     if level == 'APIP' :
+#         filterreals &= Q(realisasidankel_verif=1)
+#     if tahunrealisasi:
+#         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
+#     if danarealisasi_id:
+#         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
+#     if tahaprealisasi_id:
+#         if tahaprealisasi_id == 1:
+#             filterreals &= Q(realisasidankel_tahap_id=1)
+#         elif tahaprealisasi_id == 2:
+#             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2])
+#         elif tahaprealisasi_id == 3:
+#             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2, 3])
+#     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+#         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+    
+#     progs = Model_prog.objects.all()
+#     rencanas = Model_rencana.objects.filter(filters)
+#     realisasis = Model_realisasi.objects.filter(filterreals)
+    
+
+#     # Siapkan data untuk template
+#     prog_data = []
+#     total_pagu_keseluruhan = 0
+#     total_output_keseluruhan = 0
+#     total_realisasi_keseluruhan = 0
+#     total_realisasi_output_keseluruhan = 0
+
+#     for prog in progs:
+#         total_pagu_prog = 0
+#         total_output_prog = 0
+#         total_realisasi_prog = 0
+#         total_realisasi_output_prog = 0
+#         prog_kegs = []
+#         for keg in prog.dankelkegs.all():
+#             total_pagu_keg = 0
+#             total_output_keg = 0
+#             total_realisasi_keg = 0
+#             total_realisasi_output_keg = 0
+#             keg_subs = []
+#             for sub in keg.dankelsubs.all():
+#                 # Ambil rencana terkait dengan sub
+#                 related_rencanas = rencanas.filter(rencdankel_sub=sub)
+
+#                 # Ambil data pagu dan output
+#                 pagu = 0
+#                 output = 0
+#                 if related_rencanas.exists():
+#                     pagu_output = related_rencanas.aggregate(
+#                         total_pagu=Sum('rencdankel_pagu'),
+#                         total_output=Sum('rencdankel_output')
+#                     )
+#                     pagu = pagu_output['total_pagu'] or 0
+#                     output = pagu_output['total_output'] or 0
+
+#                 total_pagu_keg += pagu
+#                 total_output_keg += output
+
+#                 # Ambil realisasi terkait dengan `realisasidankel_idrencana`
+#                 total_lpj = 0
+#                 total_output_realisasi = 0
+#                 for rencana in related_rencanas:
+#                     realisasi_rencana = realisasis.filter(realisasidankel_idrencana=rencana.rencdankel_id)
+#                     total_lpj += realisasi_rencana.aggregate(total_lpj=Sum('realisasidankel_lpjnilai'))['total_lpj'] or 0
+#                     total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankel_output'))['total_output'] or 0
+#                 keg_subs.append({
+#                     'sub': sub,
+#                     'pagu': pagu,
+#                     'output': output,
+#                     'realisasi': {
+#                         'total_lpj': total_lpj,
+#                         'total_output': total_output_realisasi
+#                     }
+#                 })
+
+#                 total_realisasi_output_keg += total_output_realisasi
+#                 total_realisasi_keg += total_lpj
+
+#             prog_kegs.append({
+#                 'keg': keg,
+#                 'subs': keg_subs,
+#                 'total_pagu_keg': total_pagu_keg,
+#                 'total_output_keg': total_output_keg,
+#                 'total_realisasi_keg': total_realisasi_keg,
+#                 'total_realisasi_output_keg': total_realisasi_output_keg
+#             })
+#             total_pagu_prog += total_pagu_keg
+#             total_output_prog += total_output_keg
+#             total_realisasi_prog += total_realisasi_keg
+#             total_realisasi_output_prog += total_realisasi_output_keg
+            
+
+#         total_pagu_keseluruhan += total_pagu_prog
+#         total_output_keseluruhan += total_output_prog
+#         total_realisasi_keseluruhan += total_realisasi_prog
+#         total_realisasi_output_keseluruhan += total_realisasi_output_prog
+
+#         prog_data.append({
+#             'prog': prog,
+#             'kegs': prog_kegs,
+#             'total_pagu_prog': total_pagu_prog,
+#             'total_output_prog': total_output_prog,
+#             'total_realisasi_prog': total_realisasi_prog,
+#             'total_realisasi_output_prog': total_realisasi_output_prog
+#         })
+
+#     return {
+#         'prog_data': prog_data,
+#         'total_pagu_keseluruhan': total_pagu_keseluruhan,
+#         'total_output_keseluruhan': total_output_keseluruhan,
+#         'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
+#         'total_realisasi_output_keseluruhan': total_realisasi_output_keseluruhan,
+#         'tahunrealisasi': tahunrealisasi,
+#         'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id),
+#         'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id),
+#         'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id),
+#         'jadwal': jadwal
+#     }
+
+
 def get_data_context(request):
     tahunrealisasi = request.session.get('realisasidankel_tahun')
     danarealisasi_id = request.session.get('realisasidankel_dana')
@@ -289,7 +429,9 @@ def get_data_context(request):
     jadwal = request.session.get('jadwal')
     level = request.session.get('level')
 
-    # Buat filter query
+    # =====================
+    # FILTER RENCANA
+    # =====================
     filters = Q()
     if jadwal:
         filters &= Q(rencdankel_jadwal=jadwal)
@@ -297,16 +439,21 @@ def get_data_context(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id not in [124, 67]:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
-    
+
+    # =====================
+    # FILTER REALISASI
+    # =====================
     filterreals = Q()
-    if level == 'APIP' :
+    if level == 'APIP':
         filterreals &= Q(realisasidankel_verif=1)
+
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
+
     if tahaprealisasi_id:
         if tahaprealisasi_id == 1:
             filterreals &= Q(realisasidankel_tahap_id=1)
@@ -314,40 +461,67 @@ def get_data_context(request):
             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2])
         elif tahaprealisasi_id == 3:
             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2, 3])
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+
+    if subopdrealisasi_id not in [124, 67]:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
-    
+
+    # =====================
+    # QUERY DATA
+    # =====================
     progs = Model_prog.objects.all()
     rencanas = Model_rencana.objects.filter(filters)
     realisasis = Model_realisasi.objects.filter(filterreals)
-    
 
-    # Siapkan data untuk template
-    prog_data = []
+    # =====================
+    # TOTAL GLOBAL
+    # =====================
     total_pagu_keseluruhan = 0
     total_output_keseluruhan = 0
     total_realisasi_keseluruhan = 0
     total_realisasi_output_keseluruhan = 0
 
+    total_t1_keseluruhan = 0
+    total_t2_keseluruhan = 0
+
+    prog_data = []
+
+    # =====================
+    # LOOP PROGRAM
+    # =====================
     for prog in progs:
         total_pagu_prog = 0
         total_output_prog = 0
         total_realisasi_prog = 0
         total_realisasi_output_prog = 0
+
+        total_t1_prog = 0
+        total_t2_prog = 0
+
         prog_kegs = []
+
+        # =====================
+        # LOOP KEGIATAN
+        # =====================
         for keg in prog.dankelkegs.all():
             total_pagu_keg = 0
             total_output_keg = 0
             total_realisasi_keg = 0
             total_realisasi_output_keg = 0
+
+            total_t1_keg = 0
+            total_t2_keg = 0
+
             keg_subs = []
+
+            # =====================
+            # LOOP SUB KEGIATAN
+            # =====================
             for sub in keg.dankelsubs.all():
-                # Ambil rencana terkait dengan sub
                 related_rencanas = rencanas.filter(rencdankel_sub=sub)
 
-                # Ambil data pagu dan output
                 pagu = 0
                 output = 0
+
                 if related_rencanas.exists():
                     pagu_output = related_rencanas.aggregate(
                         total_pagu=Sum('rencdankel_pagu'),
@@ -359,25 +533,62 @@ def get_data_context(request):
                 total_pagu_keg += pagu
                 total_output_keg += output
 
-                # Ambil realisasi terkait dengan `realisasidankel_idrencana`
-                total_lpj = 0
-                total_output_realisasi = 0
+                # =====================
+                # REALISASI PER TAHAP
+                # =====================
+                realisasi_t1 = 0
+                realisasi_t2 = 0
+                output_t1 = 0
+                output_t2 = 0
+
                 for rencana in related_rencanas:
-                    realisasi_rencana = realisasis.filter(realisasidankel_idrencana=rencana.rencdankel_id)
-                    total_lpj += realisasi_rencana.aggregate(total_lpj=Sum('realisasidankel_lpjnilai'))['total_lpj'] or 0
-                    total_output_realisasi += realisasi_rencana.aggregate(total_output=Sum('realisasidankel_output'))['total_output'] or 0
+                    realisasi_rencana = realisasis.filter(
+                        realisasidankel_idrencana=rencana.rencdankel_id
+                    )
+
+                    # Tahap 1
+                    t1 = realisasi_rencana.filter(realisasidankel_tahap_id=1)
+                    realisasi_t1 += t1.aggregate(total=Sum('realisasidankel_lpjnilai'))['total'] or 0
+                    output_t1 += t1.aggregate(total=Sum('realisasidankel_output'))['total'] or 0
+
+                    # Tahap 2
+                    t2 = realisasi_rencana.filter(realisasidankel_tahap_id=2)
+                    realisasi_t2 += t2.aggregate(total=Sum('realisasidankel_lpjnilai'))['total'] or 0
+                    output_t2 += t2.aggregate(total=Sum('realisasidankel_output'))['total'] or 0
+
+                realisasi_total = realisasi_t1 + realisasi_t2
+                output_total_realisasi = output_t1 + output_t2
+                sisa = pagu - realisasi_total
+
+                total_realisasi_keg += realisasi_total
+                total_realisasi_output_keg += output_total_realisasi
+
+                total_t1_keg += realisasi_t1
+                total_t2_keg += realisasi_t2
+
                 keg_subs.append({
                     'sub': sub,
                     'pagu': pagu,
                     'output': output,
-                    'realisasi': {
-                        'total_lpj': total_lpj,
-                        'total_output': total_output_realisasi
-                    }
+                    'realisasi_t1': realisasi_t1,
+                    'realisasi_t2': realisasi_t2,
+                    'realisasi_total': realisasi_total,
+                    'sisa': sisa,
+                    'output_t1': output_t1,
+                    'output_t2': output_t2,
+                    'output_total': output_total_realisasi,
                 })
 
-                total_realisasi_output_keg += total_output_realisasi
-                total_realisasi_keg += total_lpj
+            # =====================
+            # TOTAL KEGIATAN
+            # =====================
+            total_pagu_prog += total_pagu_keg
+            total_output_prog += total_output_keg
+            total_realisasi_prog += total_realisasi_keg
+            total_realisasi_output_prog += total_realisasi_output_keg
+
+            total_t1_prog += total_t1_keg
+            total_t2_prog += total_t2_keg
 
             prog_kegs.append({
                 'keg': keg,
@@ -385,18 +596,22 @@ def get_data_context(request):
                 'total_pagu_keg': total_pagu_keg,
                 'total_output_keg': total_output_keg,
                 'total_realisasi_keg': total_realisasi_keg,
-                'total_realisasi_output_keg': total_realisasi_output_keg
+                'total_realisasi_output_keg': total_realisasi_output_keg,
+                'total_t1_keg': total_t1_keg,
+                'total_t2_keg': total_t2_keg,
+                'sisa_keg': total_pagu_keg - (total_t1_keg + total_t2_keg),
             })
-            total_pagu_prog += total_pagu_keg
-            total_output_prog += total_output_keg
-            total_realisasi_prog += total_realisasi_keg
-            total_realisasi_output_prog += total_realisasi_output_keg
-            
 
+        # =====================
+        # TOTAL PROGRAM
+        # =====================
         total_pagu_keseluruhan += total_pagu_prog
         total_output_keseluruhan += total_output_prog
         total_realisasi_keseluruhan += total_realisasi_prog
         total_realisasi_output_keseluruhan += total_realisasi_output_prog
+
+        total_t1_keseluruhan += total_t1_prog
+        total_t2_keseluruhan += total_t2_prog
 
         prog_data.append({
             'prog': prog,
@@ -404,19 +619,27 @@ def get_data_context(request):
             'total_pagu_prog': total_pagu_prog,
             'total_output_prog': total_output_prog,
             'total_realisasi_prog': total_realisasi_prog,
-            'total_realisasi_output_prog': total_realisasi_output_prog
+            'total_realisasi_output_prog': total_realisasi_output_prog,
+            'total_t1_prog': total_t1_prog,
+            'total_t2_prog': total_t2_prog,
+            'sisa_prog': total_pagu_prog - (total_t1_prog + total_t2_prog),
         })
 
+    # =====================
+    # RETURN CONTEXT
+    # =====================
     return {
         'prog_data': prog_data,
         'total_pagu_keseluruhan': total_pagu_keseluruhan,
         'total_output_keseluruhan': total_output_keseluruhan,
         'total_realisasi_keseluruhan': total_realisasi_keseluruhan,
         'total_realisasi_output_keseluruhan': total_realisasi_output_keseluruhan,
+        'total_t1_keseluruhan': total_t1_keseluruhan,
+        'total_t2_keseluruhan': total_t2_keseluruhan,
+        'total_sisa_keseluruhan': total_pagu_keseluruhan - (total_t1_keseluruhan + total_t2_keseluruhan),
         'tahunrealisasi': tahunrealisasi,
-        'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id),
-        'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id),
-        'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id),
-        'jadwal': jadwal
+        'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id) if danarealisasi_id else None,
+        'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id) if tahaprealisasi_id else None,
+        'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id) if subopdrealisasi_id else None,
+        'jadwal': jadwal,
     }
-
