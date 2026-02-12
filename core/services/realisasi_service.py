@@ -358,6 +358,113 @@ class RealisasiService:
         return data
 
 
+    # ======================================================
+    # REKAP PER TAHAP UNTUK DJPK (TIDAK MENGGANGGU DASHBOARD)
+    # ======================================================
+
+    @classmethod
+    def get_rekap_per_tahap_djpk(cls):
+        """
+        Versi khusus DJPK.
+        Menghasilkan data:
+        - tahun
+        - dana_id
+        - dana_nama
+        - tahap_id
+        - tahap_nama
+        - pagu
+        - realisasi
+        - sisa
+        """
+
+        from decimal import Decimal
+        from django.db.models import Sum
+
+        hasil = {}
+
+        # ===============================
+        # HITUNG PAGU TERBARU
+        # ===============================
+        pagu_lookup = {}
+
+        for model in cls.PAGU_MODELS:
+            qs = model.objects.all()
+
+            max_jadwal_sub = (
+                qs.values("posting_tahun", "posting_dana_id")
+                .annotate(max_jadwal=Max("posting_jadwal_id"))
+            )
+
+            for item in max_jadwal_sub:
+                tahun = item["posting_tahun"]
+                dana_id = item["posting_dana_id"]
+                jadwal = item["max_jadwal"]
+
+                subtotal = (
+                    qs.filter(
+                        posting_tahun=tahun,
+                        posting_dana_id=dana_id,
+                        posting_jadwal_id=jadwal,
+                    )
+                    .aggregate(total=Sum("posting_pagu"))["total"]
+                    or Decimal(0)
+                )
+
+                pagu_lookup[(tahun, dana_id)] = (
+                    pagu_lookup.get((tahun, dana_id), Decimal(0)) + subtotal
+                )
+
+        # ===============================
+        # HITUNG REALISASI PER TAHAP
+        # ===============================
+        for model in cls.REALISASI_MODELS:
+            qs = model.objects.select_related(
+                "realisasi_tahap",
+                "realisasi_dana",
+            )
+
+            for r in qs:
+                key = (
+                    r.realisasi_tahun,
+                    r.realisasi_dana_id,
+                    r.realisasi_dana.sub_nama,
+                    r.realisasi_tahap_id,
+                    r.realisasi_tahap.tahap_dana,
+                )
+
+                if key not in hasil:
+                    hasil[key] = {
+                        "pagu": pagu_lookup.get(
+                            (r.realisasi_tahun, r.realisasi_dana_id),
+                            Decimal(0),
+                        ),
+                        "realisasi": Decimal(0),
+                    }
+
+                hasil[key]["realisasi"] += r.realisasi_nilai or Decimal(0)
+
+        # ===============================
+        # FORMAT OUTPUT
+        # ===============================
+        data = []
+
+        for key, nilai in hasil.items():
+            tahun, dana_id, dana_nama, tahap_id, tahap_nama = key
+
+            data.append({
+                "tahun": tahun,
+                "dana_id": dana_id,
+                "dana_nama": dana_nama,
+                "tahap_id": tahap_id,
+                "tahap_nama": tahap_nama,
+                "pagu": nilai["pagu"],
+                "realisasi": nilai["realisasi"],
+                "sisa": nilai["pagu"] - nilai["realisasi"],
+            })
+
+        return sorted(data, key=lambda x: (x["tahun"], x["dana_nama"], x["tahap_nama"]))
+
+
     @classmethod
     def get_rekap_per_opd(cls, tahun=None, dana=None, tahap=None):
         """

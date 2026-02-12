@@ -1,6 +1,8 @@
 from django.urls import path
-# from .views import rekap_realisasi
+from . import views
 
 urlpatterns = [
-    # path("rekap-realisasi/", rekap_realisasi, name="rekap_realisasi"),
+    path("", views.djpk_list, name="djpk_list"),
+    path("print/<int:pk>/", views.djpk_print, name="djpk_print"),
+
 ]

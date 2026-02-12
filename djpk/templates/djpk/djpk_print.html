@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cetak DJPK</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .download-btn {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+
+    <script>
+        window.addEventListener('load', function () {
+            window.print();
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- Tombol Download -->
+    <div class="download-btn">
+        <a href="{{ djpk.file.url }}" download
+           style="padding:8px 12px; background:#198754; color:white; text-decoration:none; border-radius:4px;">
+            Download PDF
+        </a>
+    </div>
+
+    <!-- Tampilkan PDF -->
+    <iframe src="{{ djpk.file.url }}"></iframe>
+
+</body>
+</html>
