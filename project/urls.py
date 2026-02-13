@@ -27,6 +27,7 @@ urlpatterns = [
     path('dausg/dausgpend/', include('dausg.urls.url_dausgpend')),
     path('dausg/dausgkes/', include('dausg.urls.url_dausgkes')),
     path('dausg/dausgpu/', include('dausg.urls.url_dausgpu')),
+    path('dausg/copy/', include('dausg.urls.url_duplicate')),
     path('dana/', include('dana.urls')),
     path('opd/', include('opd.urls')),
     path('notfound/', views.notfound,name='notfound'),

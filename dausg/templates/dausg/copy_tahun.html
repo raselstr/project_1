@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-header">
+    <h4 class="mb-0">Copy Data Tahun</h4>
+  </div>
+
+  <div class="card-body">
+
+    <form method="post" id="formCopy">
+      {% csrf_token %}
+
+      <!-- hidden action -->
+      <input type="hidden" name="action" id="actionField" value="copy">
+
+      <!-- Sektor -->
+      <div class="mb-3">
+        <label class="form-label">Sektor</label>
+        <select name="sektor" class="form-control" required>
+          <option value="">-- pilih sektor --</option>
+          <option value="pendidikan">DAUSG Pendidikan</option>
+          <option value="kesehatan">DAUSG Kesehatan</option>
+          <option value="pu">DAUSG PU</option>
+          <option value="dankel">Dana Kelurahan</option>
+        </select>
+      </div>
+
+      <!-- Tahun -->
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Tahun Asal</label>
+          <input type="number" name="tahun_asal" class="form-control" min="2000" max="2100">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Tahun Tujuan</label>
+          <input type="number" name="tahun_tujuan" class="form-control" min="2000" max="2100">
+        </div>
+      </div>
+
+      <!-- Tombol -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" id="btnCopy">
+          Copy Sekarang
+        </button>
+
+        <button type="button" class="btn btn-danger" id="btnDelete">
+          Hapus Tahun
+        </button>
+      </div>
+    </form>
+
+    <hr>
+
+    <!-- Histori -->
+    <h5 class="mb-3">Histori Copy Tahun</h5>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Tanggal</th>
+            <th>Sektor</th>
+            <th>Dari</th>
+            <th>Ke</th>
+            <th>Status</th>
+            <th>User</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for l in logs %}
+          <tr>
+            <td>{{ l.created_at|date:"d M Y H:i" }}</td>
+            <td class="text-capitalize">{{ l.sektor }}</td>
+            <td>{{ l.tahun_asal }}</td>
+            <td>{{ l.tahun_tujuan }}</td>
+            <td>
+              {% if l.status == "SUCCESS" %}
+                <span class="badge bg-success">SUCCESS</span>
+              {% else %}
+                <span class="badge bg-danger">FAILED</span>
+              {% endif %}
+            </td>
+            <td>{{ l.user }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Belum ada histori copy
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+const form = document.getElementById("formCopy");
+const actionField = document.getElementById("actionField");
+const btnCopy = document.getElementById("btnCopy");
+const btnDelete = document.getElementById("btnDelete");
+
+form.addEventListener("submit", function(e) {
+    const asal = document.querySelector("[name=tahun_asal]").value;
+    const tujuan = document.querySelector("[name=tahun_tujuan]").value;
+
+    if (actionField.value === "copy") {
+        if (!asal || !tujuan) {
+            alert("Tahun asal & tujuan wajib diisi.");
+            e.preventDefault();
+            return;
+        }
+
+        if (!confirm(`Copy data dari ${asal} ke ${tujuan}?`)) {
+            e.preventDefault();
+            return;
+        }
+
+        btnCopy.disabled = true;
+        btnCopy.innerText = "Memproses...";
+    }
+});
+
+btnDelete.addEventListener("click", function() {
+    const tujuan = document.querySelector("[name=tahun_tujuan]").value;
+
+    if (!tujuan) {
+        alert("Isi Tahun Tujuan yang akan dihapus.");
+        return;
+    }
+
+    if (!confirm(`⚠️ Hapus SEMUA data tahun ${tujuan}? Tidak bisa dibatalkan!`)) {
+        return;
+    }
+
+    actionField.value = "delete";
+    form.submit();
+});
+</script>
+{% endblock %}

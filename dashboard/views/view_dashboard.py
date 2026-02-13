@@ -34,7 +34,7 @@ def index(request):
 
     # ================= UPDATE CONTEXT =================
     context.update({
-        "judul": "Dashboard Realisasi",
+        "judul": "Dashboard Realisasi DAU SG",
         "form": form,
         "total_pagu": total_pagu,
         "total_realisasi": total_realisasi,
