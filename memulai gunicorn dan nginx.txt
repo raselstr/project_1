@@ -141,5 +141,5 @@ RESTORE DATABASE
 docker exec -i projectwebpostgres psql -U raselstr -d tkdd < /var/lib/postgresql/db_host/backup230920240849am.sql
 
 cara restore tanpa masuk ke container
-copy ==> docker cp H:\backup_database_server\tkdd_backup_2026-02-10_02-00-01.sq projectwebpostgres:/backup.dump
+copy ==> docker cp H:\backup_database_server\tkdd_backup_2026-02-13_02-00-01.sql projectwebpostgres:/backup.dump
 restore ==> docker exec -it projectwebpostgres pg_restore --clean --if-exists -U raselstr -d tkdd /backup.dump

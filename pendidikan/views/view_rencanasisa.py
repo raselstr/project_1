@@ -159,6 +159,7 @@ def list(request):
         data = model_data.objects.filter(filters)
     except model_data.DoesNotExist:
         data = None
+    # print(data)
 
     context = {
         'judul': 'Daftar Kegiatan DAU Bidang Pendidikan Sisa Tahun Lalu',
