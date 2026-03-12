@@ -18,7 +18,7 @@
                         <th>Pagu</th>
                         <th>Tahap</th>
                         <th>Realisasi</th>
-                        <th>File DJPK</th>
+                        <th>Upload File DJPK</th>
                         <th>Lihat</th>
                     </tr>
                 </thead>
@@ -40,21 +40,25 @@
                         </td>
                         <td class="text-right">{{ row.realisasi|intcomma }}</td>
                         <td>
-                            <form method="post"
-                                enctype="multipart/form-data"
-                                action="{% url 'djpk_list' %}">
-                                {% csrf_token %}
+                            {% if request.user.is_superuser %}
+                                <form method="post"
+                                    enctype="multipart/form-data"
+                                    action="{% url 'djpk_list' %}">
+                                    {% csrf_token %}
 
-                                <input type="hidden" name="tahun" value="{{ row.tahun }}">
-                                <input type="hidden" name="dana_id" value="{{ row.dana_id }}">
-                                <input type="hidden" name="tahap_id" value="{{ row.tahap_id }}">
+                                    <input type="hidden" name="tahun" value="{{ row.tahun }}">
+                                    <input type="hidden" name="dana_id" value="{{ row.dana_id }}">
+                                    <input type="hidden" name="tahap_id" value="{{ row.tahap_id }}">
 
-                                <input type="file" name="file" accept="application/pdf" required>
-                                
-                                <button type="submit" class="btn btn-sm btn-primary">
-                                    Upload
-                                </button>
-                            </form>
+                                    <input type="file" name="file" accept="application/pdf" required>
+                                    
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        Upload
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted">Tidak ada akses</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if row.djpk %}

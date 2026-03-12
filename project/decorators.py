@@ -41,7 +41,7 @@ def menu_access_required(permission):
 
             # Dapatkan semua Levelsub yang diizinkan untuk level pengguna
             allowed_levelsubs = Levelsub.objects.filter(levelsub_level=user_level)
-            next_url = request.session.get('next')
+            next_url = request.session.get('next') or '/'
             
             # Dapatkan ID submenu dari session
             submenu_id = request.session.get('current_submenu_id')
@@ -75,7 +75,7 @@ def menu_access_required(permission):
             else:
                 logger.error("submenu_id tidak ditemukan dalam session.")
                 messages.error(request, "Tidak ditemukan submenu ID dalam session.")
-                return redirect(next_url)
+                return redirect(next_url or '/')
 
             return view_func(request, *args, **kwargs)
         return _wrapped_view

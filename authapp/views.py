@@ -77,9 +77,6 @@ def login_view(request):
                 messages.error(request, 'Akun tidak aktif. Silakan hubungi administrator.')
         else:
             messages.error(request, 'Kombinasi username dan password salah.')
-    
-
-    
         
     return render(request, 'authapp/login.html',{'tahun':years})
 

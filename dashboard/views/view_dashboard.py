@@ -10,7 +10,7 @@ from core.services.realisasi_service import RealisasiService
 
 
 @login_required
-@menu_access_required("dashboard")
+# @menu_access_required("dashboard")
 def index(request):
     # Ambil context menu (header/sidebar)
     context = menu_context_processor(request)
