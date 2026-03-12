@@ -103,7 +103,7 @@
                                 {% for row in rekap_opd %}
                                 <tr>
                                     <td>{{ row.subopd_nama }}</td>
-                                    <td class="text-end">Rp {{ row.realisasi|intcomma }}</td>
+                                    <td class="text-end">Rp {{ row.total|intcomma }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr><td colspan="2" class="text-center">Tidak ada data</td></tr>

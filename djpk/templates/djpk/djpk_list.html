@@ -15,8 +15,8 @@
                     <tr>
                         <th>Tahun</th>
                         <th>Jenis Dana</th>
-                        <th>Tahap</th>
                         <th>Pagu</th>
+                        <th>Tahap</th>
                         <th>Realisasi</th>
                         <th>File DJPK</th>
                         <th>Lihat</th>
@@ -25,9 +25,12 @@
                 <tbody>
                     {% for row in rekap_data %}
                     <tr>
-                        {% if row.show_dana %}
+                        {% if row.show_group %}
                             <td rowspan="{{ row.rowspan }}">{{ row.tahun }}</td>
                             <td rowspan="{{ row.rowspan }}">{{ row.dana_nama }}</td>
+                            <td rowspan="{{ row.rowspan }}" class="text-end">
+                                {{ row.pagu|intcomma }}
+                            </td>
                         {% endif %}
 
                         <td>
@@ -35,7 +38,6 @@
                                 {{ row.tahap_id }}
                             </span>
                         </td>
-                        <td class="text-right">{{ row.pagu|intcomma }}</td>
                         <td class="text-right">{{ row.realisasi|intcomma }}</td>
                         <td>
                             <form method="post"

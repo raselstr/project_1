@@ -1,19 +1,23 @@
 from django import forms
-from core.services.realisasi_service import RealisasiService
+from core.helpers.filter_helper import FilterHelper
+
 
 class RekapRealisasiFilterForm(forms.Form):
+
     tahun = forms.ChoiceField(
         required=False,
         label="Tahun",
         choices=[],
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
     dana = forms.ChoiceField(
         required=False,
         label="Jenis Dana",
         choices=[],
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
     tahap = forms.ChoiceField(
         required=False,
         label="Tahap",
@@ -24,14 +28,6 @@ class RekapRealisasiFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Tahun
-        tahun_choices = [(t, t) for t in RealisasiService.get_available_tahun()]
-        self.fields["tahun"].choices = [("", "Semua Tahun")] + tahun_choices
-
-        # Dana
-        dana_choices = RealisasiService.get_available_dana()
-        self.fields["dana"].choices = [("", "Semua Dana")] + list(dana_choices)
-
-        # Tahap
-        tahap_choices = RealisasiService.get_available_tahap()
-        self.fields["tahap"].choices = [("", "Semua Tahap")] + list(tahap_choices)
+        self.fields["tahun"].choices = FilterHelper.tahun_choices()
+        self.fields["dana"].choices = FilterHelper.dana_choices()
+        self.fields["tahap"].choices = FilterHelper.tahap_choices()

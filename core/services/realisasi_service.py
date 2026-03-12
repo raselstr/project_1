@@ -1,484 +1,248 @@
 from collections import defaultdict
 from decimal import Decimal
-from django.db.models import Sum, F, Max
+
+from django.db.models import Sum, Q
+
+from dana.models import TahapDana
 
 from pendidikan.models import (
     Realisasi,
     Realisasisisa,
-    Rencanaposting,
-    Rencanapostingsisa,
 )
+
 from kesehatan.models import (
     Realisasikesehatan,
     Realisasikesehatansisa,
-    Rencanakesehatanposting,
-    Rencanakesehatanpostingsisa,
 )
+
 from pu.models import (
     Realisasipu,
     Realisasipusisa,
-    Rencanapuposting,
-    Rencanapupostingsisa,
+)
+
+from dankel.models import (
+    RealisasiDankel,
+    RealisasiDankelsisa,
 )
 
 
-class RealisasiService:
-    """
-    Universal Realisasi Service (FINAL)
+class   RealisasiService:
 
-    PERUBAHAN UTAMA:
-    ----------------
-    - Tidak lagi memakai "jadwal tertinggi"
-    - Menggunakan jadwal dengan:
-          posting_jadwal__jadwal_aktif = True
+    COMMON_REALISASI_FIELDS = {
+        "tahun": "realisasi_tahun",
+        "dana": "realisasi_dana",
+        "subopd": "realisasi_subopd_id",
+        "subkegiatan": "realisasi_subkegiatan_id",
+        "nilai": "realisasi_nilai",
+        "tahap": "realisasi_tahap_id",
+    }
 
-    HASIL PERHITUNGAN:
-    ------------------
-    ✔ Tetap sama secara bisnis
-    ✔ Query lebih ringan
-    ✔ Lebih aman secara administrasi
-    """
+    REALISASI_MODELS = {
+        Realisasi: COMMON_REALISASI_FIELDS,
+        Realisasisisa: COMMON_REALISASI_FIELDS,
+        Realisasikesehatan: COMMON_REALISASI_FIELDS,
+        Realisasikesehatansisa: COMMON_REALISASI_FIELDS,
+        Realisasipu: COMMON_REALISASI_FIELDS,
+        Realisasipusisa: COMMON_REALISASI_FIELDS,
 
-    REALISASI_MODELS = [
-        Realisasi,
-        Realisasisisa,
-        Realisasikesehatan,
-        Realisasikesehatansisa,
-        Realisasipu,
-        Realisasipusisa,
-    ]
+        RealisasiDankel: {
+            "tahun": "realisasidankel_tahun",
+            "dana": "realisasidankel_dana_id",
+            "subopd": "realisasidankel_subopd_id",
+            "subkegiatan": "realisasidankel_rencana_id",
+            "nilai": "realisasidankel_lpjnilai",
+            "tahap": "realisasidankel_tahap_id",
+        },
 
-    PAGU_MODELS = [
-        Rencanaposting,
-        Rencanapostingsisa,
-        Rencanakesehatanposting,
-        Rencanakesehatanpostingsisa,
-        Rencanapuposting,
-        Rencanapupostingsisa,
-    ]
+        RealisasiDankelsisa: {
+            "tahun": "realisasidankelsisa_tahun",
+            "dana": "realisasidankelsisa_dana_id",
+            "subopd": "realisasidankelsisa_subopd_id",
+            "subkegiatan": "realisasidankelsisa_rencana_id",
+            "nilai": "realisasidankelsisa_lpjnilai",
+            "tahap": "realisasidankelsisa_tahap_id",
+        },
+    }
 
-    # ======================================================
-    # INTERNAL FILTER
-    # ======================================================
-
+   
     @classmethod
-    def _filter_realisasi(cls, qs, tahun=None, dana=None, tahap=None):
+    def filter_queryset(cls, qs, field, tahun=None, dana=None, tahap=None):
+
         if tahun:
-            qs = qs.filter(realisasi_tahun=tahun)
+            qs = qs.filter(**{field["tahun"]: tahun})
+
         if dana:
-            qs = qs.filter(realisasi_dana_id=dana)
+            qs = qs.filter(**{field["dana"]: dana})
+
         if tahap:
-            qs = qs.filter(realisasi_tahap_id=tahap)
+            qs = qs.filter(**{field["tahap"]: tahap})
+
         return qs
 
-    @classmethod
-    def _filter_pagu(cls, qs, tahun=None, dana=None):
-        if tahun:
-            qs = qs.filter(
-                posting_tahun=tahun,
-                posting_jadwal__jadwal_tahun=tahun,
-            )
 
-        if dana:
-            qs = qs.filter(posting_dana_id=dana)
-
-        # hanya jadwal aktif pada tahun tersebut
-        return qs.filter(posting_jadwal__jadwal_aktif=True)
-
-    # ======================================================
+    # ==========================
     # TOTAL REALISASI
-    # ======================================================
+    # ==========================
 
     @classmethod
     def get_total_realisasi(cls, tahun=None, dana=None, tahap=None):
+
         total = Decimal(0)
 
-        for model in cls.REALISASI_MODELS:
-            qs = cls._filter_realisasi(model.objects.all(), tahun, dana, tahap)
-            total += qs.aggregate(total=Sum("realisasi_nilai"))["total"] or Decimal(0)
+        for model, field in cls.REALISASI_MODELS.items():
 
-        return total
-
-    # ======================================================
-    # TOTAL PAGU (JADWAL AKTIF)
-    # ======================================================
-
-    @classmethod
-    def get_total_pagu(cls, tahun=None, dana=None):
-        total = Decimal(0)
-
-        for model in cls.PAGU_MODELS:
             qs = model.objects.all()
 
-            if dana:
-                qs = qs.filter(posting_dana_id=dana)
-
-            # ======================================
-            # FILTER HANYA DATA YANG JADWALNYA VALID
-            # ======================================
-            qs = qs.filter(
-                posting_jadwal__isnull=False,          # harus punya relasi
-                posting_jadwal__jadwal_aktif=True      # jadwal aktif
-            )
-
-            # ===============================
-            # JIKA FILTER 1 TAHUN
-            # ===============================
-            if tahun:
-                qs = qs.filter(
-                    posting_tahun=tahun,
-                    posting_jadwal__jadwal_tahun=tahun,   # tahun harus sama
-                )
-
-                total += qs.aggregate(
-                    total=Sum("posting_pagu")
-                )["total"] or Decimal(0)
-
-            # ===============================
-            # JIKA SEMUA TAHUN
-            # ===============================
-            else:
-                data = (
-                    qs
-                    .filter(posting_jadwal__jadwal_tahun=F("posting_tahun"))
-                    .values("posting_tahun")
-                    .annotate(total=Sum("posting_pagu"))
-                )
-
-                for row in data:
-                    total += row["total"] or Decimal(0)
-
-        return total
-
-
-    # ======================================================
-    # DETAIL PAGU PER DANA (UNTUK AUDIT)
-    # ======================================================
-
-    @classmethod
-    def debug_rincian_pagu_per_dana(cls, dana_id, tahun=None):
-        grand_total = Decimal(0)
-
-        for model in cls.PAGU_MODELS:
-            qs = model.objects.filter(posting_dana_id=dana_id)
-
-            if tahun:
-                qs = qs.filter(posting_tahun=tahun)
-
-            qs = qs.filter(posting_jadwal__jadwal_aktif=True)
-
-            if not qs.exists():
-                continue
-
-            print(f"\n===== MODEL: {model.__name__} =====")
-
-            subtotal = qs.aggregate(total=Sum("posting_pagu"))["total"] or Decimal(0)
-            grand_total += subtotal
-
-            print("Subtotal:", subtotal)
-
-            for row in qs.values(
-                "id",
-                "posting_subopd_id",
-                "posting_subkegiatan_id",
-                "posting_pagu",
-                "posting_tahun",
-                "posting_jadwal_id",
-                "posting_dana_id",
-            ):
-                print(row)
-
-        print("\n==============================")
-        print("GRAND TOTAL DANA", dana_id, ":", grand_total)
-        print("==============================\n")
-
-        return grand_total
-
-    # ======================================================
-    # TOTAL PAGU PER DANA
-    # ======================================================
-
-    @classmethod
-    def get_detail_total_pagu_per_dana(cls, tahun=None):
-        hasil = defaultdict(Decimal)
-
-        for model in cls.PAGU_MODELS:
-            qs = cls._filter_pagu(model.objects.all(), tahun, None)
-
-            data = qs.values("posting_dana_id").annotate(total=Sum("posting_pagu"))
-
-            for row in data:
-                hasil[row["posting_dana_id"]] += row["total"] or Decimal(0)
-
-        return dict(hasil)
-
-    # ======================================================
-    # SISA ANGGARAN
-    # ======================================================
-
-    @classmethod
-    def get_total_sisa(cls, tahun=None, dana=None, tahap=None):
-        return cls.get_total_pagu(tahun, dana) - cls.get_total_realisasi(
-            tahun, dana, tahap
-        )
-
-    # ======================================================
-    # REKAP PER TAHAP
-    # ======================================================
-
-    @classmethod
-    def get_rekap_per_tahap(cls, tahun=None, dana=None):
-        hasil = {}
-
-        # --- preload pagu aktif ---
-        pagu_lookup = {}
-
-        for model in cls.PAGU_MODELS:
-            qs = cls._filter_pagu(model.objects.all(), tahun, dana)
-
-            for p in qs.values(
-                "posting_subopd_id",
-                "posting_subkegiatan_id",
-                "posting_dana_id",
-                "posting_tahun",
-            ).annotate(total_pagu=Sum("posting_pagu")):
-
-                key = (
-                    p["posting_subopd_id"],
-                    p["posting_subkegiatan_id"],
-                    p["posting_dana_id"],
-                    p["posting_tahun"],
-                )
-
-                pagu_lookup[key] = pagu_lookup.get(key, Decimal(0)) + (
-                    p["total_pagu"] or Decimal(0)
-                )
-
-        # --- realisasi ---
-        for model in cls.REALISASI_MODELS:
-            qs = cls._filter_realisasi(
-                model.objects.select_related("realisasi_tahap"), tahun, dana, None
-            )
-
-            for r in qs:
-                pagu_key = (
-                    r.realisasi_subopd_id,
-                    r.realisasi_subkegiatan_id,
-                    r.realisasi_dana_id,
-                    r.realisasi_tahun,
-                )
-
-                pagu_total = pagu_lookup.get(pagu_key, Decimal(0))
-
-                tahap_key = (r.realisasi_tahap_id, r.realisasi_tahap.tahap_dana)
-
-                if tahap_key not in hasil:
-                    hasil[tahap_key] = {"pagu": Decimal(0), "realisasi": Decimal(0)}
-
-                hasil[tahap_key]["pagu"] += pagu_total
-                hasil[tahap_key]["realisasi"] += r.realisasi_nilai or Decimal(0)
-
-        data = []
-
-        for (tahap_id, tahap_nama), nilai in sorted(hasil.items(), key=lambda x: x[0][1]):
-            data.append(
-                {
-                    "realisasi_tahap_id": tahap_id,
-                    "realisasi_tahap__tahap_dana": tahap_nama,
-                    "pagu": nilai["pagu"],
-                    "realisasi": nilai["realisasi"],
-                    "sisa": nilai["pagu"] - nilai["realisasi"],
-                }
-            )
-
-        return data
-
-    # ======================================================
-    # REKAP PER OPD
-    # ======================================================
-
-    @classmethod
-    def get_rekap_per_opd(cls, tahun=None, dana=None, tahap=None):
-        hasil = defaultdict(Decimal)
-
-        for model in cls.REALISASI_MODELS:
-            qs = cls._filter_realisasi(
-                model.objects.select_related("realisasi_subopd"),
+            qs = cls.filter_queryset(
+                qs,
+                field,
                 tahun,
                 dana,
-                tahap,
+                tahap
+            )
+
+            result = qs.aggregate(
+                total=Sum(field["nilai"])
+            )["total"] or Decimal(0)
+
+            total += result
+
+        return total
+    
+    @classmethod
+    def get_rekap_per_tahap(cls, tahun=None, dana=None):
+
+        hasil = {}
+
+        for model, field in cls.REALISASI_MODELS.items():
+
+            qs = model.objects.select_related(
+                field["tahap"].replace("_id", "")
+            )
+
+            qs = cls.filter_queryset(
+                qs,
+                field,
+                tahun,
+                dana,
+                None
             )
 
             data = (
                 qs.values(
-                    "realisasi_subopd_id",
-                    "realisasi_subopd__sub_nama",
+                    field["tahap"],
+                    f'{field["tahap"].replace("_id","")}__tahap_dana'
                 )
-                .annotate(total=Sum("realisasi_nilai"))
+                .annotate(
+                    realisasi=Sum(field["nilai"])
+                )
             )
 
             for row in data:
-                key = (
-                    row["realisasi_subopd_id"],
-                    row["realisasi_subopd__sub_nama"],
-                )
-                hasil[key] += row["total"] or Decimal(0)
 
-        return sorted(
-            [
-                {
-                    "subopd_id": k[0],
-                    "subopd_nama": k[1],
-                    "realisasi": v,
-                }
-                for k, v in hasil.items()
-            ],
-            key=lambda x: x["realisasi"],
-            reverse=True,
-        )
-        
-    
-    # ======================================================
-    # REKAP PER TAHAP UNTUK DJPK (TIDAK MENGGANGGU DASHBOARD)
-    # ======================================================
+                tahap_id = row[field["tahap"]]
+                tahap_nama = row[f'{field["tahap"].replace("_id","")}__tahap_dana']
 
-    @classmethod
-    def get_rekap_per_tahap_djpk(cls):
-        """
-        Versi khusus DJPK.
-        Menghasilkan data:
-        - tahun
-        - dana_id
-        - dana_nama
-        - tahap_id
-        - tahap_nama
-        - pagu
-        - realisasi
-        - sisa
-        """
-
-        from decimal import Decimal
-        from django.db.models import Sum
-
-        hasil = {}
-
-        # ===============================
-        # HITUNG PAGU TERBARU
-        # ===============================
-        pagu_lookup = {}
-
-        for model in cls.PAGU_MODELS:
-            qs = model.objects.all()
-
-            max_jadwal_sub = (
-                qs.values("posting_tahun", "posting_dana_id")
-                .annotate(max_jadwal=Max("posting_jadwal_id"))
-            )
-
-            for item in max_jadwal_sub:
-                tahun = item["posting_tahun"]
-                dana_id = item["posting_dana_id"]
-                jadwal = item["max_jadwal"]
-
-                subtotal = (
-                    qs.filter(
-                        posting_tahun=tahun,
-                        posting_dana_id=dana_id,
-                        posting_jadwal_id=jadwal,
-                    )
-                    .aggregate(total=Sum("posting_pagu"))["total"]
-                    or Decimal(0)
-                )
-
-                pagu_lookup[(tahun, dana_id)] = (
-                    pagu_lookup.get((tahun, dana_id), Decimal(0)) + subtotal
-                )
-
-        # ===============================
-        # HITUNG REALISASI PER TAHAP
-        # ===============================
-        for model in cls.REALISASI_MODELS:
-            qs = model.objects.select_related(
-                "realisasi_tahap",
-                "realisasi_dana",
-            )
-
-            for r in qs:
-                key = (
-                    r.realisasi_tahun,
-                    r.realisasi_dana_id,
-                    r.realisasi_dana.sub_nama,
-                    r.realisasi_tahap_id,
-                    r.realisasi_tahap.tahap_dana,
-                )
+                key = (tahap_id, tahap_nama)
 
                 if key not in hasil:
-                    hasil[key] = {
-                        "pagu": pagu_lookup.get(
-                            (r.realisasi_tahun, r.realisasi_dana_id),
-                            Decimal(0),
-                        ),
-                        "realisasi": Decimal(0),
-                    }
+                    hasil[key] = Decimal(0)
 
-                hasil[key]["realisasi"] += r.realisasi_nilai or Decimal(0)
+                hasil[key] += row["realisasi"] or Decimal(0)
 
-        # ===============================
-        # FORMAT OUTPUT
-        # ===============================
         data = []
 
-        for key, nilai in hasil.items():
-            tahun, dana_id, dana_nama, tahap_id, tahap_nama = key
+        for (tahap_id, tahap_nama), total in sorted(hasil.items(), key=lambda x: x[0][0]):
 
             data.append({
-                "tahun": tahun,
-                "dana_id": dana_id,
-                "dana_nama": dana_nama,
-                "tahap_id": tahap_id,
-                "tahap_nama": tahap_nama,
-                "pagu": nilai["pagu"],
-                "realisasi": nilai["realisasi"],
-                "sisa": nilai["pagu"] - nilai["realisasi"],
+                "realisasi_tahap_id": tahap_id,
+                "realisasi_tahap__tahap_dana": tahap_nama,
+                "realisasi": total
             })
 
-        return sorted(data, key=lambda x: (x["tahun"], x["dana_nama"], x["tahap_nama"]))
-
-    # ======================================================
-    # DROPDOWN HELPERS
-    # ======================================================
-
+        return data
+    
+    
     @classmethod
-    def get_available_tahun(cls):
-        tahun_set = set()
+    def get_rekap_per_opd(cls, tahun=None, dana=None, tahap=None):
 
-        for model in cls.PAGU_MODELS:
-            tahun_set.update(
-                model.objects.values_list("posting_tahun", flat=True).distinct()
+        result_map = defaultdict(lambda: {"nama": "", "total": Decimal(0)})
+
+        for model, field in cls.REALISASI_MODELS.items():
+
+            qs = model.objects.all()
+
+            qs = cls.filter_queryset(
+                qs,
+                field,
+                tahun,
+                dana,
+                tahap
             )
 
-        return sorted(tahun_set, reverse=True)
+            data = (
+                qs.values(
+                    field["subopd"],
+                    f'{field["subopd"].replace("_id","")}__sub_nama'
+                )
+                .annotate(total=Sum(field["nilai"]))
+            )
 
+            for row in data:
+
+                opd_id = row[field["subopd"]]
+                opd_nama = row[f'{field["subopd"].replace("_id","")}__sub_nama']
+
+                result_map[opd_id]["nama"] = opd_nama
+                result_map[opd_id]["total"] += row["total"] or Decimal(0)
+
+        results = []
+
+        for opd_id, val in result_map.items():
+
+            results.append({
+                "subopd_id": opd_id,
+                "subopd_nama": val["nama"],
+                "total": val["total"]
+            })
+
+        return sorted(results, key=lambda x: x["total"], reverse=True)
+    
+    
     @classmethod
     def get_available_dana(cls):
         hasil = {}
 
-        for model in cls.REALISASI_MODELS:
-            for r in model.objects.values(
-                "realisasi_dana_id", "realisasi_dana__sub_nama"
-            ).distinct():
-                hasil[r["realisasi_dana_id"]] = r["realisasi_dana__sub_nama"]
+        for model, field in cls.REALISASI_MODELS.items():
+
+            relasi = field["dana"].replace("_id", "")
+
+            data = model.objects.values(
+                field["dana"],
+                f"{relasi}__sub_nama"
+            ).distinct()
+
+            for r in data:
+                hasil[r[field["dana"]]] = r[f"{relasi}__sub_nama"]
 
         return sorted(hasil.items(), key=lambda x: x[1])
+
 
     @classmethod
     def get_available_tahap(cls):
         hasil = {}
 
-        for model in cls.REALISASI_MODELS:
-            for r in model.objects.values(
-                "realisasi_tahap_id", "realisasi_tahap__tahap_dana"
-            ).distinct():
-                hasil[r["realisasi_tahap_id"]] = r["realisasi_tahap__tahap_dana"]
+        for model, field in cls.REALISASI_MODELS.items():
+
+            relasi = field["tahap"].replace("_id", "")
+
+            data = model.objects.values(
+                field["tahap"],
+                f"{relasi}__tahap_dana"
+            ).distinct()
+
+            for r in data:
+                hasil[r[field["tahap"]]] = r[f"{relasi}__tahap_dana"]
 
         return sorted(hasil.items(), key=lambda x: x[1])
+    

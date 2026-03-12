@@ -5,6 +5,7 @@ from project.context_processors import menu_context_processor
 from project.decorators import menu_access_required  # decorator akses menu
 
 from core.forms.filters import RekapRealisasiFilterForm
+from core.services.pagu_service import PaguService
 from core.services.realisasi_service import RealisasiService
 
 
@@ -19,13 +20,14 @@ def index(request):
 
     # Default filter
     tahun = dana = tahap = None
+
     if form.is_valid():
-        tahun = form.cleaned_data.get("tahun")
-        dana = form.cleaned_data.get("dana")
-        tahap = form.cleaned_data.get("tahap")
+        tahun = form.cleaned_data.get("tahun") or None
+        dana = form.cleaned_data.get("dana") or None
+        tahap = form.cleaned_data.get("tahap") or None
 
     # ================= HITUNG TOTAL & REKAP =================
-    total_pagu = RealisasiService.get_total_pagu(tahun, dana)
+    total_pagu = PaguService.get_total_pagu(tahun, dana)
     total_realisasi = RealisasiService.get_total_realisasi(tahun, dana, tahap)
     total_sisa = total_pagu - total_realisasi
 
