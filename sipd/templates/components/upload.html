@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+{% load humanize %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{ judul }}</h1>
+    </div>
+
+    <!-- ===================== -->
+    <!-- UPLOAD FORM -->
+    <!-- ===================== -->
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ judul }}</h4>
+        </div>
+
+        <div class="card-body col-md-10 mx-auto">
+            <form id="uploadForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            <!-- PROGRESS -->
+            <div class="progress mt-3" style="height:25px; display:none;" id="progressWrapper">
+                <div id="progressBar"
+                     class="progress-bar progress-bar-striped progress-bar-animated"
+                     style="width:0%">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- TABLE -->
+    <!-- ===================== -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>{{ table_title }}</h4>
+        </div>
+
+        <div class="card-body">
+
+            <!-- FILTER -->
+            <form method="get" class="mb-3">
+                <div class="row g-2 align-items-end">
+
+                    <!-- SEARCH -->
+                    <div class="col-md-6">
+                        <label>Cari</label>
+                        <div class="position-relative">
+                            <input type="text"
+                                   name="q"
+                                   id="searchInput"
+                                   class="form-control pe-5"
+                                   value="{{ request.GET.q }}"
+                                   placeholder="Cari data..."
+                                   hx-get="{{ url_list }}"
+                                   hx-trigger="keyup changed delay:400ms"
+                                   hx-target="#table-wrapper"
+                                   hx-push-url="true"
+                            >
+                            <button type="button"
+                                    id="clearSearch"
+                                    class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0"
+                                    style="display:none;">
+                                ✖
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PER PAGE -->
+                    <div class="col-md-3">
+                        <label>Baris</label>
+                        <select name="per_page"
+                                class="form-control"
+                                hx-get="{{ url_list }}"
+                                hx-trigger="change"
+                                hx-target="#table-wrapper"
+                                hx-include="[name='q']"
+                                hx-push-url="true"
+                        >
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="all">Semua</option>
+                        </select>
+                    </div>
+
+                    <!-- EXPORT -->
+                    {% if url_export %}
+                    <div class="col-md-3 text-end">
+                        <a href="{{ url_export }}?{{ request.GET.urlencode }}"
+                           class="btn btn-success w-100">
+                            Export Excel
+                        </a>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </form>
+
+            <!-- TABLE -->
+            <div id="table-wrapper">
+                {% include table_template %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- SKIPPED (OPTIONAL) -->
+    <!-- ===================== -->
+    {% if url_skipped %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>{{ judulskip }}</h4>
+        </div>
+        <div class="card-body">
+            <div id="skippedRows"
+                 hx-get="{{ url_skipped }}"
+                 hx-trigger="load"
+                 hx-swap="innerHTML">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}
+
+{% block javascript %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("uploadForm");
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
+
+    const input = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearch");
+
+    function toggleClear() {
+        clearBtn.style.display = input.value ? "block" : "none";
+    }
+
+    if (input) {
+        input.addEventListener("input", toggleClear);
+        clearBtn.onclick = () => {
+            input.value = "";
+            input.dispatchEvent(new Event("change"));
+            toggleClear();
+        };
+        toggleClear();
+    }
+
+    // =============================
+    // UPLOAD + PROGRESS
+    // =============================
+    form.addEventListener("submit", function(e){
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        progressWrapper.style.display = "block";
+        progressBar.style.width = "0%";
+        progressBar.innerText = "0%";
+
+        fetch("{{ url_upload }}", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.task_id) {
+                alert("Upload gagal");
+                return;
+            }
+
+            const interval = setInterval(() => {
+
+                fetch(`{{ url_progress }}`.replace("TASK_ID", data.task_id))
+                .then(res => res.json())
+                .then(p => {
+
+                    if (p.done) {
+                        progressBar.style.width = "100%";
+                        progressBar.innerText = "100%";
+                        clearInterval(interval);
+
+                        htmx.ajax('GET', "{{ url_list }}", '#table-wrapper');
+
+                        {% if url_skipped %}
+                        htmx.ajax('GET', "{{ url_skipped }}", '#skippedRows');
+                        {% endif %}
+
+                        return;
+                    }
+
+                    if (p.current && p.total) {
+                        let percent = Math.round((p.current / p.total) * 100);
+                        progressBar.style.width = percent + "%";
+                        progressBar.innerText = percent + "%";
+                    }
+                });
+
+            }, 1000);
+        });
+    });
+
+});
+</script>
+{% endblock %}

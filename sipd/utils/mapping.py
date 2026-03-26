@@ -26,3 +26,12 @@ EXCEL_FIELD_MAPPING = {
     'Tanggal Transfer': 'tanggal_transfer',
     'Nilai SP2D': 'nilai_sp2d',
 }
+
+EXCEL_FIELD_MAPPING_TBP = {
+    'Tanggal TBP': 'tanggal_tbp',
+    'Nomor TBP': 'nomor_tbp',
+    'Keterangan TBP': 'keterangan_tbp',
+    'Status TBP': 'status_tbp',
+    'Nilai TBP': 'nilai_tbp',
+}
+    

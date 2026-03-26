@@ -6,3 +6,10 @@ class SipdUploadForm(forms.Form):
         help_text="Format .xlsx",
         required=True
     )
+
+class TBPUploadForm(forms.Form):
+    file = forms.FileField(
+        label="File Excel SIPD",
+        help_text="Format .xlsx",
+        required=True
+    )

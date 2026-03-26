@@ -86,3 +86,46 @@ class Sipd(models.Model):
     def __str__(self):
         return f"{self.kode_sub_skpd} - {self.kode_sub_kegiatan} - {self.kode_rekening} - {self.nomor_dokumen}"
 
+
+class TBP(models.Model):
+    tahun = models.IntegerField()
+
+    tanggal_tbp = models.DateField(blank=True, null=True)
+
+    nomor_tbp = models.CharField(
+        max_length=100,
+    )
+
+    keterangan_tbp = models.TextField(blank=True, null=True)
+
+    status_tbp = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    nilai_tbp = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        default=0
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "tbp"
+        ordering = ["-tanggal_tbp"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tahun", "nomor_tbp"],
+                name="unique_tbp_per_tahun"
+            )
+        ]
+        indexes = [
+            models.Index(fields=["tahun"]),
+            models.Index(fields=["nomor_tbp"]),
+        ]
+
+    def __str__(self):
+        return f"{self.nomor_tbp} - {self.tanggal_tbp}"

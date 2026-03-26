@@ -358,3 +358,104 @@ def view_sipd(request, mode, pk):
         'sp2d_sudah_realisasi': sp2d_sudah_realisasi,
     }
     return render(request, 'sipd/view_sipd.html', context)
+
+@set_submenu_session
+@menu_access_required('list')
+def view_sipd(request, mode, pk):
+    request.session['next'] = request.get_full_path()
+
+    config = SIPD_REGISTRY.get(mode)
+    if not config:
+        return HttpResponseBadRequest('Mode SIPD tidak valid')
+
+    model_rencana = config['model_rencana']
+    model_rencana_sisa = config['model_rencana_sisa']
+    model_realisasi = config['model_realisasi']
+    model_realisasi_sisa = config.get('model_realisasi_sisa')
+    url_sp2d = config['url_sp2d']
+
+    rencana = get_rencana_by_pk(pk, model_rencana, model_rencana_sisa)
+
+    if not rencana:
+        messages.error(request, 'Data rencana tidak ditemukan')
+        return redirect('url_list_rencana')
+
+    base_filter = Q(
+        tahun=rencana.posting_tahun,
+        kode_sub_kegiatan=rencana.posting_ket,
+        kode_sub_skpd=rencana.posting_subopd.sub_opd_kode
+    )
+
+    sipd_qs_raw = Sipd.objects.filter(base_filter)
+
+    sp2d_done = get_sp2d_sudah_realisasi_global(
+        rencana,
+        model_rencana,
+        model_realisasi,
+        model_rencana_sisa,
+        model_realisasi_sisa,
+    )
+
+    sipd_qs = (
+        sipd_qs_raw
+        .exclude(nomor_sp2d__in=sp2d_done)
+        .values('nomor_sp2d')
+        .annotate(
+            tanggal_sp2d=Min('tanggal_sp2d'),
+            nilai_realisasi=Sum('nilai_realisasi'),
+        )
+        .order_by('tanggal_sp2d', 'nomor_sp2d')
+    )
+
+    if request.method == "POST":
+        selected = request.POST.getlist('sp2d')
+
+        if not selected:
+            messages.warning(request, 'Tidak ada SP2D yang dipilih')
+            return redirect(request.path)
+
+        agregat = (
+            sipd_qs_raw
+            .filter(nomor_sp2d__in=selected)
+            .exclude(nomor_sp2d__in=sp2d_done)
+            .values('nomor_sp2d')
+            .annotate(
+                tgl=Min('tanggal_sp2d'),
+                total=Sum('nilai_realisasi')
+            )
+        )
+
+        objs = [
+            model_realisasi(
+                realisasi_dana_id=request.session.get('realisasi_dana'),
+                realisasi_tahap_id=request.session.get('realisasi_tahap'),
+                realisasi_subopd_id=request.session.get('realisasi_subopd'),
+                realisasi_rencanaposting=rencana,
+                realisasi_rencana=rencana.posting_rencanaid,
+                realisasi_subkegiatan=rencana.posting_subkegiatan,
+                realisasi_tahun=request.session.get('realisasi_tahun'),
+                realisasi_output=0,
+                realisasi_sp2d=row['nomor_sp2d'],
+                realisasi_tgl=row['tgl'] or date.today(),
+                realisasi_nilai=row['total'],
+            )
+            for row in agregat
+        ]
+
+        try:
+            with transaction.atomic():
+                for obj in objs:
+                    obj.save()
+        except ValidationError as e:
+            messages.error(request, f'Gagal menyimpan: {e.messages}')
+            return redirect(url_sp2d, pk=rencana.pk)
+
+        messages.success(request, f'{len(objs)} SP2D berhasil disimpan')
+        return redirect(url_sp2d, pk=rencana.pk)
+
+    return render(request, 'sipd/view_sipd.html', {
+        'rencana': rencana,
+        'data': sipd_qs,
+        'sp2d_sudah_realisasi': sp2d_done,
+    })
+
