@@ -1,3 +1,4 @@
+#sipd/registry.py
 from pendidikan.models import (
     Rencanaposting,
     Realisasi,
@@ -24,6 +25,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasi,
         'model_realisasi_sisa': Realisasisisa,
         'url_sp2d' : "realisasi_pendidikan_sp2d",
+        'field_subkegiatan': 'posting_subkegiatan__dausgpendidikansub_nama',
         
     },
     'realisasisisa': {
@@ -32,6 +34,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasisisa,
         'model_realisasi_sisa': Realisasi,
         'url_sp2d' : "realisasi_pendidikan_sp2dsisa",
+        'field_subkegiatan': 'posting_subkegiatan__dausgpendidikansub_nama',
     },
     'realisasi_kesehatan': {
         'model_rencana': Rencanakesehatanposting,
@@ -39,6 +42,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasikesehatan,
         'model_realisasi_sisa': Realisasikesehatansisa,
         'url_sp2d' : "realisasi_kesehatan_sp2d",
+        'field_subkegiatan': 'posting_subkegiatan__dausgkesehatansub_nama',
     },
     'realisasi_kesehatan_sisa': {
         'model_rencana': Rencanakesehatanpostingsisa,
@@ -46,6 +50,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasikesehatansisa,
         'model_realisasi_sisa': Realisasikesehatan,
         'url_sp2d' : "realisasi_kesehatan_sp2dsisa",
+        'field_subkegiatan': 'posting_subkegiatan__dausgkesehatansub_nama',
     },
     'realisasi_pu': {
         'model_rencana': Rencanapuposting,
@@ -53,6 +58,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasipu,
         'model_realisasi_sisa': Realisasipusisa,
         'url_sp2d' : "realisasi_pu_sp2d",
+        'field_subkegiatan': 'posting_subkegiatan__dausgpusub_nama',
     },
     'realisasi_pu_sisa': {
         'model_rencana': Rencanapupostingsisa,
@@ -60,6 +66,7 @@ SIPD_REGISTRY = {
         'model_realisasi': Realisasipusisa,
         'model_realisasi_sisa': Realisasipu,
         'url_sp2d' : "realisasi_pu_sp2dsisa",
+        'field_subkegiatan': 'posting_subkegiatan__dausgpusub_nama',
     },
 }
 

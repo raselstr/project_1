@@ -26,6 +26,7 @@ apps_to_connect = [
     'pagu',
     'pendidikan',
     'pu',
+    'sipd',
     ]
 
 for app_label in apps_to_connect:

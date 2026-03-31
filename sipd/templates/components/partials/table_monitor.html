@@ -1,0 +1,75 @@
+{% load humanize %}
+
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width:100%;">
+    <thead>
+        <tr>
+            <th>Sub OPD</th>
+            <th>Sub Kegiatan</th>
+            <th>Kode Sub Kegiatan</th>
+            <th>Pagu</th>
+            <th>SIPD</th>
+            <th>Selisih</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.subopd_nama }}</td>
+            <td>{{ item.subkegiatan_nama }}</td>
+
+            <td style="font-family: monospace;">
+                {{ item.posting_ket }}
+            </td>
+
+            <td style="text-align:right;">
+                {{ item.posting_pagu|intcomma }}
+            </td>
+
+            <td style="text-align:right;">
+                {{ item.nilai_sipd|intcomma }}
+            </td>
+
+            <td style="text-align:right; 
+                       color:{% if item.selisih != 0 %}red{% else %}black{% endif %};">
+                {{ item.selisih|intcomma }}
+            </td>
+
+            <td style="text-align:center;">
+                {% if item.status == "SESUAI" %}
+                    ✅
+                {% elif item.status == "SELISIH" %}
+                    ⚠️
+                {% else %}
+                    ❌
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" style="text-align:center;">Tidak ada data</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+    <tfoot style="font-weight:bold; background:#eee;">
+        <tr>
+            <td colspan="3">TOTAL</td>
+
+            <td style="text-align:right;">
+                {{ total_pagu|intcomma }}
+            </td>
+
+            <td style="text-align:right;">
+                {{ total_sipd|intcomma }}
+            </td>
+
+            <td style="text-align:right;">
+                {{ total_selisih|intcomma }}
+            </td>
+
+            <td></td>
+        </tr>
+    </tfoot>
+</table>

@@ -49,6 +49,7 @@ class BaseRealisasiTable(tables.Table):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)  # Ambil request dari kwargs
+        self.key = kwargs.pop('key', None)
         super().__init__(*args, **kwargs)  # Panggil inisialisasi superclass
 
     def render_aksi(self, record):
@@ -83,12 +84,35 @@ class BaseRealisasiTable(tables.Table):
         else:
             return format_html('<span class="badge {}">{}</span>', badge, status)
 
+    # def render_output_satuan(self, record):
+    #     try:
+    #         satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
+    #         return f"{record.realisasi_output or 0} {satuan}"
+    #     except Exception:
+    #         return ""
+    
     def render_output_satuan(self, record):
-        try:
-            satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
-            return f"{record.realisasi_output or 0} {satuan}"
-        except Exception:
-            return ""
+        url = reverse('modal_output')
+
+        return format_html(
+            '''
+            <a href="#"
+            class="btn btn-sm btn-info"
+            hx-get="{}?id={}&key={}"
+            hx-target="#verifikasiModal .modal-body"
+            hx-swap="innerHTML"
+            data-toggle="modal"
+            data-target="#verifikasiModal"
+            >
+            {} {}
+            </a>
+            ''',
+            url,
+            record.id,
+            self.key,  # ⬅️ INI PENTING
+            record.realisasi_output or 0,
+            record.realisasi_subkegiatan.dausgkesehatansub_satuan if record.realisasi_subkegiatan else ''
+        )
 
 class RealisasikesehatanTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):

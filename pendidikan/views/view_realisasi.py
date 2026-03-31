@@ -195,20 +195,21 @@ def sp2d(request, pk=None):
     if realisasi_subopd not in [124]:
         filterkeg &= Q(posting_subopd_id=realisasi_subopd)
         
+    SIPD_REGISTRY = 'realisasi'
     data = model_realisasi.objects.none()
     datarencana = model_data.objects.none()
     table = None
     tabelrencana = None
+    
     try:
         data = model_realisasi.objects.filter(filters)
         datarencana = model_data.objects.filter(filterkeg)
-        table = tabel_realisasi(data, request=request)
+        table = tabel_realisasi(data, request=request, key=SIPD_REGISTRY)
         tabelrencana = tabel_rencana(datarencana, request=request)
         
     except Exception as e:
         print("⚠️ ERROR DIBYPASS:", e)
 
-    SIPD_REGISTRY = 'realisasi'
     
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Pendidikan',
@@ -225,6 +226,7 @@ def sp2d(request, pk=None):
         'datarencana' : datarencana,
         'tabelrencana':tabelrencana,
         'sipd':'SIPD',
+        
     }
     return render(request, template_sp2d, context)
 
@@ -232,11 +234,12 @@ def sp2d(request, pk=None):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    jadwal=request.session.get('jadwal')
     realisasi_tahun=request.session.get('realisasi_tahun')
     realisasi_dana=request.session.get('realisasi_dana')
     realisasi_subopd=request.session.get('realisasi_subopd')
      # Buat filter query
-    filters = Q()
+    filters = Q(posting_jadwal_id=jadwal)
     if realisasi_tahun:
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:

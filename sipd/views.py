@@ -1,11 +1,11 @@
 # views.py
 import csv
 from pathlib import Path
-from datetime import date
-
+from datetime import date, datetime
+import re
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.cache import cache
 from django.contrib import messages
 from django.db import transaction
@@ -15,7 +15,12 @@ from django.core.exceptions import ValidationError
 from django_tables2 import RequestConfig
 from openpyxl import Workbook
 
+from collections import defaultdict
+from decimal import Decimal
+from itertools import chain
+
 from project.decorators import menu_access_required, set_submenu_session
+from core.helpers.filter_helper import FilterHelper
 
 from sipd.registry import (
     SIPD_REGISTRY,
@@ -24,6 +29,7 @@ from sipd.registry import (
 )
 
 from .models import Sipd, TBP
+from pendidikan.models import Realisasi
 from .forms import SipdUploadForm, TBPUploadForm
 from .tables import SipdTable, TBPTable
 from .filters import SipdFilter
@@ -216,9 +222,68 @@ def export_tbp_excel(request):
     wb.save(response)
     return response
 
-import re
-from datetime import date
+# ================= HELPER =================
+def clean(value):
+    return str(value).strip() if value else ""
 
+
+def extract_nomor_dari_status(status):
+    """
+    Ambil nomor setelah 'nomor:' dari teks seperti:
+    - Telah Terbit SP2D nomor: xxx
+    - Telah Terbit LPJ BP nomor: xxx
+    """
+    if not status:
+        return ""
+
+    match = re.search(r"nomor\s*:\s*([0-9./A-Z\-]+)", status, re.IGNORECASE)
+    return clean(match.group(1)) if match else ""
+
+
+def modal_output(request):
+    key = request.POST.get('key') or request.GET.get('key')
+
+    if key not in SIPD_REGISTRY:
+        return HttpResponse("<div class='alert alert-danger'>Key tidak valid</div>")
+
+    config = SIPD_REGISTRY[key]
+    model_realisasi = config['model_realisasi']
+
+    if request.method == "POST":
+        try:
+            pk = int(request.POST.get('id'))
+        except (TypeError, ValueError):
+            return HttpResponse("<div class='alert alert-danger'>ID tidak valid</div>")
+
+        output = request.POST.get('realisasi_output')
+
+        obj = get_object_or_404(model_realisasi, pk=pk)
+        obj.realisasi_output = output
+
+        try:
+            obj.save()
+        except Exception as e:
+            return HttpResponse(f"<div class='alert alert-danger'>{e}</div>")
+
+        return HttpResponse("""
+            <script>
+                location.reload();
+            </script>
+        """)
+
+    # GET (load modal)
+    pk = request.GET.get('id')
+    obj = model_realisasi.objects.filter(pk=pk).first()
+
+    return render(request, 'components/modal_output.html', {
+        'obj': obj,
+        'id': pk,
+        'key': key,  # penting untuk dikirim balik ke POST
+        
+    })
+    
+    
+# ================= VIEW =================
 @set_submenu_session
 @menu_access_required('list')
 def view_sipd(request, mode, pk):
@@ -240,6 +305,7 @@ def view_sipd(request, mode, pk):
         messages.error(request, 'Data rencana tidak ditemukan')
         return redirect('url_list_rencana')
 
+    # ================= FILTER SIPD =================
     base_filter = Q(
         tahun=rencana.posting_tahun,
         kode_sub_kegiatan=rencana.posting_ket,
@@ -248,9 +314,7 @@ def view_sipd(request, mode, pk):
 
     sipd_qs_raw = Sipd.objects.filter(base_filter)
 
-    # =========================================
-    # 🔥 AMBIL DATA TBP SEKALI
-    # =========================================
+    # ================= TBP MAP =================
     tbp_map = {}
 
     tbp_docs = sipd_qs_raw.filter(
@@ -263,14 +327,12 @@ def view_sipd(request, mode, pk):
     )
 
     for tbp in tbp_qs:
-        if tbp.status_tbp:
-            match = re.search(r"SP2D nomor:\s*(.*)", tbp.status_tbp)
-            if match:
-                tbp_map[tbp.nomor_tbp] = match.group(1).strip()
+        nomor = extract_nomor_dari_status(tbp.status_tbp)
 
-    # =========================================
-    # DATA SUDAH REALISASI
-    # =========================================
+        if nomor:
+            tbp_map[clean(tbp.nomor_tbp)] = nomor
+
+    # ================= DATA SUDAH REALISASI =================
     sp2d_done = get_sp2d_sudah_realisasi_global(
         rencana,
         model_rencana,
@@ -279,9 +341,7 @@ def view_sipd(request, mode, pk):
         model_realisasi_sisa,
     )
 
-    # =========================================
-    # AGREGASI SIPD
-    # =========================================
+    # ================= AGREGASI SIPD =================
     sipd_qs = (
         sipd_qs_raw
         .values('nomor_sp2d', 'nomor_dokumen', 'jenis_dokumen')
@@ -292,31 +352,52 @@ def view_sipd(request, mode, pk):
         .order_by('tanggal_sp2d', 'nomor_sp2d')
     )
 
-    # =========================================
-    # 🔥 BUILD FINAL DATA + MAP UNTUK POST
-    # =========================================
-    data_final = []
-    sp2d_mapping = {}  # 🔥 penting untuk POST
+    # ================= GROUP FINAL =================
+    grouped_sp2d = {}
 
     for row in sipd_qs:
+
+        # 🔥 tentukan nomor final
         if row["jenis_dokumen"] == "TBP":
-            nomor_sp2d_final = tbp_map.get(row["nomor_dokumen"], "")
+            nomor_sp2d_final = tbp_map.get(clean(row["nomor_dokumen"]), "")
         else:
-            nomor_sp2d_final = row["nomor_sp2d"]
+            nomor_sp2d_final = clean(row["nomor_sp2d"])
+
+        if not nomor_sp2d_final:
+            continue
 
         # skip jika sudah direalisasi
         if nomor_sp2d_final in sp2d_done:
             continue
 
-        row["nomor_sp2d_final"] = nomor_sp2d_final
-        data_final.append(row)
+        # ================= GROUP =================
+        if nomor_sp2d_final not in grouped_sp2d:
+            grouped_sp2d[nomor_sp2d_final] = {
+                "nomor_sp2d_final": nomor_sp2d_final,
+                "tanggal_sp2d": row["tanggal_sp2d"],
+                "nilai_realisasi": Decimal(0),
+            }
 
-        # mapping untuk POST
-        sp2d_mapping[nomor_sp2d_final] = row
+        grouped_sp2d[nomor_sp2d_final]["nilai_realisasi"] += (
+            row["nilai_realisasi"] or Decimal(0)
+        )
 
-    # =========================================
-    # 🔥 SIMPAN KE REALISASI (PAKAI SP2D FINAL)
-    # =========================================
+        # ambil tanggal paling awal
+        if row["tanggal_sp2d"]:
+            existing = grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"]
+            if not existing or row["tanggal_sp2d"] < existing:
+                grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = row["tanggal_sp2d"]
+
+    # ================= FINAL DATA =================
+    data_final = list(grouped_sp2d.values())
+
+    # mapping untuk POST
+    sp2d_mapping = {
+        row["nomor_sp2d_final"]: row
+        for row in data_final
+    }
+
+    # ================= POST =================
     if request.method == "POST":
         selected = request.POST.getlist('sp2d')
 
@@ -344,7 +425,7 @@ def view_sipd(request, mode, pk):
 
                     realisasi_tahun=request.session.get('realisasi_tahun'),
                     realisasi_output=0,
-                    realisasi_sp2d=sp2d,  # 🔥 pakai hasil TBP
+                    realisasi_sp2d=sp2d,
                     realisasi_tgl=row['tanggal_sp2d'] or date.today(),
                     realisasi_nilai=row['nilai_realisasi'],
                 )
@@ -361,8 +442,154 @@ def view_sipd(request, mode, pk):
         messages.success(request, f'{len(objs)} SP2D berhasil disimpan')
         return redirect(url_sp2d, pk=rencana.pk)
 
+    # ================= RENDER =================
     return render(request, 'sipd/view_sipd.html', {
         'rencana': rencana,
         'data': data_final,
         'sp2d_sudah_realisasi': sp2d_done,
+        
     })
+
+def monitor_sipd(request):
+    tahun = request.session.get('tahun') or datetime.now().year
+    jadwal = request.session.get('jadwal')
+    dana = request.GET.get('dana') or None
+
+    # ================= AMBIL SEMUA RENCANA (OBJECT) =================
+    all_rencana = []
+
+    for key, config in SIPD_REGISTRY.items():
+        model_rencana = config['model_rencana']
+
+        filters = {
+            'posting_tahun': tahun,
+            'posting_jadwal_id': jadwal,
+        }
+
+        if dana:
+            filters['posting_dana_id'] = dana
+
+        qs = (
+            model_rencana.objects
+            .select_related(
+                'posting_subopd',
+                'posting_subkegiatan'
+            )
+            .filter(**filters)
+        )
+
+        for obj in qs:
+            item = {
+                'posting_tahun': obj.posting_tahun,
+                'posting_ket': obj.posting_ket,
+                'subopd_kode': obj.posting_subopd.sub_opd_kode if obj.posting_subopd else '',
+                'subopd_nama': obj.get_subopd(),
+                'subkegiatan_nama': obj.get_subkegiatan(),
+                'posting_pagu': obj.posting_pagu or Decimal(0),
+            }
+            all_rencana.append(item)
+
+    # ================= GROUPING =================
+    grouped = defaultdict(lambda: {
+        'posting_pagu': Decimal(0),
+        'subopd_nama': '',
+        'subkegiatan_nama': ''
+    })
+
+    for item in all_rencana:
+        key = (
+            item['posting_tahun'],
+            clean(item['posting_ket']),
+            clean(item['subopd_kode'])
+        )
+
+        grouped[key]['posting_pagu'] += item['posting_pagu']
+
+        # isi sekali saja (hindari overwrite kosong)
+        if not grouped[key]['subopd_nama'] and item['subopd_nama']:
+            grouped[key]['subopd_nama'] = item['subopd_nama']
+
+        if not grouped[key]['subkegiatan_nama'] and item['subkegiatan_nama']:
+            grouped[key]['subkegiatan_nama'] = item['subkegiatan_nama']
+
+    # ================= FINAL LIST =================
+    data_rencana = []
+
+    for key, val in grouped.items():
+        tahun_k, ket, opd = key
+
+        data_rencana.append({
+            'posting_tahun': tahun_k,
+            'posting_ket': ket,
+            'posting_subopd_kode': opd,
+            'subopd_nama': val['subopd_nama'],
+            'subkegiatan_nama': val['subkegiatan_nama'],
+            'posting_pagu': val['posting_pagu'],
+        })
+
+    # ================= SIPD (AGGREGATE) =================
+    sipd_qs = (
+        Sipd.objects
+        .filter(tahun=tahun)
+        .values(
+            'tahun',
+            'kode_sub_kegiatan',
+            'kode_sub_skpd'
+        )
+        .annotate(
+            nilai_realisasi=Sum('nilai_realisasi')  # pastikan field benar
+        )
+    )
+
+    sipd_map = {
+        (
+            s['tahun'],
+            clean(s['kode_sub_kegiatan']),
+            clean(s['kode_sub_skpd'])
+        ): s['nilai_realisasi']
+        for s in sipd_qs
+    }
+
+    # ================= PROSES AKHIR =================
+    hasil = []
+    total_pagu = Decimal(0)
+    total_sipd = Decimal(0)
+
+    for item in data_rencana:
+        key = (
+            item['posting_tahun'],
+            clean(item['posting_ket']),
+            clean(item['posting_subopd_kode'])
+        )
+
+        nilai_sipd = sipd_map.get(key, Decimal(0))
+        selisih = item['posting_pagu'] - nilai_sipd
+
+        hasil.append({
+            **item,
+            'nilai_sipd': nilai_sipd,
+            'selisih': selisih,
+            'status': 'SESUAI' if selisih == 0 else ('BELUM ADA' if nilai_sipd == 0 else 'SELISIH')
+        })
+
+        total_pagu += item['posting_pagu']
+        total_sipd += nilai_sipd
+
+    total_selisih = total_pagu - total_sipd
+
+    # ================= CONTEXT =================
+    context = {
+        'data': hasil,
+        'total_pagu': total_pagu,
+        'total_sipd': total_sipd,
+        'total_selisih': total_selisih,
+        'tahun': tahun,
+        'dana': dana,
+        'dana_choices': FilterHelper.dana_choices(),
+    }
+
+    # ================= HTMX =================
+    if request.headers.get('HX-Request'):
+        return render(request, 'components/partials/table_monitor.html', context)
+
+    return render(request, 'sipd/monitor_sipd.html', context)

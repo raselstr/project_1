@@ -1,0 +1,28 @@
+<form 
+  method="post"
+  hx-post="{% url 'modal_output' %}"
+  hx-target="#verifikasiModal .modal-body"
+  hx-swap="innerHTML"
+  hx-include="this"
+>
+  {% csrf_token %}
+
+  <input type="hidden" name="key" value="{{ key }}">
+  <input type="hidden" name="id" value="{{ id }}">
+
+  <div class="modal-body">
+
+    <label class="form-label">Realisasi Output</label>
+    <input type="number" 
+           name="realisasi_output" 
+           class="form-control" 
+           required 
+           min="0"
+           value="{{ obj.realisasi_output|default:0 }}">
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-success">Simpan</button>
+  </div>
+</form>

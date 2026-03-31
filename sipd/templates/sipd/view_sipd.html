@@ -1,6 +1,6 @@
 <form method="post" action="{{ request.path }}">
   {% csrf_token %}
-
+  <pre>{{ data|slice:":5" }}</pre>
   <table class="table table-sm table-bordered">
     <thead>
       <tr>
@@ -23,7 +23,14 @@
                 value="{{ row.nomor_sp2d_final }}">
         </td>
         <td>{{ row.tanggal_sp2d }}</td>
-        <td>{{ row.nomor_sp2d }}</td>
+        <td>
+          {{ row.nomor_sp2d_final }}
+          {% if "LPJ" in row.nomor_sp2d_final %}
+            <span class="badge bg-warning">LPJ</span>
+          {% else %}
+            <span class="badge bg-success">SP2D</span>
+          {% endif %}
+        </td>
         <td class="text-end">
           {{ row.nilai_realisasi|floatformat:2 }}
         </td>

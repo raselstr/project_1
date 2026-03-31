@@ -8,7 +8,6 @@ from core.forms.filters import RekapRealisasiFilterForm
 from core.services.pagu_service import PaguService
 from core.services.realisasi_service import RealisasiService
 
-
 @login_required
 # @menu_access_required("dashboard")
 def index(request):

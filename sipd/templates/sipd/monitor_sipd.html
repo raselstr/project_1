@@ -1,0 +1,25 @@
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+<h3>Monitoring SIPD Tahun {{ tahun }}</h3>
+
+<!-- 🔥 FILTER -->
+<form 
+    hx-get="{% url 'monitor_sipd' %}"
+    hx-target="#table-container"
+    hx-trigger="change"
+>
+    <select name="dana">
+        {% for val, label in dana_choices %}
+            <option value="{{ val }}" {% if val|stringformat:"s" == dana %}selected{% endif %}>
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<br>
+
+<!-- 🔥 TABLE CONTAINER -->
+<div id="table-container">
+    {% include 'components/partials/table_monitor.html' %}
+</div>

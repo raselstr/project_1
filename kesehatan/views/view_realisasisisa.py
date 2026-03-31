@@ -198,10 +198,10 @@ def sp2d(request, pk=None):
         data = None
         datarencana = None
     
-    table = tabel_realisasi(data, request=request)
+    SIPD_REGISTRY = 'realisasi_kesehatan_sisa'
+    table = tabel_realisasi(data, request=request, key=SIPD_REGISTRY)
     tabelrencana = tabel_rencana(datarencana, request=request)
     
-    SIPD_REGISTRY = 'realisasi_kesehatan_sisa'
     
     context = {
         'judul': 'Daftar Realisasi DAU Bidang Kesehatan Sisa Tahun Lalu',
@@ -225,12 +225,13 @@ def sp2d(request, pk=None):
 @menu_access_required('list')
 def list(request):
     request.session['next'] = request.get_full_path()
+    jadwal=request.session.get('jadwal')
     realisasi_tahun=request.session.get('realisasi_tahun')
     realisasi_dana=request.session.get('realisasi_dana')
     realisasi_subopd=request.session.get('realisasi_subopd')
     realisasi_tahap=request.session.get('realisasi_tahap')
      # Buat filter query
-    filters = Q()
+    filters = Q(posting_jadwal_id=jadwal)
     if realisasi_tahun:
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:

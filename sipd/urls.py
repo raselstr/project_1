@@ -13,5 +13,8 @@ urlpatterns = [
     path("tbp/export/", views.export_tbp_excel, name="export_tbp_excel"),
     
     path("dokumen/<str:mode>/<int:pk>/", views.view_sipd, name="data_sipd"),
+    path('modal-output/', views.modal_output, name='modal_output'),
+    path("monitor/", views.monitor_sipd, name="monitor_sipd"),
+    # path('sipd/detail/<str:kode_kegiatan>/<str:kode_opd>/', views.sipd_detail, name='sipd_detail'),
 
 ]
