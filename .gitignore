@@ -19,3 +19,7 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+*.sql
+!latest_backup.sql
+secrets/

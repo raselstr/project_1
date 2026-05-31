@@ -94,20 +94,6 @@ services:
     networks:
       - app-network
 
-  adminer:
-    image: adminer:latest
-    container_name: projectwebadminer
-    restart: always
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - app-network
-
   db:
     image: postgres:latest
     container_name: projectwebpostgres
@@ -116,7 +102,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     restart: always         # Tambahkan ini
     volumes:
       - postgres_data:/var/lib/postgresql/data
