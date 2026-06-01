@@ -1,125 +1,75 @@
-version: '3.9'
-
 services:
 
-  redis:
-    image: redis:7
-    container_name: redis
-    ports:
-      - "6379:6379"
-    restart: always
-    networks:
-    - app-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    
   web:
-    image: projectweb:latest
-    container_name: projectweb
+    image: tkdd:latest
+    container_name: tkdd
+    build: .
     env_file:
       - .env
-    build: .
-    command: ["/bin/bash", "-c", "/project_1/wait_for_db.sh && gunicorn project.wsgi:application --bind 0.0.0.0:3000"]
+
+    command: >
+      /bin/bash -c "
+      gunicorn project.wsgi:application
+      --bind 0.0.0.0:80"
+
     volumes:
       - .:/project_1
       - static_volume:/project_1/staticfiles
       - media_volume:/project_1/media
+
     expose:
-      - "3000"
-    restart: always         # Tambahkan ini
-    depends_on:
-      db:
-        condition: service_healthy
+      - "80"
+
+    restart: always
+
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 10s
       retries: 3
+
     networks:
-      - app-network
-    
+      - production_network
+
   celery:
     build: .
     container_name: project_celery
+
     command: celery -A project worker --loglevel=info
+
     env_file:
       - .env
+
     volumes:
       - media_volume:/project_1/media
-    depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+
     restart: always
+
     networks:
-      - app-network
+      - production_network
 
   flower:
     build:
       context: .
       dockerfile: Dockerfile-flower
+
     container_name: project_flower
+
     ports:
       - "5555:5555"
-    depends_on:
-      - redis
+
     volumes:
       - media_volume:/project_1/media
+
     restart: always
-    networks:
-      - app-network
 
-
-  nginx:
-    image: nginx:latest
-    container_name: projectwebnginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - static_volume:/project_1/staticfiles
-      - media_volume:/project_1/media
-    ports:
-      - "3000:3000"
-    restart: always         # Tambahkan ini
-    depends_on:
-      - web
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks:
-      - app-network
-
-  db:
-    image: postgres:latest
-    container_name: projectwebpostgres
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
-    restart: always         # Tambahkan ini
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - /home/serverbkad/database:/database
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
+      - production_network
 
 networks:
-  app-network:
-    driver: bridge
+  production_network:
+    external: true
 
 volumes:
   static_volume:
   media_volume:
-  postgres_data:

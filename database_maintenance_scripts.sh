@@ -17,7 +17,7 @@ cd "$BASE_DIR"
 
 # ======================================================
 
-DB_CONTAINER="projectwebpostgres"
+DB_CONTAINER="postgres"
 
 SECRETS_DIR="./secrets"
 BACKUP_DIR="./backups"

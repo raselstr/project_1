@@ -31,4 +31,4 @@ RUN python manage.py collectstatic --noinput
 ENTRYPOINT ["/project_1/wait_for_db.sh"]
 
 # Default CMD (web)
-CMD ["gunicorn", "--bind", "0.0.0.0:3000", "project.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "project.wsgi:application"]
