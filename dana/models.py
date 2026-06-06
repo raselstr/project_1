@@ -61,4 +61,7 @@ class TahapDana(models.Model):
 
     def __str__(self):
         return self.tahap_dana
+    
+    class Meta:
+        ordering = ['id']
 

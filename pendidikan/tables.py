@@ -143,7 +143,9 @@ class RekapPaguTable(tables.Table):
     total_tahap1 = totalrealisasi(verbose_name="Tahap 1", attrs={"td": {"class": "text-right"}})
     total_tahap2 = totalrealisasi(verbose_name="Tahap 2", attrs={"td": {"class": "text-right"}})
     total_tahap3 = totalrealisasi(verbose_name="Tahap 3", attrs={"td": {"class": "text-right"}})
-    
+    total_tahap4 = totalrealisasi(verbose_name="Tahap 4", attrs={"td": {"class": "text-right"}})
+    total_tahap5 = totalrealisasi(verbose_name="Tahap 5", attrs={"td": {"class": "text-right"}})
+
     total_realisasi = totalrealisasi(verbose_name="Total Realisasi", attrs={"td": {"class": "text-right"}})
     total_sisa = totalrealisasi(verbose_name="Sisa Dana", attrs={"td": {"class": "text-right"}})
 

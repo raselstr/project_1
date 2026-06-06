@@ -178,6 +178,10 @@ def sp2d(request, pk=None):
             filters &= Q(realisasi_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3])
+        elif realisasi_tahap == 4:
+            filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
+        elif realisasi_tahap == 5:
+            filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
     if realisasi_subopd not in [124]:
         filters &= Q(realisasi_subopd_id=realisasi_subopd)
     

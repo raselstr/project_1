@@ -91,7 +91,7 @@ def rekap(request):
             model_realisasi.objects.filter(
                 realisasi_tahun=common_filters['tahun'], realisasi_dana_id=common_filters['dana_id'], realisasi_subopd_id=common_filters['subopd_id'], realisasi_tahap=i
             ).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
-            for i in range(1, 4)
+            for i in range(1, model_tahap.objects.count() + 1)
         ]
 
         total_nilai_realisasi = sum(total_nilai_tahap)
@@ -105,6 +105,8 @@ def rekap(request):
             'total_tahap1': total_nilai_tahap[0],
             'total_tahap2': total_nilai_tahap[1],
             'total_tahap3': total_nilai_tahap[2],
+            'total_tahap4': total_nilai_tahap[3],
+            'total_tahap5': total_nilai_tahap[4],
             'total_realisasi': total_nilai_realisasi,
             'total_sisa': total_nilai_sisa,
         })
@@ -281,6 +283,10 @@ def get_data_context(request):
             filterreals &= Q(realisasi_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
+        elif realisasi_tahap == 4:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
+        elif realisasi_tahap == 5:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
     if realisasi_subopd not in [None, 124, 67, 70]:
         filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
     
@@ -302,6 +308,8 @@ def get_data_context(request):
     total_tahap1_keseluruhan = 0
     total_tahap2_keseluruhan = 0
     total_tahap3_keseluruhan = 0
+    total_tahap4_keseluruhan = 0
+    total_tahap5_keseluruhan = 0
 
     for program_counter, prog in enumerate(progs, start=1):
         total_pagu_prog = 0
@@ -311,6 +319,8 @@ def get_data_context(request):
         total_tahap1_prog = 0
         total_tahap2_prog = 0
         total_tahap3_prog = 0
+        total_tahap4_prog = 0
+        total_tahap5_prog = 0
         prog_kegs = []
         kegiatan_counter = 1  # Counter untuk kegiatan
 
@@ -322,6 +332,8 @@ def get_data_context(request):
             total_tahap1_keg = 0
             total_tahap2_keg = 0
             total_tahap3_keg = 0
+            total_tahap4_keg = 0
+            total_tahap5_keg = 0
             keg_subs = []
             sub_kegiatan_counter = 1  # Counter untuk sub-kegiatan
 
@@ -345,6 +357,8 @@ def get_data_context(request):
                         total_tahap1 = 0
                         total_tahap2 = 0
                         total_tahap3 = 0
+                        total_tahap4 = 0
+                        total_tahap5 = 0
 
                         for rencana in related_rencanas:
                             realisasi_rencana = realisasis.filter(realisasi_rencana_id=rencana.posting_rencanaid)
@@ -356,6 +370,8 @@ def get_data_context(request):
                             total_tahap1 += realisasi_rencana.filter(realisasi_tahap_id=1).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                             total_tahap2 += realisasi_rencana.filter(realisasi_tahap_id=2).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                             total_tahap3 += realisasi_rencana.filter(realisasi_tahap_id=3).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
+                            total_tahap4 += realisasi_rencana.filter(realisasi_tahap_id=4).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
+                            total_tahap5 += realisasi_rencana.filter(realisasi_tahap_id=5).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                         
                         posting_subopd = related_rencanas.first().posting_subopd if related_rencanas.exists() else None
 
@@ -369,7 +385,9 @@ def get_data_context(request):
                                 'total_output': total_output_realisasi,
                                 'tahap1': total_tahap1,
                                 'tahap2': total_tahap2,
-                                'tahap3': total_tahap3
+                                'tahap3': total_tahap3,
+                                'tahap4': total_tahap4,
+                                'tahap5': total_tahap5,
                             },
                             'sub_number': f"{program_counter:02}.{kegiatan_counter:02}.{sub_kegiatan_counter:02}"  # Nomor sub-kegiatan
                         })
@@ -379,7 +397,8 @@ def get_data_context(request):
                         total_tahap1_keg += total_tahap1
                         total_tahap2_keg += total_tahap2
                         total_tahap3_keg += total_tahap3
-
+                        total_tahap4_keg += total_tahap4
+                        total_tahap5_keg += total_tahap5
                     sub_kegiatan_counter += 1  # Increment counter sub-kegiatan
 
             if total_pagu_keg > 0:  # Hanya jika ada total pagu
@@ -393,6 +412,8 @@ def get_data_context(request):
                     'total_tahap1_keg': total_tahap1_keg,
                     'total_tahap2_keg': total_tahap2_keg,
                     'total_tahap3_keg': total_tahap3_keg,
+                    'total_tahap4_keg': total_tahap4_keg,
+                    'total_tahap5_keg': total_tahap5_keg,
                     'kegiatan_number': f"{program_counter:02}.{kegiatan_counter:02}"  # Nomor kegiatan
                 })
                 total_pagu_prog += total_pagu_keg
@@ -402,6 +423,8 @@ def get_data_context(request):
                 total_tahap1_prog += total_tahap1_keg
                 total_tahap2_prog += total_tahap2_keg
                 total_tahap3_prog += total_tahap3_keg
+                total_tahap4_prog += total_tahap4_keg
+                total_tahap5_prog += total_tahap5_keg
 
             kegiatan_counter += 1  # Increment counter kegiatan
 
@@ -417,6 +440,8 @@ def get_data_context(request):
                 'total_tahap1_prog': total_tahap1_prog,
                 'total_tahap2_prog': total_tahap2_prog,
                 'total_tahap3_prog': total_tahap3_prog,
+                'total_tahap4_prog': total_tahap4_prog,
+                'total_tahap5_prog': total_tahap5_prog
             })
             total_pagu_keseluruhan += total_pagu_prog
             total_output_keseluruhan += total_output_prog
@@ -425,6 +450,8 @@ def get_data_context(request):
             total_tahap1_keseluruhan += total_tahap1_prog
             total_tahap2_keseluruhan += total_tahap2_prog
             total_tahap3_keseluruhan += total_tahap3_prog
+            total_tahap4_keseluruhan += total_tahap4_prog
+            total_tahap5_keseluruhan += total_tahap5_prog
 
         # program_counter += 1  # Increment counter program
     tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
@@ -441,6 +468,8 @@ def get_data_context(request):
         'total_tahap1_keseluruhan': total_tahap1_keseluruhan,
         'total_tahap2_keseluruhan': total_tahap2_keseluruhan,
         'total_tahap3_keseluruhan': total_tahap3_keseluruhan,
+        'total_tahap4_keseluruhan': total_tahap4_keseluruhan,
+        'total_tahap5_keseluruhan': total_tahap5_keseluruhan,
         'realisasi_tahun': realisasi_tahun,
         'realisasi_dana' : dana_laporan,
         'realisasi_subopd' : subopd_laporan,
@@ -491,7 +520,11 @@ def apip(request):
             filterreals &= Q(penerimaan_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filterreals &= Q(penerimaan_tahap_id__in=[1, 2, 3])
-        
+        elif realisasi_tahap == 4:
+            filterreals &= Q(penerimaan_tahap_id__in=[1, 2, 3, 4])
+        elif realisasi_tahap == 5:
+            filterreals &= Q(penerimaan_tahap_id__in=[1, 2, 3, 4, 5])
+
     if sesiidopd :
         data = model_pejabat.objects.filter(pejabat_sub=sesiidopd)
            
@@ -527,7 +560,11 @@ def sp2d(request):
             filterreals &= Q(realisasi_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
-    
+        elif realisasi_tahap == 4:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
+        elif realisasi_tahap == 5:
+            filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
+
     data = model_realisasi.objects.filter(filterreals).order_by('realisasi_tahap','realisasi_subopd' )
     table = tabelsp2d(data)
         
