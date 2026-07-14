@@ -2,6 +2,7 @@ from django import forms
 from ..models import Rencanapusisa, Rencanapupostingsisa,Subkegiatan, Subopd, Realisasipusisa
 from dausg.models import DausgpuSub
 from jadwal.models import Jadwal
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
 
 model_rencana = Rencanapusisa
 model_posting = Rencanapupostingsisa
@@ -28,10 +29,7 @@ class RencanapuFilterForm(forms.ModelForm):
         sesisubopd = kwargs.pop('sesisubopd', None)
         super().__init__(*args, **kwargs)
         
-        if sesisubopd is not None and sesisubopd not in [124,70,67]:
-            self.fields['rencana_subopd'].queryset = model_subopd.objects.filter(id=sesisubopd)
-        else:
-            self.fields['rencana_subopd'].queryset = model_subopd.objects.all()            
+        self.fields['rencana_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
         
         if sesidana is not None:
             self.fields['rencana_dana'].queryset = model_subkegiatan.objects.filter(sub_slug=sesidana)
@@ -81,8 +79,12 @@ class RencanapuPostingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         tahun = kwargs.pop('tahun', None)
         postingid = kwargs.pop('jadwal', None)
+        sesidana = kwargs.pop('sesidana', None)
+        sesisubopd = kwargs.pop('sesisubopd', None)
         super().__init__(*args, **kwargs)
         self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+        self.fields['posting_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
+        allow_all_budgeted_subopd(self.fields['posting_subopd'])
 
 
 class RealisasipuFilterForm(forms.ModelForm):
@@ -112,10 +114,7 @@ class RealisasipuFilterForm(forms.ModelForm):
         sesisubopd = kwargs.pop('sesisubopd', None)
         super().__init__(*args, **kwargs)
         
-        if sesisubopd is not None and sesisubopd not in [124,70,67]:
-            self.fields['realisasi_subopd'].queryset = Subopd.objects.filter(id=sesisubopd)
-        else:
-            self.fields['realisasi_subopd'].queryset = Subopd.objects.all()            
+        self.fields['realisasi_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
         
         if sesidana is not None:
             self.fields['realisasi_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)

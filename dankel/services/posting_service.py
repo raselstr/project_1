@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db.models import Q
 
 from jadwal.models import Jadwal
+from core.forms.budget_opd import is_special_opd
 
 
 SPECIAL_OPD_IDS = {124, 70, 67}
@@ -28,7 +29,7 @@ def get_active_jadwal_ids(tahun):
 
 def build_posting_filters(prefix, opd_id=None, tahun=None):
     filters = Q()
-    if opd_id:
+    if opd_id and not is_special_opd(opd_id):
         filters &= Q(**{f'{prefix}_subopd_id': opd_id})
     if tahun:
         filters &= Q(**{f'{prefix}_tahun': tahun})
@@ -81,12 +82,18 @@ def build_combined_posting_data(model, prefix, jadwal_ids, filters):
     return combined_data
 
 
-def post_rencana_to_jadwal(source_model, target_model, prefix, jadwal, opd, tahun):
+def post_rencana_to_jadwal(source_model, target_model, prefix, jadwal, opd, tahun, opd_ids=None, dana_slug=None):
     rencana = source_model.objects.filter(**{
-        f'{prefix}_subopd': opd,
         f'{prefix}_tahun': tahun,
     })
+    if dana_slug:
+        rencana = rencana.filter(**{f'{prefix}_dana__sub_slug': dana_slug})
+    if opd is not None:
+        rencana = rencana.filter(**{f'{prefix}_subopd': opd})
+    elif opd_ids is not None:
+        rencana = rencana.filter(**{f'{prefix}_subopd_id__in': opd_ids})
 
+    posted_count = 0
     for item in rencana:
         target_model.objects.update_or_create(
             **{
@@ -103,3 +110,5 @@ def post_rencana_to_jadwal(source_model, target_model, prefix, jadwal, opd, tahu
                 f'{prefix}_ket': getattr(item, f'{prefix}_ket'),
             },
         )
+        posted_count += 1
+    return posted_count

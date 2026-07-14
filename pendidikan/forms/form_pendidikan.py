@@ -2,7 +2,7 @@ from django import forms
 from ..models import Rencana, Rencanaposting,Subkegiatan, Subopd, Realisasi
 from dausg.models import DausgpendidikanSub
 from jadwal.models import Jadwal
-from core.forms.budget_opd import budgeted_subopd_queryset
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
 
 model_rencana = Rencana
 model_posting = Rencanaposting
@@ -88,6 +88,7 @@ class RencanaPostingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
         self.fields['posting_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
+        allow_all_budgeted_subopd(self.fields['posting_subopd'])
         
 class RealisasiFilterForm(forms.ModelForm):
     class Meta:

@@ -1,8 +1,10 @@
 # File: your_app/views.py
 from django.shortcuts import render,redirect
+from django.contrib import messages
 from project.decorators import menu_access_required, set_submenu_session
 from django.db.models import Q
 from django.urls import reverse
+from core.forms.budget_opd import is_special_opd
 
 from pu.models import Rencanapupostingsisa, Rencanapusisa
 from pu.forms.sisa import RencanapuPostingForm
@@ -12,6 +14,7 @@ model_rencana = Rencanapusisa
 model_posting = Rencanapupostingsisa
 form_posting = RencanapuPostingForm
 model_jadwal = Jadwal
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum'
 tag_url = 'posting_pu_listsisa'
 tag_posting = 'posting_pusisa'
 
@@ -42,7 +45,7 @@ def list(request):
         perubahanaktif = None
     
     filters = Q()
-    if sesiidopd:
+    if sesiidopd and not is_special_opd(sesiidopd):
         filters &= Q(posting_subopd_id=sesiidopd)
     if sesitahun:
         filters &= Q(posting_tahun=sesitahun)
@@ -97,46 +100,64 @@ def list(request):
 @set_submenu_session
 @menu_access_required('simpan')
 def posting(request):
-    rencana = model_rencana.objects.all()
     jadwal = None
     opd = None
     jadwalaktif = request.session.get('jadwal')
     tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
+        form = form_posting(
+            request.POST or None,
+            tahun=tahun,
+            jadwal=jadwalaktif,
+            sesidana=sesidana,
+            sesisubopd=request.session.get('idsubopd'),
+        )
         if form.is_valid():
             jadwal = form.cleaned_data.get('posting_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('posting_subopd')  # Ambil nilai dari form
             
             if jadwal is not None :
-                if opd is not None :
+                rencana = model_rencana.objects.filter(
+                    rencana_tahun=tahun,
+                    rencana_dana__sub_slug=sesidana,
+                )
+                if opd is not None:
                     rencana = rencana.filter(rencana_subopd=opd)
-                    for item in rencana:
-                        obj, created = model_posting.objects.update_or_create(
-                            posting_rencanaid = item,
-                            posting_tahun=item.rencana_tahun,
-                            posting_dana=item.rencana_dana,
-                            posting_subopd=item.rencana_subopd,
-                            posting_jadwal=jadwal,
-                            defaults={
-                                'posting_subkegiatan':item.rencana_kegiatan,
-                                'posting_pagu': item.rencana_pagu,
-                                'posting_output': item.rencana_output,
-                                'posting_ket': item.rencana_ket,
-                                'posting_pagudpa': item.rencana_pagudpa,
-                            }
-                        )
-                    return redirect(tag_url)
                 else:
-                    print("Field jadwal atau OPD tidak ada di form.")
+                    opd_ids = form.fields['posting_subopd'].queryset.values_list('id', flat=True)
+                    rencana = rencana.filter(rencana_subopd_id__in=opd_ids)
+
+                posted_count = 0
+                for item in rencana:
+                    obj, created = model_posting.objects.update_or_create(
+                        posting_rencanaid = item,
+                        posting_tahun=item.rencana_tahun,
+                        posting_dana=item.rencana_dana,
+                        posting_subopd=item.rencana_subopd,
+                        posting_jadwal=jadwal,
+                        defaults={
+                            'posting_subkegiatan':item.rencana_kegiatan,
+                            'posting_pagu': item.rencana_pagu,
+                            'posting_output': item.rencana_output,
+                            'posting_ket': item.rencana_ket,
+                            'posting_pagudpa': item.rencana_pagudpa,
+                        }
+                    )
+                    posted_count += 1
+                messages.success(request, f'{posted_count} data berhasil diposting')
+                return redirect(tag_url)
             else:
-                print("Field jadwal tidak ada di form.")
+                messages.error(request, 'Jadwal wajib dipilih.')
         else:
-            print("Form tidak valid")
-            print(form.errors)  # Tampilkan error form untuk debugging
+            messages.error(request, 'Form posting tidak valid.')
     else:
-        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
+        form = form_posting(
+            tahun=tahun,
+            jadwal=jadwalaktif,
+            sesidana=sesidana,
+            sesisubopd=request.session.get('idsubopd'),
+        )
     
     context = {
         'judul': 'Posting Rencana Kegiatan DAU SG Bidang Pekerjaan Umum Sisa Tahun Lalu',
@@ -146,5 +167,4 @@ def posting(request):
         
     }
     return render(request, template_form, context)
-
 

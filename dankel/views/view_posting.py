@@ -61,11 +61,23 @@ def posting(request):
             jadwal = form.cleaned_data.get('rencdankel_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('rencdankel_subopd')  # Ambil nilai dari form
             
-            if jadwal is not None and opd is not None:
-                post_rencana_to_jadwal(RencDankel, Model_data, 'rencdankel', jadwal, opd, scope['tahun'])
-                messages.success(request, 'Data berhasil diposting')
+            if jadwal is not None:
+                opd_ids = None
+                if opd is None:
+                    opd_ids = form.fields['rencdankel_subopd'].queryset.values_list('id', flat=True)
+                posted_count = post_rencana_to_jadwal(
+                    RencDankel,
+                    Model_data,
+                    'rencdankel',
+                    jadwal,
+                    opd,
+                    scope['tahun'],
+                    opd_ids=opd_ids,
+                    dana_slug=sesidana,
+                )
+                messages.success(request, f'{posted_count} data berhasil diposting')
                 return redirect(tag_url)
-            messages.error(request, 'Jadwal dan OPD wajib dipilih.')
+            messages.error(request, 'Jadwal wajib dipilih.')
         else:
             messages.error(request, 'Form posting tidak valid.')
     else:

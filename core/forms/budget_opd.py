@@ -5,6 +5,7 @@ from pagu.models import Pagudausg
 
 
 SPECIAL_OPD_IDS = {124, 70, 67}
+ALL_BUDGETED_OPD_LABEL = 'Semua OPD yang memiliki pagu'
 
 
 def is_special_opd(opd_id):
@@ -34,3 +35,11 @@ def budgeted_subopd_queryset(tahun=None, dana_slug=None, opd_id=None):
         queryset = queryset.filter(id=opd_id)
 
     return queryset
+
+
+def allow_all_budgeted_subopd(field, label=ALL_BUDGETED_OPD_LABEL):
+    field.required = False
+    field.empty_label = label
+    field.initial = None
+    field.widget.attrs['data-placeholder'] = label
+    field.widget.attrs['data-allow-clear'] = 'true'
