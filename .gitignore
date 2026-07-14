@@ -13,7 +13,7 @@ local_settings.py
 db.sqlite3
 
 # Virtual env
-venv/
+env/
 # .env
 
 # OS

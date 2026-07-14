@@ -12,6 +12,7 @@ model_rencana = Rencanakesehatansisa
 model_posting = Rencanakesehatanpostingsisa
 form_posting = RencanakesehatanPostingForm
 model_jadwal = Jadwal
+sesidana = 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan'
 
 tag_url = 'posting_kesehatan_listsisa'
 tag_posting = 'posting_kesehatansisa'
@@ -91,7 +92,13 @@ def posting(request):
     tahun = request.session.get('tahun')
     
     if request.method == 'POST':
-        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
+        form = form_posting(
+            request.POST or None,
+            tahun=tahun,
+            jadwal=jadwalaktif,
+            sesidana=sesidana,
+            sesisubopd=request.session.get('idsubopd'),
+        )
         if form.is_valid():
             jadwal = form.cleaned_data.get('posting_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('posting_subopd')  # Ambil nilai dari form
@@ -123,7 +130,13 @@ def posting(request):
             print("Form tidak valid")
             print(form.errors)  # Tampilkan error form untuk debugging
     else:
-        form = form_posting(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
+        form = form_posting(
+            request.POST or None,
+            tahun=tahun,
+            jadwal=jadwalaktif,
+            sesidana=sesidana,
+            sesisubopd=request.session.get('idsubopd'),
+        )
     
     context = {
         'judul': 'Posting Rencana Sisa Kegiatan DAU SG Bidang Kesehatan',
@@ -133,5 +146,4 @@ def posting(request):
         
     }
     return render(request, template_form, context)
-
 

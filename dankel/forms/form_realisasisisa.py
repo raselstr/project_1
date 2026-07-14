@@ -1,5 +1,6 @@
 from django import forms
 from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankeljadwalsisa
+from core.forms.budget_opd import budgeted_subopd_queryset
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -24,10 +25,11 @@ class RealisasiDankelsisaFilterForm(forms.ModelForm):
         tahunrencana = kwargs.pop('tahunrencana', None)
         super().__init__(*args, **kwargs)
         
-        if sesiidopd is not None and sesiidopd != 125 and sesiidopd != 70:
-            self.fields['realisasidankelsisa_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
-        else:
-            self.fields['realisasidankelsisa_subopd'].queryset = Subopd.objects.all()
+        self.fields['realisasidankelsisa_subopd'].queryset = budgeted_subopd_queryset(
+            tahun=tahunrencana,
+            dana_slug=sesidana,
+            opd_id=sesiidopd,
+        )
             
         if sesidana is not None:
             self.fields['realisasidankelsisa_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)

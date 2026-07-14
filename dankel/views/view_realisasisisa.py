@@ -77,7 +77,7 @@ def update(request, pk):
     }
 
     if request.method == 'POST':
-        form = Form_data(request.POST, instance=realisasi_dankel)
+        form = Form_data(request.POST, instance=realisasi_dankel, keg=keg)
         if form.is_valid():
             realisasi_dankel = form.save(commit=False)
             realisasi_dankel.save()
@@ -110,7 +110,7 @@ def simpan(request):
         'jadwal' : request.session.get('jadwal')
     }
     if request.method == 'POST':
-        form = Form_data(request.POST)
+        form = Form_data(request.POST, keg=keg)
         if form.is_valid():
             logger.info("Form is valid")
             try:
@@ -163,7 +163,7 @@ def list(request):
         filters &= Q(realisasidankelsisa_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filters &= Q(realisasidankelsisa_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 70 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id is not None and subopdrealisasi_id not in [124, 70, 67]:
         filters &= Q(realisasidankelsisa_subopd_id=subopdrealisasi_id)
     
     # Terapkan filter ke query data

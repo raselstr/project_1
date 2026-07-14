@@ -61,13 +61,13 @@ def update(request, pk):
     data = get_object_or_404(Model_data, id=pk)
 
     if request.method == 'POST':
-        form = Form_data(request.POST or None, instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
+        form = Form_data(request.POST or None, instance=data, sesiidopd=sesiidopd, sesidana=sesidana, tahun=sesitahun)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Update')
             return redirect(tag_url)
     else:
-        form = Form_data(instance=data, sesiidopd=sesiidopd, sesidana=sesidana)
+        form = Form_data(instance=data, sesiidopd=sesiidopd, sesidana=sesidana, tahun=sesitahun)
     context = {
         'form': form,
         'judul': 'Update Rencana Kegiatan',
@@ -83,13 +83,13 @@ def simpan(request):
     sesitahun = session_data.get('sesitahun')
     request.session['next'] = request.get_full_path()
     if request.method == 'POST':
-        form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana)
+        form = Form_data(request.POST or None, sesiidopd=sesiidopd, sesidana=sesidana, tahun=sesitahun)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(tag_url)  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = Form_data(sesiidopd=sesiidopd, sesidana=sesidana)
+        form = Form_data(sesiidopd=sesiidopd, sesidana=sesidana, tahun=sesitahun)
     context = {
         'form': form,
         'judul': 'Form Rencana Kegiatan',

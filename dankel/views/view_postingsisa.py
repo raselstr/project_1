@@ -1,21 +1,24 @@
-# File: your_app/views.py
-from django.shortcuts import render, get_object_or_404,redirect
-from django.db.models import Q
-from django.core.exceptions import ValidationError
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from ..models import RencDankeljadwalsisa, RencDankelsisa
 from ..forms.form_postingsisa import RencDankeljadwalsisaForm
 from project.decorators import menu_access_required, set_submenu_session
-from jadwal.models import Jadwal
+from ..services.posting_service import (
+    build_combined_posting_data,
+    build_posting_filters,
+    get_active_jadwal_ids,
+    get_session_scope,
+    post_rencana_to_jadwal,
+)
 
 
 Model_data = RencDankeljadwalsisa
 Model_induk = RencDankelsisa
 Form_filter = RencDankeljadwalsisaForm
-model_jadwal = Jadwal
 tag_url = 'postingsisa_list'
 template_form = 'dankel_postingsisa/postingsisa_form.html'
 template_list = 'dankel_postingsisa/postingsisa_list.html'
+sesidana = 'sisa-dana-kelurahan'
 # sesitahun = 2024
 
 def get_from_sessions(request):
@@ -30,57 +33,20 @@ def get_from_sessions(request):
 @menu_access_required('list')    
 def list(request):
     request.session['next'] = request.get_full_path()
-    sesiidopd = request.session.get('idsubopd')
-    sesitahun = request.session.get('tahun')
-    
-    filters = Q()
-    if sesiidopd:
-        filters &= Q(rencdankelsisa_subopd_id=sesiidopd)
-    if sesitahun:
-        filters &= Q(rencdankelsisa_tahun=sesitahun)
-
-    induk = RencDankeljadwalsisa.objects.filter(rencdankelsisa_jadwal=1).filter(filters).order_by('rencdankelsisa_subopd_id')
-    perubahan = RencDankeljadwalsisa.objects.filter(rencdankelsisa_jadwal=2).filter(filters).order_by('rencdankelsisa_subopd_id')
-
-    # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
-    induk_dict = {
-        (item.rencdankelsisa_subopd_id, item.rencdankelsisa_tahun, item.rencdankelsisa_dana_id,  item.rencdankelsisa_sub_id): item
-        for item in induk
-    }
-    perubahan_dict = {
-        (item.rencdankelsisa_subopd_id, item.rencdankelsisa_tahun, item.rencdankelsisa_dana_id, item.rencdankelsisa_sub_id): item
-        for item in perubahan
-    }
-    
-    # Gabungkan data untuk ditampilkan di template
-    combined_data = []
-    all_keys = set(induk_dict.keys()).union(perubahan_dict.keys())
-    
-    for key in all_keys:
-        item_induk = induk_dict.get(key)
-        item_perubahan = perubahan_dict.get(key)
-        
-        # Tambahkan selisih ke dalam data
-        if item_induk and item_perubahan:
-            selisih_pagu = item_perubahan.rencdankelsisa_pagu - item_induk.rencdankelsisa_pagu
-        elif item_perubahan:
-            selisih_pagu = item_perubahan.rencdankelsisa_pagu
-        elif item_induk:
-            selisih_pagu = item_induk.rencdankelsisa_pagu
-        else:
-            selisih_pagu = 0
-
-        combined_data.append({
-            'item_induk': item_induk,
-            'item_perubahan': item_perubahan,
-            'selisih_pagu': selisih_pagu,
-        })
+    scope = get_session_scope(request)
+    filters = build_posting_filters('rencdankelsisa', scope['opd_id'], scope['tahun'])
+    combined_data = build_combined_posting_data(
+        RencDankeljadwalsisa,
+        'rencdankelsisa',
+        get_active_jadwal_ids(scope['tahun']),
+        filters,
+    )
     
     context = {
         'judul': 'Posting Sisa Rencana Kegiatan Dana Kelurahan',
         'tombol': 'Posting',
         'combined_data': combined_data,
-        'session':sesiidopd,
+        'session': scope['opd_id'],
     }
     return render(request, template_list, context)
 
@@ -88,45 +54,34 @@ def list(request):
 @set_submenu_session
 @menu_access_required('simpan')
 def posting(request):
-    rencana = Model_induk.objects.all()
-    jadwal = None
-    opd = None
-    jadwalaktif = request.session.get('jadwal')
-    tahun = request.session.get('tahun')
+    scope = get_session_scope(request)
     
     if request.method == 'POST':
-        form = RencDankeljadwalsisaForm(request.POST or None, tahun=tahun, jadwal=jadwalaktif)
+        form = RencDankeljadwalsisaForm(
+            request.POST or None,
+            tahun=scope['tahun'],
+            jadwal=scope['jadwal_id'],
+            sesidana=sesidana,
+            sesiidopd=scope['opd_id'],
+        )
         if form.is_valid():
             jadwal = form.cleaned_data.get('rencdankelsisa_jadwal')  # Ambil nilai dari form
             opd = form.cleaned_data.get('rencdankelsisa_subopd')  # Ambil nilai dari form
             
-            if jadwal is not None:
-                if opd is not None:
-                    rencana = rencana.filter(rencdankelsisa_subopd=opd, rencdankel_tahun=tahun)
-                    for item in rencana:
-                        obj, created = Model_data.objects.update_or_create(
-                            rencdankelsisa_id = item,
-                            rencdankelsisa_tahun=item.rencdankelsisa_tahun,
-                            rencdankelsisa_dana=item.rencdankelsisa_dana,
-                            rencdankelsisa_subopd=item.rencdankelsisa_subopd,
-                            rencdankelsisa_sub=item.rencdankelsisa_sub,
-                            rencdankelsisa_jadwal=jadwal,
-                            defaults={
-                                'rencdankelsisa_pagu': item.rencdankelsisa_pagu,
-                                'rencdankelsisa_output': item.rencdankelsisa_output,
-                                'rencdankelsisa_ket': item.rencdankelsisa_ket,
-                            }
-                        )
-                    return redirect(tag_url)
-                else:
-                    print("Field jadwal atau OPD tidak ada di form.")
-            else:
-                print("Field jadwal tidak ada di form.")
+            if jadwal is not None and opd is not None:
+                post_rencana_to_jadwal(Model_induk, Model_data, 'rencdankelsisa', jadwal, opd, scope['tahun'])
+                messages.success(request, 'Data berhasil diposting')
+                return redirect(tag_url)
+            messages.error(request, 'Jadwal dan OPD wajib dipilih.')
         else:
-            print("Form tidak valid")
-            print(form.errors)  # Tampilkan error form untuk debugging
+            messages.error(request, 'Form posting tidak valid.')
     else:
-        form = Form_filter(tahun=tahun, jadwal=jadwalaktif)
+        form = Form_filter(
+            tahun=scope['tahun'],
+            jadwal=scope['jadwal_id'],
+            sesidana=sesidana,
+            sesiidopd=scope['opd_id'],
+        )
     
     context = {
         'judul': 'Posting Rencana Kegiatan Dana Kelurahan',
@@ -134,5 +89,3 @@ def posting(request):
         'form': form
     }
     return render(request, template_form, context)
-
-

@@ -516,9 +516,7 @@ class RealisasiDankelsisa(models.Model):
         if self.realisasidankelsisa_subopd_id is not None:
             filters &= Q(realisasidankelsisa_subopd=self.realisasidankelsisa_subopd_id)
         
-        nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
-        print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
-        return nilai_realisasi
+        return RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
         
     def __str__(self):
         return f'{self.realisasidankelsisa_rencana}'

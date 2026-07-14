@@ -1,5 +1,6 @@
 from django import forms
 from ..models import RencDankel, Subopd, Subkegiatan
+from core.forms.budget_opd import budgeted_subopd_queryset
 
 class RencDankelForm(forms.ModelForm):
     class Meta:
@@ -19,12 +20,10 @@ class RencDankelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         sesiidopd = kwargs.pop('sesiidopd', None)
         sesidana = kwargs.pop('sesidana', None)
+        tahun = kwargs.pop('tahun', None)
         super().__init__(*args, **kwargs)
         
-        if sesiidopd is not None:
-            self.fields['rencdankel_subopd'].queryset = Subopd.objects.filter(id=sesiidopd)
-        else:
-            self.fields['rencdankel_subopd'].queryset = Subopd.objects.all()
+        self.fields['rencdankel_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesiidopd)
             
         if sesidana is not None:
             self.fields['rencdankel_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
