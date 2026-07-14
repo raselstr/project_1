@@ -28,6 +28,20 @@ def list(request):
     request.session['next'] = request.get_full_path()
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('tahun')
+
+    tbljadwal = model_jadwal.objects.filter(jadwal_tahun=sesitahun).distinct()
+    if tbljadwal.count() == 1:
+    # Jika hanya ada 1 data, gunakan untuk induk
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = None
+    elif tbljadwal.count() > 1:
+        # Jika lebih dari 1 data, jadwal pertama untuk induk, terakhir untuk perubahan
+        jadwalaktif = tbljadwal.first().id
+        perubahanaktif = tbljadwal.last().id
+    else:
+        # Jika tidak ada data, jadwalaktif kosong
+        jadwalaktif = None
+        perubahanaktif = None
     
     filters = Q()
     if sesiidopd:
@@ -35,8 +49,8 @@ def list(request):
     if sesitahun:
         filters &= Q(posting_tahun=sesitahun)
 
-    induk = model_posting.objects.filter(posting_jadwal=1).filter(filters).order_by('posting_subopd_id')
-    perubahan = model_posting.objects.filter(posting_jadwal=2).filter(filters).order_by('posting_subopd_id')
+    induk = model_posting.objects.filter(posting_jadwal=jadwalaktif).filter(filters).order_by('posting_subopd_id')
+    perubahan = model_posting.objects.filter(posting_jadwal=perubahanaktif).filter(filters).order_by('posting_subopd_id')
 
     # Buat dictionary untuk menyimpan data dengan kunci sebagai kombinasi field
     induk_dict = {
