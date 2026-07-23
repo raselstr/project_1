@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from datetime import datetime
 from ..models import RealisasiDankel, Subopd, Subkegiatan, RencDankeljadwal
-from core.forms.budget_opd import budgeted_subopd_queryset
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -32,6 +32,8 @@ class RealisasiDankelFilterForm(forms.ModelForm):
             dana_slug=sesidana,
             opd_id=sesiidopd,
         )
+        if sesiidopd is None:
+            allow_all_budgeted_subopd(self.fields['realisasidankel_subopd'])
             
         if sesidana is not None:
             self.fields['realisasidankel_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)

@@ -182,7 +182,7 @@ def sp2d(request, pk=None):
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
         elif realisasi_tahap == 5:
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
-    if realisasi_subopd not in [124]:
+    if realisasi_subopd not in [None, 124]:
         filters &= Q(realisasi_subopd_id=realisasi_subopd)
     
     filterkeg = Q(pk=pk)
@@ -192,7 +192,7 @@ def sp2d(request, pk=None):
         filterkeg &= Q(posting_dana_id=realisasi_dana)
     # if realisasi_tahap:
     #     filterkeg &= Q(realisasi_tahap_id=realisasi_tahap)
-    if realisasi_subopd not in [124]:
+    if realisasi_subopd not in [None, 124]:
         filterkeg &= Q(posting_subopd_id=realisasi_subopd)
         
     try:
@@ -238,7 +238,7 @@ def list(request):
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
         filters &= Q(posting_dana_id=realisasi_dana)
-    if realisasi_subopd not in [124]:
+    if realisasi_subopd not in [None, 124]:
         filters &= Q(posting_subopd_id=realisasi_subopd)
     
     try:

@@ -1,6 +1,6 @@
 from django import forms
 from ..models import RealisasiDankelsisa, Subopd, Subkegiatan, RencDankeljadwalsisa
-from core.forms.budget_opd import budgeted_subopd_queryset
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
 # from django.utils import timezone
 
 # CURRENT_YEAR = timezone.now().year
@@ -30,6 +30,8 @@ class RealisasiDankelsisaFilterForm(forms.ModelForm):
             dana_slug=sesidana,
             opd_id=sesiidopd,
         )
+        if sesiidopd is None:
+            allow_all_budgeted_subopd(self.fields['realisasidankelsisa_subopd'])
             
         if sesidana is not None:
             self.fields['realisasidankelsisa_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)

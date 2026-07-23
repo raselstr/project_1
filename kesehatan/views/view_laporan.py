@@ -550,7 +550,7 @@ def sp2d(request):
     filterreals = Q()
     if tahun:
         filterreals &= Q(realisasi_tahun=tahun)
-    if sesiidopd not in [124]:
+    if sesiidopd not in [None, 124]:
         filterreals = Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:

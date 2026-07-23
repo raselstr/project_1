@@ -551,7 +551,7 @@ def sp2d(request):
     sesiidopd = request.session.get('realisasi_subopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
     filterreals = Q()
-    if sesiidopd not in [124]:
+    if sesiidopd not in [None, 124]:
         filterreals = Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:

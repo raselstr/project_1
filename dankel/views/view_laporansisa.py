@@ -152,7 +152,7 @@ def sp2d(request):
         filterreals &= Q(realisasidankelsisa_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankelsisa_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasi_id)
         
     sp2d = Model_realisasi.objects.filter(filterreals)
@@ -183,7 +183,7 @@ def get_data_context(request):
         filters &= Q(rencdankelsisa_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankelsisa_dana_id=danarealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filters &= Q(rencdankelsisa_subopd_id=subopdrealisasi_id)
     
     filterreals = Q()
@@ -200,7 +200,7 @@ def get_data_context(request):
             filterreals &= Q(realisasidankelsisa_tahap_id__in=[1, 2])
         elif tahaprealisasi_id == 3:
             filterreals &= Q(realisasidankelsisa_tahap_id__in=[1, 2, 3])
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filterreals &= Q(realisasidankelsisa_subopd_id=subopdrealisasi_id)
     
     progs = Model_prog.objects.all()

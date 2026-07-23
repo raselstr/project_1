@@ -266,7 +266,7 @@ def sp2d(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
         
     sp2d = Model_realisasi.objects.filter(filterreals)
@@ -297,7 +297,7 @@ def sp2d(request):
 #         filters &= Q(rencdankel_tahun=tahunrealisasi)
 #     if danarealisasi_id:
 #         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-#     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+#     if subopdrealisasi_id not in [None, 124, 67]:
 #         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
     
 #     filterreals = Q()
@@ -314,7 +314,7 @@ def sp2d(request):
 #             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2])
 #         elif tahaprealisasi_id == 3:
 #             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2, 3])
-#     if subopdrealisasi_id != 124 and subopdrealisasi_id != 67:
+#     if subopdrealisasi_id not in [None, 124, 67]:
 #         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
     
 #     progs = Model_prog.objects.all()
@@ -439,7 +439,7 @@ def get_data_context(request):
         filters &= Q(rencdankel_tahun=tahunrealisasi)
     if danarealisasi_id:
         filters &= Q(rencdankel_dana_id=danarealisasi_id)
-    if subopdrealisasi_id not in [124, 67]:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filters &= Q(rencdankel_subopd_id=subopdrealisasi_id)
 
     # =====================
@@ -462,7 +462,7 @@ def get_data_context(request):
         elif tahaprealisasi_id == 3:
             filterreals &= Q(realisasidankel_tahap_id__in=[1, 2, 3])
 
-    if subopdrealisasi_id not in [124, 67]:
+    if subopdrealisasi_id not in [None, 124, 67]:
         filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
 
     # =====================
