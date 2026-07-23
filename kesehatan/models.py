@@ -11,6 +11,7 @@ from dausg.models import DausgkesehatanSub
 from pagu.models import Pagudausg
 from penerimaan.models import Penerimaan
 from jadwal.models import Jadwal
+from core.forms.budget_opd import scoped_opd_id
 
 model_opd = 'opd.Subopd'
 model_dana = 'dana.Subkegiatan'
@@ -55,8 +56,8 @@ class BaseRencanakesehatan(models.Model):
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
-        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
-        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd, self.rencana_dana_id)
+        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd_id, self.rencana_dana_id)
+        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd_id, self.rencana_dana_id)
         
         if self.pk:
             total_rencana -= self.__class__.objects.get(pk=self.pk).rencana_pagu
@@ -83,13 +84,15 @@ class BaseRencanakesehatan(models.Model):
     
     def get_pagu(self,tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None and opd not in [124,70]:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(pagudausg_opd=opd)
         return modelpagu.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
-        if opd is not None and opd not in [124,70]:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(rencana_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
     
@@ -151,7 +154,8 @@ class BaseRencanakesehatanposting(models.Model):
         
     def get_total_rencana(self, tahun, opd, dana, posting):
         filters = Q(posting_tahun=tahun) & Q(posting_dana_id=dana) & Q(posting_jadwal=posting)
-        if opd is not None and opd not in [124,67,70]:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(posting_subopd_id=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
     
@@ -278,7 +282,8 @@ class BaseRealisasikesehatan(models.Model):
 
     def get_realisasi_total(self, tahun, opd, dana):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
-        if opd is not None and opd not in [124,67,70]:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(realisasi_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 

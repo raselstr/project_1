@@ -13,6 +13,7 @@ from dausg.models import Subkegiatan
 from dausg.models import DausgkesehatanSub
 from kesehatan.tables import RencanaTable
 from opd.models import Pejabat, Subopd
+from core.forms.budget_opd import scoped_opd_id
 
 form_filter = RencanakesehatanFilterForm
 form_data = RencanakesehatanForm
@@ -128,7 +129,8 @@ def list(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    if rencana_subopd is not None and rencana_subopd not in [124]:
+    rencana_subopd = scoped_opd_id(rencana_subopd)
+    if rencana_subopd:
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:
@@ -238,7 +240,8 @@ def cetak(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    if rencana_subopd is not None and rencana_subopd not in [124]:
+    rencana_subopd = scoped_opd_id(rencana_subopd)
+    if rencana_subopd:
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
     try:
@@ -254,8 +257,10 @@ def cetak(request):
         
     tabel = tabel_rencana(data)
     
-    subopd_laporan = model_subopd.objects.filter(id=rencana_subopd).first().sub_nama
-    dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
+    subopd_obj = model_subopd.objects.filter(id=rencana_subopd).first() if rencana_subopd else None
+    dana_obj = model_pagu.objects.filter(id=rencana_dana).first()
+    subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
+    dana_laporan = dana_obj.sub_nama if dana_obj else '-'
 
     context = {
         'judul': 'Daftar Kegiatan DAU Bidang Kesehatan',

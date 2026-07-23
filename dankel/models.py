@@ -10,6 +10,7 @@ from penerimaan.models import DistribusiPenerimaan
 from datetime import datetime
 from jadwal.models import Jadwal
 from decimal import Decimal
+from core.forms.budget_opd import scoped_opd_id
 
 # Create your models here.
 VERIF = [
@@ -38,14 +39,14 @@ class RencDankel(models.Model):
         # Check if the combination already exists
         if RencDankel.objects.filter(
             rencdankel_tahun=self.rencdankel_tahun,
-            rencdankel_subopd=self.rencdankel_subopd,
+            rencdankel_subopd=self.rencdankel_subopd_id,
             rencdankel_sub=self.rencdankel_sub
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
         # Check if the total planned budget does not exceed the available budget
-        total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
-        total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd, self.rencdankel_dana)
+        total_rencana = self.get_total_rencana(self.rencdankel_tahun, self.rencdankel_subopd_id, self.rencdankel_dana)
+        total_pagudausg = self.get_pagudausg(self.rencdankel_tahun, self.rencdankel_subopd_id, self.rencdankel_dana)
         total_realisasi_pk = self.get_realisasi_pk()
         
         
@@ -68,13 +69,15 @@ class RencDankel(models.Model):
     
     def get_pagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None and opd !=124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_rencana(self, tahun, opd, dana):
         filters = Q(rencdankel_tahun=tahun) & Q(rencdankel_dana=dana)
-        if opd is not None and opd !=124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(rencdankel_subopd=opd)
         return RencDankel.objects.filter(filters).aggregate(total_nilai=Sum('rencdankel_pagu'))['total_nilai'] or Decimal(0)
        
@@ -86,7 +89,7 @@ class RencDankel(models.Model):
   
     def get_realisasi_pk(self):
         filters = Q(realisasidankel_tahun=self.rencdankel_tahun) & Q(realisasidankel_dana=self.rencdankel_dana_id) & Q(realisasidankel_idrencana_id = self.id)
-        if self.rencdankel_subopd is not None:
+        if self.rencdankel_subopd_id is not None:
             filters &= Q(realisasidankel_subopd=self.rencdankel_subopd_id)
         nilai_realisasi = RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
@@ -127,14 +130,14 @@ class RencDankelsisa(models.Model):
         # Check if the combination already exists
         if RencDankelsisa.objects.filter(
             rencdankelsisa_tahun=self.rencdankelsisa_tahun,
-            rencdankelsisa_subopd=self.rencdankelsisa_subopd,
+            rencdankelsisa_subopd=self.rencdankelsisa_subopd_id,
             rencdankelsisa_sub=self.rencdankelsisa_sub
         ).exclude(pk=self.pk).exists():
             raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
         
         # Check if the total planned budget does not exceed the available budget
-        total_rencana = self.get_total_sisa(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
-        total_pagudausg = self.get_sisapagudausg(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd, self.rencdankelsisa_dana)
+        total_rencana = self.get_total_sisa(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd_id, self.rencdankelsisa_dana)
+        total_pagudausg = self.get_sisapagudausg(self.rencdankelsisa_tahun, self.rencdankelsisa_subopd_id, self.rencdankelsisa_dana)
         total_realisasi_pk = self.get_realisasi_pk()
         
         # Include the current instance's budget in the total_rencana
@@ -157,13 +160,15 @@ class RencDankelsisa(models.Model):
     
     def get_sisapagudausg(self, tahun, opd, dana):
         filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
-        if opd is not None and opd !=124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(pagudausg_opd=opd)
         return Pagudausg.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
     
     def get_total_sisa(self, tahun, opd, dana):
         filters = Q(rencdankelsisa_tahun=tahun) & Q(rencdankelsisa_dana=dana)
-        if opd is not None and opd !=124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(rencdankelsisa_subopd=opd)
         return RencDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('rencdankelsisa_pagu'))['total_nilai'] or Decimal(0)
        
@@ -174,7 +179,7 @@ class RencDankelsisa(models.Model):
     
     def get_realisasi_pk(self):
         filters = Q(realisasidankelsisa_tahun=self.rencdankelsisa_tahun) & Q(realisasidankelsisa_dana=self.rencdankelsisa_dana_id) & Q(realisasidankelsisa_idrencana_id = self.id)
-        if self.rencdankelsisa_subopd is not None:
+        if self.rencdankelsisa_subopd_id is not None:
             filters &= Q(realisasidankelsisa_subopd=self.rencdankelsisa_subopd_id)
         nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
@@ -308,14 +313,16 @@ class RealisasiDankel(models.Model):
 
     def get_penerimaan_total(self, tahun, opd, dana):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
-        if opd is not None and opd != 124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(distri_subopd=opd)
         # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
         filters = Q(realisasidankel_tahun=tahun) & Q(realisasidankel_dana=dana)
-        if opd is not None and opd != 124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(realisasidankel_subopd=opd)
         return RealisasiDankel.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankel_lpjnilai'))['total_nilai'] or Decimal(0)
 
@@ -458,14 +465,16 @@ class RealisasiDankelsisa(models.Model):
 
     def get_penerimaan_total(self, tahun, opd, dana):
         filters = Q(distri_penerimaan__penerimaan_tahun=tahun) & Q(distri_penerimaan__penerimaan_dana=dana)
-        if opd is not None and opd != 124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(distri_subopd=opd)
         # print(filters)
         return DistribusiPenerimaan.objects.filter(filters).aggregate(total_nilai=Sum('distri_nilai'))['total_nilai'] or Decimal(0)
 
     def get_realisasilpj_total(self, tahun, opd, dana):
         filters = Q(realisasidankelsisa_tahun=tahun) & Q(realisasidankelsisa_dana=dana)
-        if opd is not None and opd != 124 and opd != 70 and opd !=67:
+        opd = scoped_opd_id(opd)
+        if opd:
             filters &= Q(realisasidankelsisa_subopd=opd)
         return RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
 

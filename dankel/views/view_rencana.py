@@ -8,6 +8,7 @@ from ..models import RencDankel, RencDankelsisa, Subkegiatan
 from ..forms.form_rencana import RencDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 from ..tables import RencanaTable
+from core.forms.budget_opd import scoped_opd_id
 
 
 Model_data = RencDankel
@@ -112,8 +113,9 @@ def list(request):
 
     # Membuat query secara dinamis
     query = Q(rencdankel_tahun=sesitahun) & Q(rencdankel_dana=dana)
-    if sesiidopd is not None and sesiidopd !=124 and sesiidopd !=70 and sesiidopd !=67:
-        query &= Q(rencdankel_subopd=sesiidopd)
+    scoped_subopd = scoped_opd_id(sesiidopd)
+    if scoped_subopd:
+        query &= Q(rencdankel_subopd=scoped_subopd)
 
     total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     data = RencDankel.objects.filter(query)
@@ -183,7 +185,8 @@ def cetak(request):
     filters = Q()
     if tahun:
         filters &= Q(rencdankel_tahun=tahun)
-    if sesisubopd is not None and sesisubopd not in [124]:
+    sesisubopd = scoped_opd_id(sesisubopd)
+    if sesisubopd:
         filters &= Q(rencdankel_subopd=sesisubopd)
     
     try:

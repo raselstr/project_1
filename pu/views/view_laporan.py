@@ -15,6 +15,7 @@ from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg
 from ..tables import RekapPaguTable, Sp2dTable
+from core.forms.budget_opd import scoped_opd_id
 
 form_filter = RealisasipuFilterForm
 form_data = RealisasipuForm
@@ -63,7 +64,8 @@ def rekap(request):
     jadwal = request.session.get('jadwal')
 
     filters = Q(pagudausg_tahun=tahun, pagudausg_dana_id=dana.id)
-    if subopd not in [None, 67, 70]:
+    subopd = scoped_opd_id(subopd)
+    if subopd:
         filters &= Q(pagudausg_opd=subopd)
 
     pagu_list = model_pagu.objects.filter(filters)
@@ -261,8 +263,9 @@ def get_data_context(request):
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
         filters &= Q(posting_dana_id=realisasi_dana)
-    if realisasi_subopd not in [None, 124, 67, 70]:
-        filters &= Q(posting_subopd_id=realisasi_subopd)
+    scoped_subopd = scoped_opd_id(realisasi_subopd)
+    if scoped_subopd:
+        filters &= Q(posting_subopd_id=scoped_subopd)
 
     filterreals = Q()
     if level == 'APIP':
@@ -278,8 +281,8 @@ def get_data_context(request):
             filterreals &= Q(realisasi_tahap_id__in=[1, 2])
         elif realisasi_tahap == 3:
             filterreals &= Q(realisasi_tahap_id__in=[1, 2, 3])
-    if realisasi_subopd not in [None, 124, 67, 70]:
-        filterreals &= Q(realisasi_subopd_id=realisasi_subopd)
+    if scoped_subopd:
+        filterreals &= Q(realisasi_subopd_id=scoped_subopd)
 
     progs = model_program.objects.prefetch_related(
         Prefetch('dausgpukegs__dausgpusubs__rencanapuposting_set')
@@ -421,9 +424,12 @@ def get_data_context(request):
 
         program_counter += 1  # Increment counter program
     
-    tahap_laporan = model_tahap.objects.filter(id=realisasi_tahap).first().tahap_dana
-    subopd_laporan = model_subopd.objects.filter(id=realisasi_subopd).first().sub_nama
-    dana_laporan = model_dana.objects.filter(id=realisasi_dana).first().sub_nama
+    tahap_obj = model_tahap.objects.filter(id=realisasi_tahap).first()
+    subopd_obj = model_subopd.objects.filter(id=scoped_subopd).first() if scoped_subopd else None
+    dana_obj = model_dana.objects.filter(id=realisasi_dana).first()
+    tahap_laporan = tahap_obj.tahap_dana if tahap_obj else 'Semua Tahap'
+    subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
+    dana_laporan = dana_obj.sub_nama if dana_obj else '-'
 
     return {
         'prog_data': prog_data,
@@ -509,7 +515,8 @@ def sp2d(request):
     sesiidopd = request.session.get('realisasi_subopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
     filterreals = Q()
-    if sesiidopd not in [None, 124]:
+    sesiidopd = scoped_opd_id(sesiidopd)
+    if sesiidopd:
         filterreals = Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:

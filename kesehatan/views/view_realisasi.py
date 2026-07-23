@@ -15,6 +15,7 @@ from kesehatan.models import Rencanakesehatanposting, Rencanakesehatanpostingsis
 from dausg.models import Subkegiatan
 from kesehatan.forms.forms import RealisasikesehatanFilterForm, RealisasikesehatanForm
 from penerimaan.models import Penerimaan
+from core.forms.budget_opd import scoped_opd_id
 
 tabel_realisasi = RealisasikesehatanTable
 tabel_rencana = RencanakesehatanpostingTable
@@ -187,8 +188,9 @@ def sp2d(request, pk=None):
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
         elif realisasi_tahap == 5:
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
-    if realisasi_subopd not in [None, 124]:
-        filters &= Q(realisasi_subopd_id=realisasi_subopd)
+    scoped_subopd = scoped_opd_id(realisasi_subopd)
+    if scoped_subopd:
+        filters &= Q(realisasi_subopd_id=scoped_subopd)
     
     filterkeg = Q(pk=pk)
     if realisasi_tahun:
@@ -197,8 +199,8 @@ def sp2d(request, pk=None):
         filterkeg &= Q(posting_dana_id=realisasi_dana)
     # if realisasi_tahap:
     #     filterkeg &= Q(realisasi_tahap_id=realisasi_tahap)
-    if realisasi_subopd not in [None, 124]:
-        filterkeg &= Q(posting_subopd_id=realisasi_subopd)
+    if scoped_subopd:
+        filterkeg &= Q(posting_subopd_id=scoped_subopd)
         
     SIPD_REGISTRY = 'realisasi_kesehatan'
     data = model_realisasi.objects.none()
@@ -249,7 +251,8 @@ def list(request):
         filters &= Q(posting_dana_id=realisasi_dana)
     # if realisasi_tahap:
     #     filters &= Q(realisasi_tahap_id=realisasi_tahap)
-    if realisasi_subopd not in [None, 124]:
+    realisasi_subopd = scoped_opd_id(realisasi_subopd)
+    if realisasi_subopd:
         filters &= Q(posting_subopd_id=realisasi_subopd)
     
     try:

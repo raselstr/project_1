@@ -6,16 +6,36 @@ from pagu.models import Pagudausg
 
 SPECIAL_OPD_IDS = {124, 70, 67}
 ALL_BUDGETED_OPD_LABEL = 'Semua OPD yang memiliki pagu'
+EMPTY_OPD_VALUES = {None, '', 'None', 'none', 'NULL', 'null'}
+
+
+def normalize_opd_id(opd_id):
+    if hasattr(opd_id, 'pk'):
+        opd_id = opd_id.pk
+    if isinstance(opd_id, str):
+        opd_id = opd_id.strip()
+    if opd_id in EMPTY_OPD_VALUES:
+        return None
+    return opd_id
 
 
 def is_special_opd(opd_id):
+    opd_id = normalize_opd_id(opd_id)
     try:
         return int(opd_id) in SPECIAL_OPD_IDS
     except (TypeError, ValueError):
         return False
 
 
+def scoped_opd_id(opd_id):
+    opd_id = normalize_opd_id(opd_id)
+    if opd_id is None or is_special_opd(opd_id):
+        return None
+    return opd_id
+
+
 def budgeted_subopd_queryset(tahun=None, dana_slug=None, opd_id=None):
+    opd_id = normalize_opd_id(opd_id)
     pagu_filters = Q()
 
     if tahun:

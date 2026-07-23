@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db.models import Q
 
 from jadwal.models import Jadwal
-from core.forms.budget_opd import is_special_opd
+from core.forms.budget_opd import scoped_opd_id
 
 
 SPECIAL_OPD_IDS = {124, 70, 67}
@@ -29,7 +29,8 @@ def get_active_jadwal_ids(tahun):
 
 def build_posting_filters(prefix, opd_id=None, tahun=None):
     filters = Q()
-    if opd_id and not is_special_opd(opd_id):
+    opd_id = scoped_opd_id(opd_id)
+    if opd_id:
         filters &= Q(**{f'{prefix}_subopd_id': opd_id})
     if tahun:
         filters &= Q(**{f'{prefix}_tahun': tahun})
@@ -88,6 +89,7 @@ def post_rencana_to_jadwal(source_model, target_model, prefix, jadwal, opd, tahu
     })
     if dana_slug:
         rencana = rencana.filter(**{f'{prefix}_dana__sub_slug': dana_slug})
+    opd = scoped_opd_id(opd)
     if opd is not None:
         rencana = rencana.filter(**{f'{prefix}_subopd': opd})
     elif opd_ids is not None:
