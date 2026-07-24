@@ -490,6 +490,7 @@ def pdf(request):
     
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    data = model_pejabat.objects.none()
     
     realisasi_subopd = request.session.get('realisasi_subopd')
     
@@ -513,6 +514,7 @@ def apip(request):
     
     sesiidopd = request.session.get('idsubopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
+    data = model_pejabat.objects.none()
     
     filterreals = Q(penerimaan_dana__sub_slug=sesidana)
     if realisasi_tahap:
@@ -551,14 +553,17 @@ def sp2d(request):
     formatted_today = datetime.now().strftime('%d %B %Y')
     
     sesiidopd = request.session.get('realisasi_subopd')
+    realisasi_tahun = request.session.get('realisasi_tahun')
+    realisasi_dana = request.session.get('realisasi_dana')
     realisasi_tahap = request.session.get('realisasi_tahap')
-    tahun = request.session.get('tahun')
     filterreals = Q()
-    if tahun:
-        filterreals &= Q(realisasi_tahun=tahun)
+    if realisasi_tahun:
+        filterreals &= Q(realisasi_tahun=realisasi_tahun)
+    if realisasi_dana:
+        filterreals &= Q(realisasi_dana_id=realisasi_dana)
     sesiidopd = scoped_opd_id(sesiidopd)
     if sesiidopd:
-        filterreals = Q(realisasi_subopd=sesiidopd)
+        filterreals &= Q(realisasi_subopd=sesiidopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:
             filterreals &= Q(realisasi_tahap_id=1)

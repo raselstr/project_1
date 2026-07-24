@@ -208,6 +208,7 @@ def pdf(request):
     
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    data = Model_pejabat.objects.none()
     
     sesiidopd = request.session.get('realisasidankel_subopd')
     
@@ -230,6 +231,7 @@ def apip(request):
     
     sesiidopd = request.session.get('idsubopd')
     idopd = request.session.get('realisasidankel_subopd')
+    data = Model_pejabat.objects.none()
     
     if sesiidopd :
         data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd).exclude(pejabat_foto__isnull=True).exclude(pejabat_foto="")
@@ -256,6 +258,7 @@ def sp2d(request):
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
     level = request.session.get('level')
+    data = Model_pejabat.objects.none()
     
     filterreals = Q()
     if level != 'Pengguna':

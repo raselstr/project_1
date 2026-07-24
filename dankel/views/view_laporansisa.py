@@ -94,6 +94,7 @@ def pdf(request):
     formatted_today = datetime.now().strftime('%d %B %Y')
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    data = Model_pejabat.objects.none()
     
     
     sesiidopd = request.session.get('realisasidankelsisa_subopd')
@@ -117,6 +118,7 @@ def apip(request):
     
     sesiidopd = request.session.get('idsubopd')
     idopd = request.session.get('realisasidankelsisa_subopd')
+    data = Model_pejabat.objects.none()
     
     if sesiidopd:
         data = Model_pejabat.objects.filter(pejabat_sub=sesiidopd)
@@ -142,6 +144,7 @@ def sp2d(request):
     tahaprealisasi_id = request.session.get('realisasidankelsisa_tahap')
     subopdrealisasi_id = request.session.get('realisasidankelsisa_subopd')
     level = request.session.get('level')
+    data = Model_pejabat.objects.none()
     
     filterreals = Q()
     if level != 'Pengguna':
@@ -305,4 +308,3 @@ def get_data_context(request):
         'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id),
         'jadwal': jadwal
     }
-
