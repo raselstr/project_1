@@ -276,11 +276,13 @@ class BaseRealisasipu(models.Model):
             raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
        
         if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
-        
-        if total_realisasi > total_penerimaan:
-            raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
-        
+            raise ValidationError(
+                f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} '
+                f'tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
+        elif total_realisasi > total_penerimaan:
+            raise ValidationError(
+                f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} '
+                f'tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
     
     def get_realisasi_total(self, tahun, opd, dana):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
