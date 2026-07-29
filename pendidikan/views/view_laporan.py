@@ -16,6 +16,7 @@ from dana.models import TahapDana
 from pagu.models import Pagudausg
 from ..tables import RekapPaguTable, Sp2dTable
 from core.forms.budget_opd import scoped_opd_id
+from core.services.budget_warning import build_realisasi_penerimaan_warning
 
 
 form_filter = RealisasiFilterForm
@@ -115,6 +116,16 @@ def rekap(request):
 
     table = tabel(rekap_data)
     return {'rekap_data': table}
+
+
+def get_penerimaan_warning(tahun, dana_id, tahap_id=None):
+    return build_realisasi_penerimaan_warning(
+        penerimaan_model=model_penerimaan,
+        realisasi_model=model_realisasi,
+        tahun=tahun,
+        dana_id=dana_id,
+        tahap_id=tahap_id,
+    )
     
 @set_submenu_session
 @menu_access_required('list')
@@ -196,9 +207,11 @@ def home(request):
         rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
         penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
         realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
+        realisasi_dana = model_realisasi().get_realisasi_dana_total(tahun=tahun, dana=dana.id)
         persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
         persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
-        sisadana = penerimaan-realisasi
+        sisadana = penerimaan-realisasi_dana
+        penerimaan_warning = get_penerimaan_warning(tahun, dana.id)
         
         pagusisa = model_rencanasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa)
         rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa, posting=jadwal)
@@ -212,9 +225,11 @@ def home(request):
         rencana = 0
         penerimaan = 0
         realisasi = 0
+        realisasi_dana = 0
         persendana = 0
         persenpagu = 0
         sisadana=0
+        penerimaan_warning = None
         
         pagusisa = 0
         rencanasisa = 0
@@ -232,9 +247,11 @@ def home(request):
         'datarencana' : rencana,
         'penerimaan' : penerimaan,
         'realisasi' : realisasi,
+        'realisasi_dana' : realisasi_dana,
         'persendana' : persendana,
         'persenpagu' : persenpagu,
         'sisadana' : sisadana,
+        'penerimaan_warning' : penerimaan_warning,
         
         'pagusisa': pagusisa,
         'rencanasisa' : rencanasisa,
@@ -464,6 +481,7 @@ def get_data_context(request):
     subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
     dana_laporan = dana_obj.sub_nama if dana_obj else '-'
     sisa_dana = total_pagu_keseluruhan + total_realisasi_keseluruhan
+    penerimaan_warning = get_penerimaan_warning(realisasi_tahun, realisasi_dana, realisasi_tahap)
     
     return {
         'prog_data': prog_data,
@@ -481,6 +499,7 @@ def get_data_context(request):
         'realisasi_subopd' : subopd_laporan,
         'realisasi_tahap' : tahap_laporan,
         'sisa_dana' : sisa_dana,
+        'penerimaan_warning' : penerimaan_warning,
         'jadwal':jadwal
         
     }

@@ -18,6 +18,7 @@
         <p class="section-lead">
             {{uraian}}
         </p>
+        {% include "includes/realisasi_penerimaan_warning.html" %}
 
         <div class="row">
             <div class="col-lg-6">
@@ -39,9 +40,14 @@
                                 <td style="text-align: right;">{{penerimaan|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
-                                <td>Nilai Realisasi</td>
+                                <td>Nilai Realisasi OPD</td>
                                 <td> :  </td>
                                 <td style="text-align: right;">{{realisasi|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Realisasi Dana</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{realisasi_dana|default:"0.00"|floatformat:2|intcomma}}</td>
                             </tr>
                             <tr>
                                 <td>% Penyerapan RKUD</td>
@@ -153,7 +159,6 @@
 {% block style %}
     <meta http-equiv="refresh" content="30">
 {% endblock style %}
-
 
 
 

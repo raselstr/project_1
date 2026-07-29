@@ -16,6 +16,7 @@ from dana.models import TahapDana
 from pagu.models import Pagudausg
 from ..tables import RekapPaguTable, Sp2dTable
 from core.forms.budget_opd import scoped_opd_id
+from core.services.budget_warning import build_realisasi_penerimaan_warning
 
 
 form_filter = RealisasiFilterForm
@@ -106,6 +107,16 @@ def rekap(request):
 
     table = tabel(rekap_data)
     return {'rekap_data': table}
+
+
+def get_penerimaan_warning(tahun, dana_id, tahap_id=None):
+    return build_realisasi_penerimaan_warning(
+        penerimaan_model=model_penerimaan,
+        realisasi_model=model_realisasi,
+        tahun=tahun,
+        dana_id=dana_id,
+        tahap_id=tahap_id,
+    )
     
 @set_submenu_session
 @menu_access_required('list')
@@ -378,6 +389,7 @@ def get_data_context(request):
     tahap_laporan = tahap_obj.tahap_dana if tahap_obj else 'Semua Tahap'
     subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
     dana_laporan = dana_obj.sub_nama if dana_obj else '-'
+    penerimaan_warning = get_penerimaan_warning(realisasi_tahun, realisasi_dana, realisasi_tahap)
     
     return {
         'prog_data': prog_data,
@@ -394,6 +406,7 @@ def get_data_context(request):
         'realisasi_dana' : dana_laporan,
         'realisasi_subopd' : subopd_laporan,
         'realisasi_tahap' : tahap_laporan,
+        'penerimaan_warning' : penerimaan_warning,
         'jadwal':jadwal
         
     }
