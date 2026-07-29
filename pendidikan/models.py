@@ -247,7 +247,7 @@ class BaseRealisasi(models.Model):
         super().clean()
         
         total_penerimaan = model_penerimaan().totalpenerimaan(self.realisasi_tahun, self.realisasi_dana)
-        total_realisasi = self.get_realisasi_total(self.realisasi_tahun, self.realisasi_subopd_id, self.realisasi_dana_id)
+        total_realisasi = self.get_realisasi_dana_total(self.realisasi_tahun, self.realisasi_dana_id)
         total_realisasi_pk = self.get_realisasi_pk()
         total_rencana_pk = self.get_rencana_pk()
         total_rencanaoutput_pk = self.get_rencanaoutput_pk()
@@ -280,7 +280,7 @@ class BaseRealisasi(models.Model):
                 f'tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
         elif total_realisasi > total_penerimaan:
             raise ValidationError(
-                f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} '
+                f'Total Realisasi Dana Rp. {formatted_total_realisasi} '
                 f'tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
     
 
@@ -291,11 +291,14 @@ class BaseRealisasi(models.Model):
             filters &= Q(realisasi_subopd=opd)
         return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
 
+    def get_realisasi_dana_total(self, tahun, dana):
+        filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
     def get_realisasi_pk(self):
         filters = Q(realisasi_tahun=self.realisasi_tahun) & Q(realisasi_dana=self.realisasi_dana_id)
         if self.realisasi_rencanaposting_id is not None:
-            subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan_id
-            filters &= Q(realisasi_subkegiatan_id=subkegiatan)
+            filters &= Q(realisasi_rencanaposting_id=self.realisasi_rencanaposting_id)
         if self.realisasi_subopd_id is not None:
             filters &= Q(realisasi_subopd=self.realisasi_subopd_id)
         nilai_realisasi = self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
@@ -311,10 +314,10 @@ class Realisasi(BaseRealisasi):
         db_table = 'pendidikan_realisasi'
     
     def save(self, *args, **kwargs):
-        self.full_clean()
         if self.realisasi_rencanaposting:
             self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
             self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        self.full_clean()
         # print(f"Nilai realisasi_rencana_id sebelum save: {self.realisasi_rencana_id}")
         # print(f"Nilai realisasi_subkegiatan_id sebelum save: {self.realisasi_subkegiatan_id}")
         super().save(*args, **kwargs)
@@ -322,8 +325,7 @@ class Realisasi(BaseRealisasi):
     def get_rencana_pk(self):
         filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
         if self.realisasi_rencanaposting_id is not None:
-            subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan_id
-            filters &= Q(posting_subkegiatan_id=subkegiatan)
+            filters &= Q(id=self.realisasi_rencanaposting_id)
         if self.realisasi_subopd_id is not None:
             filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
         
@@ -384,10 +386,10 @@ class Realisasisisa(BaseRealisasi):
         db_table = 'pendidikan_realisasisisa'
     
     def save(self, *args, **kwargs):
-        self.full_clean()
         if self.realisasi_rencanaposting:
             self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
             self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        self.full_clean()
         # print(f"Nilai realisasi_rencana_id sebelum save: {self.realisasi_rencana_id}")
         # print(f"Nilai realisasi_subkegiatan_id sebelum save: {self.realisasi_subkegiatan_id}")
         super().save(*args, **kwargs)
@@ -395,8 +397,7 @@ class Realisasisisa(BaseRealisasi):
     def get_rencana_pk(self):
         filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
         if self.realisasi_rencanaposting_id is not None:
-            subkegiatan = self.realisasi_rencanaposting.posting_subkegiatan_id
-            filters &= Q(posting_subkegiatan_id=subkegiatan)
+            filters &= Q(id=self.realisasi_rencanaposting_id)
         if self.realisasi_subopd_id is not None:
             filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
         
