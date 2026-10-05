@@ -25,7 +25,7 @@
                         <thead>
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
-                                {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
+                                <th style="text-align: center;">Kelurahan</th> 
                                 <th style="text-align: center;">Kegiatan</th>
                                 <th style="text-align: center;">NO SP2D TU</th>
                                 <th style="text-align: center;">NO LPJ</th>
@@ -52,6 +52,7 @@
                                             {% endif%}
                                         {% endif %}
                                     </td>
+                                    <td>{{ data.realisasidankel_subopd }}</td>
                                     <td>{{ data.realisasidankel_rencana }}</td>
                                     <td>
                                         {{ data.realisasidankel_sp2dtu }}<br>
