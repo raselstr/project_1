@@ -142,6 +142,11 @@
             <td>:</td>
             <td>{{ tahun }}</td>
         </tr>
+        <tr>
+            <td><strong>Tahap Pencairan</strong></td>
+            <td>:</td>
+            <td colspan="4">{{ report_data.tahap_label }}</td>
+        </tr>
     </table>
 
     <!-- TABEL DATA LAPORAN SP2D -->
@@ -149,24 +154,25 @@
         <thead>
             <tr>
                 <th style="width: 28px;">No</th>
-                <th style="width: 120px;">SKPD</th>
-                <th style="width: 145px;">Kegiatan</th>
-                <th style="width: 145px;">Sub Rincian Kegiatan</th>
-                <th style="width: 150px;">Keterangan SP2D</th>
-                <th style="width: 135px;">Nomor SP2D</th>
-                <th style="width: 110px;">Nominal SP2D (Rp)</th>
-                <th style="width: 72px;">Tanggal SP2D</th>
-                <th style="width: 55px;">Rencana Output</th>
-                <th style="width: 50px;">Output</th>
-                <th style="width: 58px;">Satuan Output</th>
-                <th style="width: 120px;">Keterangan</th>
+                <th style="width: 110px;">SKPD</th>
+                <th style="width: 130px;">Kegiatan</th>
+                <th style="width: 130px;">Sub Rincian Kegiatan</th>
+                <th style="width: 40px;">Tahap</th>
+                <th style="width: 140px;">Keterangan SP2D</th>
+                <th style="width: 130px;">Nomor SP2D</th>
+                <th style="width: 100px;">Nominal SP2D (Rp)</th>
+                <th style="width: 65px;">Tanggal SP2D</th>
+                <th style="width: 50px;">Rencana Output</th>
+                <th style="width: 45px;">Output</th>
+                <th style="width: 50px;">Satuan Output</th>
+                <th style="width: 110px;">Keterangan</th>
             </tr>
         </thead>
         <tbody>
             {% for keg in kegiatan_list %}
                 <!-- KEGIATAN HEADER -->
                 <tr class="row-kegiatan">
-                    <td colspan="12">
+                    <td colspan="13">
                         <strong>KEGIATAN: {{ keg.kegiatan_nama }}</strong>
                     </td>
                 </tr>
@@ -174,7 +180,7 @@
                 {% for sub in keg.sub_rincian_list %}
                     <!-- SUB RINCIAN HEADER -->
                     <tr style="background-color:#f4f4f4; font-weight:600;">
-                        <td colspan="12" style="padding-left: 16px;">
+                        <td colspan="13" style="padding-left: 16px;">
                             &nbsp;&rsaquo;&rsaquo; {{ sub.sub_rincian_nama }}
                             {% if sub.satuan %}&nbsp;({{ sub.satuan }}){% endif %}
                             &nbsp;&mdash;&nbsp;Rencana Output: <strong>{{ sub.subtotal_rencana_output|floatformat:2|intcomma }}</strong>
@@ -189,8 +195,22 @@
                         <td>{{ item.skpd }}</td>
                         <td>{{ item.kegiatan }}</td>
                         <td>{{ item.sub_rincian }}</td>
+                        <td style="text-align: center;">{{ item.tahap|default:"-" }}</td>
                         <td>{{ item.keterangan_sp2d|default:"-" }}</td>
-                        <td>{{ item.nomor_sp2d }}</td>
+                        <td>
+                            {% if item.is_dankel %}
+                                <strong>{{ item.nomor_sp2d|default:"-" }}</strong>
+                                {% if item.sp2d_tu_nomor %}
+                                <div style="font-size:8pt; color:#666; border-top:1px dashed #ccc; margin-top:2px; padding-top:1px;">
+                                    SP2D TU: {{ item.sp2d_tu_nomor }}<br>
+                                    Rp {{ item.sp2d_tu_nominal|floatformat:2|intcomma }}
+                                    ({{ item.sp2d_tu_tanggal|date:"d/m/Y"|default:"-" }})
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                {{ item.nomor_sp2d|default:"-" }}
+                            {% endif %}
+                        </td>
                         <td style="text-align: right; white-space: nowrap;">
                             {{ item.nominal_sp2d|floatformat:2|intcomma }}
                         </td>
@@ -210,7 +230,7 @@
 
                     <!-- SUB TOTAL SUB RINCIAN KEGIATAN -->
                     <tr class="row-subtotal-sub">
-                        <td colspan="6" style="text-align: right;">
+                        <td colspan="7" style="text-align: right;">
                             <strong>Sub Total ({{ sub.sub_rincian_nama }}):</strong>
                         </td>
                         <td style="text-align: right; white-space: nowrap;">
@@ -226,7 +246,7 @@
 
                 <!-- SUB TOTAL KEGIATAN -->
                 <tr class="row-subtotal-keg">
-                    <td colspan="6" style="text-align: right;">
+                    <td colspan="7" style="text-align: right;">
                         <strong>SUB TOTAL KEGIATAN ({{ keg.kegiatan_nama }}):</strong>
                     </td>
                     <td style="text-align: right; white-space: nowrap;">
@@ -240,7 +260,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="12" style="text-align: center; padding: 25px;">
+                    <td colspan="13" style="text-align: center; padding: 25px;">
                         Tidak ada data realisasi SP2D untuk filter Tahun {{ tahun }}.
                     </td>
                 </tr>
@@ -249,7 +269,7 @@
         <tfoot>
             <!-- TOTAL KESELURUHAN -->
             <tr class="row-grandtotal">
-                <td colspan="6" style="text-align: right;">
+                <td colspan="7" style="text-align: right;">
                     <strong>TOTAL KESELURUHAN:</strong>
                 </td>
                 <td style="text-align: right; white-space: nowrap;">

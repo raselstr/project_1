@@ -45,7 +45,7 @@ template_pdf = 'kesehatan/laporan/pdf.html'
 template_home = 'kesehatan/laporan/home.html'
 template_list = 'kesehatan/laporan/list.html'
 template_modal = 'kesehatan/laporan/modal.html'
-template_sp2d = 'pendidikan/laporan/sp2d.html'
+template_sp2d = 'kesehatan/laporan/sp2d.html'
 
 tabel= RekapPaguTable
 tabelsp2d= Sp2dTablesisa

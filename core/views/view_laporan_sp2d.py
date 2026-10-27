@@ -167,8 +167,12 @@ def laporan_sp2d_rekap_cetak(request):
     if not pejabat and session_subopd:
         pejabat = Pejabat.objects.filter(pejabat_sub_id=session_subopd).first()
     if not pejabat:
-        # Fallback ke Pejabat pertama atau BKAD
-        pejabat = Pejabat.objects.first()
+        # Saat tidak ada OPD terpilih (semua OPD): gunakan Sri Lusi dari Data Umum
+        pejabat = Pejabat.objects.filter(
+            Q(pejabat_nama__icontains='Sri Lusi') | Q(pejabat_nama__icontains='Lusi Masdiany')
+        ).first()
+        if not pejabat:
+            pejabat = Pejabat.objects.first()
 
     opd_nama = None
     if subopd_id:

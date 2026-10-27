@@ -31,17 +31,19 @@
 }
 /* Lebar kolom relatif (persentase) */
 .col-no     { width: 3%; min-width: 32px; }
-.col-skpd   { width: 10%; min-width: 110px; }
-.col-keg    { width: 14%; min-width: 130px; }
-.col-sub    { width: 14%; min-width: 130px; }
-.col-ketsp2d{ width: 12%; min-width: 110px; }
-.col-nomorsp{ width: 9%;  min-width: 90px; }
-.col-nominal{ width: 10%; min-width: 110px; text-align:right; }
-.col-tgl    { width: 7%;  min-width: 82px; text-align:center; white-space:nowrap; }
-.col-renout { width: 6%;  min-width: 70px; text-align:right; }
-.col-out    { width: 6%;  min-width: 60px; text-align:right; }
-.col-satuan { width: 5%;  min-width: 60px; text-align:center; }
-.col-ket    { width: 8%;  min-width: 80px; }
+.col-skpd   { width: 9%; min-width: 100px; }
+.col-keg    { width: 12%; min-width: 120px; }
+.col-sub    { width: 12%; min-width: 120px; }
+.col-tahap  { width: 5%; min-width: 55px; text-align:center; }
+.col-ketsp2d{ width: 11%; min-width: 100px; }
+.col-nomorsp{ width: 10%; min-width: 100px; }
+.col-nominal{ width: 9%; min-width: 100px; text-align:right; }
+.col-tgl    { width: 6%;  min-width: 75px; text-align:center; white-space:nowrap; }
+.col-renout { width: 6%;  min-width: 65px; text-align:right; }
+.col-out    { width: 5%;  min-width: 55px; text-align:right; }
+.col-satuan { width: 5%;  min-width: 55px; text-align:center; }
+.col-ket    { width: 7%;  min-width: 75px; }
+.dankel-sp2dtu-info { font-size: 0.78em; color: #6c757d; margin-top: 3px; border-top: 1px dashed #dee2e6; padding-top: 2px; }
 
 /* Baris header kegiatan */
 .row-keg-header td {
@@ -88,6 +90,7 @@
                 <th class="col-skpd">SKPD</th>
                 <th class="col-keg">Kegiatan</th>
                 <th class="col-sub">Sub Rincian Kegiatan</th>
+                <th class="col-tahap">Tahap</th>
                 <th class="col-ketsp2d">Keterangan SP2D</th>
                 <th class="col-nomorsp">Nomor SP2D</th>
                 <th class="col-nominal">Nominal SP2D (Rp)</th>
@@ -102,7 +105,7 @@
             {% for keg in kegiatan_list %}
                 <!-- HEADER KEGIATAN -->
                 <tr class="row-keg-header">
-                    <td colspan="12">
+                    <td colspan="13">
                         <i class="fas fa-folder-open mr-1 text-primary"></i>
                         KEGIATAN: {{ keg.kegiatan_nama }}
                     </td>
@@ -111,7 +114,7 @@
                 {% for sub in keg.sub_rincian_list %}
                     <!-- HEADER SUB RINCIAN -->
                     <tr class="row-sub-header">
-                        <td colspan="12" class="pl-4">
+                        <td colspan="13" class="pl-4">
                             <i class="fas fa-angle-double-right text-info mr-1"></i>
                             <strong>{{ sub.sub_rincian_nama }}</strong>
                             {% if sub.satuan %}
@@ -140,8 +143,22 @@
                         </td>
                         <td>{{ item.kegiatan }}</td>
                         <td>{{ item.sub_rincian }}</td>
+                        <td class="text-center">{{ item.tahap|default:"-" }}</td>
                         <td>{{ item.keterangan_sp2d|default:"-" }}</td>
-                        <td class="font-weight-bold" style="white-space:nowrap;">{{ item.nomor_sp2d }}</td>
+                        <td class="font-weight-bold">
+                            {% if item.is_dankel %}
+                                <strong>{{ item.nomor_sp2d|default:"-" }}</strong>
+                                {% if item.sp2d_tu_nomor %}
+                                <div class="dankel-sp2dtu-info">
+                                    SP2D TU: {{ item.sp2d_tu_nomor }}<br>
+                                    Rp {{ item.sp2d_tu_nominal|floatformat:2|intcomma }}
+                                    ({{ item.sp2d_tu_tanggal|date:"d/m/Y"|default:"-" }})
+                                </div>
+                                {% endif %}
+                            {% else %}
+                                {{ item.nomor_sp2d|default:"-" }}
+                            {% endif %}
+                        </td>
                         <td class="text-right font-weight-bold" style="white-space:nowrap;">
                             Rp {{ item.nominal_sp2d|floatformat:2|intcomma }}
                         </td>
@@ -161,7 +178,7 @@
 
                     <!-- SUB TOTAL SUB RINCIAN -->
                     <tr class="row-subtotal-sub">
-                        <td colspan="6" class="text-right">
+                        <td colspan="7" class="text-right">
                             <i class="fas fa-calculator mr-1 text-warning"></i>
                             Sub Total {{ sub.sub_rincian_nama }}:
                         </td>
@@ -178,7 +195,7 @@
 
                 <!-- SUB TOTAL KEGIATAN -->
                 <tr class="row-subtotal-keg">
-                    <td colspan="6" class="text-right">
+                    <td colspan="7" class="text-right">
                         <i class="fas fa-layer-group mr-1"></i>
                         SUB TOTAL KEGIATAN {{ keg.kegiatan_nama }}:
                     </td>
@@ -193,7 +210,7 @@
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="12" class="text-center py-5 text-muted">
+                    <td colspan="13" class="text-center py-5 text-muted">
                         <i class="fas fa-folder-open fa-2x mb-2 text-secondary d-block"></i>
                         Tidak ada data realisasi SP2D.
                     </td>
@@ -203,7 +220,7 @@
         <tfoot>
             <!-- TOTAL KESELURUHAN -->
             <tr class="row-grand-total">
-                <td colspan="6" class="text-right py-3">
+                <td colspan="7" class="text-right py-3">
                     <i class="fas fa-check-circle mr-1 text-success"></i>
                     TOTAL KESELURUHAN:
                 </td>
