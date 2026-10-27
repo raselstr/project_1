@@ -581,6 +581,7 @@ def sp2d(request):
         'kegiatan_list': report_data['kegiatan_list'],
         'grand_total_nominal': report_data['grand_total_nominal'],
         'grand_total_output': report_data['grand_total_output'],
+        'grand_total_rencana_output': report_data['grand_total_rencana_output'],
         'total_items': report_data['total_items'],
         'realisasi_tahun': realisasi_tahun,
         })

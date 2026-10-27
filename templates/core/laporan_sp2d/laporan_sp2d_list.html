@@ -113,8 +113,8 @@
 
     <!-- SUMMARY METRIC CARDS -->
     <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+            <div class="card card-statistic-1 mb-0 h-100 shadow-sm">
                 <div class="card-icon bg-primary">
                     <i class="fas fa-money-bill-wave"></i>
                 </div>
@@ -122,31 +122,34 @@
                     <div class="card-header">
                         <h4>Total Nominal SP2D</h4>
                     </div>
-                    <div class="card-body" style="font-size: 1.15rem;">
+                    <div class="card-body" style="font-size: clamp(0.95rem, 1.2vw, 1.2rem);">
                         Rp {{ grand_total_nominal|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+            <div class="card card-statistic-1 mb-0 h-100 shadow-sm">
                 <div class="card-icon bg-success">
                     <i class="fas fa-cubes"></i>
                 </div>
                 <div class="card-wrap">
                     <div class="card-header">
-                        <h4>Total Output</h4>
+                        <h4>Total Realisasi Output</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="font-size: clamp(0.95rem, 1.2vw, 1.2rem);">
                         {{ grand_total_output|floatformat:2|intcomma }}
+                        {% if grand_total_rencana_output %}
+                            <small class="d-block text-muted font-weight-normal" style="font-size: 0.72rem;">Target: {{ grand_total_rencana_output|floatformat:2|intcomma }}</small>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+            <div class="card card-statistic-1 mb-0 h-100 shadow-sm">
                 <div class="card-icon bg-warning">
                     <i class="fas fa-file-invoice"></i>
                 </div>
@@ -154,15 +157,15 @@
                     <div class="card-header">
                         <h4>Jumlah SP2D</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="font-size: clamp(0.95rem, 1.2vw, 1.2rem);">
                         {{ total_items }} Berkas
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-12 mb-3">
+            <div class="card card-statistic-1 mb-0 h-100 shadow-sm">
                 <div class="card-icon bg-info">
                     <i class="fas fa-tasks"></i>
                 </div>
@@ -170,7 +173,7 @@
                     <div class="card-header">
                         <h4>Jumlah Kegiatan</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="font-size: clamp(0.95rem, 1.2vw, 1.2rem);">
                         {{ total_kegiatan }} Kegiatan
                     </div>
                 </div>
@@ -181,7 +184,7 @@
     <!-- TAB PILIHAN CEPAT JENIS DANA -->
     <div class="row mb-3">
         <div class="col-12">
-            <ul class="nav nav-pills bg-white p-2 rounded shadow-sm">
+            <ul class="nav nav-pills bg-white p-2 rounded shadow-sm d-flex flex-wrap" style="gap: 4px;">
                 <li class="nav-item">
                     <a class="nav-link {% if jenis_dana == 'all' %}active{% endif %}" href="?tahun={{ tahun }}&dana=all{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
                         <i class="fas fa-layer-group mr-1"></i> Semua Dana
@@ -212,13 +215,13 @@
     </div>
 
     <!-- MAIN TABLE CARD -->
-    <div class="card card-dark">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h4>
+    <div class="card card-dark shadow-sm">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <h4 class="mb-2 mb-md-0">
                 <i class="fas fa-table mr-2"></i>{{ report_data.jenis_dana_label }} - Tahun {{ tahun }}
             </h4>
-            <div class="card-header-action">
-                <a href="#" onclick="openPrintWindow('{% url 'laporan_sp2d_rekap_cetak' %}?tahun={{ tahun }}&dana={{ jenis_dana }}{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}{% if q %}&q={{ q }}{% endif %}'); return false;" class="btn btn-primary mr-1">
+            <div class="card-header-action d-flex flex-wrap" style="gap: 6px;">
+                <a href="#" onclick="openPrintWindow('{% url 'laporan_sp2d_rekap_cetak' %}?tahun={{ tahun }}&dana={{ jenis_dana }}{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}{% if q %}&q={{ q }}{% endif %}'); return false;" class="btn btn-primary">
                     <i class="fas fa-print mr-1"></i> Cetak Laporan
                 </a>
                 <a href="{% url 'laporan_sp2d_rekap_excel' %}?tahun={{ tahun }}&dana={{ jenis_dana }}{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn btn-success">

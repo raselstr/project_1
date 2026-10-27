@@ -108,6 +108,7 @@ def laporan_sp2d_rekap(request):
         'dana_sections': report_data['dana_sections'],
         'grand_total_nominal': report_data['grand_total_nominal'],
         'grand_total_output': report_data['grand_total_output'],
+        'grand_total_rencana_output': report_data['grand_total_rencana_output'],
         'total_items': report_data['total_items'],
         'total_kegiatan': report_data['total_kegiatan'],
     }
@@ -188,6 +189,7 @@ def laporan_sp2d_rekap_cetak(request):
         'dana_sections': report_data['dana_sections'],
         'grand_total_nominal': report_data['grand_total_nominal'],
         'grand_total_output': report_data['grand_total_output'],
+        'grand_total_rencana_output': report_data['grand_total_rencana_output'],
         'total_items': report_data['total_items'],
         'pejabat': pejabat,
         'tanggal_cetak': formatted_today,
