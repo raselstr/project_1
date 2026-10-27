@@ -96,6 +96,15 @@ class LaporanSp2dService:
         sub_rincian_nama = sub_keg.dankelsub_nama if sub_keg else 'Lainnya'
         satuan_output = sub_keg.dankelsub_satuan if sub_keg else ''
 
+        # Ambil rencana_output dari idrencana (RencDankel / RencDankelsisa)
+        id_rencana = getattr(r, 'realisasidankel_idrencana', None)
+        rencana_output = Decimal(0)
+        if id_rencana:
+            if hasattr(id_rencana, 'rencdankelsisa_output'):
+                rencana_output = Decimal(str(id_rencana.rencdankelsisa_output or 0))
+            elif hasattr(id_rencana, 'rencdankel_output'):
+                rencana_output = Decimal(str(id_rencana.rencdankel_output or 0))
+
         return {
             'id': r.id,
             'skpd': subopd_nama,
@@ -106,6 +115,7 @@ class LaporanSp2dService:
             'nominal_sp2d': Decimal(str(r.realisasidankel_nilai or 0)),
             'tanggal_sp2d': r.realisasidankel_tgl,
             'output': Decimal(str(r.realisasidankel_output or 0)),
+            'rencana_output': rencana_output,
             'keterangan': keterangan_rencana or '-',
             'jenis_dana': 'Dana Kelurahan',
             'sumber': sumber,
@@ -135,6 +145,14 @@ class LaporanSp2dService:
         if not ket_rencana and getattr(r, 'realisasi_rencana', None):
             ket_rencana = getattr(r.realisasi_rencana, 'rencana_ket', '') or ''
 
+        # Ambil rencana_output dari rencanaposting (pendidikan/kesehatan/pu)
+        rencana_output = Decimal(0)
+        rencana_posting = getattr(r, 'realisasi_rencanaposting', None)
+        if rencana_posting:
+            rencana_output = Decimal(str(getattr(rencana_posting, 'posting_output', 0) or 0))
+        elif getattr(r, 'realisasi_rencana', None):
+            rencana_output = Decimal(str(getattr(r.realisasi_rencana, 'rencana_output', 0) or 0))
+
         return {
             'id': r.id,
             'skpd': subopd_nama,
@@ -145,6 +163,7 @@ class LaporanSp2dService:
             'nominal_sp2d': Decimal(str(r.realisasi_nilai or 0)),
             'tanggal_sp2d': r.realisasi_tgl,
             'output': Decimal(str(r.realisasi_output or 0)),
+            'rencana_output': rencana_output,
             'keterangan': ket_rencana or '-',
             'jenis_dana': jenis_dana_name,
             'sumber': sumber,
@@ -308,6 +327,7 @@ class LaporanSp2dService:
         running_no = 1
         grand_total_nominal = Decimal(0)
         grand_total_output = Decimal(0)
+        grand_total_rencana_output = Decimal(0)
         total_items_count = 0
 
         kegiatan_list = []
@@ -318,6 +338,7 @@ class LaporanSp2dService:
             sub_list = []
             keg_total_nominal = Decimal(0)
             keg_total_output = Decimal(0)
+            keg_total_rencana_output = Decimal(0)
 
             # Sort sub rincian by name
             for sub_nama in sorted(sub_map.keys()):
@@ -335,6 +356,11 @@ class LaporanSp2dService:
 
                 sub_nominal = Decimal(0)
                 sub_output = Decimal(0)
+                # Rencana output: ambil nilai maksimum rencana_output per posting (satu nilai
+                # rencana berlaku untuk seluruh SP2D dalam sub rincian yang sama)
+                # Gunakan max karena satu sub bisa punya beberapa SP2D dari posting yang sama
+                sub_rencana_set = set()
+                sub_rencana_output = Decimal(0)
 
                 for item in sorted_items:
                     item['no'] = running_no
@@ -343,9 +369,20 @@ class LaporanSp2dService:
 
                     nom = item.get('nominal_sp2d') or Decimal(0)
                     out = item.get('output') or Decimal(0)
+                    ro = item.get('rencana_output') or Decimal(0)
 
                     sub_nominal += nom
                     sub_output += out
+
+                    # Kumpulkan rencana_output unik per item untuk dijumlahkan
+                    # (tiap item = tiap SP2D; tapi rencana_output adalah nilai per posting/rencana)
+                    # Simpan tuple (item_id, rencana_output) agar tidak dobel jika 2 SP2D dari
+                    # posting yang sama — kita ambil max saja di sini karena sudah di-aggregate DB
+                    sub_rencana_set.add(ro)
+
+                # Ambil nilai rencana output terbesar dalam sub rincian ini
+                # (semua item dari sub rincian yang sama seharusnya punya rencana_output sama)
+                sub_rencana_output = max(sub_rencana_set) if sub_rencana_set else Decimal(0)
 
                 sub_list.append({
                     'sub_rincian_nama': sub_nama,
@@ -353,25 +390,30 @@ class LaporanSp2dService:
                     'items': sorted_items,
                     'subtotal_nominal': sub_nominal,
                     'subtotal_output': sub_output,
+                    'subtotal_rencana_output': sub_rencana_output,
                 })
 
                 keg_total_nominal += sub_nominal
                 keg_total_output += sub_output
+                keg_total_rencana_output += sub_rencana_output
 
             kegiatan_list.append({
                 'kegiatan_nama': keg_nama,
                 'sub_rincian_list': sub_list,
                 'subtotal_nominal': keg_total_nominal,
                 'subtotal_output': keg_total_output,
+                'subtotal_rencana_output': keg_total_rencana_output,
             })
 
             grand_total_nominal += keg_total_nominal
             grand_total_output += keg_total_output
+            grand_total_rencana_output += keg_total_rencana_output
 
         return {
             'kegiatan_list': kegiatan_list,
             'grand_total_nominal': grand_total_nominal,
             'grand_total_output': grand_total_output,
+            'grand_total_rencana_output': grand_total_rencana_output,
             'total_items': total_items_count,
             'total_kegiatan': len(kegiatan_list),
         }
@@ -426,6 +468,7 @@ class LaporanSp2dService:
                         'kegiatan_list': d_grouped['kegiatan_list'],
                         'total_nominal': d_grouped['grand_total_nominal'],
                         'total_output': d_grouped['grand_total_output'],
+                        'total_rencana_output': d_grouped['grand_total_rencana_output'],
                         'total_items': d_grouped['total_items'],
                     })
 
@@ -439,6 +482,7 @@ class LaporanSp2dService:
             'kegiatan_list': grouped['kegiatan_list'],
             'grand_total_nominal': grouped['grand_total_nominal'],
             'grand_total_output': grouped['grand_total_output'],
+            'grand_total_rencana_output': grouped['grand_total_rencana_output'],
             'total_items': grouped['total_items'],
             'total_kegiatan': grouped['total_kegiatan'],
             'dana_sections': dana_sections,
@@ -484,24 +528,24 @@ class LaporanSp2dService:
         border_grand_total = Border(left=dark_side, right=dark_side, top=dark_side, bottom=double_side)
 
         # Header Titles
-        ws.merge_cells("A1:K1")
+        ws.merge_cells("A1:L1")
         ws["A1"] = "PEMERINTAH KABUPATEN ASAHAN"
         ws["A1"].font = font_title
         ws["A1"].alignment = align_center
 
-        ws.merge_cells("A2:K2")
+        ws.merge_cells("A2:L2")
         ws["A2"] = f"LAPORAN REALISASI SP2D - TAHUN ANGGARAN {tahun}"
         ws["A2"].font = font_subtitle
         ws["A2"].alignment = align_center
 
-        ws.merge_cells("A3:K3")
+        ws.merge_cells("A3:L3")
         ws["A3"] = f"SUMBER DANA: {jenis_dana_label.upper()}"
         ws["A3"].font = font_subtitle
         ws["A3"].alignment = align_center
 
         ws.append([])  # Baris 4 kosong
 
-        # Table Column Headers
+        # Table Column Headers (12 kolom: tambah Rencana Output)
         headers = [
             "No",
             "SKPD",
@@ -511,6 +555,7 @@ class LaporanSp2dService:
             "Nomor SP2D",
             "Nominal SP2D (Rp)",
             "Tanggal SP2D",
+            "Rencana Output",
             "Output",
             "Satuan Output",
             "Keterangan"
@@ -544,21 +589,22 @@ class LaporanSp2dService:
                         it.get('nomor_sp2d', '-'),
                         float(it.get('nominal_sp2d') or 0),
                         tgl_str,
+                        float(it.get('rencana_output') or 0),
                         float(it.get('output') or 0),
                         it.get('satuan_output', '-'),
                         it.get('keterangan', '-')
                     ]
                     ws.append(row_vals)
 
-                    # Styling baris data
-                    for c_idx in range(1, 12):
+                    # Styling baris data (12 kolom)
+                    for c_idx in range(1, 13):
                         cell = ws.cell(row=current_row, column=c_idx)
                         cell.font = font_data
                         cell.border = border_cell
 
-                        if c_idx in (1, 8, 10):
+                        if c_idx in (1, 8, 11):
                             cell.alignment = align_center
-                        elif c_idx in (7, 9):
+                        elif c_idx in (7, 9, 10):
                             cell.alignment = align_right
                             cell.number_format = '#,##0.00'
                         else:
@@ -566,7 +612,7 @@ class LaporanSp2dService:
 
                     current_row += 1
 
-                # Sub Total Sub Rincian Kegiatan
+                # Sub Total Sub Rincian Kegiatan (12 kolom)
                 ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=6)
                 cell_lbl = ws.cell(row=current_row, column=1)
                 cell_lbl.value = f"Sub Total Sub Rincian: {sub.get('sub_rincian_nama', '')}"
@@ -581,20 +627,26 @@ class LaporanSp2dService:
 
                 ws.cell(row=current_row, column=8).value = ""
 
-                cell_out = ws.cell(row=current_row, column=9)
+                cell_renc_out = ws.cell(row=current_row, column=9)
+                cell_renc_out.value = float(sub.get('subtotal_rencana_output') or 0)
+                cell_renc_out.font = font_subtotal_sub
+                cell_renc_out.alignment = align_right
+                cell_renc_out.number_format = '#,##0.00'
+
+                cell_out = ws.cell(row=current_row, column=10)
                 cell_out.value = float(sub.get('subtotal_output') or 0)
                 cell_out.font = font_subtotal_sub
                 cell_out.alignment = align_right
                 cell_out.number_format = '#,##0.00'
 
-                cell_sat = ws.cell(row=current_row, column=10)
+                cell_sat = ws.cell(row=current_row, column=11)
                 cell_sat.value = sub.get('satuan', '')
                 cell_sat.font = font_subtotal_sub
                 cell_sat.alignment = align_center
 
-                ws.cell(row=current_row, column=11).value = ""
+                ws.cell(row=current_row, column=12).value = ""
 
-                for c_idx in range(1, 12):
+                for c_idx in range(1, 13):
                     c = ws.cell(row=current_row, column=c_idx)
                     c.fill = fill_subtotal_sub
                     c.border = border_subtotal
@@ -616,16 +668,22 @@ class LaporanSp2dService:
 
             ws.cell(row=current_row, column=8).value = ""
 
-            cell_out_keg = ws.cell(row=current_row, column=9)
+            cell_renc_out_keg = ws.cell(row=current_row, column=9)
+            cell_renc_out_keg.value = float(keg.get('subtotal_rencana_output') or 0)
+            cell_renc_out_keg.font = font_subtotal_keg
+            cell_renc_out_keg.alignment = align_right
+            cell_renc_out_keg.number_format = '#,##0.00'
+
+            cell_out_keg = ws.cell(row=current_row, column=10)
             cell_out_keg.value = float(keg.get('subtotal_output') or 0)
             cell_out_keg.font = font_subtotal_keg
             cell_out_keg.alignment = align_right
             cell_out_keg.number_format = '#,##0.00'
 
-            ws.cell(row=current_row, column=10).value = ""
             ws.cell(row=current_row, column=11).value = ""
+            ws.cell(row=current_row, column=12).value = ""
 
-            for c_idx in range(1, 12):
+            for c_idx in range(1, 13):
                 c = ws.cell(row=current_row, column=c_idx)
                 c.fill = fill_subtotal_keg
                 c.border = border_subtotal
@@ -647,21 +705,27 @@ class LaporanSp2dService:
 
         ws.cell(row=current_row, column=8).value = ""
 
-        cell_out_gt = ws.cell(row=current_row, column=9)
+        cell_renc_out_gt = ws.cell(row=current_row, column=9)
+        cell_renc_out_gt.value = float(report_data.get('grand_total_rencana_output') or 0)
+        cell_renc_out_gt.font = font_grand_total
+        cell_renc_out_gt.alignment = align_right
+        cell_renc_out_gt.number_format = '#,##0.00'
+
+        cell_out_gt = ws.cell(row=current_row, column=10)
         cell_out_gt.value = float(report_data.get('grand_total_output') or 0)
         cell_out_gt.font = font_grand_total
         cell_out_gt.alignment = align_right
         cell_out_gt.number_format = '#,##0.00'
 
-        ws.cell(row=current_row, column=10).value = ""
         ws.cell(row=current_row, column=11).value = ""
+        ws.cell(row=current_row, column=12).value = ""
 
-        for c_idx in range(1, 12):
+        for c_idx in range(1, 13):
             c = ws.cell(row=current_row, column=c_idx)
             c.fill = fill_grand_total
             c.border = border_grand_total
 
-        # Set Column Widths
+        # Set Column Widths (12 kolom)
         column_widths = {
             'A': 6,    # No
             'B': 25,   # SKPD
@@ -671,9 +735,10 @@ class LaporanSp2dService:
             'F': 32,   # Nomor SP2D
             'G': 20,   # Nominal SP2D
             'H': 15,   # Tanggal SP2D
-            'I': 12,   # Output
-            'J': 15,   # Satuan Output
-            'K': 30,   # Keterangan
+            'I': 14,   # Rencana Output
+            'J': 12,   # Output
+            'K': 15,   # Satuan Output
+            'L': 30,   # Keterangan
         }
         for col_letter, width in column_widths.items():
             ws.column_dimensions[col_letter].width = width
