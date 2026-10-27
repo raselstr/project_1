@@ -52,6 +52,9 @@
     <div class="container-fluid">
         <div class="row justify-content-start">
             <div class="col-12">
+                {% if kegiatan_list %}
+                    {% include "includes/tabel_laporan_sp2d.html" %}
+                {% else %}
                 <table class="table table-bordered border-black ">
                     <thead>
                         <tr>
@@ -95,6 +98,7 @@
                         </tr>
                     </tfoot>
                 </table>
+                {% endif %}
             </div>
         </div>
     </div>

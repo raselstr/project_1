@@ -1,0 +1,137 @@
+{% load humanize %}
+<div class="table-responsive">
+    <table class="table table-bordered table-sm table-hover mb-0" style="border: 1px solid #dee2e6;">
+        <thead class="bg-primary text-white text-center align-middle" style="background-color: #007bff !important; color: #fff;">
+            <tr>
+                <th style="width: 35px;" class="align-middle text-center">No</th>
+                <th style="min-width: 150px;" class="align-middle text-center">SKPD</th>
+                <th style="min-width: 180px;" class="align-middle text-center">Kegiatan</th>
+                <th style="min-width: 180px;" class="align-middle text-center">Sub Rincian Kegiatan</th>
+                <th style="min-width: 200px;" class="align-middle text-center">Keterangan SP2D</th>
+                <th style="min-width: 160px;" class="align-middle text-center">Nomor SP2D</th>
+                <th style="min-width: 135px;" class="align-middle text-center">Nominal SP2D (Rp)</th>
+                <th style="min-width: 100px;" class="align-middle text-center">Tanggal SP2D</th>
+                <th style="min-width: 70px;" class="align-middle text-center">Output</th>
+                <th style="min-width: 90px;" class="align-middle text-center">Satuan Output</th>
+                <th style="min-width: 160px;" class="align-middle text-center">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for keg in kegiatan_list %}
+                <!-- KEGIATAN HEADER -->
+                <tr class="table-info font-weight-bold" style="background-color: #d1ecf1 !important; color: #0c5460;">
+                    <td colspan="11" class="py-2">
+                        <i class="fas fa-folder-open mr-2 text-primary"></i>
+                        <strong>KEGIATAN: {{ keg.kegiatan_nama }}</strong>
+                    </td>
+                </tr>
+
+                {% for sub in keg.sub_rincian_list %}
+                    <!-- SUB RINCIAN HEADER -->
+                    <tr class="table-light font-weight-bold" style="background-color: #f8f9fa !important; color: #495057;">
+                        <td colspan="11" class="pl-4 py-2">
+                            <i class="fas fa-angle-double-right text-info mr-1"></i>
+                            <strong>Sub Rincian Kegiatan: {{ sub.sub_rincian_nama }}</strong>
+                            {% if sub.satuan %}
+                                <span class="badge badge-light border ml-2">Satuan: {{ sub.satuan }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <!-- ITEM SP2D -->
+                    {% for item in sub.items %}
+                    <tr>
+                        <td class="text-center align-middle">{{ item.no }}</td>
+                        <td class="align-middle">
+                            {{ item.skpd }}
+                            {% if item.jenis_dana and jenis_dana == 'all' %}
+                                <br><small class="badge badge-info">{{ item.jenis_dana }}</small>
+                            {% endif %}
+                            {% if item.sumber == 'Sisa' %}
+                                <small class="badge badge-warning">Sisa</small>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">{{ item.kegiatan }}</td>
+                        <td class="align-middle">{{ item.sub_rincian }}</td>
+                        <td class="align-middle">{{ item.keterangan_sp2d|default:"-" }}</td>
+                        <td class="align-middle text-nowrap font-weight-bold">{{ item.nomor_sp2d }}</td>
+                        <td class="align-middle text-right text-nowrap font-weight-bold">
+                            Rp {{ item.nominal_sp2d|floatformat:2|intcomma }}
+                        </td>
+                        <td class="align-middle text-center text-nowrap">
+                            {{ item.tanggal_sp2d|date:"d/m/Y"|default:"-" }}
+                        </td>
+                        <td class="align-middle text-center font-weight-bold">
+                            {{ item.output|floatformat:2|intcomma }}
+                        </td>
+                        <td class="align-middle text-center">{{ item.satuan_output|default:"-" }}</td>
+                        <td class="align-middle">{{ item.keterangan|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- SUB TOTAL SUB RINCIAN -->
+                    <tr class="font-weight-bold" style="background-color: #fff3cd !important; border-top: 1px dashed #ffeeba; border-bottom: 1px solid #ffeeba;">
+                        <td colspan="6" class="text-right align-middle py-2 text-dark">
+                            <i class="fas fa-calculator mr-1 text-warning"></i>
+                            <strong>Sub Total ({{ sub.sub_rincian_nama }}):</strong>
+                        </td>
+                        <td class="text-right text-nowrap align-middle text-dark">
+                            <strong>Rp {{ sub.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                        </td>
+                        <td></td>
+                        <td class="text-center align-middle text-dark">
+                            <strong>{{ sub.subtotal_output|floatformat:2|intcomma }}</strong>
+                        </td>
+                        <td class="text-center align-middle text-dark">
+                            <small class="font-weight-bold">{{ sub.satuan|default:"" }}</small>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+
+                <!-- SUB TOTAL KEGIATAN -->
+                <tr class="font-weight-bold" style="background-color: #d6d8db !important; border-top: 2px solid #6c757d; border-bottom: 2px solid #6c757d;">
+                    <td colspan="6" class="text-right align-middle py-2 text-dark" style="font-size: 0.95rem;">
+                        <i class="fas fa-sigma mr-1"></i>
+                        <strong>SUB TOTAL KEGIATAN ({{ keg.kegiatan_nama }}):</strong>
+                    </td>
+                    <td class="text-right text-nowrap align-middle text-dark" style="font-size: 0.95rem;">
+                        <strong>Rp {{ keg.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                    </td>
+                    <td></td>
+                    <td class="text-center align-middle text-dark" style="font-size: 0.95rem;">
+                        <strong>{{ keg.subtotal_output|floatformat:2|intcomma }}</strong>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="11" class="text-center py-5 text-muted">
+                        <i class="fas fa-folder-open fa-2x mb-2 text-secondary d-block"></i>
+                        Tidak ada data realisasi SP2D.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <!-- TOTAL KESELURUHAN -->
+            <tr class="bg-dark text-white font-weight-bold" style="background-color: #343a40 !important; color: #fff !important; font-size: 1.05rem;">
+                <td colspan="6" class="text-right align-middle py-3">
+                    <i class="fas fa-check-circle mr-1 text-success"></i>
+                    <strong>TOTAL KESELURUHAN:</strong>
+                </td>
+                <td class="text-right text-nowrap align-middle text-white py-3">
+                    <strong>Rp {{ grand_total_nominal|floatformat:2|intcomma }}</strong>
+                </td>
+                <td></td>
+                <td class="text-center align-middle text-white py-3">
+                    <strong>{{ grand_total_output|floatformat:2|intcomma }}</strong>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+

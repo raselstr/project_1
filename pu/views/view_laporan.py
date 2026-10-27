@@ -17,6 +17,7 @@ from pagu.models import Pagudausg
 from ..tables import RekapPaguTable, Sp2dTable
 from core.forms.budget_opd import scoped_opd_id
 from core.services.budget_warning import build_realisasi_penerimaan_warning
+from core.services.laporan_sp2d_service import LaporanSp2dService
 
 form_filter = RealisasipuFilterForm
 form_data = RealisasipuForm
@@ -534,17 +535,19 @@ def sp2d(request):
     formatted_today = datetime.now().strftime('%d %B %Y')
     
     sesiidopd = request.session.get('realisasi_subopd')
-    realisasi_tahun = request.session.get('realisasi_tahun')
+    realisasi_tahun = request.session.get('realisasi_tahun') or request.session.get('tahun') or datetime.now().year
     realisasi_dana = request.session.get('realisasi_dana')
     realisasi_tahap = request.session.get('realisasi_tahap')
+    scoped_subopd = scoped_opd_id(sesiidopd)
+    level = request.session.get('level')
+
     filterreals = Q()
     if realisasi_tahun:
         filterreals &= Q(realisasi_tahun=realisasi_tahun)
     if realisasi_dana:
         filterreals &= Q(realisasi_dana_id=realisasi_dana)
-    sesiidopd = scoped_opd_id(sesiidopd)
-    if sesiidopd:
-        filterreals &= Q(realisasi_subopd=sesiidopd)
+    if scoped_subopd:
+        filterreals &= Q(realisasi_subopd=scoped_subopd)
     if realisasi_tahap:
         if realisasi_tahap == 1:
             filterreals &= Q(realisasi_tahap_id=1)
@@ -555,6 +558,15 @@ def sp2d(request):
     
     data = model_realisasi.objects.filter(filterreals).order_by('realisasi_tahap','realisasi_subopd' )
     table = tabelsp2d(data)
+
+    report_data = LaporanSp2dService.get_sp2d_report_data(
+        tahun=realisasi_tahun,
+        jenis_dana='pu',
+        subopd_id=scoped_subopd,
+        tahap_id=realisasi_tahap,
+        sumber='utama',
+        level=level
+    )
         
     context.update({
         'judul': 'Rekapitulasi SP2D',
@@ -562,5 +574,11 @@ def sp2d(request):
         'tombol': 'Cetak',
         'tanggal' : formatted_today,
         'tabel' : table,
+        'report_data': report_data,
+        'kegiatan_list': report_data['kegiatan_list'],
+        'grand_total_nominal': report_data['grand_total_nominal'],
+        'grand_total_output': report_data['grand_total_output'],
+        'total_items': report_data['total_items'],
+        'realisasi_tahun': realisasi_tahun,
         })
     return render(request, template_sp2d, context)

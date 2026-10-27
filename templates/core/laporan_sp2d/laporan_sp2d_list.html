@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{ judul }}</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></div>
+            <div class="breadcrumb-item"><a href="#">Laporan</a></div>
+            <div class="breadcrumb-item">Laporan SP2D</div>
+        </div>
+    </div>
+
+    <!-- NOTIFIKASI / INFO TAHUN LOGIN -->
+    <div class="alert alert-info alert-has-icon">
+        <div class="alert-icon"><i class="fas fa-info-circle"></i></div>
+        <div class="alert-body">
+            <div class="alert-title">Tahun Login: {{ tahun_login|default:tahun }}</div>
+            Laporan SP2D ditampilkan untuk <strong>Tahun Anggaran {{ tahun }}</strong> (Sumber Dana: <strong>{{ report_data.jenis_dana_label }}</strong>).
+        </div>
+    </div>
+
+    <!-- FILTER CARD -->
+    <div class="card card-primary">
+        <div class="card-header">
+            <h4><i class="fas fa-filter mr-2"></i>Filter Laporan SP2D</h4>
+            <div class="card-header-action">
+                <a data-collapse="#filter-collapse" class="btn btn-icon btn-info" href="#"><i class="fas fa-minus"></i></a>
+            </div>
+        </div>
+        <div class="collapse show" id="filter-collapse">
+            <div class="card-body">
+                <form method="GET" action="{% url 'laporan_sp2d_rekap' %}">
+                    <div class="row">
+                        <!-- Tahun -->
+                        <div class="col-md-2 col-sm-6 mb-3">
+                            <label class="font-weight-bold">Tahun Anggaran</label>
+                            <select name="tahun" class="form-control select2">
+                                {% for thn in tahun_list %}
+                                    <option value="{{ thn }}" {% if thn == tahun %}selected{% endif %}>{{ thn }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Jenis Dana -->
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <label class="font-weight-bold">Jenis Dana</label>
+                            <select name="dana" class="form-control select2">
+                                {% for d_val, d_lbl in dana_choices %}
+                                    <option value="{{ d_val }}" {% if d_val == jenis_dana %}selected{% endif %}>{{ d_lbl }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- SKPD / Sub OPD -->
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <label class="font-weight-bold">SKPD / Sub OPD</label>
+                            {% if is_subopd_locked %}
+                                <select name="subopd" class="form-control select2" disabled>
+                                    {% for opd in subopd_list %}
+                                        <option value="{{ opd.id }}" selected>{{ opd.sub_nama }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="hidden" name="subopd" value="{{ subopd_id }}">
+                            {% else %}
+                                <select name="subopd" class="form-control select2">
+                                    <option value="">-- Semua SKPD --</option>
+                                    {% for opd in subopd_list %}
+                                        <option value="{{ opd.id }}" {% if opd.id == subopd_id %}selected{% endif %}>{{ opd.sub_nama }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tahap -->
+                        <div class="col-md-2 col-sm-6 mb-3">
+                            <label class="font-weight-bold">Tahap Pencairan</label>
+                            <select name="tahap" class="form-control select2">
+                                <option value="">-- Semua Tahap --</option>
+                                {% for thp in tahap_list %}
+                                    <option value="{{ thp.id }}" {% if thp.id == tahap_id %}selected{% endif %}>{{ thp.tahap_nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Sumber -->
+                        <div class="col-md-2 col-sm-6 mb-3">
+                            <label class="font-weight-bold">Sumber Anggaran</label>
+                            <select name="sumber" class="form-control select2">
+                                <option value="all" {% if sumber == 'all' %}selected{% endif %}>Semua (Utama & Sisa)</option>
+                                <option value="utama" {% if sumber == 'utama' %}selected{% endif %}>Dana Utama</option>
+                                <option value="sisa" {% if sumber == 'sisa' %}selected{% endif %}>Sisa Dana</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Pencarian Kata Kunci -->
+                        <div class="col-md-8 col-sm-12 mb-3">
+                            <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Cari No SP2D, Kegiatan, Sub Rincian, atau Keterangan...">
+                        </div>
+                        <div class="col-md-4 col-sm-12 text-right">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-search mr-1"></i> Terapkan Filter</button>
+                            <a href="{% url 'laporan_sp2d_rekap' %}" class="btn btn-secondary ml-1"><i class="fas fa-undo mr-1"></i> Reset</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY METRIC CARDS -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1">
+                <div class="card-icon bg-primary">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Nominal SP2D</h4>
+                    </div>
+                    <div class="card-body" style="font-size: 1.15rem;">
+                        Rp {{ grand_total_nominal|floatformat:2|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1">
+                <div class="card-icon bg-success">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Output</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ grand_total_output|floatformat:2|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1">
+                <div class="card-icon bg-warning">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Jumlah SP2D</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_items }} Berkas
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1">
+                <div class="card-icon bg-info">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Jumlah Kegiatan</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_kegiatan }} Kegiatan
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB PILIHAN CEPAT JENIS DANA -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <ul class="nav nav-pills bg-white p-2 rounded shadow-sm">
+                <li class="nav-item">
+                    <a class="nav-link {% if jenis_dana == 'all' %}active{% endif %}" href="?tahun={{ tahun }}&dana=all{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
+                        <i class="fas fa-layer-group mr-1"></i> Semua Dana
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if jenis_dana == 'dankel' %}active{% endif %}" href="?tahun={{ tahun }}&dana=dankel{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
+                        <i class="fas fa-city mr-1"></i> Dana Kelurahan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if jenis_dana == 'pendidikan' %}active{% endif %}" href="?tahun={{ tahun }}&dana=pendidikan{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
+                        <i class="fas fa-graduation-cap mr-1"></i> Pendidikan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if jenis_dana == 'kesehatan' %}active{% endif %}" href="?tahun={{ tahun }}&dana=kesehatan{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
+                        <i class="fas fa-heartbeat mr-1"></i> Kesehatan
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if jenis_dana == 'pu' %}active{% endif %}" href="?tahun={{ tahun }}&dana=pu{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}">
+                        <i class="fas fa-road mr-1"></i> Pekerjaan Umum
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- MAIN TABLE CARD -->
+    <div class="card card-dark">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>
+                <i class="fas fa-table mr-2"></i>{{ report_data.jenis_dana_label }} - Tahun {{ tahun }}
+            </h4>
+            <div class="card-header-action">
+                <a href="#" onclick="openPrintWindow('{% url 'laporan_sp2d_rekap_cetak' %}?tahun={{ tahun }}&dana={{ jenis_dana }}{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}{% if q %}&q={{ q }}{% endif %}'); return false;" class="btn btn-primary mr-1">
+                    <i class="fas fa-print mr-1"></i> Cetak Laporan
+                </a>
+                <a href="{% url 'laporan_sp2d_rekap_excel' %}?tahun={{ tahun }}&dana={{ jenis_dana }}{% if subopd_id %}&subopd={{ subopd_id }}{% endif %}{% if tahap_id %}&tahap={{ tahap_id }}{% endif %}{% if sumber %}&sumber={{ sumber }}{% endif %}{% if q %}&q={{ q }}{% endif %}" class="btn btn-success">
+                    <i class="fas fa-file-excel mr-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm table-hover mb-0" id="tabel-sp2d-rekap">
+                    <thead class="bg-primary text-white text-center align-middle">
+                        <tr>
+                            <th style="width: 40px;" class="align-middle text-center">No</th>
+                            <th style="min-width: 160px;" class="align-middle text-center">SKPD</th>
+                            <th style="min-width: 200px;" class="align-middle text-center">Kegiatan</th>
+                            <th style="min-width: 200px;" class="align-middle text-center">Sub Rincian Kegiatan</th>
+                            <th style="min-width: 220px;" class="align-middle text-center">Keterangan SP2D</th>
+                            <th style="min-width: 170px;" class="align-middle text-center">Nomor SP2D</th>
+                            <th style="min-width: 140px;" class="align-middle text-center">Nominal SP2D (Rp)</th>
+                            <th style="min-width: 105px;" class="align-middle text-center">Tanggal SP2D</th>
+                            <th style="min-width: 75px;" class="align-middle text-center">Output</th>
+                            <th style="min-width: 90px;" class="align-middle text-center">Satuan Output</th>
+                            <th style="min-width: 180px;" class="align-middle text-center">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for keg in kegiatan_list %}
+                            <!-- HEADER KEGIATAN -->
+                            <tr class="table-info font-weight-bold" style="background-color: #d1ecf1; border-top: 2px solid #17a2b8;">
+                                <td colspan="11" class="py-2 text-dark">
+                                    <i class="fas fa-folder-open text-primary mr-2"></i>
+                                    <strong>KEGIATAN: {{ keg.kegiatan_nama }}</strong>
+                                </td>
+                            </tr>
+
+                            {% for sub in keg.sub_rincian_list %}
+                                <!-- HEADER SUB RINCIAN KEGIATAN -->
+                                <tr class="table-light font-weight-bold" style="background-color: #f8f9fa;">
+                                    <td colspan="11" class="pl-4 py-2 text-secondary">
+                                        <i class="fas fa-angle-double-right text-info mr-1"></i>
+                                        <strong>Sub Rincian Kegiatan: {{ sub.sub_rincian_nama }}</strong>
+                                        {% if sub.satuan %}
+                                            <span class="badge badge-light border ml-2">Satuan: {{ sub.satuan }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- DETAIL SP2D ITEMS -->
+                                {% for item in sub.items %}
+                                <tr>
+                                    <td class="text-center align-middle">{{ item.no }}</td>
+                                    <td class="align-middle">
+                                        {{ item.skpd }}
+                                        {% if item.jenis_dana and jenis_dana == 'all' %}
+                                            <br><small class="badge badge-info">{{ item.jenis_dana }}</small>
+                                        {% endif %}
+                                        {% if item.sumber == 'Sisa' %}
+                                            <small class="badge badge-warning">Sisa</small>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle">{{ item.kegiatan }}</td>
+                                    <td class="align-middle">{{ item.sub_rincian }}</td>
+                                    <td class="align-middle">{{ item.keterangan_sp2d|default:"-" }}</td>
+                                    <td class="align-middle text-nowrap font-weight-bold">{{ item.nomor_sp2d }}</td>
+                                    <td class="align-middle text-right text-nowrap font-weight-bold">
+                                        Rp {{ item.nominal_sp2d|floatformat:2|intcomma }}
+                                    </td>
+                                    <td class="align-middle text-center text-nowrap">
+                                        {{ item.tanggal_sp2d|date:"d/m/Y"|default:"-" }}
+                                    </td>
+                                    <td class="align-middle text-center font-weight-bold">
+                                        {{ item.output|floatformat:2|intcomma }}
+                                    </td>
+                                    <td class="align-middle text-center">{{ item.satuan_output|default:"-" }}</td>
+                                    <td class="align-middle">{{ item.keterangan|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+
+                                <!-- SUB TOTAL SUB RINCIAN KEGIATAN -->
+                                <tr class="font-weight-bold" style="background-color: #fff3cd; border-top: 1px dashed #ffeeba; border-bottom: 1px solid #ffeeba;">
+                                    <td colspan="6" class="text-right align-middle py-2 text-dark">
+                                        <i class="fas fa-calculator mr-1 text-warning"></i>
+                                        <strong>Sub Total ({{ sub.sub_rincian_nama }}):</strong>
+                                    </td>
+                                    <td class="text-right text-nowrap align-middle text-dark">
+                                        <strong>Rp {{ sub.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                                    </td>
+                                    <td></td>
+                                    <td class="text-center align-middle text-dark">
+                                        <strong>{{ sub.subtotal_output|floatformat:2|intcomma }}</strong>
+                                    </td>
+                                    <td class="text-center align-middle text-dark">
+                                        <small class="font-weight-bold">{{ sub.satuan|default:"" }}</small>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+
+                            <!-- SUB TOTAL KEGIATAN -->
+                            <tr class="font-weight-bold" style="background-color: #d6d8db; border-top: 2px solid #6c757d; border-bottom: 2px solid #6c757d;">
+                                <td colspan="6" class="text-right align-middle py-2 text-dark" style="font-size: 0.95rem;">
+                                    <i class="fas fa-sigma mr-1"></i>
+                                    <strong>SUB TOTAL KEGIATAN ({{ keg.kegiatan_nama }}):</strong>
+                                </td>
+                                <td class="text-right text-nowrap align-middle text-dark" style="font-size: 0.95rem;">
+                                    <strong>Rp {{ keg.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                                </td>
+                                <td></td>
+                                <td class="text-center align-middle text-dark" style="font-size: 0.95rem;">
+                                    <strong>{{ keg.subtotal_output|floatformat:2|intcomma }}</strong>
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="11" class="text-center py-5 text-muted">
+                                    <i class="fas fa-folder-open fa-3x mb-3 text-secondary d-block"></i>
+                                    Tidak ada data SP2D untuk filter Tahun {{ tahun }} dan kriteria yang dipilih.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <!-- TOTAL KESELURUHAN -->
+                        <tr class="bg-dark text-white font-weight-bold" style="font-size: 1.05rem;">
+                            <td colspan="6" class="text-right align-middle py-3">
+                                <i class="fas fa-check-circle mr-1 text-success"></i>
+                                <strong>TOTAL KESELURUHAN:</strong>
+                            </td>
+                            <td class="text-right text-nowrap align-middle text-white py-3">
+                                <strong>Rp {{ grand_total_nominal|floatformat:2|intcomma }}</strong>
+                            </td>
+                            <td></td>
+                            <td class="text-center align-middle text-white py-3">
+                                <strong>{{ grand_total_output|floatformat:2|intcomma }}</strong>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MODAL FILTER SCRIPT / WINDOW PRINT -->
+<script>
+function openPrintWindow(url) {
+    var width = 1200;
+    var height = 800;
+    var left = (screen.width - width) / 2;
+    var top = (screen.height - height) / 2;
+    window.open(url, '_blank', 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=no, width=' + width + ', height=' + height + ', top=' + top + ', left=' + left);
+}
+</script>
+{% endblock content %}
+

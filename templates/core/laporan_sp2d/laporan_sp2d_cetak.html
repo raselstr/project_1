@@ -1,0 +1,267 @@
+{% load humanize %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ judul }} - Tahun {{ tahun }}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            color: #000;
+            background-color: #fff;
+            margin: 0;
+            padding: 15px;
+            font-size: 11pt;
+        }
+        .header-kop {
+            text-align: center;
+            border-bottom: 3px double #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .header-kop h3 {
+            font-size: 15pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+        .header-kop h4 {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .meta-table {
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 10.5pt;
+        }
+        .meta-table td {
+            padding: 2px 4px;
+            vertical-align: top;
+        }
+        .table-data {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-bottom: 20px;
+        }
+        .table-data th, .table-data td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+        .table-data th {
+            background-color: #e9ecef !important;
+            font-weight: bold;
+            text-align: center;
+        }
+        .row-kegiatan {
+            background-color: #f1f3f5 !important;
+            font-weight: bold;
+        }
+        .row-subtotal-sub {
+            background-color: #fff9db !important;
+            font-weight: bold;
+        }
+        .row-subtotal-keg {
+            background-color: #e9ecef !important;
+            font-weight: bold;
+        }
+        .row-grandtotal {
+            background-color: #dee2e6 !important;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        .ttd-box {
+            float: right;
+            width: 320px;
+            text-align: center;
+            margin-top: 25px;
+            page-break-inside: avoid;
+        }
+        .no-print {
+            margin-bottom: 15px;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+            @page {
+                size: landscape;
+                margin: 1cm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- TOMBOL AKSI CETAK / TUTUP -->
+    <div class="no-print d-flex justify-content-between align-items-center p-2 mb-3 bg-light border rounded">
+        <div>
+            <strong>Pratinjau Cetak Laporan SP2D</strong> (Tahun Anggaran {{ tahun }})
+        </div>
+        <div>
+            <button onclick="window.print();" class="btn btn-primary btn-sm mr-1">
+                <i class="fas fa-print mr-1"></i> Cetak Dokumen
+            </button>
+            <button onclick="window.close();" class="btn btn-secondary btn-sm">
+                <i class="fas fa-times mr-1"></i> Tutup Jendela
+            </button>
+        </div>
+    </div>
+
+    <!-- KOP LAPORAN -->
+    <div class="header-kop">
+        <h3>PEMERINTAH KABUPATEN ASAHAN</h3>
+        <h4>LAPORAN REALISASI SP2D</h4>
+        <div style="font-size: 11pt;">TAHUN ANGGARAN {{ tahun }}</div>
+    </div>
+
+    <!-- META INFORMASI -->
+    <table class="meta-table">
+        <tr>
+            <td style="width: 160px;"><strong>Sumber Dana</strong></td>
+            <td style="width: 10px;">:</td>
+            <td>{{ jenis_dana_label }}</td>
+            <td style="width: 140px;"><strong>Tanggal Cetak</strong></td>
+            <td style="width: 10px;">:</td>
+            <td style="width: 180px;">{{ tanggal_cetak }}</td>
+        </tr>
+        <tr>
+            <td><strong>SKPD / Sub OPD</strong></td>
+            <td>:</td>
+            <td>{{ opd_nama }}</td>
+            <td><strong>Tahun Login</strong></td>
+            <td>:</td>
+            <td>{{ tahun }}</td>
+        </tr>
+    </table>
+
+    <!-- TABEL DATA LAPORAN SP2D -->
+    <table class="table-data">
+        <thead>
+            <tr>
+                <th style="width: 30px;">No</th>
+                <th style="width: 140px;">SKPD</th>
+                <th style="width: 160px;">Kegiatan</th>
+                <th style="width: 160px;">Sub Rincian Kegiatan</th>
+                <th style="width: 170px;">Keterangan SP2D</th>
+                <th style="width: 150px;">Nomor SP2D</th>
+                <th style="width: 120px;">Nominal SP2D (Rp)</th>
+                <th style="width: 80px;">Tanggal SP2D</th>
+                <th style="width: 60px;">Output</th>
+                <th style="width: 70px;">Satuan Output</th>
+                <th style="width: 140px;">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for keg in kegiatan_list %}
+                <!-- KEGIATAN HEADER -->
+                <tr class="row-kegiatan">
+                    <td colspan="11">
+                        <strong>KEGIATAN: {{ keg.kegiatan_nama }}</strong>
+                    </td>
+                </tr>
+
+                {% for sub in keg.sub_rincian_list %}
+                    <!-- ITEMS -->
+                    {% for item in sub.items %}
+                    <tr>
+                        <td style="text-align: center;">{{ item.no }}</td>
+                        <td>{{ item.skpd }}</td>
+                        <td>{{ item.kegiatan }}</td>
+                        <td>{{ item.sub_rincian }}</td>
+                        <td>{{ item.keterangan_sp2d|default:"-" }}</td>
+                        <td>{{ item.nomor_sp2d }}</td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            {{ item.nominal_sp2d|floatformat:2|intcomma }}
+                        </td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            {{ item.tanggal_sp2d|date:"d/m/Y"|default:"-" }}
+                        </td>
+                        <td style="text-align: center;">
+                            {{ item.output|floatformat:2|intcomma }}
+                        </td>
+                        <td style="text-align: center;">{{ item.satuan_output|default:"-" }}</td>
+                        <td>{{ item.keterangan|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <!-- SUB TOTAL SUB RINCIAN KEGIATAN -->
+                    <tr class="row-subtotal-sub">
+                        <td colspan="6" style="text-align: right;">
+                            <strong>Sub Total ({{ sub.sub_rincian_nama }}):</strong>
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <strong>{{ sub.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                        </td>
+                        <td></td>
+                        <td style="text-align: center;">
+                            <strong>{{ sub.subtotal_output|floatformat:2|intcomma }}</strong>
+                        </td>
+                        <td style="text-align: center;"><strong>{{ sub.satuan|default:"" }}</strong></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+
+                <!-- SUB TOTAL KEGIATAN -->
+                <tr class="row-subtotal-keg">
+                    <td colspan="6" style="text-align: right;">
+                        <strong>SUB TOTAL KEGIATAN ({{ keg.kegiatan_nama }}):</strong>
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <strong>{{ keg.subtotal_nominal|floatformat:2|intcomma }}</strong>
+                    </td>
+                    <td></td>
+                    <td style="text-align: center;">
+                        <strong>{{ keg.subtotal_output|floatformat:2|intcomma }}</strong>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="11" style="text-align: center; padding: 25px;">
+                        Tidak ada data realisasi SP2D untuk filter Tahun {{ tahun }}.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <!-- TOTAL KESELURUHAN -->
+            <tr class="row-grandtotal">
+                <td colspan="6" style="text-align: right;">
+                    <strong>TOTAL KESELURUHAN:</strong>
+                </td>
+                <td style="text-align: right; white-space: nowrap;">
+                    <strong>{{ grand_total_nominal|floatformat:2|intcomma }}</strong>
+                </td>
+                <td></td>
+                <td style="text-align: center;">
+                    <strong>{{ grand_total_output|floatformat:2|intcomma }}</strong>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- TANDA TANGAN PEJABAT -->
+    {% if pejabat %}
+    <div class="ttd-box">
+        <div>{{ pejabat.pejabat_lokasi|default:"Kisaran" }}, {{ tanggal_cetak }}</div>
+        <div style="font-weight: bold; margin-bottom: 60px;">{{ pejabat.pejabat_jabatan }}</div>
+        <div style="font-weight: bold; text-decoration: underline;">{{ pejabat.pejabat_nama }}</div>
+        <div>NIP. {{ pejabat.pejabat_nip }}</div>
+    </div>
+    {% endif %}
+</body>
+</html>
+

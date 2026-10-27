@@ -89,7 +89,11 @@
                         </div>
                         <div class="card-body">
                             {% include "includes/realisasi_penerimaan_warning.html" %}
-                            {% render_table tabel %}
+                            {% if kegiatan_list %}
+                                {% include "includes/tabel_laporan_sp2d.html" %}
+                            {% else %}
+                                {% render_table tabel %}
+                            {% endif %}
                         </div>
                         <div class="card-footer">
                             {% for data in data %}

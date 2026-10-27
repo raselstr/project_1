@@ -10,6 +10,8 @@ from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelFor
 from project.decorators import menu_access_required, set_submenu_session
 from opd.models import Pejabat, OpdDana
 from datetime import datetime
+from core.forms.budget_opd import scoped_opd_id
+from core.services.laporan_sp2d_service import LaporanSp2dService
 
 
 Model_prog = DankelProg
@@ -252,11 +254,13 @@ def apip(request):
 def sp2d(request):
     request.session['next'] = request.get_full_path()
     context = get_data_context(request)
+    formatted_today = datetime.now().strftime('%d %B %Y')
     
-    tahunrealisasi = request.session.get('realisasidankel_tahun')
+    tahunrealisasi = request.session.get('realisasidankel_tahun') or request.session.get('tahun') or datetime.now().year
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
+    scoped_subopd = scoped_opd_id(subopdrealisasi_id)
     level = request.session.get('level')
     data = Model_pejabat.objects.none()
     
@@ -269,18 +273,37 @@ def sp2d(request):
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
         filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
-    if subopdrealisasi_id not in [None, 124, 67]:
-        filterreals &= Q(realisasidankel_subopd_id=subopdrealisasi_id)
+    if scoped_subopd:
+        filterreals &= Q(realisasidankel_subopd_id=scoped_subopd)
         
     sp2d = Model_realisasi.objects.filter(filterreals)
-    if subopdrealisasi_id:
-        data = Model_pejabat.objects.filter(pejabat_sub=subopdrealisasi_id)
+    if scoped_subopd:
+        data = Model_pejabat.objects.filter(pejabat_sub=scoped_subopd)
+
+    report_data = LaporanSp2dService.get_sp2d_report_data(
+        tahun=tahunrealisasi,
+        jenis_dana='dankel',
+        subopd_id=scoped_subopd,
+        tahap_id=tahaprealisasi_id,
+        sumber='utama',
+        level=level
+    )
         
     context.update({
         'judul': 'REKAPITULASI SP2D',
+        'subjudul': 'Pemerintah Kabupaten Asahan',
         'sp2d' : sp2d,
         'data' : data,
-        # 'persen': total_persentase,
+        'tanggal': formatted_today,
+        'report_data': report_data,
+        'kegiatan_list': report_data['kegiatan_list'],
+        'grand_total_nominal': report_data['grand_total_nominal'],
+        'grand_total_output': report_data['grand_total_output'],
+        'total_items': report_data['total_items'],
+        'tahunrealisasi': tahunrealisasi,
+        'subopdrealisasi_id': Subopd.objects.get(pk=scoped_subopd) if scoped_subopd else None,
+        'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id) if danarealisasi_id else 'Dana Kelurahan',
+        'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id) if tahaprealisasi_id else 'Semua Tahap',
         })
     return render(request, 'dankel_laporan/laporan_sp2d.html', context)
 
