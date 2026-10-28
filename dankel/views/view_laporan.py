@@ -12,6 +12,7 @@ from opd.models import Pejabat, OpdDana
 from datetime import datetime
 from core.forms.budget_opd import scoped_opd_id
 from core.services.laporan_sp2d_service import LaporanSp2dService
+from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 
 
 Model_prog = DankelProg
@@ -55,9 +56,16 @@ def list(request):
         'judul': 'Rekapitulasi Realisasi Dana Kelurahan',
         'tombol': 'Cetak',
         'tombolsp2d': 'Cetak Daftar SP2D',
+        'tombolexcel': 'Export Excel',
         'level' : level
     })
     return render(request, template, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    context = get_data_context(request)
+    return LaporanRealisasiExcelService.export_dankel_utama(context)
 
 
 @set_submenu_session

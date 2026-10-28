@@ -28,6 +28,7 @@
                             {% else %}
                                 <a href="#" onclick="openPrintWindow('{% url 'laporan_apip' %}'); return false;" class="btn btn-primary">{{ tombol }}</a>
                             {% endif %}
+                            <a href="{% url 'laporan_excel' %}" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i> {{ tombolexcel|default:"Export Excel" }}</a>
                         </div>
                     </div>
                 </div>

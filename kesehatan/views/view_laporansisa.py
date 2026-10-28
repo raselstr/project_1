@@ -18,6 +18,7 @@ from ..tables import RekapPaguTable, Sp2dTablesisa
 from core.forms.budget_opd import scoped_opd_id
 from core.services.budget_warning import build_realisasi_penerimaan_warning
 from core.services.laporan_sp2d_service import LaporanSp2dService
+from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 
 form_filter = RealisasikesehatanFilterForm
 form_data = RealisasikesehatanForm
@@ -37,6 +38,7 @@ url_home = 'laporan_kesehatan_home'
 url_filter = 'laporan_kesehatan_filtersisa'
 url_list = 'laporan_kesehatan_listsisa'
 url_pdf = 'laporan_kesehatansisa_pdf'
+url_excel = 'laporan_kesehatansisa_excel'
 url_apip = 'laporan_kesehatansisa_apip'
 url_sp2d = 'laporan_kesehatansisa_sp2d'
 
@@ -131,6 +133,8 @@ def list(request):
             'link' : reverse(url_apip),
             'tombolsp2d' : 'SP2D',
             'linksp2d' : reverse(url_sp2d),
+            'linkexcel': reverse(url_excel),
+            'tombolexcel': 'Export Excel',
         }
     else:
         link_tombol = {
@@ -138,6 +142,8 @@ def list(request):
             'link' : reverse(url_pdf),
             'tombolsp2d' : 'SP2D',
             'linksp2d' : reverse(url_sp2d),
+            'linkexcel': reverse(url_excel),
+            'tombolexcel': 'Export Excel',
         }
     
     context.update({
@@ -150,6 +156,12 @@ def list(request):
         
     })
     return render(request, template_list, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    context = get_data_context(request)
+    return LaporanRealisasiExcelService.export_standard(context, jenis_dana='kesehatan', sumber='sisa')
 
 
 def filter(request):

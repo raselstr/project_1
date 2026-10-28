@@ -14,6 +14,7 @@ from penerimaan.models import DistribusiPenerimaan
 from datetime import datetime
 from core.forms.budget_opd import scoped_opd_id
 from core.services.laporan_sp2d_service import LaporanSp2dService
+from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 
 
 Model_prog = DankelProg
@@ -65,6 +66,7 @@ def list(request):
             'judul': 'Rekapitulasi Realisasi Sisa Dana Kelurahan',
             'tombol': 'Cetak',
             'tombolsp2d': 'Cetak Daftar SP2D Sisa',
+            'tombolexcel': 'Export Excel',
             'level': level
         })
         return render(request, template, context)
@@ -76,6 +78,12 @@ def list(request):
         except Exception:
             pass
         return HttpResponse(f"<div style='font-family:monospace;padding:20px;background:#ffebee;color:#c62828;border:2px solid #b71c1c;'><h3>Error 500 di Laporan Realisasi Sisa:</h3><pre>{err_msg}</pre></div>", status=500)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    context = get_data_context(request)
+    return LaporanRealisasiExcelService.export_dankel_sisa(context)
 
 
 @set_submenu_session

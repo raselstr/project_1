@@ -6,6 +6,7 @@ urlpatterns = [
     path('laporansp2d/', view_laporan.sp2d, name="laporan_sp2d"),
     path('laporanapip/', view_laporan.apip, name="laporan_apip"),
     path('laporanpdf/', view_laporan.pdf, name="laporan_pdf"),
+    path('laporanexcel/', view_laporan.excel, name="laporan_excel"),
     path('laporanlist/', view_laporan.list, name="laporan_list"),
     path('laporanfilter/', view_laporan.filter, name="laporan_filter"),
     path('laporanhome/', view_laporan.home, name="laporan_home"),

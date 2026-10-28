@@ -5,6 +5,7 @@ urlpatterns = [
 
     path("laporan/sp2d/", view_laporan.sp2d, name="laporan_pu_sp2d"),
     path("laporan/apip/", view_laporan.apip, name="laporan_pu_apip"),
+    path("laporan/excel/", view_laporan.excel, name="laporan_pu_excel"),
     path("laporan/pdf/", view_laporan.pdf, name="laporan_pu_pdf"),
     path("laporan/daftar/", view_laporan.list, name="laporan_pu_list"),
     path("laporan/filter/", view_laporan.filter, name="laporan_pu_filter"),
@@ -12,6 +13,7 @@ urlpatterns = [
     
     path("laporansisa/sp2d/", view_laporansisa.sp2d, name="laporan_pu_sp2dsisa"),
     path("laporansisa/apip/", view_laporansisa.apip, name="laporan_pu_apipsisa"),
+    path("laporansisa/excel/", view_laporansisa.excel, name="laporan_pu_excelsisa"),
     path("laporansisa/pdf/", view_laporansisa.pdf, name="laporan_pu_pdfsisa"),
     path("laporansisa/daftar/", view_laporansisa.list, name="laporan_pu_listsisa"),
     path("laporansisa/filter/", view_laporansisa.filter, name="laporan_pu_filtersisa"),

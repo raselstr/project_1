@@ -17,6 +17,7 @@ from pagu.models import Pagudausg
 from ..tables import RekapPaguTable, Sp2dTable
 from core.forms.budget_opd import scoped_opd_id
 from core.services.budget_warning import build_realisasi_penerimaan_warning
+from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 from core.services.laporan_sp2d_service import LaporanSp2dService
 
 
@@ -38,6 +39,7 @@ url_home = 'laporan_pendidikan_home'
 url_filter = 'laporan_pendidikan_filtersisa'
 url_list = 'laporan_pendidikan_listsisa'
 url_pdf = 'laporan_pendidikan_pdfsisa'
+url_excel = 'laporan_pendidikan_excelsisa'
 url_apip = 'laporan_pendidikan_apipsisa'
 url_sp2d = 'laporan_pendidikan_sp2dsisa'
 
@@ -132,6 +134,8 @@ def list(request):
             'link' : reverse(url_apip),
             'tombolsp2d' : 'SP2D',
             'linksp2d' : reverse(url_sp2d),
+            'linkexcel': reverse(url_excel),
+            'tombolexcel': 'Export Excel',
         }
     else:
         link_tombol = {
@@ -139,6 +143,8 @@ def list(request):
             'link' : reverse(url_pdf),
             'tombolsp2d' : 'SP2D',
             'linksp2d' : reverse(url_sp2d),
+            'linkexcel': reverse(url_excel),
+            'tombolexcel': 'Export Excel',
         }
     
     context.update({
@@ -149,6 +155,12 @@ def list(request):
         'link_tombol' : link_tombol
     })
     return render(request, template_list, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    context = get_data_context(request)
+    return LaporanRealisasiExcelService.export_standard(context, jenis_dana='pendidikan', sumber='sisa')
 
 def filter(request):
     if request.method == 'GET':
