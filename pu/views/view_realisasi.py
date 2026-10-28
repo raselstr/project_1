@@ -163,8 +163,17 @@ def sp2d(request, pk=None):
     realisasi_dana=request.session.get('realisasi_dana')
     realisasi_subopd=request.session.get('realisasi_subopd')
     realisasi_tahap=request.session.get('realisasi_tahap')
-     # Buat filter query
-    filters = Q(realisasi_rencanaposting_id=pk)
+
+    # Ambil posting untuk mendapatkan subkegiatan dan subopd
+    # sehingga semua realisasi untuk subkegiatan+OPD yang sama tampil (tidak hanya dari 1 posting)
+    posting_obj = model_data.objects.filter(pk=pk).first()
+    filters = Q()
+    if posting_obj:
+        filters &= Q(realisasi_subkegiatan_id=posting_obj.posting_subkegiatan_id)
+        filters &= Q(realisasi_subopd_id=posting_obj.posting_subopd_id)
+    else:
+        filters &= Q(realisasi_rencanaposting_id=pk)
+
     if realisasi_tahun:
         filters &= Q(realisasi_tahun=realisasi_tahun)
     if realisasi_dana:
@@ -179,17 +188,15 @@ def sp2d(request, pk=None):
     scoped_subopd = scoped_opd_id(realisasi_subopd)
     if scoped_subopd:
         filters &= Q(realisasi_subopd_id=scoped_subopd)
-    
+
     filterkeg = Q(pk=pk)
     if realisasi_tahun:
         filterkeg &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
         filterkeg &= Q(posting_dana_id=realisasi_dana)
-    # if realisasi_tahap:
-    #     filterkeg &= Q(realisasi_tahap_id=realisasi_tahap)
     if scoped_subopd:
         filterkeg &= Q(posting_subopd_id=scoped_subopd)
-        
+
     try:
         data = model_realisasi.objects.filter(filters)
         datarencana = model_data.objects.filter(filterkeg)
