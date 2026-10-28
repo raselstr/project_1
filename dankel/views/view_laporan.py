@@ -272,13 +272,23 @@ def sp2d(request):
     if danarealisasi_id:
         filterreals &= Q(realisasidankel_dana_id=danarealisasi_id)
     if tahaprealisasi_id:
-        filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
+        try:
+            t_int = int(str(tahaprealisasi_id).strip())
+            filterreals &= Q(realisasidankel_tahap_id__in=[*range(1, t_int + 1)])
+        except (ValueError, TypeError):
+            filterreals &= Q(realisasidankel_tahap_id=tahaprealisasi_id)
     if scoped_subopd:
         filterreals &= Q(realisasidankel_subopd_id=scoped_subopd)
         
     sp2d = Model_realisasi.objects.filter(filterreals)
     if scoped_subopd:
         data = Model_pejabat.objects.filter(pejabat_sub=scoped_subopd)
+    if not data:
+        data = Model_pejabat.objects.filter(
+            Q(pejabat_nama__icontains='Sri Lusi') | Q(pejabat_nama__icontains='Lusi Masdiany')
+        )
+        if not data:
+            data = Model_pejabat.objects.all()[:1]
 
     report_data = LaporanSp2dService.get_sp2d_report_data(
         tahun=tahunrealisasi,
@@ -288,6 +298,9 @@ def sp2d(request):
         sumber='utama',
         level=level
     )
+
+    dana_obj = Subkegiatan.objects.filter(pk=danarealisasi_id).first() if danarealisasi_id else Subkegiatan.objects.filter(sub_slug=sesidana).first()
+    subopd_obj = Subopd.objects.filter(pk=scoped_subopd).first() if scoped_subopd else None
         
     context.update({
         'judul': 'REKAPITULASI SP2D',
@@ -302,9 +315,9 @@ def sp2d(request):
         'grand_total_rencana_output': report_data['grand_total_rencana_output'],
         'total_items': report_data['total_items'],
         'tahunrealisasi': tahunrealisasi,
-        'subopdrealisasi_id': Subopd.objects.get(pk=scoped_subopd) if scoped_subopd else None,
-        'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id) if danarealisasi_id else 'Dana Kelurahan',
-        'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id) if tahaprealisasi_id else 'Semua Tahap',
+        'subopdrealisasi_id': subopd_obj.sub_nama if subopd_obj else 'Semua Kelurahan',
+        'danarealisasi_id': dana_obj.sub_nama if dana_obj else 'Dana Kelurahan',
+        'tahaprealisasi_id': report_data.get('tahap_label', 'Semua Tahap'),
         })
     return render(request, 'dankel_laporan/laporan_sp2d.html', context)
 
@@ -665,8 +678,8 @@ def get_data_context(request):
         'total_t2_keseluruhan': total_t2_keseluruhan,
         'total_sisa_keseluruhan': total_pagu_keseluruhan - (total_t1_keseluruhan + total_t2_keseluruhan),
         'tahunrealisasi': tahunrealisasi,
-        'danarealisasi_id': Subkegiatan.objects.get(pk=danarealisasi_id) if danarealisasi_id else None,
-        'tahaprealisasi_id': TahapDana.objects.get(pk=tahaprealisasi_id) if tahaprealisasi_id else None,
-        'subopdrealisasi_id': Subopd.objects.get(pk=subopdrealisasi_id) if subopdrealisasi_id else None,
+        'danarealisasi_id': Subkegiatan.objects.filter(pk=danarealisasi_id).first() if danarealisasi_id else Subkegiatan.objects.filter(sub_slug=sesidana).first(),
+        'tahaprealisasi_id': TahapDana.objects.filter(pk=tahaprealisasi_id).first() if tahaprealisasi_id else None,
+        'subopdrealisasi_id': Subopd.objects.filter(pk=subopdrealisasi_id).first() if subopdrealisasi_id else None,
         'jadwal': jadwal,
     }

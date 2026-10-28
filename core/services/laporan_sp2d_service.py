@@ -79,8 +79,14 @@ class LaporanSp2dService:
 
     @classmethod
     def _extract_dankel_item(cls, r, sumber='Utama'):
-        subopd_nama = r.realisasidankel_subopd.sub_nama if getattr(r, 'realisasidankel_subopd', None) else '-'
-        rencana = getattr(r, 'realisasidankel_rencana', None) or getattr(r, 'realisasidankel_idrencana', None)
+        subopd_obj = getattr(r, 'realisasidankelsisa_subopd', None) or getattr(r, 'realisasidankel_subopd', None)
+        subopd_nama = subopd_obj.sub_nama if subopd_obj else '-'
+        rencana = (
+            getattr(r, 'realisasidankelsisa_rencana', None)
+            or getattr(r, 'realisasidankelsisa_idrencana', None)
+            or getattr(r, 'realisasidankel_rencana', None)
+            or getattr(r, 'realisasidankel_idrencana', None)
+        )
 
         if rencana and hasattr(rencana, 'rencdankelsisa_sub'):
             sub_keg = rencana.rencdankelsisa_sub
@@ -97,19 +103,25 @@ class LaporanSp2dService:
         satuan_output = sub_keg.dankelsub_satuan if sub_keg else ''
 
         # Tahap
-        tahap_obj = getattr(r, 'realisasidankel_tahap', None)
-        tahap_id = getattr(r, 'realisasidankel_tahap_id', None) or (tahap_obj.id if tahap_obj else None)
+        tahap_obj = getattr(r, 'realisasidankelsisa_tahap', None) or getattr(r, 'realisasidankel_tahap', None)
+        tahap_id = getattr(r, 'realisasidankelsisa_tahap_id', None) or getattr(r, 'realisasidankel_tahap_id', None) or (tahap_obj.id if tahap_obj else None)
         tahap_nama = f"Tahap {tahap_id}" if tahap_id else "-"
 
         # Nilai & Nomor SP2D TU
-        sp2d_tu = (getattr(r, 'realisasidankel_sp2dtu', '') or '').strip()
-        sp2d_tu_nilai = Decimal(str(getattr(r, 'realisasidankel_nilai', 0) or 0))
-        sp2d_tu_tgl = getattr(r, 'realisasidankel_tgl', None)
+        sp2d_tu = (getattr(r, 'realisasidankelsisa_sp2dtu', '') or getattr(r, 'realisasidankel_sp2dtu', '') or '').strip()
+        raw_sp2d_nilai = getattr(r, 'realisasidankelsisa_nilai', None)
+        if raw_sp2d_nilai is None:
+            raw_sp2d_nilai = getattr(r, 'realisasidankel_nilai', 0)
+        sp2d_tu_nilai = Decimal(str(raw_sp2d_nilai or 0))
+        sp2d_tu_tgl = getattr(r, 'realisasidankelsisa_tgl', None) or getattr(r, 'realisasidankel_tgl', None)
 
         # Nilai & Nomor LPJ (Data utama untuk laporan Dana Kelurahan)
-        lpj_no = (getattr(r, 'realisasidankel_lpj', '') or '').strip()
-        lpj_nilai = Decimal(str(getattr(r, 'realisasidankel_lpjnilai', 0) or 0))
-        lpj_tgl = getattr(r, 'realisasidankel_lpjtgl', None) or sp2d_tu_tgl
+        lpj_no = (getattr(r, 'realisasidankelsisa_lpj', '') or getattr(r, 'realisasidankel_lpj', '') or '').strip()
+        raw_lpj_nilai = getattr(r, 'realisasidankelsisa_lpjnilai', None)
+        if raw_lpj_nilai is None:
+            raw_lpj_nilai = getattr(r, 'realisasidankel_lpjnilai', 0)
+        lpj_nilai = Decimal(str(raw_lpj_nilai or 0))
+        lpj_tgl = getattr(r, 'realisasidankelsisa_lpjtgl', None) or getattr(r, 'realisasidankel_lpjtgl', None) or sp2d_tu_tgl
 
         # Sesuai permintaan: Nominal SP2D pada Dana Kelurahan mengambil nilai LPJ,
         # Nomor SP2D diganti menjadi Nomor LPJ, sedangkan No/Nilai/Tgl SP2D TU tetap ditampilkan sebagai info
@@ -118,8 +130,12 @@ class LaporanSp2dService:
         tanggal_display = lpj_tgl
 
         # Ambil rencana_output dan primary key rencana (RencDankel / RencDankelsisa)
-        # Jika primary key berbeda (misal beda OPD/kegiatan), akan dijumlahkan pada sub rincian
-        id_rencana = getattr(r, 'realisasidankel_idrencana', None) or getattr(r, 'realisasidankel_rencana', None)
+        id_rencana = (
+            getattr(r, 'realisasidankelsisa_idrencana', None)
+            or getattr(r, 'realisasidankelsisa_rencana', None)
+            or getattr(r, 'realisasidankel_idrencana', None)
+            or getattr(r, 'realisasidankel_rencana', None)
+        )
         rencana_output = Decimal(0)
         rencana_pk = getattr(id_rencana, 'pk', None) or getattr(id_rencana, 'id', None)
         rencana_key = f"dankel_{sumber}_{rencana_pk}" if rencana_pk else f"dankel_item_{r.id}"
@@ -129,6 +145,10 @@ class LaporanSp2dService:
                 rencana_output = Decimal(str(id_rencana.rencdankelsisa_output or 0))
             elif hasattr(id_rencana, 'rencdankel_output'):
                 rencana_output = Decimal(str(id_rencana.rencdankel_output or 0))
+
+        raw_out = getattr(r, 'realisasidankelsisa_output', None)
+        if raw_out is None:
+            raw_out = getattr(r, 'realisasidankel_output', 0)
 
         return {
             'id': r.id,
@@ -141,7 +161,7 @@ class LaporanSp2dService:
             'nomor_sp2d': nomor_display,
             'nominal_sp2d': nominal_display,
             'tanggal_sp2d': tanggal_display,
-            'output': Decimal(str(getattr(r, 'realisasidankel_output', 0) or 0)),
+            'output': Decimal(str(raw_out or 0)),
             'rencana_output': rencana_output,
             'rencana_key': rencana_key,
             'keterangan': keterangan_rencana or '-',
