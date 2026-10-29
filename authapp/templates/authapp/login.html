@@ -1,131 +1,496 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>Login &mdash; Stisla</title>
+  <title>Login &mdash; BKAD TKDD</title>
 
-  <!-- General CSS Files -->
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap & FontAwesome -->
   <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="{% static 'assets/modules/bootstrap-social/bootstrap-social.css' %}">
+  <style>
+    :root {
+      --navy-darker: #04101f;
+      --navy-dark: #07192f;
+      --navy: #0a2540;
+      --navy-light: #0f3866;
+      --blue-primary: #0052cc;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.45);
+    }
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    *, *::before, *::after { box-sizing: border-box; }
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
+    body {
+      background: linear-gradient(135deg, var(--navy-darker) 0%, var(--navy-dark) 35%, var(--navy) 65%, var(--navy-light) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(56,189,248,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,82,204,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(15,56,102,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Grid pattern overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px 16px;
+    }
+
+    /* Brand header above card */
+    .login-brand-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-ring {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.10);
+      border: 2px solid rgba(56, 189, 248, 0.45);
+      box-shadow:
+        0 0 0 8px rgba(56, 189, 248, 0.06),
+        0 0 24px rgba(56, 189, 248, 0.30);
+      margin-bottom: 18px;
+      animation: logoGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes logoGlow {
+      from { box-shadow: 0 0 0 8px rgba(56,189,248,0.06), 0 0 20px rgba(56,189,248,0.25); }
+      to   { box-shadow: 0 0 0 12px rgba(56,189,248,0.10), 0 0 36px rgba(56,189,248,0.50); }
+    }
+
+    .logo-ring img {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .brand-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .brand-title span {
+      color: var(--cyan);
+    }
+
+    .brand-subtitle {
+      font-size: 0.80rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 400;
+      letter-spacing: 0.4px;
+    }
+
+    /* Login Card */
+    .login-card {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow:
+        0 32px 64px rgba(4, 16, 31, 0.45),
+        0 8px 24px rgba(4, 16, 31, 0.25),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+      overflow: hidden;
+    }
+
+    .login-card-header {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, var(--blue-primary) 100%);
+      padding: 20px 28px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card-header::before {
+      content: '';
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .login-card-header h4 {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-card-header h4 i {
+      color: var(--cyan);
+    }
+
+    .login-card-header p {
+      color: rgba(255,255,255,0.60);
+      font-size: 0.78rem;
+      margin: 4px 0 0;
+    }
+
+    .login-card-body {
+      padding: 28px 28px 24px;
+    }
+
+    /* Form labels */
+    .login-card-body label {
+      font-size: 0.79rem;
+      font-weight: 600;
+      color: var(--navy);
+      letter-spacing: 0.3px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .login-card-body label i {
+      color: var(--blue-primary);
+      font-size: 0.82rem;
+    }
+
+    /* Form controls */
+    .login-card-body .form-control {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      height: 44px;
+      font-size: 0.875rem;
+      color: var(--navy);
+      padding: 8px 14px;
+      transition: all 0.2s ease;
+      background: #f8fafc;
+    }
+
+    .login-card-body .form-control:focus {
+      border-color: var(--blue-primary) !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.14) !important;
+      outline: none !important;
+    }
+
+    .login-card-body select.form-control {
+      cursor: pointer;
+    }
+
+    /* Error messages */
+    .login-error-msg {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-error-msg::before {
+      content: '\f057';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    /* Submit button */
+    .btn-login {
+      display: block;
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--blue-primary) 60%, #0ea5e9 100%);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.28s ease;
+      box-shadow: 0 6px 20px rgba(0, 82, 204, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-login::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+      transition: opacity 0.2s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0, 82, 204, 0.45);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(0, 82, 204, 0.30);
+    }
+
+    .btn-login i {
+      margin-right: 8px;
+    }
+
+    /* Divider */
+    .form-divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 4px 0 16px;
+    }
+
+    /* Login footer */
+    .login-footer-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.73rem;
+      color: rgba(255,255,255,0.40);
+      letter-spacing: 0.3px;
+    }
+
+    /* Forgot password link */
+    .text-forgot {
+      font-size: 0.75rem;
+      color: var(--blue-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .text-forgot:hover { color: var(--cyan); text-decoration: underline; }
+
+    /* Password wrapper for toggle */
+    .password-input-wrap {
+      position: relative;
+    }
+    .password-input-wrap .form-control {
+      padding-right: 42px;
+    }
+    .btn-toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    .btn-toggle-pw:hover { color: var(--blue-primary); }
+
+    /* Status dot */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.70rem;
+      color: rgba(255,255,255,0.50);
+      margin-top: 6px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.3); }
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    @media (max-width: 480px) {
+      .login-wrapper { padding: 16px 12px; }
+      .login-card-body { padding: 22px 20px; }
+      .brand-title { font-size: 1.35rem; }
+    }
+  </style>
+</head>
 <body>
-  <div id="app">
-    <section class="section">
-      <div class="container mt-5">
-        <div class="row">
-          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
-            <div class="login-brand">
-              <img src="{% static 'assets/img/Lambang_Kab_Asahan.png' %}" alt="logo" width="100" class="shadow-light">
-            </div>
+  <div class="login-wrapper">
 
-            <div class="card card-primary">
-              <div class="card-header"><h4>Login</h4></div>
-              <div class="card-body">
-                {% if messages %}
-                    {% for message in messages %}
-                        <p style="color:red;">{{ message }}</p>
-                    {% endfor %}
-                {% endif %}
-                <form method="POST" class="needs-validation" novalidate="">
-                  {% csrf_token %}
-
-                  <div class="form-group">
-                      <label for="tahun">Tahun Anggaran</label>
-                      <select class="form-control" name="tahun" id="tahun" required>
-                          <option value="">-- Pilih Tahun Anggaran --</option>
-                          {% for tahun in tahun %}
-                          <option value="{{ tahun }}">{{ tahun }}</option>
-                          {% endfor %}
-                      </select>
-                      <div class="invalid-feedback">
-                          Pilih Tahun Anggaran
-                      </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" class="form-control"  name="username" id="username" tabindex="1" required autofocus>
-                    <div class="invalid-feedback">
-                      Masukkan Username
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <div class="d-block">
-                    	<label for="password" class="control-label">Password</label>
-                      <div class="float-right">
-                        <a href="#" class="text-small">
-                          Lupa Password?
-                        </a>
-                      </div>
-                    </div>
-                    <input id="password" type="password" class="form-control" name="password" tabindex="2" required>
-                    <div class="invalid-feedback">
-                      Masukkan Password
-                    </div>
-                  </div>
-
-                  {% comment %} <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                      <input type="checkbox" name="remember" class="custom-control-input" tabindex="3" id="remember-me">
-                      <label class="custom-control-label" for="remember-me">Remember Me</label>
-                    </div>
-                  </div> {% endcomment %}
-
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
-                      Login
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-            {% comment %} <div class="mt-5 text-muted text-center">
-              Don't have an account? <a href="auth-register.html">Create One</a>
-            </div> {% endcomment %}
-            <div class="simple-footer">
-              Design : Raselstr, Template by : Stisla 2018
-            </div>
-          </div>
-        </div>
+    <!-- Brand Header -->
+    <div class="login-brand-header">
+      <div class="logo-ring">
+        <img src="{% static 'assets/img/Lambang_Kab_Asahan.png' %}" alt="Logo BKAD">
       </div>
-    </section>
+      <div class="brand-title">BKAD <span>TKDD</span></div>
+      <div class="brand-subtitle">Sistem Informasi Keuangan DAU SG</div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        Sistem Online
+      </div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <div class="login-card-header">
+        <h4><i class="fas fa-shield-alt"></i> Masuk ke Sistem</h4>
+        <p>Masukkan kredensial Anda untuk melanjutkan</p>
+      </div>
+
+      <div class="login-card-body">
+
+        <!-- Error Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="login-error-msg">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="needs-validation" novalidate="">
+          {% csrf_token %}
+
+          <!-- Tahun Anggaran -->
+          <div class="form-group">
+            <label for="tahun">
+              <i class="fas fa-calendar-alt"></i> Tahun Anggaran
+            </label>
+            <select class="form-control" name="tahun" id="tahun" required>
+              <option value="">-- Pilih Tahun Anggaran --</option>
+              {% for tahun in tahun %}
+              <option value="{{ tahun }}">{{ tahun }}</option>
+              {% endfor %}
+            </select>
+            <div class="invalid-feedback">Pilih Tahun Anggaran</div>
+          </div>
+
+          <!-- Username -->
+          <div class="form-group">
+            <label for="username">
+              <i class="fas fa-user"></i> Username
+            </label>
+            <input type="text" class="form-control" name="username" id="username"
+                   placeholder="Masukkan username" tabindex="1" required autofocus>
+            <div class="invalid-feedback">Masukkan Username</div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label for="password" style="margin-bottom:0;">
+                <i class="fas fa-lock"></i> Password
+              </label>
+              <a href="#" class="text-forgot">Lupa Password?</a>
+            </div>
+            <div class="password-input-wrap">
+              <input id="password" type="password" class="form-control"
+                     name="password" placeholder="Masukkan password" tabindex="2" required>
+              <button type="button" class="btn-toggle-pw" onclick="togglePassword(this)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback">Masukkan Password</div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Submit -->
+          <div class="form-group" style="margin-bottom:0;">
+            <button type="submit" class="btn-login" tabindex="3">
+              <i class="fas fa-sign-in-alt"></i> Masuk ke Sistem
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer text -->
+    <div class="login-footer-text">
+      &copy; 2024 BKAD TKDD &mdash; Sistem Informasi Keuangan DAU SG &mdash; v2.0
+    </div>
   </div>
 
-  <!-- General JS Scripts -->
+  <!-- Scripts -->
   <script src="{% static 'assets/modules/jquery.min.js' %}"></script>
-  <script src="{% static 'assets/modules/popper.js' %}"></script>
-  <script src="{% static 'assets/modules/tooltip.js' %}"></script>
   <script src="{% static 'assets/modules/bootstrap/js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'assets/modules/nicescroll/jquery.nicescroll.min.js' %}"></script>
-  <script src="{% static 'assets/modules/moment.min.js' %}"></script>
-  <script src="{% static 'assets/js/stisla.js' %}"></script>
-  
-  <!-- JS Libraies -->
 
-  <!-- Page Specific JS File -->
-  
-  <!-- Template JS File -->
-  <script src="{% static 'assets/js/scripts.js' %}"></script>
-  <script src="{% static 'assets/js/custom.js' %}"></script>
+  <script>
+    function togglePassword(btn) {
+      const pw = document.getElementById('password');
+      const icon = btn.querySelector('i');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        pw.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    }
+
+    // Bootstrap validation
+    (function() {
+      'use strict';
+      var forms = document.querySelectorAll('.needs-validation');
+      Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+  </script>
 </body>
 </html>

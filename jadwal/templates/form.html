@@ -1,30 +1,44 @@
-<form method="post" action="{{ link_simpan }}" >
+<form method="post" action="{{ link_simpan }}">
     {% csrf_token %}
-    <div class="modal-header">
-        <h5 class="modal-title">{{ judul }}</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <div class="modal-header py-3" style="background: linear-gradient(135deg, #051326 0%, #0a2540 60%, #0052cc 100%); color: #ffffff; border-bottom: 1px solid rgba(0, 240, 255, 0.3);">
+        <h5 class="modal-title font-weight-bold" style="font-size: 1rem; color: #ffffff;">
+            <i class="fas fa-calendar-plus text-info mr-2"></i> {{ judul }}
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     
-    <div class="modal-body">
-        <div class="form-group">
+    <div class="modal-body p-4">
+        <div class="form-group mb-0">
             {{ form.as_p }}
 
-            <!-- Perbaikan Menampilkan Error -->
+            <!-- Menampilkan Error -->
             {% for field in form %}
                 {% if field.errors %}
-                    <div class="text-danger">
+                    <div class="alert alert-danger py-2 px-3 mt-2 mb-0" style="font-size: 0.82rem;">
                         {% for error in field.errors %}
-                            <p>{{ error }}</p>
+                            <div><i class="fas fa-exclamation-triangle mr-1"></i> {{ error }}</div>
                         {% endfor %}
                     </div>
                 {% endif %}
             {% endfor %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 px-3 mt-2 mb-0" style="font-size: 0.82rem;">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="fas fa-exclamation-triangle mr-1"></i> {{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 
-    <div class="modal-footer bg-whitesmoke br">
-        <button type="submit" class="btn btn-primary">{{ btntombol }}</button>
+    <div class="modal-footer px-4 py-3 d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary px-3" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i> Batal
+        </button>
+        <button type="submit" class="btn btn-primary px-4 shadow-sm">
+            <i class="fas fa-save mr-1"></i> {{ btntombol }}
+        </button>
     </div>
 </form>

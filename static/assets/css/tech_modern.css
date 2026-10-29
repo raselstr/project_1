@@ -1,37 +1,46 @@
 /**
  * ==============================================================================
- * TECH MODERN ENTERPRISE THEME (BIRU & PUTIH TEKNOLOGI)
+ * TECH MODERN ENTERPRISE THEME — V4.0 (BALANCED NAVY & CRISP WHITE)
+ * Komposisi Harmonis: Bingkai Biru Navy Elegan & Kartu Putih Bersih
  * Sistem Informasi Keuangan & Realisasi DAU SG - BKAD TKDD
  * ==============================================================================
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Tech Blue & White Color Palette */
+  /* Tech Navy Palette (Frame, Topbar, Sidebar, Headers) */
+  --tech-navy-darker: #040e1c;
   --tech-navy-dark: #07192f;
   --tech-navy: #0a2540;
   --tech-navy-light: #0f3866;
+  --tech-navy-gradient: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%);
+  --tech-navy-header: linear-gradient(135deg, #07192f 0%, #0a2540 100%);
+
+  /* Electric Blue & Cyan Accents */
   --tech-blue-primary: #0052cc;
   --tech-blue-electric: #0284c7;
   --tech-blue-cyan: #38bdf8;
-  --tech-blue-glow: rgba(2, 132, 199, 0.25);
-  --tech-blue-soft: #eff6ff;
+  --tech-cyan-neon: #00f0ff;
+  --tech-cyan-glow: rgba(56, 189, 248, 0.35);
+  --tech-blue-soft: #f0f7ff;
   --tech-blue-border: #bfdbfe;
 
-  /* Surfaces & Canvas - Modern Icy Tech Blue Canvas */
-  --tech-bg: #e6effa;
+  /* Surfaces & Canvas (Harmonious White & Soft Ice Tech Canvas) */
+  --tech-bg: #edf3fa;
   --tech-surface: #ffffff;
   --tech-surface-card: #ffffff;
-  --tech-surface-muted: #e2edfa;
+  --tech-surface-muted: #f8fafc;
+  --tech-surface-hover: #f1f7ff;
 
-  /* Typography Colors */
+  /* Typography (High Contrast, Easy on the Eyes) */
   --tech-text-heading: #0a2540;
   --tech-text-body: #1e293b;
   --tech-text-muted: #64748b;
   --tech-text-light: #94a3b8;
+  --tech-text-white: #ffffff;
 
-  /* Accents */
+  /* Status Accents */
   --tech-success: #059669;
   --tech-success-bg: #ecfdf5;
   --tech-warning: #d97706;
@@ -41,101 +50,128 @@
   --tech-info: #0284c7;
   --tech-info-bg: #f0f9ff;
 
-  /* Borders & Shadows */
+  /* Geometry & Shadows */
   --tech-border-color: #e2e8f0;
-  --tech-border-focus: #0284c7;
+  --tech-border-focus: #0052cc;
   --tech-radius-sm: 6px;
   --tech-radius-md: 10px;
   --tech-radius-lg: 14px;
   --tech-radius-xl: 20px;
-  --tech-shadow-subtle: 0 2px 6px -1px rgba(10, 37, 64, 0.05), 0 1px 4px -1px rgba(10, 37, 64, 0.03);
-  --tech-shadow-card: 0 8px 24px -4px rgba(10, 37, 64, 0.06), 0 2px 6px -2px rgba(10, 37, 64, 0.03);
-  --tech-shadow-hover: 0 14px 32px -6px rgba(10, 37, 64, 0.12), 0 4px 12px -2px rgba(10, 37, 64, 0.04);
-  --tech-shadow-blue: 0 8px 20px -3px rgba(0, 82, 204, 0.28);
+  --tech-shadow-subtle: 0 2px 8px rgba(10, 37, 64, 0.04);
+  --tech-shadow-card: 0 8px 24px -4px rgba(10, 37, 64, 0.08), 0 2px 6px -1px rgba(10, 37, 64, 0.04);
+  --tech-shadow-hover: 0 14px 34px -6px rgba(10, 37, 64, 0.14), 0 4px 12px -2px rgba(10, 37, 64, 0.06);
 }
 
 /* ==============================================================================
-   GLOBAL RESET & TYPOGRAPHY
+   GLOBAL RESET & HARMONIOUS CANVAS BACKGROUND
    ============================================================================== */
-body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
   background-color: var(--tech-bg) !important;
   color: var(--tech-text-body) !important;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+  min-height: 100vh;
+}
+
+body,
+#app,
+.main-wrapper,
+.main-wrapper-1 {
+  background-color: var(--tech-bg) !important;
+}
+
+/* Main Content Area — Soft Ice-Blue Canvas with breathing room */
+.main-content,
+body .main-content {
+  background-color: var(--tech-bg) !important;
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(0, 82, 204, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.04) 0%, transparent 50%),
+    linear-gradient(rgba(10, 37, 64, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 37, 64, 0.015) 1px, transparent 1px) !important;
+  background-size: cover, cover, 28px 28px, 28px 28px !important;
+  padding-top: 80px !important;
+  padding-bottom: 66px !important;
+  padding-left: 270px !important;
+  padding-right: 24px !important;
+  min-height: 100vh !important;
+  transition: padding-left 0.3s ease;
+}
+
+body.sidebar-mini .main-content {
+  padding-left: 85px !important;
 }
 
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
   color: var(--tech-text-heading) !important;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-/* Modern Monospace Numbers in Financial/Data contexts */
+/* Monospace Numbers in Financial/Data contexts */
 .table td, .table th, .amount-val, .badge, .mono-num {
   font-feature-settings: "tnum";
   font-variant-numeric: tabular-nums;
+  font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
 }
 
-/* Slim Tech Scrollbar */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 8px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--tech-blue-electric);
-}
+/* Tech Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #e2e8f0; }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #0052cc; }
 
 /* ==============================================================================
-   TOP NAVBAR (FIXED AT TOP OF VIEWPORT DURING SCROLL)
+   TOPBAR / NAVBAR (PINNED FIXED & ELEGANT DEEP NAVY BLUE)
    ============================================================================== */
 .navbar-bg,
 body .navbar-bg {
-  height: 60px !important;
-  background: linear-gradient(90deg, #07192f 0%, #0a2540 28%, #0f3866 65%, #0284c7 100%) !important;
-  box-shadow: 0 4px 20px rgba(7, 25, 47, 0.25) !important;
-  border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   width: 100% !important;
-  z-index: 870 !important;
+  height: 64px !important;
+  background: linear-gradient(90deg, #07192f 0%, #0a2540 30%, #0f3866 70%, #0052cc 100%) !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(7, 25, 47, 0.25) !important;
+  z-index: 879 !important;
 }
 
 nav.navbar.main-navbar,
 body .navbar.main-navbar,
 body nav.navbar {
-  height: 60px !important;
   position: fixed !important;
   top: 0 !important;
   left: 250px !important;
   right: 0 !important;
+  height: 64px !important;
+  background: linear-gradient(90deg, #07192f 0%, #0a2540 40%, #0052cc 100%) !important;
+  background-color: #07192f !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(7, 25, 47, 0.20) !important;
+  z-index: 885 !important;
+  display: flex !important;
+  align-items: center !important;
   padding-left: 20px !important;
   padding-right: 25px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  z-index: 880 !important;
+  transition: left 0.3s ease;
 }
 
-body.sidebar-mini nav.navbar.main-navbar,
-body.sidebar-mini .navbar.main-navbar,
-body.sidebar-mini nav.navbar {
+body.sidebar-mini nav.navbar.main-navbar {
   left: 65px !important;
 }
 
 .main-navbar .nav-link {
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: #ffffff !important;
   font-weight: 500;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   transition: all 0.2s ease;
 }
 
@@ -149,17 +185,17 @@ body.sidebar-mini nav.navbar {
   font-size: 1.15rem;
 }
 
-/* Tech Info Pill Badges in Navbar */
+/* Glassmorphism Tech Pills in Navbar */
 .main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 30px !important;
   padding: 6px 16px !important;
   margin: 0 6px;
   font-size: 0.82rem !important;
-  letter-spacing: 0.2px;
+  color: #ffffff !important;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -168,28 +204,42 @@ body.sidebar-mini nav.navbar {
 }
 
 .main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
   border-color: rgba(56, 189, 248, 0.6) !important;
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
 }
 
 .main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle i {
   color: var(--tech-blue-cyan) !important;
-  font-size: 0.9rem;
 }
 
-/* Modern Search Box */
-.main-navbar .search-element {
-  position: relative;
+/* Glowing Pulsing Tech Dot in Posting Pill */
+.tech-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: techPulse 1.8s infinite;
+  margin-right: 4px;
 }
+@keyframes techPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Search Box in Navbar */
 .main-navbar .search-element input.form-control {
   background: rgba(255, 255, 255, 0.12) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 25px !important;
   color: #ffffff !important;
-  padding-left: 20px;
-  padding-right: 42px;
-  font-size: 0.85rem;
+  padding-left: 18px;
+  padding-right: 40px;
+  font-size: 0.84rem;
+  height: 38px !important;
   transition: all 0.25s ease;
 }
 .main-navbar .search-element input.form-control::placeholder {
@@ -199,29 +249,28 @@ body.sidebar-mini nav.navbar {
   background: rgba(255, 255, 255, 0.22) !important;
   border-color: var(--tech-blue-cyan) !important;
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
-  width: 290px !important;
+  width: 270px !important;
 }
 .main-navbar .search-element button.btn {
   background: transparent !important;
   color: rgba(255, 255, 255, 0.85) !important;
   border: none !important;
-  position: absolute;
-  right: 5px;
-  top: 0;
-  bottom: 0;
 }
 
-/* Modern User Profile in Navbar */
+/* User Profile in Navbar */
 .nav-link-user {
   display: flex !important;
   align-items: center;
-  padding: 6px 14px !important;
+  padding: 5px 14px !important;
   border-radius: 30px !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease;
 }
 .nav-link-user:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: var(--tech-blue-cyan) !important;
 }
 .nav-link-user img.rounded-circle {
   border: 2px solid var(--tech-blue-cyan) !important;
@@ -233,41 +282,31 @@ body.sidebar-mini nav.navbar {
 
 /* User Dropdown Menu */
 .dropdown-menu {
+  background: #ffffff !important;
   border: 1px solid var(--tech-border-color) !important;
   border-radius: var(--tech-radius-lg) !important;
-  box-shadow: 0 16px 36px -4px rgba(10, 37, 64, 0.15), 0 4px 12px -2px rgba(10, 37, 64, 0.06) !important;
+  box-shadow: 0 16px 36px -4px rgba(10, 37, 64, 0.18), 0 4px 12px -2px rgba(10, 37, 64, 0.08) !important;
   padding: 10px !important;
-  background: #ffffff !important;
-  animation: techFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes techFadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .dropdown-header {
   color: var(--tech-text-muted) !important;
   font-weight: 700 !important;
   font-size: 0.72rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  padding: 8px 12px !important;
+  padding: 6px 12px !important;
 }
 .dropdown-header .float-right {
   font-weight: 600;
   color: var(--tech-blue-primary);
-  text-transform: none;
 }
 .dropdown-item {
+  color: var(--tech-text-body) !important;
   border-radius: var(--tech-radius-sm);
-  padding: 9px 14px;
-  font-size: 0.88rem;
+  padding: 8px 14px;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: var(--tech-text-body);
   transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 .dropdown-item:hover {
   background-color: var(--tech-blue-soft) !important;
@@ -278,9 +317,12 @@ body.sidebar-mini nav.navbar {
   background-color: var(--tech-danger-bg) !important;
   color: var(--tech-danger) !important;
 }
+.dropdown-divider {
+  border-top: 1px solid var(--tech-border-color) !important;
+}
 
 /* ==============================================================================
-   SIDEBAR (HIGH-TECH NAVY BLUE WITH CYAN & WHITE ACCENTS)
+   SIDEBAR (PINNED FIXED & DEEP TECH NAVY BLUE)
    ============================================================================== */
 body .main-sidebar,
 body:not(.sidebar-mini) .main-sidebar,
@@ -289,26 +331,31 @@ body.sidebar-mini .main-sidebar,
 body #sidebar-wrapper,
 body .main-sidebar aside,
 #sidebar-wrapper {
-  background: linear-gradient(180deg, #07192f 0%, #0a2540 60%, #06192d 100%) !important;
+  background: linear-gradient(180deg, #07192f 0%, #0a2540 50%, #051324 100%) !important;
   background-color: #07192f !important;
   border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
   box-shadow: 4px 0 25px rgba(7, 25, 47, 0.35) !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
+  bottom: 0 !important;
+  width: 250px !important;
   height: 100vh !important;
+  overflow-y: auto !important;
   z-index: 890 !important;
+  transition: width 0.3s ease;
 }
 
-body.sidebar-mini .main-sidebar:after {
-  background-color: #07192f !important;
+body.sidebar-mini .main-sidebar,
+body.sidebar-mini #sidebar-wrapper {
+  width: 65px !important;
 }
 
 /* Sidebar Brand Header */
 body .main-sidebar .sidebar-brand,
 .main-sidebar .sidebar-brand {
-  height: 60px !important;
-  line-height: 60px !important;
+  height: 64px !important;
+  line-height: 64px !important;
   border-bottom: 1px solid rgba(56, 189, 248, 0.2) !important;
   background: #07192f !important;
   display: flex;
@@ -323,17 +370,16 @@ body .main-sidebar .sidebar-brand a,
   font-weight: 800 !important;
   letter-spacing: 0.5px !important;
   color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   text-decoration: none;
 }
-.main-sidebar .sidebar-brand a::before {
+body .main-sidebar .sidebar-brand a::before {
   content: '';
   display: inline-block;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--tech-blue-cyan);
   box-shadow: 0 0 10px var(--tech-blue-cyan);
@@ -342,15 +388,15 @@ body .main-sidebar .sidebar-brand a,
 body .main-sidebar .sidebar-brand-sm,
 .main-sidebar .sidebar-brand-sm {
   background: #07192f !important;
+  height: 64px !important;
+  line-height: 64px !important;
 }
-body .main-sidebar .sidebar-brand-sm a,
-.main-sidebar .sidebar-brand-sm a {
+body .main-sidebar .sidebar-brand-sm a {
   font-weight: 800 !important;
   color: #38bdf8 !important;
-  -webkit-text-fill-color: #38bdf8 !important;
 }
 
-/* Menu Headers */
+/* Sidebar Menu Headers */
 body .sidebar-menu li.menu-header,
 .sidebar-menu li.menu-header {
   color: #38bdf8 !important;
@@ -358,14 +404,13 @@ body .sidebar-menu li.menu-header,
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 1.2px !important;
-  padding: 14px 18px 4px 18px !important;
+  padding: 16px 18px 4px 18px !important;
   opacity: 0.95;
 }
 
 /* Sidebar Menu Items */
 body .sidebar-menu li a.nav-link,
-.sidebar-menu li a.nav-link,
-body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li > a {
+.sidebar-menu li a.nav-link {
   border-radius: 8px !important;
   margin: 2px 10px !important;
   padding: 8px 12px !important;
@@ -392,7 +437,7 @@ body .sidebar-menu li a.nav-link:hover,
   color: #ffffff !important;
   transform: translateX(3px);
 }
-.sidebar-menu li a.nav-link:hover i {
+body .sidebar-menu li a.nav-link:hover i {
   color: #ffffff !important;
   transform: scale(1.15);
   text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
@@ -401,7 +446,6 @@ body .sidebar-menu li a.nav-link:hover,
 /* Active Menu Item */
 body .sidebar-menu li.active > a,
 body .sidebar-menu li.dropdown.active > a,
-body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a,
 .sidebar-menu li.active > a,
 .sidebar-menu li.dropdown.active > a {
   background: linear-gradient(135deg, #0052cc 0%, #0284c7 100%) !important;
@@ -410,14 +454,13 @@ body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a,
   border-left: 4px solid #38bdf8 !important;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
 }
-.sidebar-menu li.active > a i {
+body .sidebar-menu li.active > a i {
   color: #ffffff !important;
 }
 
 /* Dropdown Submenu */
 body .sidebar-menu .dropdown-menu,
 body .sidebar-menu li ul.dropdown-menu,
-body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-menu li a,
 .sidebar-menu .dropdown-menu {
   background: #07192f !important;
   background-color: #07192f !important;
@@ -435,416 +478,19 @@ body .sidebar-menu .dropdown-menu li a.nav-link,
   font-weight: 500 !important;
   color: #94a3b8 !important;
   background: transparent !important;
-  margin: 1px 4px !important;
 }
-
-body .sidebar-menu .dropdown-menu li a.nav-link:hover,
-.sidebar-menu .dropdown-menu li a.nav-link:hover {
+body .sidebar-menu .dropdown-menu li a.nav-link:hover {
   background: rgba(56, 189, 248, 0.16) !important;
   color: #ffffff !important;
 }
-
-body .sidebar-menu .dropdown-menu li.active a.nav-link,
-.sidebar-menu .dropdown-menu li.active a.nav-link {
+body .sidebar-menu .dropdown-menu li.active a.nav-link {
   color: #38bdf8 !important;
   font-weight: 700 !important;
   background: rgba(56, 189, 248, 0.2) !important;
 }
 
 /* ==============================================================================
-   PAGE STRUCTURE & CANVAS BACKGROUND (NOT WHITE: HIGH-TECH ICY BLUE)
-   ============================================================================== */
-html, body, #app, .main-wrapper, .main-wrapper-1 {
-  background: #e6effa !important;
-  background-color: #e6effa !important;
-}
-
-.main-content,
-body .main-content {
-  padding-top: 75px !important;
-  padding-bottom: 65px !important;
-  padding-left: 270px !important;
-  padding-right: 20px !important;
-  background: #e6effa !important;
-  background-color: #e6effa !important;
-  min-height: 100vh !important;
-}
-
-body.sidebar-mini .main-content,
-body.sidebar-mini body .main-content {
-  padding-left: 85px !important;
-}
-
-section.section {
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.section-header {
-  background: #ffffff !important;
-  border-radius: 10px !important;
-  padding: 10px 18px !important;
-  box-shadow: 0 2px 10px rgba(10, 37, 64, 0.04) !important;
-  border: 1px solid var(--tech-border-color) !important;
-  margin-bottom: 12px !important;
-  position: relative;
-  overflow: hidden;
-  min-height: auto !important;
-}
-
-.section-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #0052cc 0%, #0284c7 50%, #38bdf8 100%);
-}
-
-.section-header h1 {
-  font-size: 1.25rem !important;
-  font-weight: 800 !important;
-  color: var(--tech-navy) !important;
-  margin: 0 !important;
-  line-height: 1.25 !important;
-  letter-spacing: -0.02em;
-}
-
-/* ==============================================================================
-   CARDS (WHITE ELEVATED TECH CONTAINERS - COMPACT SPACING)
-   ============================================================================== */
-.card {
-  background-color: #ffffff !important;
-  border: 1px solid var(--tech-border-color) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 2px 10px rgba(10, 37, 64, 0.04) !important;
-  margin-bottom: 12px !important;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-  overflow: hidden;
-}
-
-.card:hover {
-  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.07) !important;
-}
-
-.card-header {
-  background: #ffffff !important;
-  border-bottom: 1px solid var(--tech-surface-muted) !important;
-  padding: 10px 16px !important;
-  min-height: 42px !important;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-header h4 {
-  font-size: 0.95rem !important;
-  font-weight: 700 !important;
-  color: var(--tech-navy) !important;
-  margin: 0 !important;
-  letter-spacing: -0.01em;
-}
-
-.card-body {
-  padding: 14px 16px !important;
-}
-
-.card-footer {
-  background: var(--tech-bg) !important;
-  border-top: 1px solid var(--tech-border-color) !important;
-  padding: 10px 16px !important;
-}
-
-/* Compact spacing utility overrides */
-.main-content .mb-4 {
-  margin-bottom: 0.85rem !important;
-}
-.main-content .py-4 {
-  padding-top: 0.75rem !important;
-  padding-bottom: 0.75rem !important;
-}
-.main-content .p-4 {
-  padding: 0.95rem !important;
-}
-
-/* Card Variants with Tech Top Lines */
-.card.card-primary {
-  border-top: 3.5px solid var(--tech-blue-primary) !important;
-}
-.card.card-success {
-  border-top: 3.5px solid var(--tech-success) !important;
-}
-.card.card-warning {
-  border-top: 3.5px solid var(--tech-warning) !important;
-}
-
-/* ==============================================================================
-   BUTTONS (MODERN TECH PILLS & GRADIENTS)
-   ============================================================================== */
-.btn {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-  font-weight: 600 !important;
-  font-size: 0.82rem !important;
-  border-radius: var(--tech-radius-md) !important;
-  padding: 6px 14px !important;
-  letter-spacing: 0.2px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.btn-sm {
-  padding: 4px 10px !important;
-  font-size: 0.78rem !important;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-/* Primary Button (Electric Tech Blue) */
-.btn-primary {
-  background: linear-gradient(135deg, #0052cc 0%, #0284c7 100%) !important;
-  border: 1px solid transparent !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.25) !important;
-}
-.btn-primary:hover {
-  background: linear-gradient(135deg, #0045ad 0%, #0369a1 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px rgba(0, 82, 204, 0.38) !important;
-  transform: translateY(-1.5px);
-}
-
-/* Success Button (Emerald Tech Green) */
-.btn-success {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
-  border: 1px solid transparent !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
-}
-.btn-success:hover {
-  background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.38) !important;
-  transform: translateY(-1.5px);
-}
-
-/* Warning Button (Warm Tech Amber) */
-.btn-warning {
-  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
-  border: 1px solid transparent !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25) !important;
-}
-.btn-warning:hover {
-  background: linear-gradient(135deg, #b45309 0%, #d97706 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.38) !important;
-  transform: translateY(-1.5px);
-}
-
-/* Danger Button */
-.btn-danger {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
-  border: 1px solid transparent !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
-}
-.btn-danger:hover {
-  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
-  color: #ffffff !important;
-  transform: translateY(-1.5px);
-}
-
-/* Info Button */
-.btn-info {
-  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
-  border: 1px solid transparent !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25) !important;
-}
-.btn-info:hover {
-  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
-  color: #ffffff !important;
-  transform: translateY(-1.5px);
-}
-
-/* Button Group Styling */
-.btn-group .btn {
-  border-radius: 0 !important;
-}
-.btn-group .btn:first-child {
-  border-top-left-radius: var(--tech-radius-md) !important;
-  border-bottom-left-radius: var(--tech-radius-md) !important;
-}
-.btn-group .btn:last-child {
-  border-top-right-radius: var(--tech-radius-md) !important;
-  border-bottom-right-radius: var(--tech-radius-md) !important;
-}
-
-/* ==============================================================================
-   FORMS & INPUTS (COMPACT TECH ENTERPRISE)
-   ============================================================================== */
-.form-group {
-  margin-bottom: 10px !important;
-}
-
-.form-group label {
-  font-weight: 600 !important;
-  font-size: 0.76rem !important;
-  color: #334155 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.4px !important;
-  margin-bottom: 3px !important;
-}
-
-.form-control {
-  border-radius: var(--tech-radius-md) !important;
-  border: 1.5px solid #cbd5e1 !important;
-  padding: 6px 12px !important;
-  font-size: 0.85rem !important;
-  color: var(--tech-text-body) !important;
-  background-color: #ffffff !important;
-  transition: all 0.2s ease !important;
-  height: 38px !important;
-}
-
-.form-control:focus {
-  border-color: var(--tech-blue-electric) !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.16) !important;
-  outline: none !important;
-}
-
-select.form-control {
-  height: 38px !important;
-  padding: 6px 10px !important;
-}
-
-/* ==============================================================================
-   TABLES & DATATABLES (HIGH-TECH NAVY & CRISP WHITE - COMPACT DENSITY)
-   ============================================================================== */
-.table-responsive {
-  border-radius: var(--tech-radius-md);
-  border: 1px solid var(--tech-border-color);
-  background: #ffffff;
-}
-
-.table {
-  margin-bottom: 0 !important;
-  color: var(--tech-text-body) !important;
-}
-
-/* Thead Tech Navy Gradient */
-.table thead th {
-  background: linear-gradient(180deg, #0a2540 0%, #0f3460 100%) !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  font-size: 0.76rem !important;
-  letter-spacing: 0.4px !important;
-  text-transform: uppercase !important;
-  border: 1px solid #1e3a5f !important;
-  padding: 8px 12px !important;
-  vertical-align: middle !important;
-  white-space: nowrap;
-}
-
-.table tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-.table tbody tr:hover {
-  background-color: #f0f7ff !important;
-}
-
-.table tbody td {
-  border: 1px solid var(--tech-border-color) !important;
-  padding: 6px 12px !important;
-  font-size: 0.84rem !important;
-  vertical-align: middle !important;
-}
-
-/* Table zebra striping */
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: #f8fafc;
-}
-
-/* DataTables search & pagination */
-.dataTables_wrapper {
-  padding: 8px 12px !important;
-}
-
-.dataTables_wrapper .dataTables_filter input {
-  border: 1.5px solid #cbd5e1 !important;
-  border-radius: var(--tech-radius-md) !important;
-  padding: 4px 10px !important;
-  height: 32px;
-  outline: none;
-}
-.dataTables_wrapper .dataTables_filter input:focus {
-  border-color: var(--tech-blue-electric) !important;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current,
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-  background: linear-gradient(135deg, #0052cc, #0284c7) !important;
-  border-color: transparent !important;
-  color: #ffffff !important;
-  border-radius: var(--tech-radius-sm) !important;
-  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.25) !important;
-}
-
-/* ==============================================================================
-   BADGES (TECH SOFT PILLS)
-   ============================================================================== */
-.badge {
-  padding: 5px 12px !important;
-  font-weight: 600 !important;
-  font-size: 0.75rem !important;
-  border-radius: 20px !important;
-  letter-spacing: 0.3px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.badge-primary {
-  background-color: var(--tech-blue-soft) !important;
-  color: var(--tech-blue-primary) !important;
-  border: 1px solid var(--tech-blue-border) !important;
-}
-
-.badge-success {
-  background-color: var(--tech-success-bg) !important;
-  color: var(--tech-success) !important;
-  border: 1px solid #a7f3d0 !important;
-}
-
-.badge-warning {
-  background-color: var(--tech-warning-bg) !important;
-  color: var(--tech-warning) !important;
-  border: 1px solid #fde68a !important;
-}
-
-.badge-danger {
-  background-color: var(--tech-danger-bg) !important;
-  color: var(--tech-danger) !important;
-  border: 1px solid #fecaca !important;
-}
-
-.badge-info {
-  background-color: var(--tech-info-bg) !important;
-  color: var(--tech-info) !important;
-  border: 1px solid #bae6fd !important;
-}
-
-/* ==============================================================================
-   FOOTER (FIXED / STICKY AT BOTTOM OF VIEWPORT WHEN SCROLLING)
+   FOOTER (PINNED FIXED & MATCHING DEEP NAVY BLUE)
    ============================================================================== */
 .main-footer,
 body .main-footer,
@@ -855,120 +501,506 @@ body.layout-1 .main-footer {
   right: 0 !important;
   height: 48px !important;
   line-height: 48px !important;
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  border-top: 1.5px solid rgba(2, 132, 199, 0.2) !important;
-  color: var(--tech-text-muted) !important;
+  background: linear-gradient(90deg, #07192f 0%, #0a2540 50%, #0052cc 100%) !important;
+  background-color: #07192f !important;
+  border-top: 2px solid rgba(56, 189, 248, 0.45) !important;
+  color: #cbd5e1 !important;
   padding: 0 25px !important;
-  font-size: 0.8rem !important;
+  font-size: 0.82rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  box-shadow: 0 -3px 15px rgba(10, 37, 64, 0.08) !important;
-  z-index: 870 !important;
-  margin-top: 0 !important;
+  box-shadow: 0 -4px 20px rgba(7, 25, 47, 0.25) !important;
+  z-index: 879 !important;
+  transition: left 0.3s ease;
 }
 
-body.sidebar-mini .main-footer,
-body.sidebar-mini body .main-footer {
+body.sidebar-mini .main-footer {
   left: 65px !important;
 }
 
-.main-footer a {
-  color: var(--tech-blue-primary);
-  font-weight: 600;
-  text-decoration: none;
-}
-.main-footer a:hover {
-  text-decoration: underline;
+.main-footer strong {
+  color: #38bdf8 !important;
+  font-weight: 700;
 }
 
 /* ==============================================================================
-   MODALS (CLEAN TECH COMPACT)
+   CARDS (WHITE ELEVATED CONTAINERS WITH NAVY HEADERS — LIKE LOGIN CARD)
+   ============================================================================== */
+.card {
+  background-color: #ffffff !important;
+  border: 1px solid var(--tech-border-color) !important;
+  border-radius: var(--tech-radius-lg) !important;
+  box-shadow: var(--tech-shadow-card) !important;
+  margin-bottom: 20px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  color: var(--tech-text-body) !important;
+}
+
+.card:hover {
+  box-shadow: var(--tech-shadow-hover) !important;
+  transform: translateY(-2px);
+}
+
+/* Card Header — Majestic Navy Gradient like Login Card Header */
+.card-header {
+  background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%) !important;
+  border-bottom: none !important;
+  padding: 14px 20px !important;
+  min-height: 52px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h4, .card-header h5, .card-header h6 {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em;
+}
+
+.card-header h4 i, .card-header h5 i, .card-header h6 i {
+  color: var(--tech-blue-cyan) !important;
+}
+
+.card-body {
+  padding: 20px !important;
+  background-color: #ffffff !important;
+  color: var(--tech-text-body) !important;
+}
+
+.card-footer {
+  background-color: #f8fafc !important;
+  border-top: 1px solid var(--tech-border-color) !important;
+  padding: 12px 20px !important;
+}
+
+/* Section Header */
+.section-header {
+  background: #ffffff !important;
+  border-radius: var(--tech-radius-lg) !important;
+  padding: 16px 24px !important;
+  box-shadow: var(--tech-shadow-card) !important;
+  border: 1px solid var(--tech-border-color) !important;
+  margin-bottom: 20px !important;
+  position: relative;
+  overflow: hidden;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.section-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3.5px;
+  background: linear-gradient(90deg, #07192f 0%, #0052cc 50%, #38bdf8 100%);
+}
+
+.section-header h1 {
+  font-size: 1.45rem !important;
+  font-weight: 800 !important;
+  color: var(--tech-navy) !important;
+  margin: 0 !important;
+  letter-spacing: -0.02em;
+}
+
+/* ==============================================================================
+   DASHBOARD KPI WIDGETS (BALANCED NAVY & CRISP WHITE)
+   ============================================================================== */
+.tech-kpi-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--tech-radius-lg);
+  padding: 22px 24px;
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--tech-shadow-card);
+}
+
+.tech-kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--tech-shadow-hover);
+}
+
+/* Total Pagu — Majestic Navy Hero Card */
+.tech-kpi-navy {
+  background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0f3866 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+}
+.tech-kpi-navy .kpi-label {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.tech-kpi-navy .kpi-value {
+  color: #ffffff !important;
+  font-weight: 800;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+.tech-kpi-navy .kpi-icon-wrap {
+  background: rgba(56, 189, 248, 0.18) !important;
+  color: #38bdf8 !important;
+}
+
+/* Total Realisasi — Crisp White with Emerald Accent */
+.tech-kpi-success {
+  background: #ffffff !important;
+  border: 1px solid var(--tech-border-color) !important;
+  border-top: 4px solid var(--tech-success) !important;
+}
+.tech-kpi-success .kpi-label {
+  color: var(--tech-text-muted) !important;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.tech-kpi-success .kpi-value {
+  color: var(--tech-success) !important;
+  font-weight: 800;
+}
+.tech-kpi-success .kpi-icon-wrap {
+  background: var(--tech-success-bg) !important;
+  color: var(--tech-success) !important;
+}
+
+/* Total Sisa — Crisp White with Amber Accent */
+.tech-kpi-warning {
+  background: #ffffff !important;
+  border: 1px solid var(--tech-border-color) !important;
+  border-top: 4px solid var(--tech-warning) !important;
+}
+.tech-kpi-warning .kpi-label {
+  color: var(--tech-text-muted) !important;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.tech-kpi-warning .kpi-value {
+  color: var(--tech-warning) !important;
+  font-weight: 800;
+}
+.tech-kpi-warning .kpi-icon-wrap {
+  background: var(--tech-warning-bg) !important;
+  color: var(--tech-warning) !important;
+}
+
+.kpi-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* ==============================================================================
+   TABLES & DATATABLES (NAVY THEAD & CRISP WHITE/LIGHT ROWS)
+   ============================================================================== */
+.table-responsive {
+  border-radius: var(--tech-radius-md);
+  border: 1px solid var(--tech-border-color);
+  background: #ffffff;
+}
+
+.table {
+  margin-bottom: 0 !important;
+  color: var(--tech-text-body) !important;
+  width: 100% !important;
+  background-color: #ffffff !important;
+}
+
+/* Thead Navy Gradient */
+.table thead th,
+table.dataTable thead th {
+  background: linear-gradient(180deg, #07192f 0%, #0a2540 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.77rem !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  border: 1px solid #143152 !important;
+  padding: 10px 14px !important;
+  vertical-align: middle !important;
+}
+
+.table tbody tr {
+  background-color: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f8fafc;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f7ff !important;
+}
+
+.table tbody td {
+  border: 1px solid var(--tech-border-color) !important;
+  padding: 8px 14px !important;
+  font-size: 0.85rem !important;
+  vertical-align: middle !important;
+  color: var(--tech-text-body) !important;
+}
+
+.table tfoot th, .table tfoot td {
+  background-color: #f1f5f9 !important;
+  color: var(--tech-navy) !important;
+  font-weight: 700 !important;
+  border: 1px solid var(--tech-border-color) !important;
+  padding: 9px 14px !important;
+}
+
+/* DataTables Controls */
+.dataTables_wrapper {
+  padding: 12px 16px !important;
+  color: var(--tech-text-body) !important;
+}
+
+.dataTables_wrapper .dataTables_filter label {
+  color: var(--tech-navy) !important;
+  font-weight: 600;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: var(--tech-radius-md) !important;
+  color: var(--tech-text-body) !important;
+  padding: 5px 12px !important;
+  height: 36px;
+  outline: none;
+}
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--tech-blue-primary) !important;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.16) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: linear-gradient(135deg, #07192f 0%, #0052cc 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  border-radius: var(--tech-radius-sm) !important;
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.25) !important;
+}
+
+/* ==============================================================================
+   FORMS & INPUTS (CLEAN WHITE LIKE LOGIN FORM)
+   ============================================================================== */
+.form-group {
+  margin-bottom: 14px !important;
+}
+
+.form-group label, label.control-label, label.small {
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  color: var(--tech-navy) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  margin-bottom: 5px !important;
+}
+
+.form-control {
+  border-radius: var(--tech-radius-md) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  padding: 7px 12px !important;
+  font-size: 0.86rem !important;
+  color: var(--tech-navy) !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease !important;
+  height: 40px !important;
+}
+
+.form-control:focus {
+  background-color: #ffffff !important;
+  border-color: var(--tech-blue-primary) !important;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.16) !important;
+  color: var(--tech-navy) !important;
+  outline: none !important;
+}
+
+select.form-control {
+  height: 40px !important;
+  padding: 6px 10px !important;
+  color: var(--tech-navy) !important;
+  background-color: #ffffff !important;
+}
+
+/* ==============================================================================
+   BUTTONS (GRADIENT NAVY TO BLUE — LIKE LOGIN BUTTON)
+   ============================================================================== */
+.btn {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 0.83rem !important;
+  border-radius: var(--tech-radius-md) !important;
+  padding: 8px 18px !important;
+  letter-spacing: 0.3px;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #07192f 0%, #0052cc 60%, #0ea5e9 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.25) !important;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #040e1c 0%, #0045ad 60%, #0284c7 100%) !important;
+  box-shadow: 0 6px 20px rgba(0, 82, 204, 0.38) !important;
+  transform: translateY(-1.5px);
+  color: #ffffff !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+}
+.btn-success:hover {
+  transform: translateY(-1.5px);
+  color: #ffffff !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25) !important;
+}
+.btn-warning:hover {
+  transform: translateY(-1.5px);
+  color: #ffffff !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+}
+.btn-danger:hover {
+  transform: translateY(-1.5px);
+  color: #ffffff !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25) !important;
+}
+.btn-info:hover {
+  transform: translateY(-1.5px);
+  color: #ffffff !important;
+}
+
+/* ==============================================================================
+   BADGES (SOFT TECH PILLS)
+   ============================================================================== */
+.badge {
+  padding: 5px 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.74rem !important;
+  border-radius: 20px !important;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.badge-primary {
+  background-color: var(--tech-blue-soft) !important;
+  color: var(--tech-blue-primary) !important;
+  border: 1px solid var(--tech-blue-border) !important;
+}
+.badge-success {
+  background-color: var(--tech-success-bg) !important;
+  color: var(--tech-success) !important;
+  border: 1px solid #a7f3d0 !important;
+}
+.badge-warning {
+  background-color: var(--tech-warning-bg) !important;
+  color: var(--tech-warning) !important;
+  border: 1px solid #fde68a !important;
+}
+.badge-danger {
+  background-color: var(--tech-danger-bg) !important;
+  color: var(--tech-danger) !important;
+  border: 1px solid #fecaca !important;
+}
+.badge-info {
+  background-color: var(--tech-info-bg) !important;
+  color: var(--tech-info) !important;
+  border: 1px solid #bae6fd !important;
+}
+
+/* ==============================================================================
+   MODALS & ALERTS (NAVY HEADER & WHITE BODY LIKE LOGIN)
    ============================================================================== */
 .modal-content {
-  border-radius: 12px !important;
+  background: #ffffff !important;
   border: 1px solid var(--tech-border-color) !important;
-  box-shadow: 0 20px 40px -10px rgba(10, 37, 64, 0.22) !important;
+  border-radius: var(--tech-radius-lg) !important;
+  box-shadow: 0 20px 50px rgba(10, 37, 64, 0.25) !important;
   overflow: hidden;
 }
 
 .modal-header {
-  background: linear-gradient(135deg, #0a2540 0%, #0052cc 100%) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%) !important;
   border-bottom: none !important;
-  padding: 12px 18px !important;
+  padding: 16px 24px !important;
 }
-
-.modal-header .modal-title,
-.modal-header h5,
-.modal-header h4 {
+.modal-header .modal-title {
   color: #ffffff !important;
   font-weight: 700 !important;
   font-size: 1rem !important;
 }
 
-.modal-header .close {
-  color: #ffffff !important;
-  opacity: 0.85;
-  text-shadow: none;
-}
-.modal-header .close:hover {
-  opacity: 1;
-}
-
 .modal-body {
-  padding: 16px 18px !important;
+  background: #ffffff !important;
+  color: var(--tech-text-body) !important;
+  padding: 24px !important;
 }
 
 .modal-footer {
   background: #f8fafc !important;
   border-top: 1px solid var(--tech-border-color) !important;
-  padding: 10px 18px !important;
+  padding: 14px 24px !important;
 }
 
-/* ==============================================================================
-   ALERTS (COMPACT TECH BLUE & ACCENT ALERTS)
-   ============================================================================== */
 .alert {
-  border-radius: 8px !important;
-  padding: 10px 16px !important;
-  font-size: 0.85rem !important;
-  margin-bottom: 12px !important;
+  border-radius: var(--tech-radius-md) !important;
+  padding: 14px 20px !important;
+  font-size: 0.86rem !important;
   border: 1px solid transparent !important;
 }
-
-.alert.alert-has-icon {
-  display: flex !important;
-  align-items: center !important;
-}
-
-.alert.alert-has-icon .alert-icon {
-  width: 32px !important;
-  height: 32px !important;
-  line-height: 32px !important;
-  font-size: 1rem !important;
-  margin-right: 12px !important;
-}
-
 .alert-info {
   background: #f0f9ff !important;
   color: #0369a1 !important;
   border-color: #bae6fd !important;
 }
-
 .alert-success {
   background: #ecfdf5 !important;
   color: #065f46 !important;
   border-color: #a7f3d0 !important;
 }
-
 .alert-warning {
   background: #fffbeb !important;
   color: #92400e !important;
   border-color: #fde68a !important;
 }
-
 .alert-danger {
   background: #fef2f2 !important;
   color: #991b1b !important;
@@ -976,61 +1008,43 @@ body.sidebar-mini body .main-footer {
 }
 
 /* ==============================================================================
-   SELECT2 & FORM COMPACT STYLING
+   SELECT2 TECH ADAPTATION
    ============================================================================== */
 .select2-container--default .select2-selection--single {
+  background-color: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
   border-radius: var(--tech-radius-md) !important;
-  height: 38px !important;
-  padding: 4px 8px !important;
+  height: 40px !important;
+  padding: 5px 10px !important;
 }
-
 .select2-container--default .select2-selection--single .select2-selection__rendered {
   line-height: 28px !important;
-  font-size: 0.85rem !important;
-  color: var(--tech-text-body) !important;
+  color: var(--tech-navy) !important;
 }
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 36px !important;
-}
-
 .select2-dropdown {
-  border-radius: var(--tech-radius-md) !important;
-  border: 1.5px solid var(--tech-blue-electric) !important;
-  box-shadow: 0 10px 25px rgba(10, 37, 64, 0.15) !important;
+  background-color: #ffffff !important;
+  border: 1.5px solid var(--tech-blue-primary) !important;
+  box-shadow: 0 12px 30px rgba(10, 37, 64, 0.15) !important;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--tech-blue-primary) !important;
 }
 
 /* ==============================================================================
-   DATA DENSITY: GLOBAL TIGHTENING (ELIMINATE LARGE GAPS)
+   RESPONSIVE OVERRIDES
    ============================================================================== */
-.section > .row {
-  margin-bottom: 12px;
+@media (max-width: 1024px) {
+  body.sidebar-gone nav.navbar.main-navbar,
+  nav.navbar.main-navbar {
+    left: 0 !important;
+  }
+  body.sidebar-gone .main-content,
+  .main-content {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  body.sidebar-gone .main-footer,
+  .main-footer {
+    left: 0 !important;
+  }
 }
-
-.main-content .mb-3 {
-  margin-bottom: 10px !important;
-}
-
-.main-content .mb-2 {
-  margin-bottom: 6px !important;
-}
-
-.main-content .mt-4 {
-  margin-top: 14px !important;
-}
-
-.main-content .mt-3 {
-  margin-top: 10px !important;
-}
-
-.main-content .py-3 {
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-}
-
-.main-content .p-3 {
-  padding: 12px !important;
-}
-
-

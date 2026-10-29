@@ -3,89 +3,63 @@
 {% load humanize %}
 
 {% block content %}
-<section class="section">
-    <div class="section-header">
-        <h1>{{judul}}</h1>
+<section class="section py-3">
+    <div class="section-header mb-4 d-flex align-items-center justify-content-between flex-wrap">
+        <div>
+            <h1 class="font-weight-bold" style="color: var(--tech-navy, #0a2540); font-size: 1.55rem; letter-spacing: -0.02em;">
+                <i class="fas fa-calendar-alt mr-2 text-primary"></i> {{ judul }}
+            </h1>
+            <p class="mb-0 text-muted" style="font-size: 0.84rem;">Kelola Jadwal Posting Kegiatan dan Tahap Penganggaran</p>
+        </div>
+        <div class="card-header-action mt-2 mt-md-0">
+            <a href="#" 
+                class="btn btn-primary shadow-sm" 
+                hx-get="{{ link_simpan }}" 
+                hx-target="#filter .modal-content"
+                hx-trigger="click"  
+                data-toggle="modal" 
+                data-target="#filter"
+                hx-indicator="#modal-spinner">
+                <i class="fas fa-plus mr-1"></i> {{ tombol }}
+            </a>
+        </div>
     </div>
+    
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{judul}}</h4>
-                    <div class="card-header-action">
-                        <a href="#" 
-                            class="btn btn-primary" 
-                            hx-get="{{link_simpan}}" 
-                            hx-target="#filter .modal-content"
-                            hx-trigger="click"  
-                            data-toggle="modal" 
-                            data-target="#filter"
-                            hx-indicator="#modal-spinner">
-                            {{tombol}}
-                        </a>
-                        
-                    </div>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 100%); color: white;">
+                    <h6 class="mb-0 font-weight-bold" style="font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-list-check text-info"></i> Daftar Jadwal Terdaftar
+                    </h6>
                 </div>
-                <div class="card-body">
-                    {% render_table table %} 
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        {% render_table table %} 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 <div class="modal fade" id="filter" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 14px; overflow: hidden;">
+            <div class="p-4 text-center text-muted" id="modal-spinner">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary mb-2"></i>
+                <div>Memuat form...</div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock content %}
 
 {% block style %}
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap4.min.css" />
 {% endblock style %}
 
 {% block src %}
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap4.min.js"></script>
 {% endblock src %}
-{% block javascript %}
-    <script>
-    $(document).ready(function() {
-        new DataTable('#tabel1', {
-            layout: {
-                topStart: {
-                    pageLength: {
-                        menu: [
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']
-                        ],
-                    }
-                },
-                topEnd: {
-                    search: {
-                        placeholder: 'cari'
-                    }
-                },
-                bottomEnd: {
-                    paging: {
-                        numbers: 5
-                    }
-                }
-            }
-        });
-        {% if messages %}
-        {% for message in messages %}
-            iziToast.{{ message.tags }}({
-                title: '{{ message.tags }}',
-                message: '{{ message }}',
-                position: 'topRight'
-            });
-        {% endfor %}
-        {% endif %}
-    });
-</script>
-    
-    
-{% endblock javascript %}

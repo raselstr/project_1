@@ -17,11 +17,11 @@ function initializeDataTables() {
                     let valueTotal = rows
                         .data()
                         .pluck(5) // Kolom "Nilai"
-                        .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
+                        .reduce((a, b) => a + (b ? parseFloat(String(b).replace(/[^\d,-]/g, '').replace(',', '.')) || 0 : 0), 0);
                     let valueSisa = rows
                         .data()
                         .pluck(9) // Kolom "Nilai"
-                        .reduce((a, b) => a + parseFloat(b.replace(/[^\d,-]/g, '').replace(',', '.')), 0);
+                        .reduce((a, b) => a + (b ? parseFloat(String(b).replace(/[^\d,-]/g, '').replace(',', '.')) || 0 : 0), 0);
 
                     // Format total nilai sebagai mata uang Rupiah
                     valueTotal = new Intl.NumberFormat('id-ID', {
