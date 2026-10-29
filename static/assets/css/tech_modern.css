@@ -1,0 +1,1036 @@
+/**
+ * ==============================================================================
+ * TECH MODERN ENTERPRISE THEME (BIRU & PUTIH TEKNOLOGI)
+ * Sistem Informasi Keuangan & Realisasi DAU SG - BKAD TKDD
+ * ==============================================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Tech Blue & White Color Palette */
+  --tech-navy-dark: #07192f;
+  --tech-navy: #0a2540;
+  --tech-navy-light: #0f3866;
+  --tech-blue-primary: #0052cc;
+  --tech-blue-electric: #0284c7;
+  --tech-blue-cyan: #38bdf8;
+  --tech-blue-glow: rgba(2, 132, 199, 0.25);
+  --tech-blue-soft: #eff6ff;
+  --tech-blue-border: #bfdbfe;
+
+  /* Surfaces & Canvas - Modern Icy Tech Blue Canvas */
+  --tech-bg: #e6effa;
+  --tech-surface: #ffffff;
+  --tech-surface-card: #ffffff;
+  --tech-surface-muted: #e2edfa;
+
+  /* Typography Colors */
+  --tech-text-heading: #0a2540;
+  --tech-text-body: #1e293b;
+  --tech-text-muted: #64748b;
+  --tech-text-light: #94a3b8;
+
+  /* Accents */
+  --tech-success: #059669;
+  --tech-success-bg: #ecfdf5;
+  --tech-warning: #d97706;
+  --tech-warning-bg: #fffbeb;
+  --tech-danger: #dc2626;
+  --tech-danger-bg: #fef2f2;
+  --tech-info: #0284c7;
+  --tech-info-bg: #f0f9ff;
+
+  /* Borders & Shadows */
+  --tech-border-color: #e2e8f0;
+  --tech-border-focus: #0284c7;
+  --tech-radius-sm: 6px;
+  --tech-radius-md: 10px;
+  --tech-radius-lg: 14px;
+  --tech-radius-xl: 20px;
+  --tech-shadow-subtle: 0 2px 6px -1px rgba(10, 37, 64, 0.05), 0 1px 4px -1px rgba(10, 37, 64, 0.03);
+  --tech-shadow-card: 0 8px 24px -4px rgba(10, 37, 64, 0.06), 0 2px 6px -2px rgba(10, 37, 64, 0.03);
+  --tech-shadow-hover: 0 14px 32px -6px rgba(10, 37, 64, 0.12), 0 4px 12px -2px rgba(10, 37, 64, 0.04);
+  --tech-shadow-blue: 0 8px 20px -3px rgba(0, 82, 204, 0.28);
+}
+
+/* ==============================================================================
+   GLOBAL RESET & TYPOGRAPHY
+   ============================================================================== */
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  background-color: var(--tech-bg) !important;
+  color: var(--tech-text-body) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  color: var(--tech-text-heading) !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Modern Monospace Numbers in Financial/Data contexts */
+.table td, .table th, .amount-val, .badge, .mono-num {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Slim Tech Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tech-blue-electric);
+}
+
+/* ==============================================================================
+   TOP NAVBAR (FIXED AT TOP OF VIEWPORT DURING SCROLL)
+   ============================================================================== */
+.navbar-bg,
+body .navbar-bg {
+  height: 60px !important;
+  background: linear-gradient(90deg, #07192f 0%, #0a2540 28%, #0f3866 65%, #0284c7 100%) !important;
+  box-shadow: 0 4px 20px rgba(7, 25, 47, 0.25) !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 870 !important;
+}
+
+nav.navbar.main-navbar,
+body .navbar.main-navbar,
+body nav.navbar {
+  height: 60px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 250px !important;
+  right: 0 !important;
+  padding-left: 20px !important;
+  padding-right: 25px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  z-index: 880 !important;
+}
+
+body.sidebar-mini nav.navbar.main-navbar,
+body.sidebar-mini .navbar.main-navbar,
+body.sidebar-mini nav.navbar {
+  left: 65px !important;
+}
+
+.main-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
+}
+
+.main-navbar .nav-link:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+.main-navbar .nav-link.nav-link-lg i {
+  color: #ffffff !important;
+  font-size: 1.15rem;
+}
+
+/* Tech Info Pill Badges in Navbar */
+.main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 30px !important;
+  padding: 6px 16px !important;
+  margin: 0 6px;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+.main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+}
+
+.main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle i {
+  color: var(--tech-blue-cyan) !important;
+  font-size: 0.9rem;
+}
+
+/* Modern Search Box */
+.main-navbar .search-element {
+  position: relative;
+}
+.main-navbar .search-element input.form-control {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-radius: 25px !important;
+  color: #ffffff !important;
+  padding-left: 20px;
+  padding-right: 42px;
+  font-size: 0.85rem;
+  transition: all 0.25s ease;
+}
+.main-navbar .search-element input.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+.main-navbar .search-element input.form-control:focus {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: var(--tech-blue-cyan) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+  width: 290px !important;
+}
+.main-navbar .search-element button.btn {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border: none !important;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  bottom: 0;
+}
+
+/* Modern User Profile in Navbar */
+.nav-link-user {
+  display: flex !important;
+  align-items: center;
+  padding: 6px 14px !important;
+  border-radius: 30px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+.nav-link-user:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+.nav-link-user img.rounded-circle {
+  border: 2px solid var(--tech-blue-cyan) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}
+
+/* User Dropdown Menu */
+.dropdown-menu {
+  border: 1px solid var(--tech-border-color) !important;
+  border-radius: var(--tech-radius-lg) !important;
+  box-shadow: 0 16px 36px -4px rgba(10, 37, 64, 0.15), 0 4px 12px -2px rgba(10, 37, 64, 0.06) !important;
+  padding: 10px !important;
+  background: #ffffff !important;
+  animation: techFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes techFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  color: var(--tech-text-muted) !important;
+  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 8px 12px !important;
+}
+.dropdown-header .float-right {
+  font-weight: 600;
+  color: var(--tech-blue-primary);
+  text-transform: none;
+}
+.dropdown-item {
+  border-radius: var(--tech-radius-sm);
+  padding: 9px 14px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--tech-text-body);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dropdown-item:hover {
+  background-color: var(--tech-blue-soft) !important;
+  color: var(--tech-blue-primary) !important;
+  transform: translateX(3px);
+}
+.dropdown-item.text-danger:hover {
+  background-color: var(--tech-danger-bg) !important;
+  color: var(--tech-danger) !important;
+}
+
+/* ==============================================================================
+   SIDEBAR (HIGH-TECH NAVY BLUE WITH CYAN & WHITE ACCENTS)
+   ============================================================================== */
+body .main-sidebar,
+body:not(.sidebar-mini) .main-sidebar,
+body.sidebar-mini .main-sidebar,
+.main-sidebar,
+body #sidebar-wrapper,
+body .main-sidebar aside,
+#sidebar-wrapper {
+  background: linear-gradient(180deg, #07192f 0%, #0a2540 60%, #06192d 100%) !important;
+  background-color: #07192f !important;
+  border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 4px 0 25px rgba(7, 25, 47, 0.35) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  z-index: 890 !important;
+}
+
+body.sidebar-mini .main-sidebar:after {
+  background-color: #07192f !important;
+}
+
+/* Sidebar Brand Header */
+body .main-sidebar .sidebar-brand,
+.main-sidebar .sidebar-brand {
+  height: 60px !important;
+  line-height: 60px !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2) !important;
+  background: #07192f !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+}
+body .main-sidebar .sidebar-brand a,
+.main-sidebar .sidebar-brand a {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.main-sidebar .sidebar-brand a::before {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tech-blue-cyan);
+  box-shadow: 0 0 10px var(--tech-blue-cyan);
+}
+
+body .main-sidebar .sidebar-brand-sm,
+.main-sidebar .sidebar-brand-sm {
+  background: #07192f !important;
+}
+body .main-sidebar .sidebar-brand-sm a,
+.main-sidebar .sidebar-brand-sm a {
+  font-weight: 800 !important;
+  color: #38bdf8 !important;
+  -webkit-text-fill-color: #38bdf8 !important;
+}
+
+/* Menu Headers */
+body .sidebar-menu li.menu-header,
+.sidebar-menu li.menu-header {
+  color: #38bdf8 !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.2px !important;
+  padding: 14px 18px 4px 18px !important;
+  opacity: 0.95;
+}
+
+/* Sidebar Menu Items */
+body .sidebar-menu li a.nav-link,
+.sidebar-menu li a.nav-link,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li > a {
+  border-radius: 8px !important;
+  margin: 2px 10px !important;
+  padding: 8px 12px !important;
+  color: #cbd5e1 !important;
+  background: transparent !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.sidebar-menu li a.nav-link i {
+  color: #38bdf8 !important;
+  font-size: 0.95rem !important;
+  width: 24px !important;
+  margin-right: 8px !important;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+body .sidebar-menu li a.nav-link:hover,
+.sidebar-menu li a.nav-link:hover {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateX(3px);
+}
+.sidebar-menu li a.nav-link:hover i {
+  color: #ffffff !important;
+  transform: scale(1.15);
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+}
+
+/* Active Menu Item */
+body .sidebar-menu li.active > a,
+body .sidebar-menu li.dropdown.active > a,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu > li.active > a,
+.sidebar-menu li.active > a,
+.sidebar-menu li.dropdown.active > a {
+  background: linear-gradient(135deg, #0052cc 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border-left: 4px solid #38bdf8 !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+.sidebar-menu li.active > a i {
+  color: #ffffff !important;
+}
+
+/* Dropdown Submenu */
+body .sidebar-menu .dropdown-menu,
+body .sidebar-menu li ul.dropdown-menu,
+body:not(.sidebar-mini) .sidebar-style-2 .sidebar-menu li.active ul.dropdown-menu li a,
+.sidebar-menu .dropdown-menu {
+  background: #07192f !important;
+  background-color: #07192f !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  border-left: 2px solid rgba(56, 189, 248, 0.4) !important;
+  margin-left: 20px !important;
+  padding-left: 4px !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+body .sidebar-menu .dropdown-menu li a.nav-link,
+.sidebar-menu .dropdown-menu li a.nav-link {
+  padding: 6px 10px !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  background: transparent !important;
+  margin: 1px 4px !important;
+}
+
+body .sidebar-menu .dropdown-menu li a.nav-link:hover,
+.sidebar-menu .dropdown-menu li a.nav-link:hover {
+  background: rgba(56, 189, 248, 0.16) !important;
+  color: #ffffff !important;
+}
+
+body .sidebar-menu .dropdown-menu li.active a.nav-link,
+.sidebar-menu .dropdown-menu li.active a.nav-link {
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  background: rgba(56, 189, 248, 0.2) !important;
+}
+
+/* ==============================================================================
+   PAGE STRUCTURE & CANVAS BACKGROUND (NOT WHITE: HIGH-TECH ICY BLUE)
+   ============================================================================== */
+html, body, #app, .main-wrapper, .main-wrapper-1 {
+  background: #e6effa !important;
+  background-color: #e6effa !important;
+}
+
+.main-content,
+body .main-content {
+  padding-top: 75px !important;
+  padding-bottom: 65px !important;
+  padding-left: 270px !important;
+  padding-right: 20px !important;
+  background: #e6effa !important;
+  background-color: #e6effa !important;
+  min-height: 100vh !important;
+}
+
+body.sidebar-mini .main-content,
+body.sidebar-mini body .main-content {
+  padding-left: 85px !important;
+}
+
+section.section {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.section-header {
+  background: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 10px 18px !important;
+  box-shadow: 0 2px 10px rgba(10, 37, 64, 0.04) !important;
+  border: 1px solid var(--tech-border-color) !important;
+  margin-bottom: 12px !important;
+  position: relative;
+  overflow: hidden;
+  min-height: auto !important;
+}
+
+.section-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0052cc 0%, #0284c7 50%, #38bdf8 100%);
+}
+
+.section-header h1 {
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: var(--tech-navy) !important;
+  margin: 0 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em;
+}
+
+/* ==============================================================================
+   CARDS (WHITE ELEVATED TECH CONTAINERS - COMPACT SPACING)
+   ============================================================================== */
+.card {
+  background-color: #ffffff !important;
+  border: 1px solid var(--tech-border-color) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 10px rgba(10, 37, 64, 0.04) !important;
+  margin-bottom: 12px !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(10, 37, 64, 0.07) !important;
+}
+
+.card-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--tech-surface-muted) !important;
+  padding: 10px 16px !important;
+  min-height: 42px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h4 {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--tech-navy) !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em;
+}
+
+.card-body {
+  padding: 14px 16px !important;
+}
+
+.card-footer {
+  background: var(--tech-bg) !important;
+  border-top: 1px solid var(--tech-border-color) !important;
+  padding: 10px 16px !important;
+}
+
+/* Compact spacing utility overrides */
+.main-content .mb-4 {
+  margin-bottom: 0.85rem !important;
+}
+.main-content .py-4 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+.main-content .p-4 {
+  padding: 0.95rem !important;
+}
+
+/* Card Variants with Tech Top Lines */
+.card.card-primary {
+  border-top: 3.5px solid var(--tech-blue-primary) !important;
+}
+.card.card-success {
+  border-top: 3.5px solid var(--tech-success) !important;
+}
+.card.card-warning {
+  border-top: 3.5px solid var(--tech-warning) !important;
+}
+
+/* ==============================================================================
+   BUTTONS (MODERN TECH PILLS & GRADIENTS)
+   ============================================================================== */
+.btn {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  border-radius: var(--tech-radius-md) !important;
+  padding: 6px 14px !important;
+  letter-spacing: 0.2px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-sm {
+  padding: 4px 10px !important;
+  font-size: 0.78rem !important;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Primary Button (Electric Tech Blue) */
+.btn-primary {
+  background: linear-gradient(135deg, #0052cc 0%, #0284c7 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 82, 204, 0.25) !important;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0045ad 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(0, 82, 204, 0.38) !important;
+  transform: translateY(-1.5px);
+}
+
+/* Success Button (Emerald Tech Green) */
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+}
+.btn-success:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.38) !important;
+  transform: translateY(-1.5px);
+}
+
+/* Warning Button (Warm Tech Amber) */
+.btn-warning {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25) !important;
+}
+.btn-warning:hover {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.38) !important;
+  transform: translateY(-1.5px);
+}
+
+/* Danger Button */
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+}
+.btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-1.5px);
+}
+
+/* Info Button */
+.btn-info {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
+  border: 1px solid transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25) !important;
+}
+.btn-info:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-1.5px);
+}
+
+/* Button Group Styling */
+.btn-group .btn {
+  border-radius: 0 !important;
+}
+.btn-group .btn:first-child {
+  border-top-left-radius: var(--tech-radius-md) !important;
+  border-bottom-left-radius: var(--tech-radius-md) !important;
+}
+.btn-group .btn:last-child {
+  border-top-right-radius: var(--tech-radius-md) !important;
+  border-bottom-right-radius: var(--tech-radius-md) !important;
+}
+
+/* ==============================================================================
+   FORMS & INPUTS (COMPACT TECH ENTERPRISE)
+   ============================================================================== */
+.form-group {
+  margin-bottom: 10px !important;
+}
+
+.form-group label {
+  font-weight: 600 !important;
+  font-size: 0.76rem !important;
+  color: #334155 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  margin-bottom: 3px !important;
+}
+
+.form-control {
+  border-radius: var(--tech-radius-md) !important;
+  border: 1.5px solid #cbd5e1 !important;
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  color: var(--tech-text-body) !important;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease !important;
+  height: 38px !important;
+}
+
+.form-control:focus {
+  border-color: var(--tech-blue-electric) !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.16) !important;
+  outline: none !important;
+}
+
+select.form-control {
+  height: 38px !important;
+  padding: 6px 10px !important;
+}
+
+/* ==============================================================================
+   TABLES & DATATABLES (HIGH-TECH NAVY & CRISP WHITE - COMPACT DENSITY)
+   ============================================================================== */
+.table-responsive {
+  border-radius: var(--tech-radius-md);
+  border: 1px solid var(--tech-border-color);
+  background: #ffffff;
+}
+
+.table {
+  margin-bottom: 0 !important;
+  color: var(--tech-text-body) !important;
+}
+
+/* Thead Tech Navy Gradient */
+.table thead th {
+  background: linear-gradient(180deg, #0a2540 0%, #0f3460 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.76rem !important;
+  letter-spacing: 0.4px !important;
+  text-transform: uppercase !important;
+  border: 1px solid #1e3a5f !important;
+  padding: 8px 12px !important;
+  vertical-align: middle !important;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f7ff !important;
+}
+
+.table tbody td {
+  border: 1px solid var(--tech-border-color) !important;
+  padding: 6px 12px !important;
+  font-size: 0.84rem !important;
+  vertical-align: middle !important;
+}
+
+/* Table zebra striping */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f8fafc;
+}
+
+/* DataTables search & pagination */
+.dataTables_wrapper {
+  padding: 8px 12px !important;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: var(--tech-radius-md) !important;
+  padding: 4px 10px !important;
+  height: 32px;
+  outline: none;
+}
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--tech-blue-electric) !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: linear-gradient(135deg, #0052cc, #0284c7) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  border-radius: var(--tech-radius-sm) !important;
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.25) !important;
+}
+
+/* ==============================================================================
+   BADGES (TECH SOFT PILLS)
+   ============================================================================== */
+.badge {
+  padding: 5px 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  border-radius: 20px !important;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.badge-primary {
+  background-color: var(--tech-blue-soft) !important;
+  color: var(--tech-blue-primary) !important;
+  border: 1px solid var(--tech-blue-border) !important;
+}
+
+.badge-success {
+  background-color: var(--tech-success-bg) !important;
+  color: var(--tech-success) !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.badge-warning {
+  background-color: var(--tech-warning-bg) !important;
+  color: var(--tech-warning) !important;
+  border: 1px solid #fde68a !important;
+}
+
+.badge-danger {
+  background-color: var(--tech-danger-bg) !important;
+  color: var(--tech-danger) !important;
+  border: 1px solid #fecaca !important;
+}
+
+.badge-info {
+  background-color: var(--tech-info-bg) !important;
+  color: var(--tech-info) !important;
+  border: 1px solid #bae6fd !important;
+}
+
+/* ==============================================================================
+   FOOTER (FIXED / STICKY AT BOTTOM OF VIEWPORT WHEN SCROLLING)
+   ============================================================================== */
+.main-footer,
+body .main-footer,
+body.layout-1 .main-footer {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 250px !important;
+  right: 0 !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-top: 1.5px solid rgba(2, 132, 199, 0.2) !important;
+  color: var(--tech-text-muted) !important;
+  padding: 0 25px !important;
+  font-size: 0.8rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  box-shadow: 0 -3px 15px rgba(10, 37, 64, 0.08) !important;
+  z-index: 870 !important;
+  margin-top: 0 !important;
+}
+
+body.sidebar-mini .main-footer,
+body.sidebar-mini body .main-footer {
+  left: 65px !important;
+}
+
+.main-footer a {
+  color: var(--tech-blue-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.main-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ==============================================================================
+   MODALS (CLEAN TECH COMPACT)
+   ============================================================================== */
+.modal-content {
+  border-radius: 12px !important;
+  border: 1px solid var(--tech-border-color) !important;
+  box-shadow: 0 20px 40px -10px rgba(10, 37, 64, 0.22) !important;
+  overflow: hidden;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #0a2540 0%, #0052cc 100%) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+  padding: 12px 18px !important;
+}
+
+.modal-header .modal-title,
+.modal-header h5,
+.modal-header h4 {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+}
+
+.modal-header .close {
+  color: #ffffff !important;
+  opacity: 0.85;
+  text-shadow: none;
+}
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 16px 18px !important;
+}
+
+.modal-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid var(--tech-border-color) !important;
+  padding: 10px 18px !important;
+}
+
+/* ==============================================================================
+   ALERTS (COMPACT TECH BLUE & ACCENT ALERTS)
+   ============================================================================== */
+.alert {
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+  font-size: 0.85rem !important;
+  margin-bottom: 12px !important;
+  border: 1px solid transparent !important;
+}
+
+.alert.alert-has-icon {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.alert.alert-has-icon .alert-icon {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 1rem !important;
+  margin-right: 12px !important;
+}
+
+.alert-info {
+  background: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+
+.alert-success {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+
+.alert-warning {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+.alert-danger {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+/* ==============================================================================
+   SELECT2 & FORM COMPACT STYLING
+   ============================================================================== */
+.select2-container--default .select2-selection--single {
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: var(--tech-radius-md) !important;
+  height: 38px !important;
+  padding: 4px 8px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 28px !important;
+  font-size: 0.85rem !important;
+  color: var(--tech-text-body) !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+}
+
+.select2-dropdown {
+  border-radius: var(--tech-radius-md) !important;
+  border: 1.5px solid var(--tech-blue-electric) !important;
+  box-shadow: 0 10px 25px rgba(10, 37, 64, 0.15) !important;
+}
+
+/* ==============================================================================
+   DATA DENSITY: GLOBAL TIGHTENING (ELIMINATE LARGE GAPS)
+   ============================================================================== */
+.section > .row {
+  margin-bottom: 12px;
+}
+
+.main-content .mb-3 {
+  margin-bottom: 10px !important;
+}
+
+.main-content .mb-2 {
+  margin-bottom: 6px !important;
+}
+
+.main-content .mt-4 {
+  margin-top: 14px !important;
+}
+
+.main-content .mt-3 {
+  margin-top: 10px !important;
+}
+
+.main-content .py-3 {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.main-content .p-3 {
+  padding: 12px !important;
+}
+
+

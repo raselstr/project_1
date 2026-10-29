@@ -31,7 +31,7 @@ def list(request):
     sesiidopd = request.session.get('idsubopd')
     sesitahun = request.session.get('tahun')
 
-    tbljadwal = model_jadwal.objects.filter(jadwal_tahun=sesitahun).distinct()
+    tbljadwal = model_jadwal.objects.filter(jadwal_tahun=sesitahun).order_by('id').distinct()
     if tbljadwal.count() == 1:
     # Jika hanya ada 1 data, gunakan untuk induk
         jadwalaktif = tbljadwal.first().id
@@ -105,6 +105,16 @@ def posting(request):
     opd = None
     jadwalaktif = request.session.get('jadwal')
     tahun = request.session.get('tahun')
+    
+    # Sinkronisasi jadwal aktif terbaru jika ada perubahan jadwal aktif
+    if tahun:
+        active_jadwal_obj = model_jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True).last()
+        if active_jadwal_obj:
+            jadwalaktif = active_jadwal_obj.id
+            if request.session.get('jadwal') != active_jadwal_obj.id:
+                request.session['jadwal'] = active_jadwal_obj.id
+                request.session['jadwal_ket'] = active_jadwal_obj.jadwal_keterangan
+                request.session.modified = True
     
     if request.method == 'POST':
         form = form_posting(

@@ -88,7 +88,14 @@ class RencanaPostingForm(forms.ModelForm):
         sesidana = kwargs.pop('sesidana', None)
         sesisubopd = kwargs.pop('sesisubopd', None)
         super().__init__(*args, **kwargs)
-        self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+        if postingid:
+            self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+            self.fields['posting_jadwal'].initial = postingid
+        else:
+            self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True)
+            active_jadwal = self.fields['posting_jadwal'].queryset.first()
+            if active_jadwal:
+                self.fields['posting_jadwal'].initial = active_jadwal.id
         self.fields['posting_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
         allow_all_budgeted_subopd(self.fields['posting_subopd'])
         

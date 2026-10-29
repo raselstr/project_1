@@ -43,7 +43,11 @@ def simpan(request):
     if request.method == 'POST':
         form = Form_jadwal(request.POST or None, tahun=request.session.get('tahun'))
         if form.is_valid():
-            form.save()
+            obj = form.save()
+            if obj.jadwal_aktif:
+                request.session['jadwal'] = obj.id
+                request.session['jadwal_ket'] = obj.jadwal_keterangan
+                request.session.modified = True
             messages.success(request, 'Data berhasil disimpan')
             return redirect(link_list)
     else:
@@ -64,7 +68,11 @@ def update(request, pk):
     if request.method == 'POST':
         form = Form_jadwal(request.POST or None, instance=instance, tahun=request.session.get('tahun'))
         if form.is_valid():
-            form.save()
+            obj = form.save()
+            if obj.jadwal_aktif:
+                request.session['jadwal'] = obj.id
+                request.session['jadwal_ket'] = obj.jadwal_keterangan
+                request.session.modified = True
             messages.success(request, 'Data berhasil disimpan')
             return redirect(link_list)
     else:

@@ -22,6 +22,35 @@ class Jadwal(models.Model):
     def __str__(self):
         return f"{self.jadwal_keterangan} - {self.jadwal_tahun}"
 
+    def validate_constraints(self, exclude=None):
+        try:
+            super().validate_constraints(exclude=exclude)
+        except ValidationError as e:
+            if self.jadwal_aktif:
+                if hasattr(e, 'error_dict'):
+                    filtered = {k: [err for err in v if 'unique_active_jadwal_per_tahun' not in str(err)]
+                                for k, v in e.error_dict.items()}
+                    filtered = {k: v for k, v in filtered.items() if v}
+                    if filtered:
+                        raise ValidationError(filtered)
+                elif hasattr(e, 'error_list'):
+                    rem = [err for err in e.error_list if 'unique_active_jadwal_per_tahun' not in str(err)]
+                    if rem:
+                        raise ValidationError(rem)
+                elif 'unique_active_jadwal_per_tahun' not in str(e):
+                    raise
+            else:
+                raise
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self.jadwal_aktif and self.jadwal_tahun:
+                Jadwal.objects.filter(
+                    jadwal_tahun=self.jadwal_tahun,
+                    jadwal_aktif=True
+                ).exclude(pk=self.pk).update(jadwal_aktif=False)
+            super().save(*args, **kwargs)
+
     # ======================================================
     # AKTIFKAN JADWAL DENGAN AMAN
     # ======================================================
