@@ -1,18 +1,24 @@
 # File: your_app/views.py
-from django.shortcuts import render, get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RencDankelsisa, Subkegiatan
+from ..models import RencDankelsisa, RencDankeljadwalsisa, Subkegiatan
 from ..forms.form_sisa import RencDankelsisaForm
+from ..tables import RencanasisaTable
 from project.decorators import menu_access_required, set_submenu_session
+from core.forms.budget_opd import scoped_opd_id
+from core.services.rencana_service import enrich_rencana_with_perubahan
 
 
 Model_data = RencDankelsisa
 Form_data = RencDankelsisaForm
+tabel_rencana = RencanasisaTable
 tag_url = 'dankelsisa_list'
 template = 'dankel_sisa/dankelsisa_form.html'
 template_list = 'dankel_sisa/dankelsisa_list.html'
+template_pdf = 'dankel_rencana/pdf.html'
 sesidana = 'sisa-dana-kelurahan'
 def get_from_sessions(request):
     session_data = {
@@ -101,22 +107,77 @@ def list(request):
         dana = None
         
     total_sisa = RencDankelsisa().get_total_sisa(tahun=sesitahun, opd=sesiidopd, dana=dana)
-    try:
-        dana = Subkegiatan.objects.get(sub_slug=sesidana)
-    except Subkegiatan.DoesNotExist:
-        dana = None
 
     # Membuat query secara dinamis
     query = Q(rencdankelsisa_tahun=sesitahun) & Q(rencdankelsisa_dana=dana)
-    if sesiidopd is not None and sesiidopd != 124 and sesiidopd !=70 and sesiidopd !=67:
-        query &= Q(rencdankelsisa_subopd=sesiidopd)
+    scoped_subopd = scoped_opd_id(sesiidopd)
+    if scoped_subopd:
+        query &= Q(rencdankelsisa_subopd=scoped_subopd)
 
     data = RencDankelsisa.objects.filter(query)
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data,
+        sesitahun,
+        RencDankeljadwalsisa,
+        'rencdankelsisa_id',
+        'rencdankelsisa_pagu',
+        'rencdankelsisa_output',
+        jadwal_field='rencdankelsisa_jadwal',
+    )
+
     context = {
         'judul' : 'Rencana Kegiatan Sisa Tahun Lalu',
         'tombol' : 'Tambah Perencanaan Sisa Tahun Lalu',
+        'cetak' : 'Cetak',
         'data' : data,
         'totalsisa' : total_sisa,
-        # 'datasisa' : total_pagu_sisa,
+        'dankelsisa_cetak': reverse('dankelsisa_cetak'),
+        'is_perubahan': is_perubahan,
     }
+    context.update(context_extra)
     return render(request, template_list, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def cetak(request):
+    request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+
+    filters = Q()
+    if tahun:
+        filters &= Q(rencdankelsisa_tahun=tahun)
+    sesisubopd = scoped_opd_id(sesisubopd)
+    if sesisubopd:
+        filters &= Q(rencdankelsisa_subopd=sesisubopd)
+
+    try:
+        data = Model_data.objects.filter(filters)
+    except Model_data.DoesNotExist:
+        data = None
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        tahun,
+        RencDankeljadwalsisa,
+        'rencdankelsisa_id',
+        'rencdankelsisa_pagu',
+        'rencdankelsisa_output',
+        jadwal_field='rencdankelsisa_jadwal',
+    )
+
+    tabel = tabel_rencana(data)
+
+    context = {
+        'judul': 'Daftar Kegiatan Rencana Kelurahan (Sisa)',
+        'tombol': 'Tambah Perencanaan',
+        'kembali' : 'Kembali',
+        'data' : data,
+        'tabel' : tabel,
+        'is_perubahan': is_perubahan,
+        'rencana_tahun' : tahun,
+    }
+    context.update(context_extra)
+    return render(request, template_pdf, context)

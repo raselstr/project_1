@@ -106,6 +106,12 @@ class RencDankel(models.Model):
     
     def get_program(self):
         return self.rencdankel_sub.dankelsub_keg.dankelkeg_prog.dankel_prog if self.rencdankel_sub else None
+
+    def get_subopd(self):
+        return self.rencdankel_subopd.sub_nama if self.rencdankel_subopd else None
+
+    def get_keterangan(self):
+        return self.rencdankel_ket
     
     def __str__(self):
         return str(self.rencdankel_sub)
@@ -184,6 +190,21 @@ class RencDankelsisa(models.Model):
         nilai_realisasi = RealisasiDankelsisa.objects.filter(filters).aggregate(total_nilai=Sum('realisasidankelsisa_lpjnilai'))['total_nilai'] or Decimal(0)
         # print(f"nilai realisasi : {nilai_realisasi} dan {filters}")
         return nilai_realisasi
+
+    def get_satuan_kegiatan(self):
+        return self.rencdankelsisa_sub.dankelsub_satuan if self.rencdankelsisa_sub else None
+
+    def get_subkegiatan(self):
+        return self.rencdankelsisa_sub.dankelsub_nama if self.rencdankelsisa_sub else None
+
+    def get_kegiatan(self):
+        return self.rencdankelsisa_sub.dankelsub_keg.dankelkeg_nama if self.rencdankelsisa_sub else None
+
+    def get_subopd(self):
+        return self.rencdankelsisa_subopd.sub_nama if self.rencdankelsisa_subopd else None
+
+    def get_keterangan(self):
+        return self.rencdankelsisa_ket
     
     def __str__(self):
         return f'{self.rencdankelsisa_sub}'

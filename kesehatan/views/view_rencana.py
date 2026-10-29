@@ -7,13 +7,14 @@ from project.decorators import menu_access_required, set_submenu_session
 import logging
 from datetime import datetime
 
-from kesehatan.models import Rencanakesehatan, Rencanakesehatansisa
+from kesehatan.models import Rencanakesehatan, Rencanakesehatansisa, Rencanakesehatanposting
 from kesehatan.forms.forms import RencanakesehatanFilterForm, RencanakesehatanForm
 from dausg.models import Subkegiatan
 from dausg.models import DausgkesehatanSub
 from kesehatan.tables import RencanaTable
 from opd.models import Pejabat, Subopd
 from core.forms.budget_opd import scoped_opd_id
+from core.services.rencana_service import enrich_rencana_with_perubahan
 
 form_filter = RencanakesehatanFilterForm
 form_data = RencanakesehatanForm
@@ -138,6 +139,18 @@ def list(request):
     except model_data.DoesNotExist:
         data = None
 
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanakesehatanposting,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+    )
+
     context = {
         'judul': 'Daftar Kegiatan DAU Bidang Kesehatan',
         'tombol': 'Tambah Perencanaan',
@@ -148,7 +161,9 @@ def list(request):
         'link_url_delete': url_delete,
         'link_url_cetak': reverse(url_cetak),
         'data' : data,
+        'is_perubahan': is_perubahan,
     }
+    context.update(context_extra)
     return render(request, template_list, context)
 
 
@@ -249,6 +264,17 @@ def cetak(request):
     except model_data.DoesNotExist:
         data = None
         
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanakesehatanposting,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+    )
    
     if rencana_subopd:
         ttd = model_pejabat.objects.filter(pejabat_sub=rencana_subopd)
@@ -276,5 +302,7 @@ def cetak(request):
         'rencana_tahun' : rencana_tahun,
         'rencana_dana' : dana_laporan,
         'rencana_subopd' : subopd_laporan,
+        'is_perubahan': is_perubahan,
     }
+    context.update(context_extra)
     return render(request, template_pdf, context)

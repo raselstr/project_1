@@ -4,11 +4,12 @@ from django.urls import reverse
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib import messages
-from ..models import RencDankel, RencDankelsisa, Subkegiatan
+from ..models import RencDankel, RencDankelsisa, RencDankeljadwal, Subkegiatan
 from ..forms.form_rencana import RencDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 from ..tables import RencanaTable
 from core.forms.budget_opd import scoped_opd_id
+from core.services.rencana_service import enrich_rencana_with_perubahan
 
 
 Model_data = RencDankel
@@ -119,6 +120,17 @@ def list(request):
 
     total_rencana = RencDankel().get_total_rencana(tahun=sesitahun, opd=sesiidopd, dana=dana)
     data = RencDankel.objects.filter(query)
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data,
+        sesitahun,
+        RencDankeljadwal,
+        'rencdankel_id',
+        'rencdankel_pagu',
+        'rencdankel_output',
+        jadwal_field='rencdankel_jadwal',
+    )
+
     context = {
         'judul' : 'Rencana Kegiatan',
         'tombol' : 'Tambah Perencanaan',
@@ -126,8 +138,9 @@ def list(request):
         'data' : data,
         'rencana' : total_rencana,
         'dankel_cetak' : reverse('dankel_cetak'),
-        # 'datasisa' : total_pagu_sisa,
+        'is_perubahan': is_perubahan,
     }
+    context.update(context_extra)
     return render(request, template_list, context)
 
 @set_submenu_session
@@ -194,30 +207,26 @@ def cetak(request):
     except Model_data.DoesNotExist:
         data = None
         
-   
-    # if sesisubopd:
-    #     ttd = model_pejabat.objects.filter(pejabat_sub=sesisubopd).first()
-    # else:
-    #     ttd = None
-        
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        tahun,
+        RencDankeljadwal,
+        'rencdankel_id',
+        'rencdankel_pagu',
+        'rencdankel_output',
+        jadwal_field='rencdankel_jadwal',
+    )
+
     tabel = tabel_rencana(data)
-    
-    # subopd_laporan = model_subopd.objects.filter(id=rencana_subopd).first().sub_nama
-    # dana_laporan = model_pagu.objects.filter(id=rencana_dana).first().sub_nama
 
     context = {
-        'judul': 'Daftar Kegiatan DAU Bidang Pendidikan',
+        'judul': 'Daftar Kegiatan Rencana Kelurahan',
         'tombol': 'Tambah Perencanaan',
         'kembali' : 'Kembali',
-        # 'link_url': reverse(url_simpan),
-        # 'link_url_kembali': reverse(url_home),
-        # 'link_url_update': url_update,
-        # 'link_url_delete': url_delete,
         'data' : data,
         'tabel' : tabel,
-        # 'ttd' : ttd,
-        # 'rencana_tahun' : rencana_tahun,
-        # 'rencana_dana' : dana_laporan,
-        # 'rencana_subopd' : subopd_laporan,
+        'is_perubahan': is_perubahan,
+        'rencana_tahun' : tahun,
     }
+    context.update(context_extra)
     return render(request, template_pdf, context)

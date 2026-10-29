@@ -17,10 +17,92 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
+                        <a href="#" onclick="openPrintWindow('{{dankelsisa_cetak}}'); return false;" type="button" class="btn btn-info">Cetak</a>
                         <a href="{% url "dankelsisa_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
                 <div class="card-body">
+                    {% if is_perubahan %}
+                    <div class="alert alert-info py-2 mb-3">
+                        <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk ({{ jadwal_induk.jadwal_nama }}) dan Perubahan ({{ jadwal_perubahan.jadwal_nama }}).
+                    </div>
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="text-center align-middle">
+                                    <div class="custom-checkbox custom-control">
+                                    <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
+                                    <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
+                                    </div>
+                                </th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Aksi</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Sub OPD</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Kegiatan</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Sub Kegiatan</th>
+                                <th colspan="2" class="text-center" style="text-align: center;">Semula (Induk)</th>
+                                <th colspan="2" class="text-center" style="text-align: center;">Menjadi (Perubahan)</th>
+                                <th colspan="2" class="text-center" style="text-align: center;">Perubahan (+/-)</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Satuan</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Keterangan Kegiatan</th>
+                            </tr>
+                            <tr>
+                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Output</th>
+                                <th style="text-align: center;">Pagu</th>
+                                <th style="text-align: center;">Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in data %}
+                                <tr>
+                                    <td class="p-0 text-center">
+                                        <div class="custom-checkbox custom-control">
+                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-{{ forloop.counter }}">
+                                        <label for="checkbox-{{ forloop.counter }}" class="custom-control-label">&nbsp;</label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <a href="{% url "dankelsisa_update" data.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url "dankelsisa_delete" data.id%}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td>{{ data.rencdankelsisa_subopd.sub_nama }}</td>
+                                    <td>{{ data.get_kegiatan }}</td>
+                                    <td>{{ data.get_subkegiatan }}</td>
+                                    <td style="text-align: right;">{{ data.induk_pagu|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.induk_output|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.perubahan_pagu|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.perubahan_output|floatformat:2|intcomma }}</td>
+                                    <td style="text-align: right; font-weight: bold; {% if data.selisih_pagu < 0 %}color: red;{% elif data.selisih_pagu > 0 %}color: green;{% endif %}">
+                                        {{ data.selisih_pagu|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align: right; font-weight: bold; {% if data.selisih_output < 0 %}color: red;{% elif data.selisih_output > 0 %}color: green;{% endif %}">
+                                        {{ data.selisih_output|floatformat:2|intcomma }}
+                                    </td>
+                                    <td style="text-align: center;">{{ data.get_satuan_kegiatan }}</td>
+                                    <td>{{ data.rencdankelsisa_ket }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_induk_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_induk_output|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_perubahan_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_perubahan_output|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_selisih_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th style="text-align: right;"><strong>{{ total_selisih_output|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    {% else %}
                     <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
@@ -79,6 +161,7 @@
                             </tr>
                         </tfoot>
                     </table>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -114,6 +197,14 @@
             {% endfor %}
             {% endif %}
         });
+        function openPrintWindow(url) {
+            var printWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,menubar=no,toolbar=no,location=no,status=no');
+            if (printWindow) {
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            }
+        }
     </script>
 {% endblock javascript %}
 
