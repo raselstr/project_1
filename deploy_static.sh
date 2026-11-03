@@ -1,4 +1,4 @@
-#!/bin/bash
+==sum==#!/bin/bash
 # =============================================================================
 # deploy_static.sh
 # Script untuk sinkronisasi file static (CSS/JS/gambar) ke server.

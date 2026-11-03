@@ -44,6 +44,7 @@ urlpatterns = [
     path("postingsisa/list", view_postingsisa.list, name="posting_pendidikan_listsisa"),
     
     path("rencana/pdf/", view_rencana.cetak, name="rencana_pendidikan_cetak"),
+    path("rencana/excel/", view_rencana.excel, name="rencana_pendidikan_excel"),
     path("rencana/satuan/", view_rencana.satuan, name="rencana_pendidikan_satuan"),
     path("rencana/delete/<int:pk>/", view_rencana.delete, name="rencana_pendidikan_delete"),
     path("rencana/update/<int:pk>/", view_rencana.update, name="rencana_pendidikan_update"),
@@ -59,4 +60,5 @@ urlpatterns = [
     path("rencanasisa/daftar/", view_rencanasisa.list, name="rencana_pendidikansisa_list"),
     path("rencanasisa/filter/", view_rencanasisa.filter, name="rencana_pendidikansisa_filter"),
     path("rencanasisa/cetak/", view_rencanasisa.cetak, name="rencana_pendidikansisa_cetak"),
+    path("rencanasisa/excel/", view_rencanasisa.excel, name="rencana_pendidikansisa_excel"),
 ]

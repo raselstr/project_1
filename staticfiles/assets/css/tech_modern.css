@@ -699,10 +699,62 @@ body.sidebar-mini .main-footer {
 /* ==============================================================================
    TABLES & DATATABLES (NAVY THEAD & CRISP WHITE/LIGHT ROWS)
    ============================================================================== */
-.table-responsive {
+.table-responsive,
+.dataTables_wrapper,
+.dataTables_scrollBody,
+.sp2d-table-wrapper,
+.table-container {
   border-radius: var(--tech-radius-md);
-  border: 1px solid var(--tech-border-color);
   background: #ffffff;
+  /* Horizontal scrollbar support */
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: block !important;
+  scrollbar-width: thin;
+  scrollbar-color: #0052cc #e2e8f0;
+}
+
+/* Scrollbar horizontal di table-responsive dan datatables */
+.table-responsive::-webkit-scrollbar,
+.dataTables_wrapper::-webkit-scrollbar,
+.dataTables_scrollBody::-webkit-scrollbar,
+.sp2d-table-wrapper::-webkit-scrollbar,
+.table-container::-webkit-scrollbar {
+  height: 9px !important;
+  width: 9px !important;
+}
+.table-responsive::-webkit-scrollbar-track,
+.dataTables_wrapper::-webkit-scrollbar-track,
+.dataTables_scrollBody::-webkit-scrollbar-track,
+.sp2d-table-wrapper::-webkit-scrollbar-track,
+.table-container::-webkit-scrollbar-track {
+  background: #e2e8f0 !important;
+  border-radius: 6px !important;
+}
+.table-responsive::-webkit-scrollbar-thumb,
+.dataTables_wrapper::-webkit-scrollbar-thumb,
+.dataTables_scrollBody::-webkit-scrollbar-thumb,
+.sp2d-table-wrapper::-webkit-scrollbar-thumb,
+.table-container::-webkit-scrollbar-thumb {
+  background: #0052cc !important;
+  border-radius: 6px !important;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+}
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.dataTables_wrapper::-webkit-scrollbar-thumb:hover,
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover,
+.sp2d-table-wrapper::-webkit-scrollbar-thumb:hover,
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #0284c7 !important;
+}
+
+/* Pastikan tabel dalam table-responsive punya min-width agar tidak terhimpit di HP */
+.table-responsive > table,
+.table-responsive table,
+.dataTables_scrollBody table,
+.table-container table {
+  min-width: 700px;
 }
 
 .table {
@@ -1046,5 +1098,212 @@ select.form-control {
   body.sidebar-gone .main-footer,
   .main-footer {
     left: 0 !important;
+  }
+}
+
+/* ==============================================================================
+   MOBILE RESPONSIVE — TABLET & HP (max-width: 768px)
+   ============================================================================== */
+@media (max-width: 768px) {
+
+  /* Navbar full width, padding kecil */
+  nav.navbar.main-navbar,
+  body nav.navbar.main-navbar {
+    left: 0 !important;
+    right: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* navbar-bg full width */
+  .navbar-bg,
+  body .navbar-bg {
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Main content: tidak overlap sidebar */
+  .main-content,
+  body .main-content {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    padding-top: 74px !important;
+    padding-bottom: 76px !important;
+    margin-left: 0 !important;
+  }
+
+  /* Footer full width */
+  .main-footer,
+  body .main-footer {
+    left: 0 !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  /* Sidebar: slide-out mobile */
+  body .main-sidebar,
+  .main-sidebar {
+    left: -260px !important;
+    transition: left 0.3s ease, width 0.3s ease;
+    z-index: 1055 !important;
+    width: 250px !important;
+  }
+  body.sidebar-show .main-sidebar,
+  body.sidebar-show #sidebar-wrapper {
+    left: 0 !important;
+  }
+
+  /* Sembunyikan pills text "Posting Aktif" di HP agar tidak meluap */
+  .main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle span {
+    display: none !important;
+  }
+  .main-navbar .navbar-nav .dropdown-list-toggle a.nav-link.message-toggle {
+    padding: 6px 10px !important;
+    min-width: 36px;
+    justify-content: center;
+  }
+
+  /* User nama teks — sembunyikan di HP */
+  .main-navbar .nav-link-user .d-sm-none.d-lg-inline-block,
+  .main-navbar .nav-link-user .font-weight-bold {
+    display: none !important;
+  }
+
+  /* Card header action: tombol wrap */
+  .card-header-action,
+  .card-header .card-header-action {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    justify-content: flex-end !important;
+  }
+  .card-header-action .btn,
+  .card-header-action a.btn {
+    font-size: 0.78rem !important;
+    padding: 5px 10px !important;
+  }
+  .btn-group {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .btn-group .btn {
+    border-radius: var(--tech-radius-sm) !important;
+    margin-bottom: 2px;
+  }
+
+  /* KPI Cards — compact di HP */
+  .stat-card .stat-value,
+  .info-box .info-box-number,
+  .card-body h2,
+  .card-body h3 {
+    font-size: 1.2rem !important;
+  }
+  .stat-card {
+    margin-bottom: 10px !important;
+  }
+
+  /* Tabel: pastikan min-width & scroll horizontal */
+  .table-responsive,
+  .dataTables_wrapper,
+  .dataTables_scrollBody,
+  .sp2d-table-wrapper,
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    display: block !important;
+    scrollbar-width: thin;
+    scrollbar-color: #0052cc #e2e8f0;
+  }
+  .table-responsive > table,
+  .table-responsive table,
+  .dataTables_scrollBody table,
+  .table-container table,
+  table.display,
+  table.dataTable {
+    min-width: 640px !important;
+  }
+
+  /* Overlay saat sidebar terbuka di HP/tablet */
+  body.sidebar-show::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(4, 16, 31, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+    pointer-events: auto;
+  }
+
+  /* Section header H1 lebih kecil */
+  .section-header h1 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Form controls full width di HP */
+  .form-group .form-control,
+  .form-group select.form-control {
+    font-size: 0.88rem !important;
+  }
+
+  /* Row cards: no overflow */
+  .row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+  .col-lg-12, .col-md-12, .col-sm-12, .col-12 {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* ==============================================================================
+   SMALL PHONE (max-width: 480px)
+   ============================================================================== */
+@media (max-width: 480px) {
+  .main-content,
+  body .main-content {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    padding-top: 70px !important;
+  }
+
+  .card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .card-header h4 {
+    font-size: 0.95rem !important;
+    margin-bottom: 0 !important;
+  }
+  .card-header-action {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+  .card-header-action .btn,
+  .card-header-action a.btn {
+    flex: 1 !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    font-size: 0.75rem !important;
+  }
+
+  .table-responsive > table,
+  .table-responsive table,
+  .dataTables_scrollBody table,
+  .table-container table,
+  table.display,
+  table.dataTable {
+    min-width: 540px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .table tbody td,
+  .table thead th,
+  table.dataTable thead th,
+  table.dataTable tbody td {
+    padding: 6px 8px !important;
+    font-size: 0.78rem !important;
   }
 }

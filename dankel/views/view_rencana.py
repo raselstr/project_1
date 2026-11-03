@@ -10,6 +10,7 @@ from project.decorators import menu_access_required, set_submenu_session
 from ..tables import RencanaTable
 from core.forms.budget_opd import scoped_opd_id
 from core.services.rencana_service import enrich_rencana_with_perubahan
+from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
 
 
 Model_data = RencDankel
@@ -138,6 +139,7 @@ def list(request):
         'data' : data,
         'rencana' : total_rencana,
         'dankel_cetak' : reverse('dankel_cetak'),
+        'dankel_excel': reverse('dankel_excel'),
         'is_perubahan': is_perubahan,
     }
     context.update(context_extra)
@@ -230,3 +232,43 @@ def cetak(request):
     }
     context.update(context_extra)
     return render(request, template_pdf, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    request.session['next'] = request.get_full_path()
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+
+    filters = Q()
+    if tahun:
+        filters &= Q(rencdankel_tahun=tahun)
+    scoped_sub = scoped_opd_id(sesisubopd)
+    if scoped_sub:
+        filters &= Q(rencdankel_subopd=scoped_sub)
+
+    try:
+        data = Model_data.objects.filter(filters)
+    except Model_data.DoesNotExist:
+        data = []
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        tahun,
+        RencDankeljadwal,
+        'rencdankel_id',
+        'rencdankel_pagu',
+        'rencdankel_output',
+        jadwal_field='rencdankel_jadwal',
+    )
+
+    context = {
+        'data': data,
+        'tahun': tahun,
+        'subopd': sesisubopd,
+        'dana': 'Dana Kelurahan',
+        'is_perubahan': is_perubahan,
+    }
+    context.update(context_extra)
+    return LaporanRencanaExcelService.export(context, bidang='dankel', sumber='utama')
+

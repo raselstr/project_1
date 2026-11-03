@@ -27,23 +27,23 @@ class LaporanRealisasiExcelService:
 
     @classmethod
     def _create_styles(cls):
-        font_title = Font(name="Calibri", size=13, bold=True, color="002060")
-        font_subtitle = Font(name="Calibri", size=11, bold=True, color="1F4E79")
-        font_meta_lbl = Font(name="Calibri", size=9.5, bold=True, color="333333")
-        font_meta_val = Font(name="Calibri", size=9.5, color="111111")
+        font_title = Font(name="Arial", size=13, bold=True, color="002060")
+        font_subtitle = Font(name="Arial", size=11, bold=True, color="1F4E79")
+        font_meta_lbl = Font(name="Arial", size=9.5, bold=True, color="333333")
+        font_meta_val = Font(name="Arial", size=9.5, color="111111")
 
-        font_header = Font(name="Calibri", size=10, bold=True, color=cls.COLOR_HEADER_TEXT)
+        font_header = Font(name="Arial", size=10, bold=True, color=cls.COLOR_HEADER_TEXT)
         fill_header = PatternFill(start_color=cls.COLOR_HEADER_BG, end_color=cls.COLOR_HEADER_BG, fill_type="solid")
 
-        font_prog = Font(name="Calibri", size=10, bold=True, color="000000")
+        font_prog = Font(name="Arial", size=10, bold=True, color="000000")
         fill_prog = PatternFill(start_color=cls.COLOR_PROG_BG, end_color=cls.COLOR_PROG_BG, fill_type="solid")
 
-        font_keg = Font(name="Calibri", size=9.5, bold=True, color="1F2421")
+        font_keg = Font(name="Arial", size=9.5, bold=True, color="1F2421")
         fill_keg = PatternFill(start_color=cls.COLOR_KEG_BG, end_color=cls.COLOR_KEG_BG, fill_type="solid")
 
-        font_sub = Font(name="Calibri", size=9.5, color="000000")
+        font_sub = Font(name="Arial", size=9.5, color="000000")
 
-        font_total = Font(name="Calibri", size=10.5, bold=True, color=cls.COLOR_TOTAL_TEXT)
+        font_total = Font(name="Arial", size=10.5, bold=True, color=cls.COLOR_TOTAL_TEXT)
         fill_total = PatternFill(start_color=cls.COLOR_TOTAL_BG, end_color=cls.COLOR_TOTAL_BG, fill_type="solid")
 
         thin_side = Side(style="thin", color=cls.COLOR_BORDER)

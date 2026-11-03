@@ -16,6 +16,7 @@
                     <div class="card-header-action">
                         <div class="btn-group">
                             <a href="{{link_url_kembali}}" class="btn btn-warning">{{kembali}}</a>
+                            <a href="{{link_url_excel}}" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i> Export Excel</a>
                             <a href="#" onclick="openPrintWindow('{{link_url_cetak}}'); return false;" type="button" class="btn btn-info">Cetak</a>
                             <a href="{{link_url}}" type="button" class="btn btn-primary">{{tombol}}</a>
 
@@ -27,6 +28,7 @@
                     <div class="alert alert-info py-2 mb-3">
                         <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk ({{ jadwal_induk.jadwal_nama }}) dan Perubahan ({{ jadwal_perubahan.jadwal_nama }}).
                     </div>
+                    <div class="table-responsive">
                     <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
@@ -91,7 +93,9 @@
                             </tr>
                         </tfoot>
                     </table>
+                    </div>
                     {% else %}
+                    <div class="table-responsive">
                     <table class="display" id="tabel1" style="width:100%">
                         <thead>
                             <tr>
@@ -129,6 +133,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    </div>
                     {% endif %}
                 </div>
             </div>

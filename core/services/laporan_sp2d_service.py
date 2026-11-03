@@ -596,13 +596,13 @@ class LaporanSp2dService:
         ws.views.sheetView[0].showGridLines = True
 
         # Styles
-        font_title = Font(name="Calibri", size=14, bold=True, color="1F4E78")
-        font_subtitle = Font(name="Calibri", size=11, bold=True, color="333333")
-        font_header = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
-        font_data = Font(name="Calibri", size=10)
-        font_subtotal_sub = Font(name="Calibri", size=10, bold=True, color="7F6000")
-        font_subtotal_keg = Font(name="Calibri", size=10, bold=True, color="1F4E78")
-        font_grand_total = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        font_title = Font(name="Arial", size=13, bold=True, color="1F4E78")
+        font_subtitle = Font(name="Arial", size=11, bold=True, color="333333")
+        font_header = Font(name="Arial", size=10, bold=True, color="FFFFFF")
+        font_data = Font(name="Arial", size=9.5)
+        font_subtotal_sub = Font(name="Arial", size=9.5, bold=True, color="7F6000")
+        font_subtotal_keg = Font(name="Arial", size=9.5, bold=True, color="1F4E78")
+        font_grand_total = Font(name="Arial", size=10.5, bold=True, color="FFFFFF")
 
         fill_header = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
         fill_subtotal_sub = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")

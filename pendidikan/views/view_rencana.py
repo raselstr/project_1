@@ -16,6 +16,7 @@ from pendidikan.tables import RencanaTable
 from opd.models import Pejabat, Subopd
 from core.forms.budget_opd import scoped_opd_id
 from core.services.rencana_service import enrich_rencana_with_perubahan
+from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
 
 form_filter = RencanaFilterForm
 form_data = RencanaForm
@@ -37,6 +38,7 @@ url_simpan = 'rencana_pendidikan_simpan'
 url_update = 'rencana_pendidikan_update'
 url_delete = 'rencana_pendidikan_delete'
 url_cetak = 'rencana_pendidikan_cetak'
+url_excel = 'rencana_pendidikan_excel'
 
 template_form = 'pendidikan/rencana/form.html'
 template_home = 'pendidikan/rencana/home.html'
@@ -172,6 +174,7 @@ def list(request):
         'link_url_update': url_update,
         'link_url_delete': url_delete,
         'link_url_cetak': reverse(url_cetak),
+        'link_url_excel': reverse(url_excel),
         'data' : data,
         'is_perubahan': is_perubahan,
     }
@@ -316,3 +319,53 @@ def cetak(request):
     }
     context.update(context_extra)
     return render(request, template_pdf, context)
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    request.session['next'] = request.get_full_path()
+    rencana_tahun = request.session.get('rencana_tahun')
+    rencana_dana = request.session.get('rencana_dana')
+    rencana_subopd = request.session.get('rencana_subopd')
+
+    filters = Q()
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    scoped_sub = scoped_opd_id(rencana_subopd)
+    if scoped_sub:
+        filters &= Q(rencana_subopd_id=scoped_sub)
+
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = []
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanaposting,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+    )
+
+    subopd_obj = model_subopd.objects.filter(id=rencana_subopd).first() if rencana_subopd else None
+    dana_obj = model_pagu.objects.filter(id=rencana_dana).first()
+    subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
+    dana_laporan = dana_obj.sub_nama if dana_obj else '-'
+
+    context = {
+        'data': data,
+        'rencana_tahun': rencana_tahun,
+        'rencana_dana': dana_laporan,
+        'rencana_subopd': subopd_laporan,
+        'is_perubahan': is_perubahan,
+    }
+    context.update(context_extra)
+    return LaporanRencanaExcelService.export(context, bidang='pendidikan', sumber='utama')
+
