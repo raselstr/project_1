@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
   <link rel="stylesheet" href="{% static 'assets/css/components.css' %}">
   <!-- Tech Modern Theme -->
-  <link rel="stylesheet" href="{% static 'assets/css/tech_modern.css' %}?v=5.1">
+  <link rel="stylesheet" href="{% static 'assets/css/tech_modern.css' %}?v=5.4">
 <!-- Start GA -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
 <script>
@@ -58,10 +58,13 @@
 </head>
 
 <body>
+  <!-- Sidebar & backdrop OUTSIDE #app: z-index berada di root stacking context -->
+  {% include 'includes/sidebar.html' %}
+  <div class="sidebar-backdrop"></div>
+
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
         {% include 'includes/header.html' %}
-        {% include 'includes/sidebar.html' %}
       <div class="main-content">
         {% block content %}
         {% endblock content %}
@@ -122,7 +125,7 @@
   
   <!-- Template JS File -->
   <script src="{% static 'assets/js/scripts.js' %}"></script>
-  <script src="{% static 'assets/js/custom.js' %}?v=5.1"></script>
+  <script src="{% static 'assets/js/custom.js' %}?v=5.4"></script>
   {% block javascript %}{% endblock javascript %}
 
 </body>

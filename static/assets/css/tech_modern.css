@@ -327,27 +327,46 @@ body.sidebar-mini nav.navbar.main-navbar {
 body .main-sidebar,
 body:not(.sidebar-mini) .main-sidebar,
 body.sidebar-mini .main-sidebar,
-.main-sidebar,
-body #sidebar-wrapper,
-body .main-sidebar aside,
-#sidebar-wrapper {
+.main-sidebar {
   background: linear-gradient(180deg, #07192f 0%, #0a2540 50%, #051324 100%) !important;
   background-color: #07192f !important;
   border-right: 1px solid rgba(56, 189, 248, 0.22) !important;
   box-shadow: 4px 0 25px rgba(7, 25, 47, 0.35) !important;
   position: fixed !important;
   top: 0 !important;
-  left: 0 !important;
   bottom: 0 !important;
   width: 250px !important;
   height: 100vh !important;
   overflow-y: auto !important;
   z-index: 890 !important;
-  transition: width 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease;
 }
 
-body.sidebar-mini .main-sidebar,
-body.sidebar-mini #sidebar-wrapper {
+/* Pastikan #sidebar-wrapper selalu berada normal di dalam .main-sidebar */
+#sidebar-wrapper,
+aside#sidebar-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Desktop default: sidebar tampil di posisi left: 0 */
+@media (min-width: 1025px) {
+  body .main-sidebar,
+  .main-sidebar {
+    left: 0 !important;
+    transform: none !important;
+    visibility: visible !important;
+  }
+}
+
+body.sidebar-mini .main-sidebar {
   width: 65px !important;
 }
 
@@ -1082,22 +1101,127 @@ select.form-control {
   background-color: var(--tech-blue-primary) !important;
 }
 
+/* Nonaktifkan pseudo-element backdrop bawaan Stisla — kita pakai .sidebar-backdrop sendiri */
+body.sidebar-show:before,
+body.sidebar-show::before,
+body.sidebar-show:after,
+body.sidebar-show::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
 /* ==============================================================================
-   RESPONSIVE OVERRIDES
+   SIDEBAR BACKDROP — Elemen terpisah di luar #app (root stacking context)
+   z-index 1050: di atas semua konten (< 900) tapi di bawah sidebar (1060)
+   ============================================================================== */
+.sidebar-backdrop {
+  display: none;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(4, 16, 31, 0.65) !important;
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+  z-index: 1050 !important;
+  pointer-events: none;
+}
+
+/* ==============================================================================
+   RESPONSIVE OVERRIDES (TABLET, HP, AND DEVTOOLS DEVICE EMULATION <= 1024px)
    ============================================================================== */
 @media (max-width: 1024px) {
-  body.sidebar-gone nav.navbar.main-navbar,
-  nav.navbar.main-navbar {
-    left: 0 !important;
+
+  /* Tampilkan backdrop saat sidebar dibuka di mobile */
+  body.sidebar-show .sidebar-backdrop {
+    display: block !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
   }
-  body.sidebar-gone .main-content,
-  .main-content {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+
+  /* Sidebar: tersembunyi sepenuhnya di luar layar secara default */
+  body .main-sidebar,
+  body.sidebar-gone .main-sidebar,
+  .main-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: -270px !important;
+    transform: translateX(-100%) !important;
+    visibility: hidden !important;
+    z-index: 1060 !important;
+    width: 250px !important;
+    box-shadow: none !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), left 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s ease !important;
   }
-  body.sidebar-gone .main-footer,
-  .main-footer {
+
+  /* Saat dibuka melalui tombol hamburger di layar mobile/tablet */
+  body.sidebar-show .main-sidebar {
     left: 0 !important;
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    z-index: 1060 !important;
+    box-shadow: 6px 0 35px rgba(0, 0, 0, 0.85) !important;
+    pointer-events: auto !important;
+  }
+
+  /* Pastikan seluruh link, teks, ikon dan submenu di dalam sidebar bisa diklik & interaktif */
+  body.sidebar-show .main-sidebar,
+  body.sidebar-show .main-sidebar *,
+  body.sidebar-show .main-sidebar a,
+  body.sidebar-show .main-sidebar .sidebar-menu,
+  body.sidebar-show .main-sidebar .sidebar-menu li,
+  body.sidebar-show .main-sidebar .sidebar-menu li a,
+  body.sidebar-show .main-sidebar .sidebar-menu li ul.dropdown-menu,
+  body.sidebar-show .main-sidebar .sidebar-menu li ul.dropdown-menu li a {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+  }
+
+  /* Navbar full width, tidak terhimpit */
+  nav.navbar.main-navbar,
+  body nav.navbar.main-navbar,
+  body.sidebar-gone nav.navbar.main-navbar {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .navbar-bg,
+  body .navbar-bg {
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Main content full width, tidak tertutup sidebar */
+  .main-content,
+  body .main-content,
+  body.sidebar-gone .main-content {
+    margin-left: 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 76px !important;
+    padding-bottom: 76px !important;
+    width: 100% !important;
+  }
+
+  /* Footer full width */
+  .main-footer,
+  body .main-footer,
+  body.sidebar-gone .main-footer {
+    left: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    width: 100% !important;
   }
 }
 
@@ -1106,51 +1230,27 @@ select.form-control {
    ============================================================================== */
 @media (max-width: 768px) {
 
-  /* Navbar full width, padding kecil */
+  /* Navbar padding kecil */
   nav.navbar.main-navbar,
   body nav.navbar.main-navbar {
-    left: 0 !important;
-    right: 0 !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
   }
 
-  /* navbar-bg full width */
-  .navbar-bg,
-  body .navbar-bg {
-    left: 0 !important;
-    width: 100% !important;
-  }
-
-  /* Main content: tidak overlap sidebar */
+  /* Main content: padding HP */
   .main-content,
   body .main-content {
     padding-left: 14px !important;
     padding-right: 14px !important;
     padding-top: 74px !important;
     padding-bottom: 76px !important;
-    margin-left: 0 !important;
   }
 
-  /* Footer full width */
+  /* Footer padding HP */
   .main-footer,
   body .main-footer {
-    left: 0 !important;
     padding-left: 14px !important;
     padding-right: 14px !important;
-  }
-
-  /* Sidebar: slide-out mobile */
-  body .main-sidebar,
-  .main-sidebar {
-    left: -260px !important;
-    transition: left 0.3s ease, width 0.3s ease;
-    z-index: 1055 !important;
-    width: 250px !important;
-  }
-  body.sidebar-show .main-sidebar,
-  body.sidebar-show #sidebar-wrapper {
-    left: 0 !important;
   }
 
   /* Sembunyikan pills text "Posting Aktif" di HP agar tidak meluap */
@@ -1222,17 +1322,6 @@ select.form-control {
   table.display,
   table.dataTable {
     min-width: 640px !important;
-  }
-
-  /* Overlay saat sidebar terbuka di HP/tablet */
-  body.sidebar-show::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(4, 16, 31, 0.6);
-    backdrop-filter: blur(2px);
-    z-index: 1040;
-    pointer-events: auto;
   }
 
   /* Section header H1 lebih kecil */

@@ -6,8 +6,28 @@
 
 $(document).ready(function() {
 
-  // 1. Mobile Sidebar: Tap di luar sidebar untuk menutupnya
-  $(document).on('click touchstart', function(e) {
+  // 1. Mobile Sidebar State Management
+  function handleMobileSidebar() {
+    if ($(window).outerWidth() <= 1024) {
+      if (!$('body').hasClass('sidebar-show')) {
+        $('body').addClass('sidebar-gone');
+      }
+    } else {
+      $('body').removeClass('sidebar-gone sidebar-show');
+    }
+  }
+
+  handleMobileSidebar();
+  $(window).on('resize', handleMobileSidebar);
+
+  // Klik atau tap pada backdrop menutup sidebar
+  $(document).on('click', '.sidebar-backdrop', function(e) {
+    e.preventDefault();
+    $('body').removeClass('sidebar-show').addClass('sidebar-gone');
+  });
+
+  // Pastikan klik di luar sidebar menutup sidebar
+  $(document).on('click', function(e) {
     if ($('body').hasClass('sidebar-show')) {
       if (!$(e.target).closest('.main-sidebar, [data-toggle="sidebar"]').length) {
         $('body').removeClass('sidebar-show').addClass('sidebar-gone');
