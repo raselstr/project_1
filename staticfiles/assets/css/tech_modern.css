@@ -1101,7 +1101,7 @@ select.form-control {
   background-color: var(--tech-blue-primary) !important;
 }
 
-/* Nonaktifkan pseudo-element backdrop bawaan agar tidak menumpuk di atas #app & sidebar */
+/* Nonaktifkan pseudo-element backdrop bawaan Stisla — kita pakai .sidebar-backdrop sendiri */
 body.sidebar-show:before,
 body.sidebar-show::before,
 body.sidebar-show:after,
@@ -1110,9 +1110,13 @@ body.sidebar-show::after {
   content: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  z-index: -1 !important;
 }
 
-/* Backdrop di dalam .main-wrapper (berada di bawah .main-sidebar tetapi di atas .main-content) */
+/* ==============================================================================
+   SIDEBAR BACKDROP — Elemen terpisah di luar #app (root stacking context)
+   z-index 1050: di atas semua konten (< 900) tapi di bawah sidebar (1060)
+   ============================================================================== */
 .sidebar-backdrop {
   display: none;
   position: fixed !important;
@@ -1125,9 +1129,7 @@ body.sidebar-show::after {
   background: rgba(4, 16, 31, 0.65) !important;
   backdrop-filter: blur(2px) !important;
   -webkit-backdrop-filter: blur(2px) !important;
-  z-index: 895 !important;
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  z-index: 1050 !important;
   pointer-events: none;
 }
 
@@ -1139,8 +1141,8 @@ body.sidebar-show::after {
   /* Tampilkan backdrop saat sidebar dibuka di mobile */
   body.sidebar-show .sidebar-backdrop {
     display: block !important;
-    opacity: 1 !important;
     pointer-events: auto !important;
+    cursor: pointer !important;
   }
 
   /* Sidebar: tersembunyi sepenuhnya di luar layar secara default */
@@ -1160,10 +1162,7 @@ body.sidebar-show::after {
   }
 
   /* Saat dibuka melalui tombol hamburger di layar mobile/tablet */
-  body.sidebar-show .main-sidebar,
-  body.sidebar-show body .main-sidebar,
-  body.sidebar-show .main-sidebar aside,
-  body.sidebar-show #sidebar-wrapper {
+  body.sidebar-show .main-sidebar {
     left: 0 !important;
     transform: translateX(0) !important;
     visibility: visible !important;
@@ -1173,6 +1172,7 @@ body.sidebar-show::after {
   }
 
   /* Pastikan seluruh link, teks, ikon dan submenu di dalam sidebar bisa diklik & interaktif */
+  body.sidebar-show .main-sidebar,
   body.sidebar-show .main-sidebar *,
   body.sidebar-show .main-sidebar a,
   body.sidebar-show .main-sidebar .sidebar-menu,

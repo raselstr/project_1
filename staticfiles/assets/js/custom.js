@@ -1,5 +1,6 @@
 /**
  * Custom JavaScript for Tech Modern Theme & Mobile Responsive
+ * v5.4 — Sidebar dipindah ke luar #app, backdrop di root stacking context
  */
 
 "use strict";
@@ -21,14 +22,15 @@ $(document).ready(function() {
   $(window).on('resize', handleMobileSidebar);
 
   // Klik atau tap pada backdrop menutup sidebar
-  $(document).on('click', '.sidebar-backdrop', function(e) {
+  $(document).on('click touchstart', '.sidebar-backdrop', function(e) {
     e.preventDefault();
+    e.stopPropagation();
     $('body').removeClass('sidebar-show').addClass('sidebar-gone');
   });
 
-  // Pastikan klik di luar sidebar menutup sidebar
+  // Pastikan klik di luar sidebar menutup sidebar (fallback)
   $(document).on('click', function(e) {
-    if ($('body').hasClass('sidebar-show')) {
+    if ($('body').hasClass('sidebar-show') && $(window).outerWidth() <= 1024) {
       if (!$(e.target).closest('.main-sidebar, [data-toggle="sidebar"]').length) {
         $('body').removeClass('sidebar-show').addClass('sidebar-gone');
       }
