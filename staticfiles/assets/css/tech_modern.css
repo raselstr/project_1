@@ -1226,6 +1226,349 @@ body.sidebar-show::after {
 }
 
 /* ==============================================================================
+   SECTION HEADINGS & LEADS (DESKTOP & GLOBAL)
+   ============================================================================== */
+.section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.25rem !important;
+  color: var(--tech-navy) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  margin-top: 15px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 22px;
+  background: linear-gradient(180deg, #0052cc 0%, #38bdf8 100%);
+  border-radius: 4px;
+}
+
+.section-lead {
+  font-size: 0.92rem !important;
+  color: var(--tech-text-muted) !important;
+  margin-bottom: 24px !important;
+  max-width: 820px !important;
+  line-height: 1.6 !important;
+}
+
+/* ==============================================================================
+   GLOBAL BUTTON ANTI-OVERFLOW SYSTEM
+   ============================================================================== */
+.btn {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+/* ==============================================================================
+   EXECUTIVE DASHBOARD CARDS — MODERNIZED (.card-large-icons)
+   Tampilan Desktop & Global untuk Home Rencana, Realisasi, Laporan & Posting
+   ============================================================================== */
+.card.card-large-icons {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+  border: 1px solid #dbeafe !important;
+  border-top: 4px solid var(--tech-blue-primary) !important;
+  border-radius: var(--tech-radius-lg) !important;
+  box-shadow: 0 10px 30px -5px rgba(7, 25, 47, 0.08), 0 4px 12px -2px rgba(7, 25, 47, 0.04) !important;
+  overflow: hidden !important;
+  margin-bottom: 26px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+}
+
+.card.card-large-icons:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 20px 45px -8px rgba(7, 25, 47, 0.16), 0 8px 18px -4px rgba(7, 25, 47, 0.08) !important;
+  border-color: #38bdf8 !important;
+}
+
+/* Header Top Banner with Majestic Tech Navy Gradient */
+.card.card-large-icons .card-icon {
+  width: 100% !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  background: linear-gradient(135deg, #07192f 0%, #0a2540 50%, #0052cc 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 24px !important;
+  border-radius: 0 !important;
+  border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
+  position: relative !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Glowing background effect on banner */
+.card.card-large-icons .card-icon::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px;
+  height: 50px;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.28) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Glowing Neon Cyan Icon Badge */
+.card.card-large-icons .card-icon i,
+.card.card-large-icons .card-icon .fas,
+.card.card-large-icons .card-icon .far,
+.card.card-large-icons .card-icon .ion {
+  font-size: 24px !important;
+  color: #00f0ff !important;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.65) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  width: 46px !important;
+  height: 46px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Tech Header Pill Badge on Right */
+.card-header-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.card-header-badge .tech-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  display: inline-block;
+}
+
+/* Card Body */
+.card.card-large-icons .card-body {
+  padding: 26px 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  flex-grow: 1 !important;
+  background: #ffffff !important;
+}
+
+/* Card Header Title */
+.card.card-large-icons .card-body h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+  color: #07192f !important;
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding-bottom: 14px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.card.card-large-icons .card-body h4 .card-type-badge {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+}
+
+/* Modern Metric Tiles (Transformed from HTML Table) */
+.card.card-large-icons .table {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  border: none !important;
+  margin-bottom: 24px !important;
+  background: transparent !important;
+  width: 100% !important;
+}
+
+.card.card-large-icons .table tbody {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.card.card-large-icons .table tr {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 18px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px rgba(10, 37, 64, 0.02) !important;
+}
+
+.card.card-large-icons .table tr:hover {
+  background: #ffffff !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 6px 18px rgba(10, 37, 64, 0.08) !important;
+  transform: translateX(4px) !important;
+}
+
+/* First Row Accent (Pagu Anggaran) */
+.card.card-large-icons .table tr:first-child {
+  background: #f0f7ff !important;
+  border-left: 5px solid #0052cc !important;
+}
+
+/* Hide Colon Separator */
+.card.card-large-icons .table td:nth-child(2) {
+  display: none !important;
+}
+
+/* Stat Label */
+.card.card-large-icons .table td:first-child {
+  color: #334155 !important;
+  font-size: 0.92rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  width: auto !important;
+}
+
+.card.card-large-icons .table td:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0284c7;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.5);
+  flex-shrink: 0;
+}
+
+.card.card-large-icons .table tr:first-child td:first-child::before {
+  background: #0052cc !important;
+  box-shadow: 0 0 6px rgba(0, 82, 204, 0.6) !important;
+}
+
+/* Stat Value */
+.card.card-large-icons .table td:last-child {
+  color: #07192f !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace !important;
+  letter-spacing: -0.01em !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+/* Highlight Percentage Row */
+.card.card-large-icons .table tr.stat-percentage-row,
+.card.card-large-icons .table tr:has(td:first-child:contains("%")),
+.card.card-large-icons .table tr:has(td:first-child:contains("Persentase")) {
+  background: #ecfdf5 !important;
+  border-left: 5px solid #059669 !important;
+}
+
+.card.card-large-icons .table tr.stat-percentage-row td:first-child::before,
+.card.card-large-icons .table tr:has(td:first-child:contains("%")) td:first-child::before,
+.card.card-large-icons .table tr:has(td:first-child:contains("Persentase")) td:first-child::before {
+  background: #059669 !important;
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.6) !important;
+}
+
+.card.card-large-icons .table tr.stat-percentage-row td:last-child,
+.card.card-large-icons .table tr:has(td:first-child:contains("%")) td:last-child,
+.card.card-large-icons .table tr:has(td:first-child:contains("Persentase")) td:last-child {
+  color: #059669 !important;
+  font-weight: 800 !important;
+}
+
+/* Modern Gradient CTA Button */
+.card.card-large-icons .card-body a.card-cta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 13px 24px !important;
+  margin-top: auto !important;
+  background: linear-gradient(135deg, #07192f 0%, #0a2540 50%, #0052cc 100%) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 0.94rem !important;
+  letter-spacing: 0.3px !important;
+  border-radius: 10px !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 16px rgba(7, 25, 47, 0.22) !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.card.card-large-icons .card-body a.card-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transition: left 0.6s ease;
+}
+
+.card.card-large-icons .card-body a.card-cta:hover::before {
+  left: 120%;
+}
+
+.card.card-large-icons .card-body a.card-cta:hover {
+  background: linear-gradient(135deg, #0a2540 0%, #0052cc 60%, #0284c7 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.42) !important;
+  transform: translateY(-2px) !important;
+  border-color: #38bdf8 !important;
+}
+
+.card.card-large-icons .card-body a.card-cta i {
+  color: #38bdf8 !important;
+  font-size: 0.95rem !important;
+  transition: transform 0.2s ease !important;
+}
+
+.card.card-large-icons .card-body a.card-cta:hover i {
+  transform: translateX(5px) !important;
+  color: #ffffff !important;
+}
+
+/* ==============================================================================
    MOBILE RESPONSIVE — TABLET & HP (max-width: 768px)
    ============================================================================== */
 @media (max-width: 768px) {
@@ -1275,20 +1618,58 @@ body.sidebar-show::after {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 6px !important;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
   }
   .card-header-action .btn,
-  .card-header-action a.btn {
+  .card-header-action a.btn,
+  .card-header .btn,
+  .btn-group .btn {
     font-size: 0.78rem !important;
-    padding: 5px 10px !important;
+    padding: 6px 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    flex: 0 0 auto !important;
+    max-width: 100% !important;
+    box-shadow: 0 2px 6px rgba(10, 37, 64, 0.08) !important;
   }
   .btn-group {
     flex-wrap: wrap !important;
-    gap: 4px !important;
+    gap: 5px !important;
   }
   .btn-group .btn {
     border-radius: var(--tech-radius-sm) !important;
     margin-bottom: 2px;
+  }
+
+  /* Home Card Responsive di Tablet / Mobile */
+  .card.card-large-icons .card-icon {
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 0 16px !important;
+  }
+  .card.card-large-icons .card-icon i {
+    font-size: 20px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .card.card-large-icons .card-body {
+    padding: 18px 16px !important;
+  }
+  .card.card-large-icons .card-body h4 {
+    font-size: 1.05rem !important;
+    margin-bottom: 14px !important;
+  }
+  .card.card-large-icons .table td:first-child {
+    font-size: 0.84rem !important;
+  }
+  .card.card-large-icons .table td:last-child {
+    font-size: 0.95rem !important;
+  }
+  .card.card-large-icons .card-body a.card-cta {
+    padding: 11px 16px !important;
+    font-size: 0.86rem !important;
   }
 
   /* KPI Cards — compact di HP */
@@ -1369,13 +1750,47 @@ body.sidebar-show::after {
   .card-header-action {
     width: 100% !important;
     justify-content: flex-start !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
   }
   .card-header-action .btn,
-  .card-header-action a.btn {
-    flex: 1 !important;
-    min-width: 80px !important;
-    text-align: center !important;
-    font-size: 0.75rem !important;
+  .card-header-action a.btn,
+  .btn-group .btn {
+    flex: 0 1 auto !important;
+    padding: 5px 10px !important;
+    font-size: 0.76rem !important;
+    max-width: 100% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .card-header-action .btn .btn-text,
+  .btn-group .btn .btn-text {
+    max-width: 110px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+  }
+
+  /* Home Card Responsive di HP Kecil (<= 480px) */
+  .card.card-large-icons .table td:nth-child(2) {
+    display: none !important; /* Hilangkan titik dua ':' agar label & nilai lega */
+  }
+  .card.card-large-icons .table td:first-child {
+    width: 52% !important;
+    padding-right: 4px !important;
+    font-size: 0.8rem !important;
+  }
+  .card.card-large-icons .table td:last-child {
+    padding-left: 4px !important;
+    font-size: 0.84rem !important;
   }
 
   .table-responsive > table,
