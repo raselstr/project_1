@@ -1,4 +1,4 @@
-==sum==#!/bin/bash
+#!/bin/bash
 # =============================================================================
 # deploy_static.sh
 # Script untuk sinkronisasi file static (CSS/JS/gambar) ke server.
@@ -47,6 +47,7 @@ check_containers() {
 run_collectstatic() {
     info "Menjalankan collectstatic di container '${WEB_CONTAINER}'..."
     docker exec "${WEB_CONTAINER}" python manage.py collectstatic --noinput
+    docker exec "${WEB_CONTAINER}" kill -HUP 1 2>/dev/null || true
     success "collectstatic selesai."
 }
 

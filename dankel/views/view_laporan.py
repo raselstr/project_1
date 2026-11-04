@@ -209,7 +209,48 @@ def home(request):
     }
     # print(f"Total Penerimaan: {total_penerimaan}")
     return render(request, template_home, context)
-    
+
+
+def rekap_dankel(request):
+    """Return data_per_opd for use in rencana/realisasi home views."""
+    from ..models import RealisasiDankel, RealisasiDankelsisa, RencDankelsisa, Subkegiatan, RencDankel
+    from opd.models import OpdDana
+    session_data = get_from_sessions(request)
+    sesitahun = session_data.get('sesitahun')
+    sesiidopd = session_data.get('idsubopd')
+    try:
+        dana = Subkegiatan.objects.get(sub_slug=sesidana)
+        danasisa = Subkegiatan.objects.get(sub_slug='sisa-dana-kelurahan')
+    except Subkegiatan.DoesNotExist:
+        return {}
+    if sesiidopd is not None and sesiidopd != 70 and sesiidopd != 67:
+        subopds = OpdDana.objects.filter(opddana_dana=dana, opddana_subopd=sesiidopd)
+    else:
+        subopds = OpdDana.objects.filter(opddana_dana=dana)
+    total_per_opd = []
+    for subopd in subopds:
+        opd = subopd.opddana_subopd
+        total_pagu = Model_pagu().get_pagudausg(tahun=sesitahun, opd=opd, dana=dana)
+        total_penerimaan = Model_realisasi().get_penerimaan_total(tahun=sesitahun, opd=opd, dana=dana)
+        total_realisasilpj = Model_realisasi().get_realisasilpj_total(tahun=sesitahun, opd=opd, dana=dana)
+        total_persentase = Model_realisasi().get_persentase(tahun=sesitahun, opd=opd, dana=dana)
+        total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=opd, dana=dana)
+        total_penerimaansisa = Model_realisasisisa().get_penerimaan_total(tahun=sesitahun, opd=opd, dana=danasisa)
+        total_realisasilpjsisa = Model_realisasisisa().get_realisasilpj_total(tahun=sesitahun, opd=opd, dana=danasisa)
+        total_persentasesisa = Model_realisasisisa().get_persentase(tahun=sesitahun, opd=opd, dana=danasisa)
+        total_per_opd.append({
+            'opd': opd,
+            'total_pagu': total_pagu,
+            'total_penerimaan': total_penerimaan,
+            'total_realisasilpj': total_realisasilpj,
+            'total_persentase': total_persentase,
+            'total_pagusisa': total_pagusisa,
+            'total_penerimaansisa': total_penerimaansisa,
+            'total_realisasilpjsisa': total_realisasilpjsisa,
+            'total_persentasesisa': total_persentasesisa,
+        })
+    return {'data_per_opd': total_per_opd}
+
 @set_submenu_session
 @menu_access_required('list')
 def pdf(request):

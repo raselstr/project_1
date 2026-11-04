@@ -33,7 +33,7 @@
                             <tr>
                                 <th rowspan="2" class="text-center align-middle" style="text-align: center;">Aksi</th>
                                 <th rowspan="2" class="text-center align-middle" style="text-align: center;">OPD</th>
-                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Kegiatan</th>
+                                <th rowspan="2" class="text-center align-middle" style="text-align: center;">Sub Kegiatan</th>
                                 <th colspan="2" class="text-center" style="text-align: center;">Semula (Induk)</th>
                                 <th colspan="2" class="text-center" style="text-align: center;">Menjadi (Perubahan)</th>
                                 <th colspan="2" class="text-center" style="text-align: center;">Perubahan (+/-)</th>
@@ -62,7 +62,7 @@
                                         </a>
                                     </td>
                                     <td style="text-align: left;">{{ data.rencana_subopd }}</td>
-                                    <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
+                                    <td style="text-align: left;">{{ data.get_subkegiatan }}</td>
                                     <td style="text-align: right;">{{ data.induk_pagu|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ data.induk_output|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ data.perubahan_pagu|floatformat:2|intcomma }}</td>
@@ -100,7 +100,7 @@
                             <tr>
                                 <th style="text-align: center;">Aksi</th>
                                 <th style="text-align: center;">OPD</th>
-                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Kegiatan</th>
                                 <th style="text-align: center;">Pagu DAU SG</th>
                                 <th style="text-align: center;">Output</th>
                                 <th style="text-align: center;">Kode DPA Kegiatan</th>
@@ -120,7 +120,7 @@
                                         </a>
                                     </td>
                                     <td style="text-align: left;">{{ data.rencana_subopd }}</td>
-                                    <td style="text-align: left;">{{ data.rencana_kegiatan }}</td>
+                                    <td style="text-align: left;">{{ data.get_subkegiatan }}</td>
                                     <td style="text-align: right;">{{ data.rencana_pagu }}</td>
                                     <td style="text-align: center;">
                                         {{ data.rencana_output|default:"0"|floatformat:0 }}<br>

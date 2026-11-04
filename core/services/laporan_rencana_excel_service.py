@@ -315,7 +315,7 @@ class LaporanRencanaExcelService:
             else:
                 subopd_val = cls._clean_str(getattr(item, 'rencana_subopd', getattr(item, 'rencanasisa_subopd', '')))
                 keg_val = ""
-                subkeg_val = cls._clean_str(getattr(item, 'rencana_kegiatan', getattr(item, 'rencanasisa_kegiatan', '')))
+                subkeg_val = cls._clean_str(getattr(item, 'get_subkegiatan', getattr(item, 'rencana_kegiatan', getattr(item, 'rencanasisa_kegiatan', ''))))
                 satuan_val = cls._clean_str(getattr(item, 'get_satuan_kegiatan', getattr(item, 'rencana_satuan', '')))
                 ket_val = cls._clean_str(getattr(item, 'rencana_ket', getattr(item, 'rencanasisa_ket', '')))
                 pagudpa_val = cls._to_num(getattr(item, 'rencana_pagudpa', getattr(item, 'rencanasisa_pagudpa', 0.0)))

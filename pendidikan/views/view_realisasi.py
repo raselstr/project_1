@@ -60,6 +60,7 @@ sesidanasisa = 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan'
 logger = logging.getLogger(__name__)
 
 from django.urls import reverse
+from core.services.home_rekap_service import HomeRekapService
 
 def safe_reverse(name, args=None, kwargs=None):
     try:
@@ -377,5 +378,10 @@ def home(request):
         'link_url': reverse(url_filter),
         'link_urlsisa': reverse(url_filtersisa),
     }
+    try:
+        rekap_ctx = HomeRekapService.get_rekap_realisasi_sp2d('pendidikan', tahun, sesisubopd)
+        context.update(rekap_ctx)
+    except Exception:
+        pass
     return render(request, template_home, context)
 

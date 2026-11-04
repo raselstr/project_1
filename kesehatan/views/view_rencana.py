@@ -16,6 +16,7 @@ from opd.models import Pejabat, Subopd
 from core.forms.budget_opd import scoped_opd_id
 from core.services.rencana_service import enrich_rencana_with_perubahan
 from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
+from core.services.home_rekap_service import HomeRekapService
 
 form_filter = RencanakesehatanFilterForm
 form_data = RencanakesehatanForm
@@ -243,6 +244,11 @@ def home(request):
         'link_url': reverse(url_filter),
         'link_urlsisa': reverse(url_filtersisa),
     }
+    try:
+        rekap_ctx = HomeRekapService.get_rekap_rencana('kesehatan', tahun, sesisubopd)
+        context.update(rekap_ctx)
+    except Exception:
+        pass
     return render(request, template_home, context)
 
 @set_submenu_session

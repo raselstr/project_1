@@ -11,6 +11,7 @@ from ..tables import RencanaTable
 from core.forms.budget_opd import scoped_opd_id
 from core.services.rencana_service import enrich_rencana_with_perubahan
 from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
+from core.services.home_rekap_service import HomeRekapService
 
 
 Model_data = RencDankel
@@ -187,6 +188,11 @@ def home(request):
         'total_rencana_sisa' : total_rencana_sisa,
         'sisa_rencana_sisa' : sisa_rencana_sisa,
     }
+    try:
+        rekap_ctx = HomeRekapService.get_rekap_rencana('dankel', sesitahun, sesiidopd)
+        context.update(rekap_ctx)
+    except Exception:
+        pass
     return render(request, template_home, context)
 
 @set_submenu_session

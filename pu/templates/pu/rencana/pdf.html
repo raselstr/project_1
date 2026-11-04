@@ -111,7 +111,7 @@
                                     <tr>
                                         <td style="text-align: center;">{{ forloop.counter }}</td>
                                         <td>{{ row.rencana_subopd }}</td>
-                                        <td>{{ row.rencana_kegiatan }}</td>
+                                        <td>{{ row.get_subkegiatan }}</td>
                                         <td style="text-align: right;">{{ row.induk_pagu|floatformat:2|intcomma }}</td>
                                         <td style="text-align: right;">{{ row.induk_output|floatformat:2|intcomma }}</td>
                                         <td style="text-align: right;">{{ row.perubahan_pagu|floatformat:2|intcomma }}</td>

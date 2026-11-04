@@ -7,6 +7,7 @@ from ..models import RealisasiDankel, RencDankel, Subkegiatan, RealisasiDankelsi
 from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 import logging
+from core.services.home_rekap_service import HomeRekapService
 
 logger = logging.getLogger(__name__)
 
@@ -250,4 +251,9 @@ def home(request):
         'realisasilpjsisa' : total_realisasilpjsisa,
         'persentasesisa' : total_persentasesisa,
     }
+    try:
+        rekap_ctx = HomeRekapService.get_rekap_realisasi_sp2d('dankel', sesitahun, sesiidopd)
+        context.update(rekap_ctx)
+    except Exception:
+        pass
     return render(request, template_home, context)

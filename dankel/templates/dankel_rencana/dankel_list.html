@@ -119,7 +119,6 @@
                                 <th style="text-align: center;">Aksi</th>
                                 {% comment %} <th style="text-align: center;">Program</th> {% endcomment %}
                                 <th style="text-align: center;">Sub OPD</th>
-                                <th style="text-align: center;">Kegiatan</th>
                                 <th style="text-align: center;">Sub Kegiatan</th>
                                 <th style="text-align: center;">Pagu Anggaran</th>
                                 <th style="text-align: center;">Output</th>
@@ -146,7 +145,6 @@
                                         </a>
                                     </td>
                                     <td>{{ data.rencdankel_subopd.sub_nama }}</td>
-                                    <td>{{ data.rencdankel_sub.dankelsub_keg.dankelkeg_nama }}</td>
                                     <td>{{ data.rencdankel_sub.dankelsub_nama}}</td>
                                     <td style="text-align: right;">{{ data.rencdankel_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
                                     <td style="text-align: right;">{{ data.rencdankel_output }}</td>
