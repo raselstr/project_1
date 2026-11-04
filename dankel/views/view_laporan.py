@@ -141,7 +141,7 @@ def home(request):
             total_persentase = Model_realisasi().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=dana)
 
             # Menghitung total penerimaan, realisasi LPJ, dan persentase untuk sisa dana
-            total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=dana)
+            total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
             total_penerimaansisa = Model_realisasisisa().get_penerimaan_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
             total_realisasilpjsisa = Model_realisasisisa().get_realisasilpj_total(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
             total_persentasesisa = Model_realisasisisa().get_persentase(tahun=sesitahun, opd=sesiidopd, dana=danasisa)
@@ -234,7 +234,7 @@ def rekap_dankel(request):
         total_penerimaan = Model_realisasi().get_penerimaan_total(tahun=sesitahun, opd=opd, dana=dana)
         total_realisasilpj = Model_realisasi().get_realisasilpj_total(tahun=sesitahun, opd=opd, dana=dana)
         total_persentase = Model_realisasi().get_persentase(tahun=sesitahun, opd=opd, dana=dana)
-        total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=opd, dana=dana)
+        total_pagusisa = Model_pagusisa().get_sisapagudausg(tahun=sesitahun, opd=opd, dana=danasisa)
         total_penerimaansisa = Model_realisasisisa().get_penerimaan_total(tahun=sesitahun, opd=opd, dana=danasisa)
         total_realisasilpjsisa = Model_realisasisisa().get_realisasilpj_total(tahun=sesitahun, opd=opd, dana=danasisa)
         total_persentasesisa = Model_realisasisisa().get_persentase(tahun=sesitahun, opd=opd, dana=danasisa)

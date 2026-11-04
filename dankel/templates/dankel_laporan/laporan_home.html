@@ -30,6 +30,11 @@
                         <h4>{{tab1}}</h4>
                         <table class="table table-sm">
                             <tr>
+                                <td>Total Pagu</td>
+                                <td>:</td>
+                                <td style="text-align: right;">{{total_pagu_global|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
                                 <td>Total Dana yang diterima</td>
                                 <td>:</td>
                                 <td style="text-align: right;">{{total_penerimaan_global|default:"0.00"|floatformat:2|intcomma}}</td>
@@ -59,6 +64,11 @@
                     <div class="card-body">
                         <h4>{{tab2}}</h4>
                         <table class="table table-sm">
+                            <tr>
+                                <td>Total Pagu Sisa</td>
+                                <td>:</td>
+                                <td style="text-align: right;">{{total_pagusisa_global|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
                             <tr>
                                 <td>Total Dana yang diterima</td>
                                 <td>:</td>
