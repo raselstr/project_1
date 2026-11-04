@@ -271,65 +271,16 @@ class RealisasiDankel(models.Model):
     
     def clean(self):
         super().clean()
-        
-        total_penerimaan = self.get_penerimaan_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
-        total_realisasi = self.get_realisasilpj_total(self.realisasidankel_tahun, self.realisasidankel_subopd_id, self.realisasidankel_dana_id)
-        total_rencana_pk = self.get_rencana_pk()
-        total_realisasi_pk = self.get_realisasi_pk()
-        total_rencanaoutput_pk = self.get_rencanaoutput_pk()
-        
-         
-        
-        if self.pk:
-            total_realisasi_pk = total_realisasi_pk - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
-            total_realisasi = total_realisasi - RealisasiDankel.objects.get(pk=self.pk).realisasidankel_lpjnilai
-        
-        total_realisasi_pk += self.realisasidankel_lpjnilai
-        total_realisasi += self.realisasidankel_lpjnilai
-        
-        # Format nilai menjadi string dengan pemisah ribuan
-        formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
-        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
-        formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
-        formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
-        
-        try:
-            sp2dtu = Decimal(self.realisasidankel_nilai)
-            lpj = Decimal(self.realisasidankel_lpjnilai)
-            sts = Decimal(self.realisasidankel_stsnilai)
-            output = Decimal(self.realisasidankel_output or 0)
-            
-        except ValueError:
-            raise ValidationError('SP2D TU dan LPJ harus berupa angka.')
-        
-        if output > total_rencanaoutput_pk:
-            raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
-       
-        if sp2dtu < 0:
-            raise ValidationError('SP2D TU tidak boleh kurang dari 0')
-    
-        if lpj > sp2dtu:
-            raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
-
-        sisasts = sp2dtu - lpj
-
-        if sts < 0:
-            raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
-
-        if sts != sisasts:
-            raise ValidationError(f'Nilai STS harus sama dengan {sisasts}')        
-
-        
-        if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
-        
-        if total_realisasi > total_penerimaan:
-            raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
+        if hasattr(self, 'realisasidankel_rencana') and self.realisasidankel_rencana:
+            if not getattr(self, 'realisasidankel_idrencana_id', None):
+                self.realisasidankel_idrencana = self.realisasidankel_rencana.rencdankel_id
+        from core.services.realisasi_validation_service import RealisasiValidationService
+        RealisasiValidationService.validate_realisasi_dankel(self)
         
     def save(self, *args, **kwargs):
-        self.full_clean()
         if self.realisasidankel_rencana:
             self.realisasidankel_idrencana = self.realisasidankel_rencana.rencdankel_id
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def get_penerimaan_total(self, tahun, opd, dana):
@@ -423,65 +374,16 @@ class RealisasiDankelsisa(models.Model):
     
     def clean(self):
         super().clean()
-        
-        total_penerimaan = self.get_penerimaan_total(self.realisasidankelsisa_tahun, self.realisasidankelsisa_subopd_id, self.realisasidankelsisa_dana_id)
-        total_realisasi = self.get_realisasilpj_total(self.realisasidankelsisa_tahun, self.realisasidankelsisa_subopd_id, self.realisasidankelsisa_dana_id)
-        total_rencana_pk = self.get_rencana_pk()
-        total_realisasi_pk = self.get_realisasi_pk()
-        total_rencanaoutputsisa_pk = self.get_rencanaoutputsisa_pk()
-        
-         
-        
-        if self.pk:
-            total_realisasi_pk = total_realisasi_pk - RealisasiDankelsisa.objects.get(pk=self.pk).realisasidankelsisa_lpjnilai
-            total_realisasi = total_realisasi - RealisasiDankelsisa.objects.get(pk=self.pk).realisasidankelsisa_lpjnilai
-        
-        total_realisasi_pk += self.realisasidankelsisa_lpjnilai
-        total_realisasi += self.realisasidankelsisa_lpjnilai
-        
-        # Format nilai menjadi string dengan pemisah ribuan
-        formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
-        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
-        formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
-        formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
-        
-        try:
-            sp2dtu = Decimal(self.realisasidankelsisa_nilai)
-            lpj = Decimal(self.realisasidankelsisa_lpjnilai)
-            sts = Decimal(self.realisasidankelsisa_stsnilai)
-            output = Decimal(self.realisasidankelsisa_output or 0)
-            
-        except ValueError:
-            raise ValidationError('SP2D TU dan LPJ harus berupa angka.')
-        
-        if output > total_rencanaoutputsisa_pk:
-            raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutputsisa_pk}')
-       
-        if sp2dtu < 0:
-            raise ValidationError('SP2D TU tidak boleh kurang dari 0')
-    
-        if lpj > sp2dtu:
-            raise ValidationError('Nilai LPJ tidak boleh lebih besar dari SP2D TU')
-
-        sisasts = sp2dtu - lpj
-
-        if sts < 0:
-            raise ValidationError('Nilai STS tidak boleh lebih kecil dari 0')
-
-        if sts != sisasts:
-            raise ValidationError(f'Nilai STS harus sama dengan {sisasts}')        
-
-        
-        if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(f'Total Realisasi Kegiatan ini setelah ditambah nilai LPJ sekarang sebesar Rp. {formatted_total_realisasi_pk} tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
-        
-        if total_realisasi > total_penerimaan:
-            raise ValidationError(f'Total Realisasi Kegiatan Rp. {formatted_total_realisasi} tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
+        if hasattr(self, 'realisasidankelsisa_rencana') and self.realisasidankelsisa_rencana:
+            if not getattr(self, 'realisasidankelsisa_idrencana_id', None):
+                self.realisasidankelsisa_idrencana = self.realisasidankelsisa_rencana.rencdankelsisa_id
+        from core.services.realisasi_validation_service import RealisasiValidationService
+        RealisasiValidationService.validate_realisasi_dankel(self)
         
     def save(self, *args, **kwargs):
-        self.full_clean()
         if self.realisasidankelsisa_rencana:
             self.realisasidankelsisa_idrencana = self.realisasidankelsisa_rencana.rencdankelsisa_id
+        self.full_clean()
         super().save(*args, **kwargs)
 
     def get_penerimaan_total(self, tahun, opd, dana):

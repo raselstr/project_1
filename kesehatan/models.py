@@ -242,43 +242,13 @@ class BaseRealisasikesehatan(models.Model):
         
     def clean(self):
         super().clean()
-        
-        total_penerimaan = model_penerimaan().totalpenerimaan(self.realisasi_tahun, self.realisasi_dana)
-        total_realisasi = self.get_realisasi_dana_total(self.realisasi_tahun, self.realisasi_dana_id)
-        total_realisasi_pk = self.get_realisasi_pk()
-        total_rencana_pk = self.get_rencana_pk()
-        total_rencanaoutput_pk = self.get_rencanaoutput_pk()
-
-        if self.pk:
-            total_realisasi_pk = total_realisasi_pk - self.__class__.objects.get(pk=self.pk).realisasi_nilai
-            total_realisasi = total_realisasi - self.__class__.objects.get(pk=self.pk).realisasi_nilai
-        
-        total_realisasi_pk += self.realisasi_nilai
-        total_realisasi += self.realisasi_nilai
-        
-# #         # Format nilai menjadi string dengan pemisah ribuan
-        formatted_total_rencana_pk = "{:,.2f}".format(total_rencana_pk)
-        formatted_total_realisasi_pk = "{:,.2f}".format(total_realisasi_pk)
-        formatted_total_realisasi = "{:,.2f}".format(total_realisasi)
-        formatted_total_penerimaan = "{:,.2f}".format(total_penerimaan)
-        
-        
-        output = Decimal(self.realisasi_output or 0)
-        
-        if output < 0:
-            raise ValidationError(f'Output tidak boleh lebih kecil dari 0')
-        
-        if output > total_rencanaoutput_pk:
-            raise ValidationError(f'Output tidak boleh lebih besar dari {total_rencanaoutput_pk}')
-       
-        if total_realisasi_pk > total_rencana_pk:
-            raise ValidationError(
-                f'Total Realisasi Kegiatan ini setelah ditambah nilai SP2D sekarang sebesar Rp. {formatted_total_realisasi_pk} '
-                f'tidak boleh lebih besar dari Rp. {formatted_total_rencana_pk} Nilai Rencana Kegiatan yang tersedia.')
-        elif total_realisasi > total_penerimaan:
-            raise ValidationError(
-                f'Total Realisasi Dana Rp. {formatted_total_realisasi} '
-                f'tidak boleh lebih besar dari Rp. {formatted_total_penerimaan} Total Penerimaan yang tersedia.')
+        if hasattr(self, 'realisasi_rencanaposting') and self.realisasi_rencanaposting:
+            if hasattr(self.realisasi_rencanaposting, 'posting_rencanaid_id') and not getattr(self, 'realisasi_rencana_id', None):
+                self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            if hasattr(self.realisasi_rencanaposting, 'posting_subkegiatan_id') and not getattr(self, 'realisasi_subkegiatan_id', None):
+                self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        from core.services.realisasi_validation_service import RealisasiValidationService
+        RealisasiValidationService.validate_realisasi(self)
 
     def get_realisasi_total(self, tahun, opd, dana):
         filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)

@@ -42,6 +42,10 @@ class RealisasiDankelFilterForm(forms.ModelForm):
         
         if tahunrencana is not None:
             self.fields['realisasidankel_tahun'].initial = tahunrencana
+
+    def _post_clean(self):
+        # Lewatkan model-level transaction validation pada filter form
+        pass
         
         
 

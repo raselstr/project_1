@@ -41,6 +41,10 @@ class RencanakesehatanFilterForm(forms.ModelForm):
         if tahun is not None:
             self.fields['rencana_tahun'].initial = tahun
 
+    def _post_clean(self):
+        # Lewatkan model-level transaction validation pada filter form
+        pass
+
 
 class RencanakesehatanForm(forms.ModelForm):
     class Meta:
@@ -131,6 +135,10 @@ class RealisasikesehatanFilterForm(forms.ModelForm):
         
         if tahun is not None:
             self.fields['realisasi_tahun'].initial = tahun
+
+    def _post_clean(self):
+        # Lewatkan model-level transaction validation pada filter form
+        pass
 
 class RealisasikesehatanForm(forms.ModelForm):
     class Meta:
