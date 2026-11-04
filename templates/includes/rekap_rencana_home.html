@@ -1,108 +1,209 @@
 {% load humanize %}
-{% if rekap_rencana_list %}
+{% if rekap_rencana_list or rekap_rencana_sisa_list %}
 <section class="section mt-2">
     <div class="section-body">
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm border-0">
-                    <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%);">
-                        <h4 class="mb-0 text-white font-weight-bold" style="font-size: 0.95rem;">
-                            <i class="fas fa-clipboard-list mr-2 text-info"></i>
-                            Rekap Nilai Rencana Kegiatan {% if is_perubahan %}(Induk &amp; Perubahan){% endif %}
-                        </h4>
-                        {% if is_perubahan %}
-                        <span class="badge badge-warning text-dark font-weight-bold" style="font-size: 0.74rem;">
-                            <i class="fas fa-sync-alt mr-1"></i> Perubahan APBD
-                        </span>
-                        {% else %}
-                        <span class="badge badge-info text-white font-weight-bold" style="font-size: 0.74rem;">
-                            <i class="fas fa-check-circle mr-1"></i> APBD Induk
-                        </span>
-                        {% endif %}
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%);">
+                        <div class="d-flex align-items-center mb-1 mb-md-0">
+                            <h4 class="mb-0 text-white font-weight-bold mr-3" style="font-size: 0.95rem;">
+                                <i class="fas fa-clipboard-list mr-2 text-info"></i>
+                                Rekap Nilai Rencana Kegiatan
+                            </h4>
+                        </div>
+                        <ul class="nav nav-pills" id="rekapRencanaTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active py-1 px-3 font-weight-bold text-white border border-light mr-1" id="tab-rencana-utama" data-toggle="pill" href="#pane-rencana-utama" role="tab" style="font-size: 0.78rem; border-radius: 4px;">
+                                    <i class="fas fa-calendar-check mr-1"></i> Tahun Berjalan
+                                </a>
+                            </li>
+                            {% if rekap_rencana_sisa_list %}
+                            <li class="nav-item">
+                                <a class="nav-link py-1 px-3 font-weight-bold text-white border border-light" id="tab-rencana-sisa" data-toggle="pill" href="#pane-rencana-sisa" role="tab" style="font-size: 0.78rem; border-radius: 4px;">
+                                    <i class="fas fa-history mr-1"></i> Sisa Tahun Lalu
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered table-hover table-sm mb-0">
-                                <thead class="thead-dark">
-                                    {% if is_perubahan %}
-                                    <tr>
-                                        <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
-                                        <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
-                                        <th rowspan="2" class="text-center align-middle">Pagu DAU SG (Rp)</th>
-                                        <th colspan="2" class="text-center">Nilai Rencana Kegiatan (Rp)</th>
-                                        <th rowspan="2" class="text-center align-middle">Perubahan (+/-)</th>
-                                        <th rowspan="2" class="text-center align-middle">Sisa Pagu (Rp)</th>
-                                        <th rowspan="2" class="text-center align-middle" style="width: 70px;">%</th>
-                                    </tr>
-                                    <tr>
-                                        <th class="text-center" style="font-size: 0.76rem;">Semula (Induk)</th>
-                                        <th class="text-center" style="font-size: 0.76rem;">Menjadi (Perubahan)</th>
-                                    </tr>
-                                    {% else %}
-                                    <tr>
-                                        <th class="text-center align-middle" style="width: 45px;">No</th>
-                                        <th class="text-center align-middle">OPD / Sub OPD</th>
-                                        <th class="text-center align-middle">Pagu DAU SG (Rp)</th>
-                                        <th class="text-center align-middle">Total Rencana (Rp)</th>
-                                        <th class="text-center align-middle">Sisa Pagu (Rp)</th>
-                                        <th class="text-center align-middle" style="width: 70px;">%</th>
-                                    </tr>
-                                    {% endif %}
-                                </thead>
-                                <tbody>
-                                    {% for item in rekap_rencana_list %}
-                                    <tr>
-                                        <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
-                                        <td class="text-right">{{ item.pagu|floatformat:2|intcomma }}</td>
-                                        {% if is_perubahan %}
-                                        <td class="text-right">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
-                                        <td class="text-right font-weight-bold text-primary">{{ item.rencana_perubahan|floatformat:2|intcomma }}</td>
-                                        <td class="text-right font-weight-bold {% if item.selisih < 0 %}text-danger{% elif item.selisih > 0 %}text-success{% else %}text-muted{% endif %}">
-                                            {{ item.selisih|floatformat:2|intcomma }}
-                                        </td>
-                                        {% else %}
-                                        <td class="text-right font-weight-bold text-primary">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
+                        <div class="tab-content" id="rekapRencanaTabContent">
+                            <!-- TAB 1: TAHUN BERJALAN -->
+                            <div class="tab-pane fade show active" id="pane-rencana-utama" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover table-sm mb-0">
+                                        <thead class="thead-dark">
+                                            {% if is_perubahan %}
+                                            <tr>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
+                                                <th rowspan="2" class="text-center align-middle">Pagu Alokasi (Rp)</th>
+                                                <th colspan="2" class="text-center">Nilai Rencana Kegiatan (Rp)</th>
+                                                <th rowspan="2" class="text-center align-middle">Perubahan (+/-)</th>
+                                                <th rowspan="2" class="text-center align-middle">Sisa Pagu (Rp)</th>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 70px;">%</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center" style="font-size: 0.76rem;">Semula (Induk)</th>
+                                                <th class="text-center" style="font-size: 0.76rem;">Menjadi (Perubahan)</th>
+                                            </tr>
+                                            {% else %}
+                                            <tr>
+                                                <th class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th class="text-center align-middle">OPD / Sub OPD</th>
+                                                <th class="text-center align-middle">Pagu Alokasi (Rp)</th>
+                                                <th class="text-center align-middle">Total Rencana (Rp)</th>
+                                                <th class="text-center align-middle">Sisa Pagu (Rp)</th>
+                                                <th class="text-center align-middle" style="width: 70px;">%</th>
+                                            </tr>
+                                            {% endif %}
+                                        </thead>
+                                        <tbody>
+                                            {% for item in rekap_rencana_list %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
+                                                <td class="text-right">{{ item.pagu|floatformat:2|intcomma }}</td>
+                                                {% if is_perubahan %}
+                                                <td class="text-right">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold text-primary">{{ item.rencana_perubahan|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold {% if item.selisih < 0 %}text-danger{% elif item.selisih > 0 %}text-success{% else %}text-muted{% endif %}">
+                                                    {{ item.selisih|floatformat:2|intcomma }}
+                                                </td>
+                                                {% else %}
+                                                <td class="text-right font-weight-bold text-primary">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                                <td class="text-right {% if item.sisa_pagu < 0 %}text-danger font-weight-bold{% endif %}">
+                                                    {{ item.sisa_pagu|floatformat:2|intcomma }}
+                                                </td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge {% if item.persen >= 100 %}badge-success{% elif item.persen >= 50 %}badge-info{% else %}badge-warning{% endif %}">
+                                                        {{ item.persen|floatformat:1 }}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="{% if is_perubahan %}8{% else %}6{% endif %}" class="text-center py-3 text-muted">
+                                                    <em>Tidak ada data rekap rencana tahun berjalan untuk tahun ini</em>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if rekap_rencana_list %}
+                                        <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
+                                            <tr>
+                                                <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan</td>
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_total.pagu|floatformat:2|intcomma }}</td>
+                                                {% if is_perubahan %}
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_total.induk|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_total.perubahan|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold {% if rekap_rencana_total.selisih < 0 %}text-danger{% elif rekap_rencana_total.selisih > 0 %}text-success{% endif %}">
+                                                    {{ rekap_rencana_total.selisih|floatformat:2|intcomma }}
+                                                </td>
+                                                {% else %}
+                                                <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_total.induk|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_total.sisa|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-primary">{{ rekap_rencana_total.persen|floatformat:1 }}%</span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
                                         {% endif %}
-                                        <td class="text-right {% if item.sisa_pagu < 0 %}text-danger font-weight-bold{% endif %}">
-                                            {{ item.sisa_pagu|floatformat:2|intcomma }}
-                                        </td>
-                                        <td class="text-center font-weight-bold">
-                                            <span class="badge {% if item.persen >= 100 %}badge-success{% elif item.persen >= 50 %}badge-info{% else %}badge-warning{% endif %}">
-                                                {{ item.persen|floatformat:1 }}%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="{% if is_perubahan %}8{% else %}6{% endif %}" class="text-center py-3 text-muted">
-                                            <em>Tidak ada data rekap rencana untuk tahun ini</em>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                                {% if rekap_rencana_list %}
-                                <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
-                                    <tr>
-                                        <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan</td>
-                                        <td class="text-right font-weight-bold">{{ rekap_rencana_total.pagu|floatformat:2|intcomma }}</td>
-                                        {% if is_perubahan %}
-                                        <td class="text-right font-weight-bold">{{ rekap_rencana_total.induk|floatformat:2|intcomma }}</td>
-                                        <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_total.perubahan|floatformat:2|intcomma }}</td>
-                                        <td class="text-right font-weight-bold {% if rekap_rencana_total.selisih < 0 %}text-danger{% elif rekap_rencana_total.selisih > 0 %}text-success{% endif %}">
-                                            {{ rekap_rencana_total.selisih|floatformat:2|intcomma }}
-                                        </td>
-                                        {% else %}
-                                        <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_total.induk|floatformat:2|intcomma }}</td>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: SISA TAHUN LALU -->
+                            {% if rekap_rencana_sisa_list %}
+                            <div class="tab-pane fade" id="pane-rencana-sisa" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover table-sm mb-0">
+                                        <thead class="thead-dark">
+                                            {% if is_perubahan_sisa %}
+                                            <tr>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
+                                                <th rowspan="2" class="text-center align-middle">Pagu Alokasi Sisa (Rp)</th>
+                                                <th colspan="2" class="text-center">Nilai Rencana Sisa (Rp)</th>
+                                                <th rowspan="2" class="text-center align-middle">Perubahan (+/-)</th>
+                                                <th rowspan="2" class="text-center align-middle">Sisa Pagu (Rp)</th>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 70px;">%</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center" style="font-size: 0.76rem;">Semula (Induk)</th>
+                                                <th class="text-center" style="font-size: 0.76rem;">Menjadi (Perubahan)</th>
+                                            </tr>
+                                            {% else %}
+                                            <tr>
+                                                <th class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th class="text-center align-middle">OPD / Sub OPD</th>
+                                                <th class="text-center align-middle">Pagu Alokasi Sisa (Rp)</th>
+                                                <th class="text-center align-middle">Total Rencana Sisa (Rp)</th>
+                                                <th class="text-center align-middle">Sisa Pagu (Rp)</th>
+                                                <th class="text-center align-middle" style="width: 70px;">%</th>
+                                            </tr>
+                                            {% endif %}
+                                        </thead>
+                                        <tbody>
+                                            {% for item in rekap_rencana_sisa_list %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
+                                                <td class="text-right">{{ item.pagu|floatformat:2|intcomma }}</td>
+                                                {% if is_perubahan_sisa %}
+                                                <td class="text-right">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold text-primary">{{ item.rencana_perubahan|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold {% if item.selisih < 0 %}text-danger{% elif item.selisih > 0 %}text-success{% else %}text-muted{% endif %}">
+                                                    {{ item.selisih|floatformat:2|intcomma }}
+                                                </td>
+                                                {% else %}
+                                                <td class="text-right font-weight-bold text-primary">{{ item.rencana_induk|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                                <td class="text-right {% if item.sisa_pagu < 0 %}text-danger font-weight-bold{% endif %}">
+                                                    {{ item.sisa_pagu|floatformat:2|intcomma }}
+                                                </td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge {% if item.persen >= 100 %}badge-success{% elif item.persen >= 50 %}badge-info{% else %}badge-warning{% endif %}">
+                                                        {{ item.persen|floatformat:1 }}%
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="{% if is_perubahan_sisa %}8{% else %}6{% endif %}" class="text-center py-3 text-muted">
+                                                    <em>Tidak ada data rekap rencana sisa untuk tahun ini</em>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if rekap_rencana_sisa_list %}
+                                        <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
+                                            <tr>
+                                                <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan</td>
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_sisa_total.pagu|floatformat:2|intcomma }}</td>
+                                                {% if is_perubahan_sisa %}
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_sisa_total.induk|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_sisa_total.perubahan|floatformat:2|intcomma }}</td>
+                                                <td class="text-right font-weight-bold {% if rekap_rencana_sisa_total.selisih < 0 %}text-danger{% elif rekap_rencana_sisa_total.selisih > 0 %}text-success{% endif %}">
+                                                    {{ rekap_rencana_sisa_total.selisih|floatformat:2|intcomma }}
+                                                </td>
+                                                {% else %}
+                                                <td class="text-right font-weight-bold text-primary">{{ rekap_rencana_sisa_total.induk|floatformat:2|intcomma }}</td>
+                                                {% endif %}
+                                                <td class="text-right font-weight-bold">{{ rekap_rencana_sisa_total.sisa|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-primary">{{ rekap_rencana_sisa_total.persen|floatformat:1 }}%</span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
                                         {% endif %}
-                                        <td class="text-right font-weight-bold">{{ rekap_rencana_total.sisa|floatformat:2|intcomma }}</td>
-                                        <td class="text-center font-weight-bold">
-                                            <span class="badge badge-primary">{{ rekap_rencana_total.persen|floatformat:1 }}%</span>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                                {% endif %}
-                            </table>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -111,4 +212,3 @@
     </div>
 </section>
 {% endif %}
-

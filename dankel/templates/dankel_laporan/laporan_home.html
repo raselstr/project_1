@@ -85,45 +85,112 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h4>Rincian per OPD</h4>
+                        <ul class="nav nav-pills card-header-pills" id="rekapDankelTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="dankel-utama-tab" data-toggle="pill" href="#pane-dankel-utama" role="tab" aria-controls="pane-dankel-utama" aria-selected="true">
+                                    <i class="fas fa-calendar-check mr-1"></i> {{tab1|default:"Tahun Berjalan"}}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="dankel-sisa-tab" data-toggle="pill" href="#pane-dankel-sisa" role="tab" aria-controls="pane-dankel-sisa" aria-selected="false">
+                                    <i class="fas fa-history mr-1"></i> {{tab2|default:"Sisa Tahun Lalu"}}
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                        <table class="table table-sm table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style="text-align: center">NO</th>
-                                    <th style="text-align: center">OPD</th>
-                                    <th style="text-align: center">Total Pagu</th>
-                                    <th style="text-align: center">Distribusi Dana</th>
-                                    <th style="text-align: center">Total Realisasi</th>
-                                    <th style="text-align: center">Persentase Penyerapan</th>
-                                    {% comment %} <th>Total Dana yang diterima (Sisa)</th>
-                                    <th>Total Realisasi (Sisa)</th>
-                                    <th>Persentase Penyerapan (Sisa)</th> {% endcomment %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in data_per_opd %}
-                                <tr>
-                                    <td style="text-align: center">{{ forloop.counter }}</td>
-                                    <td>{{ item.opd }}</td>
-                                    <td style="text-align: right;">{{ item.total_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ item.total_penerimaan|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ item.total_realisasilpj|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: center;">{{ item.total_persentase|default:"0.00"|floatformat:2|intcomma }} %</td>
-                                    {% comment %} <td style="text-align: right;">{{ item.total_penerimaansisa|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ item.total_realisasilpjsisa|default:"0.00"|floatformat:2|intcomma }}</td>
-                                    <td style="text-align: right;">{{ item.total_persentasesisa|default:"0.00"|floatformat:2|intcomma }} %</td> {% endcomment %}
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7" style="text-align: center;">Tidak ada data</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="tab-content" id="rekapDankelTabContent">
+                            <!-- Tab Tahun Berjalan -->
+                            <div class="tab-pane fade show active" id="pane-dankel-utama" role="tabpanel" aria-labelledby="dankel-utama-tab">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center">NO</th>
+                                                <th style="text-align: center">OPD</th>
+                                                <th style="text-align: center">Total Pagu</th>
+                                                <th style="text-align: center">Distribusi Dana</th>
+                                                <th style="text-align: center">Total Realisasi</th>
+                                                <th style="text-align: center">Persentase Penyerapan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in data_per_opd %}
+                                            <tr>
+                                                <td style="text-align: center">{{ forloop.counter }}</td>
+                                                <td>{{ item.opd }}</td>
+                                                <td style="text-align: right;">{{ item.total_pagu|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: right;">{{ item.total_penerimaan|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: right;">{{ item.total_realisasilpj|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: center;">{{ item.total_persentase|default:"0.00"|floatformat:2|intcomma }} %</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="6" style="text-align: center;">Tidak ada data tahun berjalan</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if data_per_opd %}
+                                        <tfoot>
+                                            <tr class="font-weight-bold bg-light">
+                                                <th colspan="2" style="text-align: center;">Total</th>
+                                                <th style="text-align: right;">{{ total_pagu_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: right;">{{ total_penerimaan_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: right;">{{ total_realisasilpj_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: center;">{{ rata_persentase_global|default:"0.00"|floatformat:2|intcomma }} %</th>
+                                            </tr>
+                                        </tfoot>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Tab Sisa Tahun Lalu -->
+                            <div class="tab-pane fade" id="pane-dankel-sisa" role="tabpanel" aria-labelledby="dankel-sisa-tab">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center">NO</th>
+                                                <th style="text-align: center">OPD</th>
+                                                <th style="text-align: center">Total Pagu Sisa</th>
+                                                <th style="text-align: center">Distribusi Dana Sisa</th>
+                                                <th style="text-align: center">Total Realisasi Sisa</th>
+                                                <th style="text-align: center">Persentase Penyerapan Sisa</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in data_per_opd %}
+                                            <tr>
+                                                <td style="text-align: center">{{ forloop.counter }}</td>
+                                                <td>{{ item.opd }}</td>
+                                                <td style="text-align: right;">{{ item.total_pagusisa|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: right;">{{ item.total_penerimaansisa|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: right;">{{ item.total_realisasilpjsisa|default:"0.00"|floatformat:2|intcomma }}</td>
+                                                <td style="text-align: center;">{{ item.total_persentasesisa|default:"0.00"|floatformat:2|intcomma }} %</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="6" style="text-align: center;">Tidak ada data sisa tahun lalu</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if data_per_opd %}
+                                        <tfoot>
+                                            <tr class="font-weight-bold bg-light">
+                                                <th colspan="2" style="text-align: center;">Total</th>
+                                                <th style="text-align: right;">{{ total_pagusisa_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: right;">{{ total_penerimaansisa_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: right;">{{ total_realisasilpjsisa_global|default:"0.00"|floatformat:2|intcomma }}</th>
+                                                <th style="text-align: center;">{{ rata_persentasesisa_global|default:"0.00"|floatformat:2|intcomma }} %</th>
+                                            </tr>
+                                        </tfoot>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

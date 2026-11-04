@@ -134,15 +134,38 @@
         <div class="row mt-5">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h4>Rekap {{judul}}</h4>
+                        <ul class="nav nav-pills card-header-pills" id="rekapLaporanTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="laporan-utama-tab" data-toggle="pill" href="#pane-laporan-utama" role="tab" aria-controls="pane-laporan-utama" aria-selected="true">
+                                    <i class="fas fa-calendar-check mr-1"></i> {{tab1|default:"Tahun Berjalan"}}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="laporan-sisa-tab" data-toggle="pill" href="#pane-laporan-sisa" role="tab" aria-controls="pane-laporan-sisa" aria-selected="false">
+                                    <i class="fas fa-history mr-1"></i> {{tab2|default:"Sisa Tahun Lalu"}}
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                     <div class="card-body">
-                        {% if rekap_data %}
-                            {% render_table rekap_data %}
-                        {% else %}
-                            <p>No data available.</p>
-                        {% endif %}
+                        <div class="tab-content" id="rekapLaporanTabContent">
+                            <div class="tab-pane fade show active" id="pane-laporan-utama" role="tabpanel" aria-labelledby="laporan-utama-tab">
+                                {% if rekap_data %}
+                                    {% render_table rekap_data %}
+                                {% else %}
+                                    <p class="text-muted text-center my-3">Tidak ada data rekap tahun berjalan.</p>
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="pane-laporan-sisa" role="tabpanel" aria-labelledby="laporan-sisa-tab">
+                                {% if rekap_data_sisa %}
+                                    {% render_table rekap_data_sisa %}
+                                {% else %}
+                                    <p class="text-muted text-center my-3">Tidak ada data rekap sisa tahun lalu.</p>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

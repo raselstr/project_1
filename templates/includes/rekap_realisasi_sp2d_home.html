@@ -1,94 +1,199 @@
 {% load humanize %}
-{% if rekap_sp2d_list %}
+{% if rekap_sp2d_list or rekap_sp2d_sisa_list %}
 <section class="section mt-2">
     <div class="section-body">
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm border-0">
-                    <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%);">
-                        <h4 class="mb-0 text-white font-weight-bold" style="font-size: 0.95rem;">
-                            <i class="fas fa-file-invoice-dollar mr-2 text-warning"></i>
-                            Rekap Realisasi SP2D per OPD per Tahap
-                        </h4>
-                        <span class="badge badge-success font-weight-bold" style="font-size: 0.74rem;">
-                            <i class="fas fa-database mr-1"></i> {{ rekap_sp2d_total.grand_total_jumlah }} Data SP2D Terinput
-                        </span>
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%);">
+                        <div class="d-flex align-items-center mb-1 mb-md-0">
+                            <h4 class="mb-0 text-white font-weight-bold mr-3" style="font-size: 0.95rem;">
+                                <i class="fas fa-file-invoice-dollar mr-2 text-warning"></i>
+                                Rekap Realisasi SP2D per OPD per Tahap
+                            </h4>
+                        </div>
+                        <ul class="nav nav-pills" id="rekapSp2dTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active py-1 px-3 font-weight-bold text-white border border-light mr-1" id="tab-sp2d-utama" data-toggle="pill" href="#pane-sp2d-utama" role="tab" style="font-size: 0.78rem; border-radius: 4px;">
+                                    <i class="fas fa-calendar-check mr-1"></i> Tahun Berjalan
+                                    {% if rekap_sp2d_total.grand_total_jumlah %}
+                                    <span class="badge badge-light text-dark ml-1">{{ rekap_sp2d_total.grand_total_jumlah }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            {% if rekap_sp2d_sisa_list %}
+                            <li class="nav-item">
+                                <a class="nav-link py-1 px-3 font-weight-bold text-white border border-light" id="tab-sp2d-sisa" data-toggle="pill" href="#pane-sp2d-sisa" role="tab" style="font-size: 0.78rem; border-radius: 4px;">
+                                    <i class="fas fa-history mr-1"></i> Sisa Tahun Lalu
+                                    {% if rekap_sp2d_sisa_total.grand_total_jumlah %}
+                                    <span class="badge badge-light text-dark ml-1">{{ rekap_sp2d_sisa_total.grand_total_jumlah }}</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
                     </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered table-hover table-sm mb-0">
-                                <thead class="thead-dark">
-                                    <tr>
-                                        <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
-                                        <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
-                                        {% for t in tahap_headers %}
-                                        <th colspan="2" class="text-center">{{ t.nama }}</th>
-                                        {% endfor %}
-                                        <th colspan="2" class="text-center" style="background-color: #0d47a1;">Total Realisasi SP2D</th>
-                                    </tr>
-                                    <tr>
-                                        {% for t in tahap_headers %}
-                                        <th class="text-center" style="font-size: 0.75rem;">Nilai SP2D (Rp)</th>
-                                        <th class="text-center" style="font-size: 0.75rem; width: 55px;">Jml</th>
-                                        {% endfor %}
-                                        <th class="text-center" style="font-size: 0.75rem; background-color: #0d47a1;">Total Nilai (Rp)</th>
-                                        <th class="text-center" style="font-size: 0.75rem; width: 65px; background-color: #0d47a1;">Total Jml</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in rekap_sp2d_list %}
-                                    <tr>
-                                        <td class="text-center">{{ forloop.counter }}</td>
-                                        <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
-                                        {% for t in item.tahap_data %}
-                                        <td class="text-right">
-                                            {% if t.nilai > 0 %}
-                                                {{ t.nilai|floatformat:2|intcomma }}
-                                            {% else %}
-                                                <span class="text-muted">-</span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="text-center">
-                                            {% if t.jumlah > 0 %}
-                                                <span class="badge badge-light border text-dark font-weight-bold">{{ t.jumlah }}</span>
-                                            {% else %}
-                                                <span class="text-muted">0</span>
-                                            {% endif %}
-                                        </td>
-                                        {% endfor %}
-                                        <td class="text-right font-weight-bold text-success">{{ item.total_nilai|floatformat:2|intcomma }}</td>
-                                        <td class="text-center font-weight-bold">
-                                            <span class="badge badge-primary">{{ item.total_jumlah }}</span>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="{{ total_columns|default:10 }}" class="text-center py-3 text-muted">
-                                            <em>Tidak ada data realisasi SP2D untuk tahun ini</em>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                                {% if rekap_sp2d_list %}
-                                <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
-                                    <tr>
-                                        <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan</td>
-                                        {% for tt in rekap_sp2d_total.tahap_totals %}
-                                        <td class="text-right font-weight-bold">{{ tt.nilai|floatformat:2|intcomma }}</td>
-                                        <td class="text-center font-weight-bold">
-                                            <span class="badge badge-dark">{{ tt.jumlah }}</span>
-                                        </td>
-                                        {% endfor %}
-                                        <td class="text-right font-weight-bold text-primary" style="font-size: 0.9rem;">
-                                            {{ rekap_sp2d_total.grand_total_nilai|floatformat:2|intcomma }}
-                                        </td>
-                                        <td class="text-center font-weight-bold">
-                                            <span class="badge badge-success" style="font-size: 0.82rem;">{{ rekap_sp2d_total.grand_total_jumlah }}</span>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                                {% endif %}
-                            </table>
+                        <div class="tab-content" id="rekapSp2dTabContent">
+                            <!-- TAB 1: SP2D TAHUN BERJALAN -->
+                            <div class="tab-pane fade show active" id="pane-sp2d-utama" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover table-sm mb-0">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
+                                                {% for t in tahap_headers %}
+                                                <th colspan="2" class="text-center">{{ t.nama }}</th>
+                                                {% endfor %}
+                                                <th colspan="2" class="text-center" style="background-color: #0d47a1;">Total Realisasi SP2D</th>
+                                            </tr>
+                                            <tr>
+                                                {% for t in tahap_headers %}
+                                                <th class="text-center" style="font-size: 0.75rem;">Nilai SP2D (Rp)</th>
+                                                <th class="text-center" style="font-size: 0.75rem; width: 55px;">Jml</th>
+                                                {% endfor %}
+                                                <th class="text-center" style="font-size: 0.75rem; background-color: #0d47a1;">Total Nilai (Rp)</th>
+                                                <th class="text-center" style="font-size: 0.75rem; width: 65px; background-color: #0d47a1;">Total Jml</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in rekap_sp2d_list %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
+                                                {% for t in item.tahap_data %}
+                                                <td class="text-right">
+                                                    {% if t.nilai > 0 %}
+                                                        {{ t.nilai|floatformat:2|intcomma }}
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if t.jumlah > 0 %}
+                                                        <span class="badge badge-light border text-dark font-weight-bold">{{ t.jumlah }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">0</span>
+                                                    {% endif %}
+                                                </td>
+                                                {% endfor %}
+                                                <td class="text-right font-weight-bold text-success">{{ item.total_nilai|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-primary">{{ item.total_jumlah }}</span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="{{ total_columns|default:10 }}" class="text-center py-3 text-muted">
+                                                    <em>Tidak ada data realisasi SP2D tahun berjalan untuk tahun ini</em>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if rekap_sp2d_list %}
+                                        <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
+                                            <tr>
+                                                <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan</td>
+                                                {% for tt in rekap_sp2d_total.tahap_totals %}
+                                                <td class="text-right font-weight-bold">{{ tt.nilai|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-dark">{{ tt.jumlah }}</span>
+                                                </td>
+                                                {% endfor %}
+                                                <td class="text-right font-weight-bold text-primary" style="font-size: 0.9rem;">
+                                                    {{ rekap_sp2d_total.grand_total_nilai|floatformat:2|intcomma }}
+                                                </td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-success" style="font-size: 0.82rem;">{{ rekap_sp2d_total.grand_total_jumlah }}</span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: SP2D SISA TAHUN LALU -->
+                            {% if rekap_sp2d_sisa_list %}
+                            <div class="tab-pane fade" id="pane-sp2d-sisa" role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered table-hover table-sm mb-0">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
+                                                <th rowspan="2" class="text-center align-middle">OPD / Sub OPD</th>
+                                                {% for t in tahap_headers_sisa %}
+                                                <th colspan="2" class="text-center">{{ t.nama }}</th>
+                                                {% endfor %}
+                                                <th colspan="2" class="text-center" style="background-color: #0d47a1;">Total Realisasi SP2D Sisa</th>
+                                            </tr>
+                                            <tr>
+                                                {% for t in tahap_headers_sisa %}
+                                                <th class="text-center" style="font-size: 0.75rem;">Nilai SP2D (Rp)</th>
+                                                <th class="text-center" style="font-size: 0.75rem; width: 55px;">Jml</th>
+                                                {% endfor %}
+                                                <th class="text-center" style="font-size: 0.75rem; background-color: #0d47a1;">Total Nilai (Rp)</th>
+                                                <th class="text-center" style="font-size: 0.75rem; width: 65px; background-color: #0d47a1;">Total Jml</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in rekap_sp2d_sisa_list %}
+                                            <tr>
+                                                <td class="text-center">{{ forloop.counter }}</td>
+                                                <td class="text-left font-weight-bold text-dark">{{ item.opd }}</td>
+                                                {% for t in item.tahap_data %}
+                                                <td class="text-right">
+                                                    {% if t.nilai > 0 %}
+                                                        {{ t.nilai|floatformat:2|intcomma }}
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if t.jumlah > 0 %}
+                                                        <span class="badge badge-light border text-dark font-weight-bold">{{ t.jumlah }}</span>
+                                                    {% else %}
+                                                        <span class="text-muted">0</span>
+                                                    {% endif %}
+                                                </td>
+                                                {% endfor %}
+                                                <td class="text-right font-weight-bold text-success">{{ item.total_nilai|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-primary">{{ item.total_jumlah }}</span>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="{{ total_columns_sisa|default:10 }}" class="text-center py-3 text-muted">
+                                                    <em>Tidak ada data realisasi SP2D sisa untuk tahun ini</em>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        {% if rekap_sp2d_sisa_list %}
+                                        <tfoot class="font-weight-bold bg-light" style="border-top: 2px solid #0a2540;">
+                                            <tr>
+                                                <td colspan="2" class="text-center font-weight-bold">Total Keseluruhan Sisa</td>
+                                                {% for tt in rekap_sp2d_sisa_total.tahap_totals %}
+                                                <td class="text-right font-weight-bold">{{ tt.nilai|floatformat:2|intcomma }}</td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-dark">{{ tt.jumlah }}</span>
+                                                </td>
+                                                {% endfor %}
+                                                <td class="text-right font-weight-bold text-primary" style="font-size: 0.9rem;">
+                                                    {{ rekap_sp2d_sisa_total.grand_total_nilai|floatformat:2|intcomma }}
+                                                </td>
+                                                <td class="text-center font-weight-bold">
+                                                    <span class="badge badge-success" style="font-size: 0.82rem;">{{ rekap_sp2d_sisa_total.grand_total_jumlah }}</span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -97,4 +202,3 @@
     </div>
 </section>
 {% endif %}
-

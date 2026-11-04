@@ -63,57 +63,109 @@ logger = logging.getLogger(__name__)
 
 def rekap(request):
     tahun = request.session.get('tahun')
-    dana = model_dana.objects.get(sub_slug=sesidana)
+    dana = model_dana.objects.filter(sub_slug=sesidana).first()
+    danasisa = model_dana.objects.filter(sub_slug=sesidanasisa).first()
     subopd = request.session.get('idsubopd')
     jadwal = request.session.get('jadwal')
 
-    filters = Q(pagudausg_tahun=tahun, pagudausg_dana_id=dana.id)
     subopd = scoped_opd_id(subopd)
-    if subopd:
-        filters &= Q(pagudausg_opd=subopd)
-
-    pagu_list = model_pagu.objects.filter(filters)
 
     rekap_data = []
-    for pagu in pagu_list:
-        common_filters = {
-            'tahun': tahun,
-            'dana_id': dana.id,
-            'subopd_id': pagu.pagudausg_opd_id
-        }
+    if dana:
+        filters = Q(pagudausg_tahun=tahun, pagudausg_dana_id=dana.id)
+        if subopd:
+            filters &= Q(pagudausg_opd=subopd)
 
-        total_nilai_rencana = model_rencana.objects.filter(
-            rencana_tahun=common_filters['tahun'], rencana_dana_id=common_filters['dana_id'], rencana_subopd_id=common_filters['subopd_id']
-        ).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
+        pagu_list = model_pagu.objects.filter(filters)
 
-        total_nilai_posting = model_data.objects.filter(
-            posting_tahun=common_filters['tahun'], posting_dana_id=common_filters['dana_id'], posting_subopd_id=common_filters['subopd_id'], posting_jadwal=jadwal
-        ).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
+        for pagu in pagu_list:
+            common_filters = {
+                'tahun': tahun,
+                'dana_id': dana.id,
+                'subopd_id': pagu.pagudausg_opd_id
+            }
 
-        total_nilai_tahap = [
-            model_realisasi.objects.filter(
-                realisasi_tahun=common_filters['tahun'], realisasi_dana_id=common_filters['dana_id'], realisasi_subopd_id=common_filters['subopd_id'], realisasi_tahap=i
-            ).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
-            for i in range(1, 4)
-        ]
+            total_nilai_rencana = model_rencana.objects.filter(
+                rencana_tahun=common_filters['tahun'], rencana_dana_id=common_filters['dana_id'], rencana_subopd_id=common_filters['subopd_id']
+            ).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
 
-        total_nilai_realisasi = sum(total_nilai_tahap)
-        total_nilai_sisa = total_nilai_rencana - total_nilai_realisasi
+            total_nilai_posting = model_data.objects.filter(
+                posting_tahun=common_filters['tahun'], posting_dana_id=common_filters['dana_id'], posting_subopd_id=common_filters['subopd_id'], posting_jadwal=jadwal
+            ).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
 
-        rekap_data.append({
-            'subopd': pagu.pagudausg_opd.sub_nama,
-            'pagu': pagu.pagudausg_nilai,
-            'total_rencana': total_nilai_rencana,
-            'total_posting': total_nilai_posting,
-            'total_tahap1': total_nilai_tahap[0],
-            'total_tahap2': total_nilai_tahap[1],
-            'total_tahap3': total_nilai_tahap[2],
-            'total_realisasi': total_nilai_realisasi,
-            'total_sisa': total_nilai_sisa,
-        })
+            total_nilai_tahap = [
+                model_realisasi.objects.filter(
+                    realisasi_tahun=common_filters['tahun'], realisasi_dana_id=common_filters['dana_id'], realisasi_subopd_id=common_filters['subopd_id'], realisasi_tahap=i
+                ).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+                for i in range(1, 4)
+            ]
+
+            total_nilai_realisasi = sum(total_nilai_tahap)
+            total_nilai_sisa = total_nilai_rencana - total_nilai_realisasi
+
+            rekap_data.append({
+                'subopd': pagu.pagudausg_opd.sub_nama,
+                'pagu': pagu.pagudausg_nilai,
+                'total_rencana': total_nilai_rencana,
+                'total_posting': total_nilai_posting,
+                'total_tahap1': total_nilai_tahap[0],
+                'total_tahap2': total_nilai_tahap[1],
+                'total_tahap3': total_nilai_tahap[2],
+                'total_realisasi': total_nilai_realisasi,
+                'total_sisa': total_nilai_sisa,
+            })
+
+    rekap_sisa_data = []
+    if danasisa:
+        filters_sisa = Q(pagudausg_tahun=tahun, pagudausg_dana_id=danasisa.id)
+        if subopd:
+            filters_sisa &= Q(pagudausg_opd=subopd)
+
+        pagu_sisa_list = model_pagu.objects.filter(filters_sisa)
+
+        for pagu in pagu_sisa_list:
+            common_filters_sisa = {
+                'tahun': tahun,
+                'dana_id': danasisa.id,
+                'subopd_id': pagu.pagudausg_opd_id
+            }
+
+            total_nilai_rencana = model_rencanasisa.objects.filter(
+                rencana_tahun=common_filters_sisa['tahun'], rencana_dana_id=common_filters_sisa['dana_id'], rencana_subopd_id=common_filters_sisa['subopd_id']
+            ).aggregate(total_rencana=Sum('rencana_pagu'))['total_rencana'] or 0
+
+            total_nilai_posting = model_datasisa.objects.filter(
+                posting_tahun=common_filters_sisa['tahun'], posting_dana_id=common_filters_sisa['dana_id'], posting_subopd_id=common_filters_sisa['subopd_id'], posting_jadwal=jadwal
+            ).aggregate(total_posting=Sum('posting_pagu'))['total_posting'] or 0
+
+            total_nilai_tahap = [
+                model_realisasisisa.objects.filter(
+                    realisasi_tahun=common_filters_sisa['tahun'], realisasi_dana_id=common_filters_sisa['dana_id'], realisasi_subopd_id=common_filters_sisa['subopd_id'], realisasi_tahap=i
+                ).aggregate(total_realisasi=Sum('realisasi_nilai'))['total_realisasi'] or 0
+                for i in range(1, 4)
+            ]
+
+            total_nilai_realisasi = sum(total_nilai_tahap)
+            total_nilai_sisa = total_nilai_rencana - total_nilai_realisasi
+
+            rekap_sisa_data.append({
+                'subopd': pagu.pagudausg_opd.sub_nama,
+                'pagu': pagu.pagudausg_nilai,
+                'total_rencana': total_nilai_rencana,
+                'total_posting': total_nilai_posting,
+                'total_tahap1': total_nilai_tahap[0],
+                'total_tahap2': total_nilai_tahap[1],
+                'total_tahap3': total_nilai_tahap[2],
+                'total_realisasi': total_nilai_realisasi,
+                'total_sisa': total_nilai_sisa,
+            })
 
     table = tabel(rekap_data)
-    return {'rekap_data': table}
+    table_sisa = tabel(rekap_sisa_data) if rekap_sisa_data else None
+    return {
+        'rekap_data': table,
+        'rekap_data_sisa': table_sisa,
+    }
 
 
 def get_penerimaan_warning(tahun, dana_id, tahap_id=None):

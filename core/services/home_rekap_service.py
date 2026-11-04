@@ -9,23 +9,35 @@ from core.forms.budget_opd import scoped_opd_id
 
 from pendidikan.models import (
     Rencana as RencPend,
+    Rencanasisa as RencPendsisa,
     Rencanaposting as PostPend,
+    Rencanapostingsisa as PostPendsisa,
     Realisasi as RealPend,
+    Realisasisisa as RealPendsisa,
 )
 from kesehatan.models import (
     Rencanakesehatan as RencKes,
+    Rencanakesehatansisa as RencKessisa,
     Rencanakesehatanposting as PostKes,
+    Rencanakesehatanpostingsisa as PostKessisa,
     Realisasikesehatan as RealKes,
+    Realisasikesehatansisa as RealKessisa,
 )
 from pu.models import (
     Rencanapu as RencPU,
+    Rencanapusisa as RencPUsisa,
     Rencanapuposting as PostPU,
+    Rencanapupostingsisa as PostPUsisa,
     Realisasipu as RealPU,
+    Realisasipusisa as RealPUsisa,
 )
 from dankel.models import (
     RencDankel,
+    RencDankelsisa,
     RencDankeljadwal,
+    RencDankeljadwalsisa,
     RealisasiDankel,
+    RealisasiDankelsisa,
 )
 
 
@@ -33,7 +45,9 @@ class HomeRekapService:
     """
     Service untuk menghasilkan data rekapitulasi pada Home Rencana dan Home Realisasi:
     1. Rekap Nilai Rencana (Pagu, Rencana Semula/Induk, Menjadi/Perubahan, Selisih, Sisa Pagu, %)
+       - Tersedia untuk Kegiatan Tahun Berjalan & Sisa Tahun Lalu
     2. Rekap Realisasi SP2D per OPD (Nilai SP2D dan Jumlah Berkas SP2D per Tahap serta Total)
+       - Tersedia untuk Realisasi Tahun Berjalan & Sisa Tahun Lalu
     """
 
     BIDANG_MAP = {
@@ -42,6 +56,23 @@ class HomeRekapService:
             'renc_model': RencPend,
             'post_model': PostPend,
             'real_model': RealPend,
+            'renc_col_opd': 'rencana_subopd',
+            'renc_col_pagu': 'rencana_pagu',
+            'renc_col_thn': 'rencana_tahun',
+            'post_col_opd': 'posting_subopd',
+            'post_col_pagu': 'posting_pagu',
+            'post_col_jadwal': 'posting_jadwal',
+            'post_col_thn': 'posting_tahun',
+            'real_col_opd': 'realisasi_subopd',
+            'real_col_nilai': 'realisasi_nilai',
+            'real_col_tahap': 'realisasi_tahap',
+            'real_col_thn': 'realisasi_tahun',
+        },
+        'pendidikan_sisa': {
+            'slug': 'sisa-dana-alokasi-umum-dukungan-bidang-pendidikan',
+            'renc_model': RencPendsisa,
+            'post_model': PostPendsisa,
+            'real_model': RealPendsisa,
             'renc_col_opd': 'rencana_subopd',
             'renc_col_pagu': 'rencana_pagu',
             'renc_col_thn': 'rencana_tahun',
@@ -71,11 +102,45 @@ class HomeRekapService:
             'real_col_tahap': 'realisasi_tahap',
             'real_col_thn': 'realisasi_tahun',
         },
+        'kesehatan_sisa': {
+            'slug': 'sisa-dana-alokasi-umum-dukungan-bidang-kesehatan',
+            'renc_model': RencKessisa,
+            'post_model': PostKessisa,
+            'real_model': RealKessisa,
+            'renc_col_opd': 'rencana_subopd',
+            'renc_col_pagu': 'rencana_pagu',
+            'renc_col_thn': 'rencana_tahun',
+            'post_col_opd': 'posting_subopd',
+            'post_col_pagu': 'posting_pagu',
+            'post_col_jadwal': 'posting_jadwal',
+            'post_col_thn': 'posting_tahun',
+            'real_col_opd': 'realisasi_subopd',
+            'real_col_nilai': 'realisasi_nilai',
+            'real_col_tahap': 'realisasi_tahap',
+            'real_col_thn': 'realisasi_tahun',
+        },
         'pu': {
             'slug': 'dau-dukungan-bidang-pekerjaan-umum',
             'renc_model': RencPU,
             'post_model': PostPU,
             'real_model': RealPU,
+            'renc_col_opd': 'rencana_subopd',
+            'renc_col_pagu': 'rencana_pagu',
+            'renc_col_thn': 'rencana_tahun',
+            'post_col_opd': 'posting_subopd',
+            'post_col_pagu': 'posting_pagu',
+            'post_col_jadwal': 'posting_jadwal',
+            'post_col_thn': 'posting_tahun',
+            'real_col_opd': 'realisasi_subopd',
+            'real_col_nilai': 'realisasi_nilai',
+            'real_col_tahap': 'realisasi_tahap',
+            'real_col_thn': 'realisasi_tahun',
+        },
+        'pu_sisa': {
+            'slug': 'sisa-dana-alokasi-umum-dukungan-bidang-pekerjaan-umum',
+            'renc_model': RencPUsisa,
+            'post_model': PostPUsisa,
+            'real_model': RealPUsisa,
             'renc_col_opd': 'rencana_subopd',
             'renc_col_pagu': 'rencana_pagu',
             'renc_col_thn': 'rencana_tahun',
@@ -105,14 +170,31 @@ class HomeRekapService:
             'real_col_tahap': 'realisasidankel_tahap',
             'real_col_thn': 'realisasidankel_tahun',
         },
+        'dankel_sisa': {
+            'slug': 'sisa-dana-kelurahan',
+            'renc_model': RencDankelsisa,
+            'post_model': RencDankeljadwalsisa,
+            'real_model': RealisasiDankelsisa,
+            'renc_col_opd': 'rencdankelsisa_subopd',
+            'renc_col_pagu': 'rencdankelsisa_pagu',
+            'renc_col_thn': 'rencdankelsisa_tahun',
+            'post_col_opd': 'rencdankelsisa_subopd',
+            'post_col_pagu': 'rencdankelsisa_pagu',
+            'post_col_jadwal': 'rencdankelsisa_jadwal',
+            'post_col_thn': 'rencdankelsisa_tahun',
+            'real_col_opd': 'realisasidankelsisa_subopd',
+            'real_col_nilai': 'realisasidankelsisa_nilai',
+            'real_col_tahap': 'realisasidankelsisa_tahap',
+            'real_col_thn': 'realisasidankelsisa_tahun',
+        },
     }
 
     @classmethod
-    def get_rekap_rencana(cls, bidang, tahun, subopd_id=None):
+    def _build_rekap_rencana(cls, bidang_key, tahun, subopd_id=None):
         """
-        Menghasilkan rekap nilai rencana per OPD termasuk jika terjadi perubahan.
+        Helper internal untuk menyusun rekap nilai rencana per OPD.
         """
-        cfg = cls.BIDANG_MAP.get(bidang.lower())
+        cfg = cls.BIDANG_MAP.get(bidang_key)
         if not cfg or not tahun:
             return {}
 
@@ -142,6 +224,8 @@ class HomeRekapService:
         tot_selisih = Decimal(0)
         tot_sisa = Decimal(0)
 
+        is_dankel = 'dankel' in bidang_key
+
         for p in pagus:
             opd = p.pagudausg_opd
             pagu_val = Decimal(str(p.pagudausg_nilai or 0))
@@ -150,20 +234,20 @@ class HomeRekapService:
             if is_perubahan:
                 # 1. Nilai Induk dari jadwal awal
                 induk_f = {cfg['post_col_opd']: opd, cfg['post_col_jadwal']: j_induk, cfg['post_col_thn']: tahun}
-                if bidang != 'dankel':
+                if not is_dankel:
                     induk_f['posting_dana'] = dana
                 induk_val = cfg['post_model'].objects.filter(**induk_f).aggregate(s=Sum(cfg['post_col_pagu']))['s'] or Decimal(0)
 
                 # 2. Nilai Perubahan dari jadwal akhir
                 perub_f = {cfg['post_col_opd']: opd, cfg['post_col_jadwal']: j_perubahan, cfg['post_col_thn']: tahun}
-                if bidang != 'dankel':
+                if not is_dankel:
                     perub_f['posting_dana'] = dana
                 perub_val = cfg['post_model'].objects.filter(**perub_f).aggregate(s=Sum(cfg['post_col_pagu']))['s'] or Decimal(0)
 
                 # Fallback jika perubahan belum di-posting, gunakan nilai rencana aktif
                 if perub_val == 0:
                     renc_f = {cfg['renc_col_opd']: opd, cfg['renc_col_thn']: tahun}
-                    if bidang != 'dankel':
+                    if not is_dankel:
                         renc_f['rencana_dana'] = dana
                     perub_val = cfg['renc_model'].objects.filter(**renc_f).aggregate(s=Sum(cfg['renc_col_pagu']))['s'] or Decimal(0)
 
@@ -171,7 +255,7 @@ class HomeRekapService:
                 rencana_akhir = perub_val
             else:
                 renc_f = {cfg['renc_col_opd']: opd, cfg['renc_col_thn']: tahun}
-                if bidang != 'dankel':
+                if not is_dankel:
                     renc_f['rencana_dana'] = dana
                 induk_val = cfg['renc_model'].objects.filter(**renc_f).aggregate(s=Sum(cfg['renc_col_pagu']))['s'] or Decimal(0)
                 perub_val = induk_val
@@ -216,19 +300,39 @@ class HomeRekapService:
         }
 
     @classmethod
-    def get_rekap_realisasi_sp2d(cls, bidang, tahun, subopd_id=None):
+    def get_rekap_rencana(cls, bidang, tahun, subopd_id=None):
         """
-        Menghasilkan rekap total nilai SP2D per OPD dan jumlah data SP2D yang diinput setiap tahap.
+        Menghasilkan rekap nilai rencana per OPD baik untuk Tahun Berjalan maupun Sisa Tahun Lalu.
         """
-        cfg = cls.BIDANG_MAP.get(bidang.lower())
+        b_clean = bidang.lower().replace('_sisa', '')
+        utama = cls._build_rekap_rencana(b_clean, tahun, subopd_id)
+        sisa = cls._build_rekap_rencana(f"{b_clean}_sisa", tahun, subopd_id)
+
+        res = dict(utama)
+        res.update({
+            'is_perubahan_sisa': sisa.get('is_perubahan', False),
+            'jadwal_induk_nama_sisa': sisa.get('jadwal_induk_nama'),
+            'jadwal_perubahan_nama_sisa': sisa.get('jadwal_perubahan_nama'),
+            'rekap_rencana_sisa_list': sisa.get('rekap_rencana_list', []),
+            'rekap_rencana_sisa_total': sisa.get('rekap_rencana_total', {}),
+        })
+        return res
+
+    @classmethod
+    def _build_rekap_realisasi_sp2d(cls, bidang_key, tahun, subopd_id=None):
+        """
+        Helper internal untuk menyusun rekap nilai SP2D per OPD per Tahap.
+        """
+        cfg = cls.BIDANG_MAP.get(bidang_key)
         if not cfg or not tahun:
             return {}
 
         dana = Subkegiatan.objects.filter(sub_slug=cfg['slug']).first()
         tahaps = list(TahapDana.objects.all().order_by('id'))
 
+        is_dankel = 'dankel' in bidang_key
         base_filter = {cfg['real_col_thn']: tahun}
-        if bidang != 'dankel' and dana:
+        if not is_dankel and dana:
             base_filter['realisasi_dana'] = dana
 
         scoped_opd = scoped_opd_id(subopd_id)
@@ -237,7 +341,6 @@ class HomeRekapService:
 
         qs = cfg['real_model'].objects.filter(**base_filter)
 
-        # Tahap-tahap yang aktif (minimal 3 tahap ditampilkan: Tahap 1, 2, 3)
         max_tahap = qs.values_list(f"{cfg['real_col_tahap']}_id", flat=True).order_by(f"-{cfg['real_col_tahap']}_id").first() or 3
         active_tahaps = [t for t in tahaps if t.id <= max(max_tahap, 3)]
 
@@ -295,3 +398,20 @@ class HomeRekapService:
             'total_columns': 2 + (len(active_tahaps) * 2) + 2,
         }
 
+    @classmethod
+    def get_rekap_realisasi_sp2d(cls, bidang, tahun, subopd_id=None):
+        """
+        Menghasilkan rekap nilai SP2D per OPD per Tahap baik untuk Tahun Berjalan maupun Sisa Tahun Lalu.
+        """
+        b_clean = bidang.lower().replace('_sisa', '')
+        utama = cls._build_rekap_realisasi_sp2d(b_clean, tahun, subopd_id)
+        sisa = cls._build_rekap_realisasi_sp2d(f"{b_clean}_sisa", tahun, subopd_id)
+
+        res = dict(utama)
+        res.update({
+            'tahap_headers_sisa': sisa.get('tahap_headers', []),
+            'rekap_sp2d_sisa_list': sisa.get('rekap_sp2d_list', []),
+            'rekap_sp2d_sisa_total': sisa.get('rekap_sp2d_total', {}),
+            'total_columns_sisa': sisa.get('total_columns', 10),
+        })
+        return res
