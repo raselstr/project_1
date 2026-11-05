@@ -85,11 +85,13 @@
                         <div class="card-header text-center pb-2">
                             <h4 style="font-weight: bold; margin-bottom: 5px;">{{ judul|upper }}</h4>
                             {% if is_perubahan %}
-                            <h6 style="font-weight: normal; margin-bottom: 10px;">PERBANDINGAN INDUK ({{ jadwal_induk.jadwal_nama }}) DAN PERUBAHAN ({{ jadwal_perubahan.jadwal_nama }}) TAHUN {{ rencana_tahun }}</h6>
+                            <h6 style="font-weight: normal; margin-bottom: 10px;">PERBANDINGAN INDUK ({{ jadwal_induk.jadwal_keterangan|default:jadwal_induk.jadwal_nama }}) DAN PERUBAHAN ({{ jadwal_perubahan.jadwal_keterangan|default:jadwal_perubahan.jadwal_nama }}) TAHUN {{ rencana_tahun }}</h6>
+                            {% elif is_draft_changed %}
+                            <h6 style="font-weight: normal; margin-bottom: 10px;">PERUBAHAN RENCANA KEGIATAN (SEMULA VS MENJADI) TAHUN {{ rencana_tahun }}</h6>
                             {% endif %}
                         </div>
                         <div class="card-body">
-                            {% if is_perubahan %}
+                            {% if is_perubahan or is_draft_changed %}
                             <table class="table table-bordered table-striped" style="width:100%; font-size:11px; border-collapse: collapse;">
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
@@ -97,9 +99,9 @@
                                         <th rowspan="2" style="vertical-align: middle; text-align: center;">Sub OPD</th>
                                         <th rowspan="2" style="vertical-align: middle; text-align: center;">Kegiatan</th>
                                         <th rowspan="2" style="vertical-align: middle; text-align: center;">Sub Kegiatan</th>
-                                        <th colspan="2" style="text-align: center;">Semula (Induk)</th>
-                                        <th colspan="2" style="text-align: center;">Menjadi (Perubahan)</th>
-                                        <th colspan="2" style="text-align: center;">Perubahan (+/-)</th>
+                                        <th colspan="2" style="text-align: center;">{% if is_draft_changed %}Semula (Terposting){% else %}Semula (Induk){% endif %}</th>
+                                        <th colspan="2" style="text-align: center;">{% if is_draft_changed %}Menjadi (Draft){% else %}Menjadi (Perubahan){% endif %}</th>
+                                        <th colspan="2" style="text-align: center;">{% if is_draft_changed %}Selisih (+/-){% else %}Perubahan (+/-){% endif %}</th>
                                         <th rowspan="2" style="vertical-align: middle; text-align: center;">Satuan</th>
                                         <th rowspan="2" style="vertical-align: middle; text-align: center;">Keterangan</th>
                                     </tr>

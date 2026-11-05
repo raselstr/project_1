@@ -25,7 +25,7 @@
                 <div class="card-body">
                     {% if is_perubahan %}
                     <div class="alert alert-info py-2 mb-3">
-                        <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk ({{ jadwal_induk.jadwal_nama }}) dan Perubahan ({{ jadwal_perubahan.jadwal_nama }}).
+                        <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk (<strong>{{ jadwal_induk.jadwal_keterangan|default:jadwal_induk.jadwal_nama }}</strong>) dan Perubahan (<strong>{{ jadwal_perubahan.jadwal_keterangan|default:jadwal_perubahan.jadwal_nama }}</strong>).
                     </div>
                     <div class="table-responsive">
                     <table class="display" id="tabel1" style="width:100%">
@@ -100,6 +100,84 @@
                                 <th style="text-align: right;"><strong>{{ total_perubahan_output|floatformat:2|intcomma }}</strong></th>
                                 <th style="text-align: right;"><strong>{{ total_selisih_pagu|floatformat:2|intcomma }}</strong></th>
                                 <th style="text-align: right;"><strong>{{ total_selisih_output|floatformat:2|intcomma }}</strong></th>
+                                <th colspan="2"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    </div>
+                    {% elif is_draft_changed %}
+                    <div class="alert alert-warning py-2 mb-3">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Ada perubahan data yang <strong>belum diposting</strong>. Kolom <em>Semula</em> = data terposting, kolom <em>Menjadi</em> = data rencana saat ini (draft).
+                    </div>
+                    <div class="table-responsive">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="text-center align-middle">
+                                    <div class="custom-checkbox custom-control">
+                                    <input type="checkbox" data-checkboxes="mygroup" data-checkbox-role="dad" class="custom-control-input" id="checkbox-all">
+                                    <label for="checkbox-all" class="custom-control-label">&nbsp;</label>
+                                    </div>
+                                </th>
+                                <th rowspan="2" class="text-center align-middle">Aksi</th>
+                                <th rowspan="2" class="text-center align-middle">Sub OPD</th>
+                                <th rowspan="2" class="text-center align-middle">Kegiatan</th>
+                                <th rowspan="2" class="text-center align-middle">Sub Kegiatan</th>
+                                <th colspan="2" class="text-center bg-light">Semula (Terposting)</th>
+                                <th colspan="2" class="text-center bg-warning text-dark">Menjadi (Draft)</th>
+                                <th colspan="2" class="text-center">Selisih (+/-)</th>
+                                <th rowspan="2" class="text-center align-middle">Satuan</th>
+                                <th rowspan="2" class="text-center align-middle">Keterangan Kegiatan</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center">Pagu</th>
+                                <th class="text-center">Output</th>
+                                <th class="text-center">Pagu</th>
+                                <th class="text-center">Output</th>
+                                <th class="text-center">Pagu</th>
+                                <th class="text-center">Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in data %}
+                                <tr{% if data.selisih_pagu != 0 or data.selisih_output != 0 %} class="table-warning"{% endif %}>
+                                    <td class="p-0 text-center">
+                                        <div class="custom-checkbox custom-control">
+                                        <input type="checkbox" data-checkboxes="mygroup" class="custom-control-input" id="checkbox-{{ forloop.counter }}">
+                                        <label for="checkbox-{{ forloop.counter }}" class="custom-control-label">&nbsp;</label>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url "dankel_update" data.id %}" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt"></i></a>
+                                        <a href="{% url "dankel_delete" data.id %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                    <td>{{ data.rencdankel_subopd.sub_nama }}</td>
+                                    <td>{{ data.get_kegiatan }}</td>
+                                    <td>{{ data.get_subkegiatan }}</td>
+                                    <td class="text-right">{{ data.induk_pagu|floatformat:2|intcomma }}</td>
+                                    <td class="text-right">{{ data.induk_output|floatformat:0 }}</td>
+                                    <td class="text-right font-weight-bold">{{ data.perubahan_pagu|floatformat:2|intcomma }}</td>
+                                    <td class="text-right font-weight-bold">{{ data.perubahan_output|floatformat:0 }}</td>
+                                    <td class="text-right font-weight-bold {% if data.selisih_pagu < 0 %}text-danger{% elif data.selisih_pagu > 0 %}text-success{% endif %}">
+                                        {{ data.selisih_pagu|floatformat:2|intcomma }}
+                                    </td>
+                                    <td class="text-right font-weight-bold {% if data.selisih_output < 0 %}text-danger{% elif data.selisih_output > 0 %}text-success{% endif %}">
+                                        {{ data.selisih_output|floatformat:0 }}
+                                    </td>
+                                    <td class="text-center">{{ data.get_satuan_kegiatan }}</td>
+                                    <td>{{ data.rencdankel_ket }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="text-right"><strong>Total:</strong></th>
+                                <th class="text-right"><strong>{{ total_induk_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th class="text-right"><strong>{{ total_induk_output|floatformat:0 }}</strong></th>
+                                <th class="text-right"><strong>{{ total_perubahan_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th class="text-right"><strong>{{ total_perubahan_output|floatformat:0 }}</strong></th>
+                                <th class="text-right"><strong>{{ total_selisih_pagu|floatformat:2|intcomma }}</strong></th>
+                                <th class="text-right"><strong>{{ total_selisih_output|floatformat:0 }}</strong></th>
                                 <th colspan="2"></th>
                             </tr>
                         </tfoot>

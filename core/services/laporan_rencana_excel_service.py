@@ -152,7 +152,11 @@ class LaporanRencanaExcelService:
         ws.title = f"Rencana {bidang_label[:15]}"
         styles = cls._create_styles()
 
-        is_perubahan = bool(context.get('is_perubahan'))
+        is_draft_changed = bool(context.get('is_draft_changed'))
+        is_perubahan = bool(context.get('is_perubahan')) or is_draft_changed
+        lbl_semula = "Semula (Terposting)" if is_draft_changed else "Semula (Induk)"
+        lbl_menjadi = "Menjadi (Draft)" if is_draft_changed else "Menjadi (Perubahan)"
+        lbl_selisih = "Selisih (+/-)" if is_draft_changed else "Perubahan (+/-)"
         data = context.get('data') or []
 
         tahun = cls._clean_str(context.get('rencana_tahun') or context.get('tahun') or context.get('sesitahun'))
@@ -200,10 +204,13 @@ class LaporanRencanaExcelService:
         ws["A2"].alignment = styles['align_center']
 
         if is_perubahan:
-            j_induk_nama = getattr(context.get('jadwal_induk'), 'jadwal_nama', 'Induk')
-            j_perubahan_nama = getattr(context.get('jadwal_perubahan'), 'jadwal_nama', 'Perubahan')
             ws.merge_cells(f"A3:{max_col_letter}3")
-            ws["A3"] = f"PERBANDINGAN INDUK ({j_induk_nama}) DAN PERUBAHAN ({j_perubahan_nama}) TAHUN {tahun}"
+            if is_draft_changed:
+                ws["A3"] = f"PERUBAHAN RENCANA KEGIATAN (SEMULA VS MENJADI) TAHUN {tahun}"
+            else:
+                j_induk_nama = getattr(context.get('jadwal_induk'), 'jadwal_keterangan', None) or getattr(context.get('jadwal_induk'), 'jadwal_nama', 'Induk')
+                j_perubahan_nama = getattr(context.get('jadwal_perubahan'), 'jadwal_keterangan', None) or getattr(context.get('jadwal_perubahan'), 'jadwal_nama', 'Perubahan')
+                ws["A3"] = f"PERBANDINGAN INDUK ({j_induk_nama}) DAN PERUBAHAN ({j_perubahan_nama}) TAHUN {tahun}"
             ws["A3"].font = styles['font_meta_lbl']
             ws["A3"].alignment = styles['align_center']
 
@@ -233,7 +240,7 @@ class LaporanRencanaExcelService:
             if is_dankel:
                 # Merge row 8 & 9 for single columns
                 merges = [("A8:A9", "No"), ("B8:B9", "Sub OPD"), ("C8:C9", "Kegiatan"), ("D8:D9", "Sub Kegiatan"),
-                          ("E8:F8", "Semula (Induk)"), ("G8:H8", "Menjadi (Perubahan)"), ("I8:J8", "Perubahan (+/-)"),
+                          ("E8:F8", lbl_semula), ("G8:H8", lbl_menjadi), ("I8:J8", lbl_selisih),
                           ("K8:K9", "Satuan"), ("L8:L9", "Keterangan")]
                 for m_range, m_text in merges:
                     ws.merge_cells(m_range)
@@ -249,7 +256,7 @@ class LaporanRencanaExcelService:
                 ws["J9"] = "Output"
             else:
                 merges = [("A8:A9", "No"), ("B8:B9", "OPD"), ("C8:C9", "Sub Kegiatan"),
-                          ("D8:E8", "Semula (Induk)"), ("F8:G8", "Menjadi (Perubahan)"), ("H8:I8", "Perubahan (+/-)"),
+                          ("D8:E8", lbl_semula), ("F8:G8", lbl_menjadi), ("H8:I8", lbl_selisih),
                           ("J8:J9", "Satuan"), ("K8:K9", "Kode DPA Kegiatan"), ("L8:L9", "Pagu DPA Kegiatan (Rp)")]
                 for m_range, m_text in merges:
                     ws.merge_cells(m_range)

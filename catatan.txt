@@ -1,0 +1,22 @@
+Buka browser dan akses: http://localhost:8080
+
+ℹ️ Informasi Penting
+
+Container proxy tkdd-local-proxy ini bersifat sementara (--rm). 
+Jika PC atau Docker di-restart, proxy ini akan hilang. 
+Untuk menjalankan ulang setiap kali perlu test lokal, gunakan perintah ini:
+    export PATH="/home/stafperbendaharaan/.local/bin:$PATH"
+    docker run --rm -d -p 8080:80 \
+    --network production_network \
+    --name tkdd-local-proxy \
+    alpine/socat TCP-LISTEN:80,fork TCP:tkdd:80
+
+🔄 SOP Deploy (setelah edit kode)
+1. Edit file di /home/stafperbendaharaan/srv/docker/apps/project_1
+2. Restart container agar kode terbaru dimuat:
+    export PATH="/home/stafperbendaharaan/.local/bin:$PATH"
+    docker restart tkdd
+3. Buka http://localhost:8080 di browser → test perubahan
+4. Jika sudah oke, commit dan push:
+    git add . && git commit -m "deskripsi perubahan" && git push origin main
+5. Di server: git pull && docker restart tkdd
