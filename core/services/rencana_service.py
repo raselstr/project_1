@@ -256,7 +256,7 @@ def enrich_rencana_with_perubahan(
         nama_induk_draft = baseline_jadwal.jadwal_keterangan if baseline_jadwal else 'Induk'
         list_pilihan_jadwal.append({
             'id': 'draft',
-            'nama': 'Draft (Rencana Kegiatan Belum Posting)',
+            'nama': 'Draft (Usulan Rencana Kegiatan Belum Posting)',
             'keterangan': f'Induk: {nama_induk_draft} | Perubahan: Draft Rencana Saat Ini',
             'index': len(tbljadwal),
             'is_active': False,
