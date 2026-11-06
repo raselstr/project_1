@@ -256,7 +256,7 @@ def enrich_rencana_with_perubahan(
         nama_induk_draft = baseline_jadwal.jadwal_keterangan if baseline_jadwal else 'Induk'
         list_pilihan_jadwal.append({
             'id': 'draft',
-            'nama': 'Draft (Usulan Rencana Kegiatan Belum Posting)',
+            'nama': 'Draft (Usulan Rencana Kegiatan Penganggaran - Belum Posting)',
             'keterangan': f'Induk: {nama_induk_draft} | Perubahan: Draft Rencana Saat Ini',
             'index': len(tbljadwal),
             'is_active': False,
@@ -305,11 +305,19 @@ def enrich_rencana_with_perubahan(
                     setattr(item, rec_out, out_val)
                     item.rencana_pagu = pagu_val
                     item.rencana_output = out_val
+                    item.induk_pagu = pagu_val
+                    item.induk_output = out_val
+
+                total_pagu = sum(getattr(item, rec_pagu, Decimal(0)) or Decimal(0) for item in rencana_list)
+                total_out = sum(getattr(item, rec_out, Decimal(0)) or Decimal(0) for item in rencana_list)
 
                 extra = {
                     'is_perubahan': False,
                     'is_draft_changed': False,
                     'jadwal_terpilih': j_induk_target,
+                    'jadwal_induk': j_induk_target,
+                    'total_induk_pagu': total_pagu,
+                    'total_induk_output': total_out,
                     'list_pilihan_jadwal': list_pilihan_jadwal,
                     'selected_jadwal': str(j_induk_target.id),
                 }
@@ -339,10 +347,22 @@ def enrich_rencana_with_perubahan(
     # =========================================================================
     # Jika belum pernah posting sama sekali:
     if not posted_jadwal_ids:
+        for item in rencana_list:
+            pagu_val = getattr(item, rec_pagu, Decimal(0)) or Decimal(0)
+            out_val = getattr(item, rec_out, Decimal(0)) or Decimal(0)
+            item.rencana_pagu = pagu_val
+            item.rencana_output = out_val
+            item.induk_pagu = pagu_val
+            item.induk_output = out_val
+        total_pagu = sum(getattr(item, rec_pagu, Decimal(0)) or Decimal(0) for item in rencana_list)
+        total_out = sum(getattr(item, rec_out, Decimal(0)) or Decimal(0) for item in rencana_list)
         extra = {
             'is_perubahan': False,
             'is_draft_changed': False,
             'jadwal_terpilih': j_aktif,
+            'jadwal_induk': j_aktif,
+            'total_induk_pagu': total_pagu,
+            'total_induk_output': total_out,
             'list_pilihan_jadwal': list_pilihan_jadwal,
             'selected_jadwal': str(j_aktif.id) if j_aktif else None,
         }
@@ -373,10 +393,20 @@ def enrich_rencana_with_perubahan(
                 out_val = getattr(item, rec_out, Decimal(0)) or Decimal(0)
             setattr(item, rec_pagu, pagu_val)
             setattr(item, rec_out, out_val)
+            item.rencana_pagu = pagu_val
+            item.rencana_output = out_val
+            item.induk_pagu = pagu_val
+            item.induk_output = out_val
+
+    total_pagu = sum(getattr(item, rec_pagu, Decimal(0)) or Decimal(0) for item in rencana_list)
+    total_out = sum(getattr(item, rec_out, Decimal(0)) or Decimal(0) for item in rencana_list)
 
     draft_extra['is_perubahan'] = False
     draft_extra['is_draft_changed'] = False
     draft_extra['jadwal_terpilih'] = baseline_jadwal
+    draft_extra['jadwal_induk'] = baseline_jadwal
+    draft_extra['total_induk_pagu'] = total_pagu
+    draft_extra['total_induk_output'] = total_out
     draft_extra['list_pilihan_jadwal'] = list_pilihan_jadwal
     draft_extra['selected_jadwal'] = str(baseline_jadwal.id) if baseline_jadwal else None
     return False, draft_extra, rencana_list

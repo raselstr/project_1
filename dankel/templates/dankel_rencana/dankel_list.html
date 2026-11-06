@@ -29,7 +29,7 @@
                 <div class="card-body">
                     {% if is_perubahan %}
                     <div class="alert alert-info py-2 mb-3">
-                        <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk (<strong>{{ jadwal_induk.jadwal_keterangan|default:jadwal_induk.jadwal_nama }}</strong>) dan Perubahan (<strong>{{ jadwal_perubahan.jadwal_keterangan|default:jadwal_perubahan.jadwal_nama }}</strong>).
+                        <i class="fas fa-info-circle mr-1"></i> Mode Perubahan Aktif: Menampilkan perbandingan Induk (<strong>{{ jadwal_induk.jadwal_keterangan|default:"Induk" }}</strong>) dan Perubahan (<strong>{{ jadwal_perubahan.jadwal_keterangan|default:"Perubahan" }}</strong>).
                     </div>
                     <div class="table-responsive">
                     <table class="display" id="tabel1" style="width:100%">
