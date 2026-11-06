@@ -88,6 +88,8 @@
                             <h6 style="font-weight: normal; margin-bottom: 10px;">PERBANDINGAN INDUK ({{ jadwal_induk.jadwal_keterangan|default:jadwal_induk.jadwal_nama }}) DAN PERUBAHAN ({{ jadwal_perubahan.jadwal_keterangan|default:jadwal_perubahan.jadwal_nama }}) TAHUN {{ rencana_tahun }}</h6>
                             {% elif is_draft_changed %}
                             <h6 style="font-weight: normal; margin-bottom: 10px;">PERUBAHAN RENCANA KEGIATAN (SEMULA VS MENJADI) TAHUN {{ rencana_tahun }}</h6>
+                            {% elif jadwal_terpilih %}
+                            <h6 style="font-weight: normal; margin-bottom: 10px;">JADWAL: {{ jadwal_terpilih.jadwal_keterangan|default:jadwal_terpilih.jadwal_nama|upper }} TAHUN {{ rencana_tahun }}</h6>
                             {% endif %}
                         </div>
                         <div class="card-body">

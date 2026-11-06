@@ -1,0 +1,107 @@
+<!-- Modal Pilih Jadwal untuk Export Excel & Cetak PDF -->
+<div class="modal fade" id="modalPilihJadwalRencana" tabindex="-1" role="dialog" aria-labelledby="modalPilihJadwalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content shadow-lg border-0" style="border-radius: 8px; overflow: hidden;">
+            <div class="modal-header py-3" id="modalJadwalHeader" style="background-color: #6777ef; color: #fff;">
+                <h5 class="modal-title font-weight-bold" id="modalPilihJadwalTitle">
+                    <i class="fas fa-calendar-alt mr-2"></i>Pilih Jadwal Laporan
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.9;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body py-4 px-4">
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold text-dark mb-2">
+                        <i class="fas fa-list-ol mr-1 text-primary"></i> Pilih Versi Jadwal Kegiatan:
+                    </label>
+                    <select id="select_jadwal_laporan" class="form-control" style="font-size: 13.5px; height: 42px; border-radius: 6px;">
+                        {% for j in list_pilihan_jadwal %}
+                            <option value="{{ j.id }}" data-ket="{{ j.keterangan }}" {% if j.is_draft or j.is_active %}selected{% endif %}>
+                                {{ j.nama }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="alert alert-light border py-2 px-3 mb-0" style="background-color: #f8f9fa; border-left: 4px solid #6777ef !important; border-radius: 4px;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle mr-2 text-primary"></i>
+                        <span id="text_info_jadwal" class="text-dark small font-weight-600">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-whitesmoke py-2 px-4" style="border-top: 1px solid #e9ecef;">
+                <button type="button" class="btn btn-secondary px-3" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i> Batal
+                </button>
+                <button type="button" class="btn btn-primary px-4 font-weight-bold" id="btnKonfirmasiModalJadwal">
+                    <i class="fas fa-check mr-1"></i> Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var _modalTargetAction = 'cetak';
+    var _modalTargetUrl = '';
+
+    function bukaModalJadwal(action, baseUrl) {
+        _modalTargetAction = action;
+        _modalTargetUrl = baseUrl;
+        
+        var titleEl = document.getElementById('modalPilihJadwalTitle');
+        var btnEl = document.getElementById('btnKonfirmasiModalJadwal');
+        var headerEl = document.getElementById('modalJadwalHeader');
+        
+        if (action === 'excel') {
+            titleEl.innerHTML = '<i class="fas fa-file-excel mr-2"></i>Export Excel - Pilih Jadwal';
+            headerEl.style.backgroundColor = '#47c363';
+            btnEl.className = 'btn btn-success px-4 font-weight-bold';
+            btnEl.innerHTML = '<i class="fas fa-download mr-1"></i> Download Excel';
+        } else {
+            titleEl.innerHTML = '<i class="fas fa-print mr-2"></i>Cetak PDF - Pilih Jadwal';
+            headerEl.style.backgroundColor = '#3abaf4';
+            btnEl.className = 'btn btn-info px-4 font-weight-bold';
+            btnEl.innerHTML = '<i class="fas fa-print mr-1"></i> Buka Cetak PDF';
+        }
+        
+        updateInfoJadwalModal();
+        $('#modalPilihJadwalRencana').modal('show');
+    }
+
+    function updateInfoJadwalModal() {
+        var sel = document.getElementById('select_jadwal_laporan');
+        if (!sel) return;
+        var opt = sel.options[sel.selectedIndex];
+        var ket = opt ? opt.getAttribute('data-ket') : '';
+        var infoSpan = document.getElementById('text_info_jadwal');
+        if (infoSpan) infoSpan.innerText = ket || 'Format laporan sesuai pilihan jadwal';
+    }
+
+    $(document).ready(function() {
+        $('#select_jadwal_laporan').on('change', function() {
+            updateInfoJadwalModal();
+        });
+        
+        $('#modalPilihJadwalRencana').on('shown.bs.modal', function() {
+            updateInfoJadwalModal();
+        });
+        
+        $('#btnKonfirmasiModalJadwal').on('click', function() {
+            var sel = document.getElementById('select_jadwal_laporan');
+            var val = sel ? sel.value : '';
+            var separator = _modalTargetUrl.indexOf('?') !== -1 ? '&' : '?';
+            var finalUrl = _modalTargetUrl + separator + 'jadwal=' + encodeURIComponent(val);
+            
+            $('#modalPilihJadwalRencana').modal('hide');
+            
+            if (_modalTargetAction === 'excel') {
+                window.location.href = finalUrl;
+            } else {
+                openPrintWindow(finalUrl);
+            }
+        });
+    });
+</script>
+

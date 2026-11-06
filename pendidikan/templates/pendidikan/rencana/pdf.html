@@ -62,6 +62,13 @@
                                         <h4>{{judul|upper}} <br>
                                         {{subjudul|upper}}
                                         </h4>
+                                        {% if is_perubahan %}
+                                        <h6 style="font-weight: normal; margin-top: 5px; font-size: 13px;">PERBANDINGAN INDUK ({{ jadwal_induk.jadwal_keterangan|default:jadwal_induk.jadwal_nama }}) DAN PERUBAHAN ({{ jadwal_perubahan.jadwal_keterangan|default:jadwal_perubahan.jadwal_nama }})</h6>
+                                        {% elif is_draft_changed %}
+                                        <h6 style="font-weight: normal; margin-top: 5px; font-size: 13px;">PERUBAHAN RENCANA KEGIATAN (SEMULA VS MENJADI)</h6>
+                                        {% elif jadwal_terpilih %}
+                                        <h6 style="font-weight: normal; margin-top: 5px; font-size: 13px;">JADWAL: {{ jadwal_terpilih.jadwal_keterangan|default:jadwal_terpilih.jadwal_nama|upper }}</h6>
+                                        {% endif %}
                                     </th>
                                 </tr>
                                 <tr>

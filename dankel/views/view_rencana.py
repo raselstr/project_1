@@ -131,6 +131,7 @@ def list(request):
         'rencdankel_pagu',
         'rencdankel_output',
         jadwal_field='rencdankel_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     context = {
@@ -223,6 +224,7 @@ def cetak(request):
         'rencdankel_pagu',
         'rencdankel_output',
         jadwal_field='rencdankel_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     tabel = tabel_rencana(data)
@@ -266,6 +268,7 @@ def excel(request):
         'rencdankel_pagu',
         'rencdankel_output',
         jadwal_field='rencdankel_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     context = {

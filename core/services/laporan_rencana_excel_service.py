@@ -213,6 +213,12 @@ class LaporanRencanaExcelService:
                 ws["A3"] = f"PERBANDINGAN INDUK ({j_induk_nama}) DAN PERUBAHAN ({j_perubahan_nama}) TAHUN {tahun}"
             ws["A3"].font = styles['font_meta_lbl']
             ws["A3"].alignment = styles['align_center']
+        elif context.get('jadwal_terpilih'):
+            j_terpilih_nama = getattr(context.get('jadwal_terpilih'), 'jadwal_keterangan', None) or getattr(context.get('jadwal_terpilih'), 'jadwal_nama', '')
+            ws.merge_cells(f"A3:{max_col_letter}3")
+            ws["A3"] = f"JADWAL: {j_terpilih_nama.upper()} - TAHUN {tahun}"
+            ws["A3"].font = styles['font_meta_lbl']
+            ws["A3"].alignment = styles['align_center']
 
         # Metadata filter
         ws["A5"] = "Tahun Anggaran"

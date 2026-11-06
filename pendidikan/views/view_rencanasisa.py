@@ -175,6 +175,7 @@ def list(request):
         jadwal_field='posting_jadwal',
         rencana_pagu_field='rencana_pagu',
         rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     context = {
@@ -254,6 +255,7 @@ def cetak(request):
         jadwal_field='posting_jadwal',
         rencana_pagu_field='rencana_pagu',
         rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
     )
    
     if rencana_subopd:
@@ -319,6 +321,7 @@ def excel(request):
         jadwal_field='posting_jadwal',
         rencana_pagu_field='rencana_pagu',
         rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     subopd_obj = model_subopd.objects.filter(id=rencana_subopd).first() if rencana_subopd else None

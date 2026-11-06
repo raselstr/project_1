@@ -17,8 +17,12 @@
                     </div>
                     <h4> {{judul}}</h4>
                     <div class="card-header-action">
-                        <a href="{% url 'dankelsisa_excel' %}" type="button" class="btn btn-success"><i class="fas fa-file-excel mr-1"></i> Export Excel</a>
-                        <a href="#" onclick="openPrintWindow('{{dankelsisa_cetak}}'); return false;" type="button" class="btn btn-info">Cetak</a>
+                        <button type="button" class="btn btn-success" onclick="bukaModalJadwal('excel', '{% url 'dankelsisa_excel' %}')">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="bukaModalJadwal('cetak', '{{dankelsisa_cetak}}')">
+                            <i class="fas fa-print mr-1"></i> Cetak
+                        </button>
                         <a href="{% url "dankelsisa_simpan" %}" type="button" class="btn btn-primary">{{tombol}}</a>
                     </div>
                 </div>
@@ -250,6 +254,8 @@
         </div>
     </div>
 </section>
+
+{% include "includes/modal_pilih_jadwal_rencana.html" %}
     
 {% endblock content %}
 

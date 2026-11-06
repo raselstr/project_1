@@ -118,13 +118,14 @@ def list(request):
     data = RencDankelsisa.objects.filter(query)
 
     is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
-        data,
-        sesitahun,
+        data if data is not None else [],
+        sesitahun if 'sesitahun' in locals() else tahun,
         RencDankeljadwalsisa,
         'rencdankelsisa_id',
         'rencdankelsisa_pagu',
         'rencdankelsisa_output',
         jadwal_field='rencdankelsisa_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     context = {
@@ -168,6 +169,7 @@ def cetak(request):
         'rencdankelsisa_pagu',
         'rencdankelsisa_output',
         jadwal_field='rencdankelsisa_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     tabel = tabel_rencana(data)
@@ -211,6 +213,7 @@ def excel(request):
         'rencdankelsisa_pagu',
         'rencdankelsisa_output',
         jadwal_field='rencdankelsisa_jadwal',
+        selected_jadwal=request.GET.get('jadwal'),
     )
 
     context = {
