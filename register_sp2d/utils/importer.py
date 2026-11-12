@@ -109,6 +109,7 @@ def _to_date(val):
 
 
 def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
+    from collections import defaultdict
     from register_sp2d.models import RegisterSP2D
 
     wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
@@ -126,8 +127,9 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
         for obj in RegisterSP2D.objects.filter(tahun=tahun)
     }
 
+    log_path = Path(settings.MEDIA_ROOT) / "import" / f"register_sp2d_log_{tahun}.csv"
     skipped_path = Path(settings.MEDIA_ROOT) / "import" / f"register_sp2d_skipped_{tahun}.csv"
-    skipped_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
     saved = updated = skipped = processed = 0
     seen_in_file = set()
@@ -135,38 +137,79 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
     insert_batch = []
     update_batch = []
 
-    with open(skipped_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(["row", "reason", "tanggal_import"])
+    updated_items = []
+    skipped_items = []
+    skipped_reason_counts = defaultdict(int)
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    with open(log_path, "w", newline="", encoding="utf-8") as f_log, \
+         open(skipped_path, "w", newline="", encoding="utf-8") as f_skip:
+
+        writer_log = csv.writer(f_log)
+        writer_log.writerow(["row_excel", "nomor_sp2d", "unit_skpd", "status", "alasan", "tanggal_import"])
+
+        writer_skip = csv.writer(f_skip)
+        writer_skip.writerow(["row", "reason", "tanggal_import"])
 
         for idx, row in enumerate(all_rows, start=1):
             processed += 1
+            excel_row_num = idx + HEADER_ROWS
 
-            # progress setiap 100 baris
-            if processed % 100 == 0:
+            # progress setiap 50 baris
+            if processed % 50 == 0:
                 cache.set(cache_key, {"current": processed, "total": total_rows}, 3600)
 
             try:
                 # Ambil nilai kolom
                 nomor_sp2d = _clean_str(row[COL_NOMOR_SP2D] if len(row) > COL_NOMOR_SP2D else None)
+                unit_skpd  = _clean_str(row[COL_UNIT_SKPD]  if len(row) > COL_UNIT_SKPD  else None)
 
-                # Skip baris kosong / baris total (tidak ada nomor SP2D)
+                # Skip baris kosong / baris total / formula
                 if not nomor_sp2d:
+                    has_formula = any(str(c).strip().startswith("=") for c in row if c is not None)
+                    is_all_empty = all(c is None or str(c).strip() == "" for c in row)
+
+                    if has_formula:
+                        reason = "Baris Rumus / Formula Total Excel (tidak memiliki nomor SP2D valid)"
+                    elif is_all_empty:
+                        reason = "Baris kosong dalam file Excel"
+                    else:
+                        reason = "Nomor SP2D kosong / bukan format SP2D yang valid"
+
                     skipped += 1
-                    writer.writerow([idx, "nomor_sp2d kosong", datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+                    skipped_reason_counts[reason] += 1
+                    skipped_items.append({
+                        "excel_row": excel_row_num,
+                        "nomor_sp2d": "-",
+                        "unit_skpd": unit_skpd or "-",
+                        "status": "DILEWATI",
+                        "reason": reason,
+                    })
+                    writer_log.writerow([excel_row_num, "-", unit_skpd or "-", "DILEWATI", reason, now_str])
+                    writer_skip.writerow([excel_row_num, reason, now_str])
                     continue
 
                 # Skip baris duplikat dalam file
                 if nomor_sp2d in seen_in_file:
+                    reason = f"Nomor SP2D '{nomor_sp2d}' duplikat dalam file Excel (sudah diproses pada baris sebelumnya)"
                     skipped += 1
-                    writer.writerow([idx, "duplikat dalam file", datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+                    skipped_reason_counts["Duplikat Nomor SP2D dalam file Excel"] += 1
+                    skipped_items.append({
+                        "excel_row": excel_row_num,
+                        "nomor_sp2d": nomor_sp2d,
+                        "unit_skpd": unit_skpd or "-",
+                        "status": "DILEWATI",
+                        "reason": reason,
+                    })
+                    writer_log.writerow([excel_row_num, nomor_sp2d, unit_skpd or "-", "DILEWATI", reason, now_str])
+                    writer_skip.writerow([excel_row_num, reason, now_str])
                     continue
                 seen_in_file.add(nomor_sp2d)
 
                 # Parsing seluruh kolom
                 tgl_pembuatan = _to_date(row[COL_TGL_PEMBUATAN]  if len(row) > COL_TGL_PEMBUATAN  else None)
                 tgl_pencairan = _to_date(row[COL_TGL_PENCAIRAN]  if len(row) > COL_TGL_PENCAIRAN  else None)
-                unit_skpd     = _clean_str(row[COL_UNIT_SKPD]    if len(row) > COL_UNIT_SKPD      else None)
                 nama_penerima = _clean_str(row[COL_NAMA_PENERIMA] if len(row) > COL_NAMA_PENERIMA  else None)
                 keterangan    = _clean_str(row[COL_KETERANGAN]    if len(row) > COL_KETERANGAN     else None)
                 jenis_sp2d    = _clean_str(row[COL_JENIS_SP2D]    if len(row) > COL_JENIS_SP2D     else None)
@@ -174,22 +217,21 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
                 nilai_potongan= _to_decimal(row[COL_NILAI_POTONGAN] if len(row) > COL_NILAI_POTONGAN else 0)
                 nilai_neto    = _to_decimal(row[COL_NILAI_NETO]     if len(row) > COL_NILAI_NETO     else 0)
 
-                # Ambil bulan dari tanggal pembuatan
                 bulan = tgl_pembuatan.month if tgl_pembuatan else None
 
                 data = dict(
-                    tahun          = tahun,
-                    bulan          = bulan,
+                    tahun             = tahun,
+                    bulan             = bulan,
                     tanggal_pembuatan = tgl_pembuatan,
                     tanggal_pencairan = tgl_pencairan,
-                    nomor_sp2d     = nomor_sp2d,
-                    unit_skpd      = unit_skpd,
-                    nama_penerima  = nama_penerima,
-                    keterangan     = keterangan,
-                    jenis_sp2d     = jenis_sp2d,
-                    nilai_bruto    = nilai_bruto,
-                    nilai_potongan = nilai_potongan,
-                    nilai_neto     = nilai_neto,
+                    nomor_sp2d        = nomor_sp2d,
+                    unit_skpd         = unit_skpd,
+                    nama_penerima     = nama_penerima,
+                    keterangan        = keterangan,
+                    jenis_sp2d        = jenis_sp2d,
+                    nilai_bruto       = nilai_bruto,
+                    nilai_potongan    = nilai_potongan,
+                    nilai_neto        = nilai_neto,
                 )
 
                 if nomor_sp2d in existing_map:
@@ -197,21 +239,42 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
                     for k, v in data.items():
                         setattr(obj, k, v)
                     update_batch.append(obj)
+                    updated += 1
+                    reason = f"Nomor SP2D sudah ada di database Tahun {tahun}. Data diperbarui (Bruto: Rp {nilai_bruto:,.0f})."
+                    updated_items.append({
+                        "excel_row": excel_row_num,
+                        "nomor_sp2d": nomor_sp2d,
+                        "unit_skpd": unit_skpd or "-",
+                        "status": "DIPERBARUI",
+                        "reason": reason,
+                    })
+                    writer_log.writerow([excel_row_num, nomor_sp2d, unit_skpd or "-", "DIPERBARUI", reason, now_str])
                 else:
                     obj = RegisterSP2D(**data)
                     insert_batch.append(obj)
                     existing_map[nomor_sp2d] = obj
+                    saved += 1
+                    writer_log.writerow([excel_row_num, nomor_sp2d, unit_skpd or "-", "BARU", "Data baru berhasil disimpan", now_str])
 
             except Exception as e:
+                reason = f"Format data error: {str(e)}"
                 skipped += 1
-                writer.writerow([idx, f"error: {str(e)}", datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+                skipped_reason_counts["Format data error"] += 1
+                skipped_items.append({
+                    "excel_row": excel_row_num,
+                    "nomor_sp2d": nomor_sp2d or "-",
+                    "unit_skpd": unit_skpd or "-",
+                    "status": "DILEWATI",
+                    "reason": reason,
+                })
+                writer_log.writerow([excel_row_num, nomor_sp2d or "-", unit_skpd or "-", "DILEWATI", reason, now_str])
+                writer_skip.writerow([excel_row_num, reason, now_str])
                 continue
 
             # Flush batch
             if len(insert_batch) >= DB_CHUNK:
                 with transaction.atomic():
                     RegisterSP2D.objects.bulk_create(insert_batch, batch_size=DB_CHUNK)
-                saved += len(insert_batch)
                 insert_batch.clear()
 
             if len(update_batch) >= DB_CHUNK:
@@ -222,14 +285,12 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
                 ]
                 with transaction.atomic():
                     RegisterSP2D.objects.bulk_update(update_batch, UPDATE_FIELDS, batch_size=DB_CHUNK)
-                updated += len(update_batch)
                 update_batch.clear()
 
     # Sisa data
     if insert_batch:
         with transaction.atomic():
             RegisterSP2D.objects.bulk_create(insert_batch, batch_size=DB_CHUNK)
-        saved += len(insert_batch)
 
     if update_batch:
         UPDATE_FIELDS = [
@@ -239,7 +300,11 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
         ]
         with transaction.atomic():
             RegisterSP2D.objects.bulk_update(update_batch, UPDATE_FIELDS, batch_size=DB_CHUNK)
-        updated += len(update_batch)
+
+    skipped_summary = [
+        {"reason": r, "count": c}
+        for r, c in skipped_reason_counts.items()
+    ]
 
     cache.set(cache_key, {
         "done": True,
@@ -247,6 +312,19 @@ def import_register_sp2d_excel(file_path: str, tahun: int, cache_key: str):
         "updated": updated,
         "skipped": skipped,
         "total": total_rows,
-    }, 600)
+        "updated_reason": f"Nomor SP2D sudah terdaftar di database untuk Tahun {tahun}. Sistem memperbarui nilai bruto, potongan, neto, dan informasi penerima dengan data terbaru dari file Excel.",
+        "skipped_summary": skipped_summary,
+        "updated_items": updated_items[:100],
+        "skipped_items": skipped_items[:100],
+    }, 3600)
 
-    return {"saved": saved, "updated": updated, "skipped": skipped, "total": total_rows}
+    return {
+        "saved": saved,
+        "updated": updated,
+        "skipped": skipped,
+        "total": total_rows,
+        "updated_reason": f"Nomor SP2D sudah terdaftar di database untuk Tahun {tahun}. Sistem memperbarui nilai bruto, potongan, neto, dan informasi penerima dengan data terbaru dari file Excel.",
+        "skipped_summary": skipped_summary,
+        "updated_items": updated_items[:100],
+        "skipped_items": skipped_items[:100],
+    }

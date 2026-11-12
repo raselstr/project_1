@@ -1,0 +1,60 @@
+<div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+    <table class="table table-bordered table-hover table-sm mb-0" style="font-size: 12px;">
+        <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+            <tr>
+                <th style="width: 40px;" class="text-center">No</th>
+                <th style="width: 90px;" class="text-center">Baris Excel</th>
+                <th style="width: 220px;">Nomor SP2D</th>
+                <th style="width: 200px;">Unit SKPD</th>
+                <th style="width: 110px;" class="text-center">Status</th>
+                <th>Alasan / Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td class="text-center text-muted font-weight-bold align-middle">{{ forloop.counter }}</td>
+                <td class="text-center align-middle font-weight-bold">
+                    <span class="badge badge-light border">Baris #{{ row.row_excel }}</span>
+                </td>
+                <td class="align-middle font-weight-600" style="font-family: monospace; font-size: 11.5px;">
+                    {{ row.nomor_sp2d|default:"-" }}
+                </td>
+                <td class="align-middle small">{{ row.unit_skpd|default:"-" }}</td>
+                <td class="text-center align-middle">
+                    {% if row.status == "DIPERBARUI" %}
+                        <span class="badge badge-warning font-weight-600 px-2 py-1">
+                            <i class="fas fa-sync-alt mr-1"></i> Diperbarui
+                        </span>
+                    {% elif row.status == "DILEWATI" %}
+                        <span class="badge badge-danger font-weight-600 px-2 py-1">
+                            <i class="fas fa-times-circle mr-1"></i> Dilewati
+                        </span>
+                    {% else %}
+                        <span class="badge badge-success font-weight-600 px-2 py-1">
+                            <i class="fas fa-check-circle mr-1"></i> Baru
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="align-middle" style="font-size: 11.5px;">
+                    {% if row.status == "DIPERBARUI" %}
+                        <span class="text-dark font-weight-500">{{ row.alasan }}</span>
+                    {% elif row.status == "DILEWATI" %}
+                        <span class="text-danger font-weight-600">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> {{ row.alasan }}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">{{ row.alasan }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    <i class="fas fa-inbox mr-1"></i> Belum ada catatan log import untuk tahun {{ tahun }}.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -144,7 +144,7 @@ def upload_register_sp2d(request):
         "url_progress"  : "/master/register-sp2d/progress/TASK_ID/",
         "url_list"      : "/master/register-sp2d/",
         "url_export"    : "/master/register-sp2d/export/",
-        "url_skipped"   : None,
+        "url_log"       : "/master/register-sp2d/log/",
         "table_template": "components/partials/register_sp2d_table.html",
     }
 
@@ -160,6 +160,41 @@ def upload_register_sp2d(request):
 def register_sp2d_progress(request, task_id):
     data = cache.get(f"register_sp2d_{task_id}") or {"current": 0, "total": 1}
     return JsonResponse(data)
+
+
+# =========================================================
+# 📋 LOG RINCIAN UPLOAD (DIPERBAHARUI & DILEWATI)
+# =========================================================
+def register_sp2d_log_view(request):
+    tahun_session = request.session.get("tahun") or datetime.now().year
+    try:
+        tahun = int(str(tahun_session).strip())
+    except (ValueError, TypeError):
+        tahun = datetime.now().year
+
+    log_path = Path(settings.MEDIA_ROOT) / "import" / f"register_sp2d_log_{tahun}.csv"
+
+    rows = []
+    if log_path.exists():
+        with open(log_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = [
+                {k.strip(): (v.strip() if v else "") for k, v in row.items()}
+                for row in reader
+            ]
+
+    # Filter status: SEMUA, DIPERBARUI, DILEWATI, BARU
+    status_filter = request.GET.get("status", "").strip().upper()
+    if status_filter:
+        rows = [r for r in rows if r.get("status", "").upper() == status_filter]
+
+    context = {
+        "tahun": tahun,
+        "rows": rows,
+        "total_rows": len(rows),
+        "status_filter": status_filter,
+    }
+    return render(request, "register_sp2d/partials/log_list.html", context)
 
 
 # =========================================================
