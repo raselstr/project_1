@@ -737,11 +737,10 @@ def monitor_sipd_detail(request):
 
     # --- SINKRONISASI SIPD DENGAN DATA TBP --------------------------------
     # Ambil nomor dokumen dari SIPD untuk dicocokkan dengan nomor_tbp di tabel TBP
-    tbp_docs = list(sipd_qs.values_list('nomor_dokumen', flat=True).distinct())
-    tbp_map = {
-        clean(t.nomor_tbp): t
-        for t in TBP.objects.filter(tahun=tahun, nomor_tbp__in=tbp_docs)
-    }
+    tbp_docs = [d for d in sipd_qs.values_list('nomor_dokumen', flat=True).distinct() if d]
+    cleaned_docs = {clean(d) for d in tbp_docs if d}
+    tbp_qs = TBP.objects.filter(tahun=tahun, nomor_tbp__in=list(cleaned_docs.union(set(tbp_docs))))
+    tbp_map = {clean(t.nomor_tbp): t for t in tbp_qs}
 
     # Grouping data SIPD per TBP / Dokumen agar nilai TBP sesuai dengan rincian SIPD
     grouped = {}
@@ -765,6 +764,7 @@ def monitor_sipd_detail(request):
                 'nomor_tbp': dok_clean if dok_clean else "-",
                 'tanggal_sp2d': s.tanggal_sp2d,
                 'tanggal_tbp': tbp_obj.tanggal_tbp if tbp_obj else None,
+                'status_tbp': (tbp_obj.status_tbp.strip() if tbp_obj and tbp_obj.status_tbp else "-"),
                 'nilai_tbp': Decimal(0),
             }
 
@@ -774,12 +774,22 @@ def monitor_sipd_detail(request):
         if s.tanggal_sp2d and (not grouped[key]['tanggal_sp2d'] or s.tanggal_sp2d < grouped[key]['tanggal_sp2d']):
             grouped[key]['tanggal_sp2d'] = s.tanggal_sp2d
 
-    # Urutkan berdasarkan tanggal SP2D atau tanggal TBP
+        # Update status_tbp jika sebelumnya belum ada
+        if grouped[key].get('status_tbp') in ('-', '', None) and tbp_obj and tbp_obj.status_tbp:
+            grouped[key]['status_tbp'] = tbp_obj.status_tbp.strip()
+
+        # Update tanggal_tbp jika sebelumnya belum ada
+        if not grouped[key].get('tanggal_tbp') and tbp_obj and tbp_obj.tanggal_tbp:
+            grouped[key]['tanggal_tbp'] = tbp_obj.tanggal_tbp
+
+    # Urutkan berdasarkan tanggal SP2D (atau tanggal TBP jika tanggal SP2D kosong), lalu nomor SP2D
     tbp_list = sorted(
         grouped.values(),
         key=lambda x: (
             str(x['tanggal_sp2d'] or x['tanggal_tbp'] or ''),
-            x['nomor_sp2d']
+            x['nomor_sp2d'] or '',
+            str(x['tanggal_tbp'] or ''),
+            x['nomor_tbp'] or ''
         )
     )
 
