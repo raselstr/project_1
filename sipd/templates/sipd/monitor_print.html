@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Monitoring SIPD Tahun {{ tahun }}</title>
+    <title>Laporan Monitoring SIPD Tahun {{ tahun|stringformat:"s" }}</title>
     <style>
         @page {
             size: A4 landscape;
@@ -125,7 +125,7 @@
     <!-- TOP TOOLBAR (NO PRINT) -->
     <div class="no-print">
         <div>
-            <strong>Laporan Monitoring SIPD Tahun {{ tahun }}</strong>
+            <strong>Laporan Monitoring SIPD Tahun {{ tahun|stringformat:"s" }}</strong>
             <span style="color: #64748b; margin-left: 8px;">(Format Cetak Landscape A4)</span>
         </div>
         <div>
@@ -143,7 +143,7 @@
             Laporan Komparasi Rencana Kegiatan vs Realisasi SIPD
         </div>
         <p class="kop-meta">
-            Tahun Anggaran {{ tahun }} &bull; Filter: {{ dana_nama }} &bull; Dicetak pada: {{ tanggal_cetak|date:"d F Y" }}
+            Tahun Anggaran {{ tahun|stringformat:"s" }} &bull; Filter: {{ dana_nama }} &bull; Dicetak pada: {{ tanggal_cetak|date:"d F Y" }}
         </p>
     </div>
 

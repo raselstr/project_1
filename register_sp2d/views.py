@@ -132,7 +132,7 @@ def upload_register_sp2d(request):
         "total_potongan": total_potongan,
         "total_neto"    : total_neto,
         "total_items"   : qs.count(),
-        "tahun"         : tahun,
+        "tahun"         : str(tahun),
         "jenis_choices" : list(jenis_choices),
         "bulan_choices" : BULAN_CHOICES,
         "q_search"      : q_search,
@@ -189,7 +189,7 @@ def register_sp2d_log_view(request):
         rows = [r for r in rows if r.get("status", "").upper() == status_filter]
 
     context = {
-        "tahun": tahun,
+        "tahun": str(tahun),
         "rows": rows,
         "total_rows": len(rows),
         "status_filter": status_filter,

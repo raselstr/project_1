@@ -1,13 +1,59 @@
 import django_tables2 as tables
 from django.utils.html import format_html
+from decimal import Decimal
 from .models import RegisterSP2D
 
 
+def format_rupiah(value):
+    if value is None:
+        return "0"
+    try:
+        val = Decimal(str(value))
+        if val % 1 == 0:
+            return f"{int(val):,}".replace(",", ".")
+        else:
+            return f"{val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return str(value)
+
+
 class RegisterSP2DTable(tables.Table):
-    no = tables.Column(empty_values=(), verbose_name="No", orderable=False)
-    nilai_bruto    = tables.Column(verbose_name="Nilai Bruto (Rp)")
-    nilai_potongan = tables.Column(verbose_name="Potongan (Rp)")
-    nilai_neto     = tables.Column(verbose_name="Nilai Neto (Rp)")
+    no = tables.Column(
+        empty_values=(),
+        verbose_name="No",
+        orderable=False,
+        attrs={"th": {"class": "text-center", "style": "width: 45px;"}, "td": {"class": "text-center text-muted font-weight-bold"}}
+    )
+    tanggal_pembuatan = tables.DateColumn(
+        format="d-m-Y",
+        verbose_name="Tgl Pembuatan",
+        attrs={"th": {"class": "text-center", "style": "width: 110px;"}, "td": {"class": "text-center", "style": "white-space: nowrap;"}}
+    )
+    tanggal_pencairan = tables.DateColumn(
+        format="d-m-Y",
+        verbose_name="Tgl Pencairan",
+        attrs={"th": {"class": "text-center", "style": "width: 110px;"}, "td": {"class": "text-center", "style": "white-space: nowrap;"}}
+    )
+    nomor_sp2d = tables.Column(
+        verbose_name="Nomor SP2D",
+        attrs={"td": {"style": "font-family: monospace; font-size: 11.5px; white-space: nowrap;"}}
+    )
+    jenis_sp2d = tables.Column(
+        verbose_name="Jenis",
+        attrs={"th": {"class": "text-center", "style": "width: 70px;"}, "td": {"class": "text-center"}}
+    )
+    nilai_bruto = tables.Column(
+        verbose_name="Nilai Bruto (Rp)",
+        attrs={"th": {"class": "text-right", "style": "width: 140px;"}, "td": {"class": "text-right font-weight-600", "style": "white-space: nowrap;"}}
+    )
+    nilai_potongan = tables.Column(
+        verbose_name="Potongan (Rp)",
+        attrs={"th": {"class": "text-right", "style": "width: 120px;"}, "td": {"class": "text-right text-muted", "style": "white-space: nowrap;"}}
+    )
+    nilai_neto = tables.Column(
+        verbose_name="Nilai Neto (Rp)",
+        attrs={"th": {"class": "text-right", "style": "width: 140px;"}, "td": {"class": "text-right font-weight-bold text-success", "style": "white-space: nowrap;"}}
+    )
 
     class Meta:
         model = RegisterSP2D
@@ -25,7 +71,7 @@ class RegisterSP2DTable(tables.Table):
             "nilai_neto",
         )
         attrs = {
-            "class": "table table-bordered table-striped table-hover table-sm",
+            "class": "table table-bordered table-striped table-hover table-sm mb-0",
             "style": "font-size: 12.5px;",
         }
 
@@ -45,14 +91,14 @@ class RegisterSP2DTable(tables.Table):
         }
         badge_color = colors.get(str(value).upper(), "secondary")
         return format_html(
-            '<span class="badge badge-{}">{}</span>', badge_color, value
+            '<span class="badge badge-{} font-weight-600">{}</span>', badge_color, value
         )
 
     def render_nilai_bruto(self, value):
-        return f"{value:,.0f}"
+        return format_rupiah(value)
 
     def render_nilai_potongan(self, value):
-        return f"{value:,.0f}"
+        return format_rupiah(value)
 
     def render_nilai_neto(self, value):
-        return f"{value:,.0f}"
+        return format_rupiah(value)

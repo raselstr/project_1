@@ -25,7 +25,7 @@
     <li class="dropdown dropdown-list-toggle">
       <a href="#" class="nav-link nav-link-lg message-toggle" style="cursor: default;">
         <i class="fas fa-clock"></i>
-        <span>TA: <strong>{{ tahun }}</strong> &bull; Jadwal: <strong>{{ jadwal_ket|default:"Induk" }}</strong></span>
+        <span>TA: <strong>{{ tahun|stringformat:"s" }}</strong> &bull; Jadwal: <strong>{{ jadwal_ket|default:"Induk" }}</strong></span>
       </a>
     </li>
     <li class="dropdown">

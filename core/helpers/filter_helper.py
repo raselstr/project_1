@@ -8,7 +8,7 @@ class FilterHelper:
     @staticmethod
     def tahun_choices():
         tahun = PaguService.get_available_tahun()
-        return [("", "Semua Tahun")] + [(t, t) for t in tahun]
+        return [("", "Semua Tahun")] + [(str(t), str(t)) for t in tahun]
 
     @staticmethod
     def dana_choices():

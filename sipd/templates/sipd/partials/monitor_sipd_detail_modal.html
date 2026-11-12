@@ -7,7 +7,7 @@
         </h5>
         <div class="text-white-50 small">
             <span class="badge badge-light text-dark mr-1">
-                <i class="fas fa-calendar-alt mr-1"></i> Tahun {{ tahun }}
+                <i class="fas fa-calendar-alt mr-1"></i> Tahun {{ tahun|stringformat:"s" }}
             </span>
             <span class="badge badge-info mr-1">
                 <i class="fas fa-code mr-1"></i> {{ kode_ket }}
@@ -209,7 +209,7 @@
 
 <div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between align-items-center">
     <div class="text-muted small">
-        <i class="fas fa-database mr-1"></i> Data SIPD & TBP Tahun {{ tahun }} &mdash; Sub OPD: {{ subopd_nama }}
+        <i class="fas fa-database mr-1"></i> Data SIPD & TBP Tahun {{ tahun|stringformat:"s" }} &mdash; Sub OPD: {{ subopd_nama }}
     </div>
     <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">
         <i class="fas fa-times mr-1"></i> Tutup
@@ -224,7 +224,7 @@ function printSipdDetail() {
     printWin.document.write(`
         <html>
         <head>
-            <title>Cetak Data SIPD & TBP - {{ subopd_nama|escapejs }} Tahun {{ tahun }}</title>
+            <title>Cetak Data SIPD & TBP - {{ subopd_nama|escapejs }} Tahun {{ tahun|stringformat:"s" }}</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; font-size: 11px; color: #111; }
                 h4, h5 { margin: 0 0 4px 0; }
@@ -240,7 +240,7 @@ function printSipdDetail() {
         </head>
         <body>
             <h4 style="text-align:center;">DATA SIPD DISINKRONKAN DENGAN DATA TBP</h4>
-            <h5 style="text-align:center; color:#555;">{{ subopd_nama|escapejs }} - Tahun {{ tahun }}</h5>
+            <h5 style="text-align:center; color:#555;">{{ subopd_nama|escapejs }} - Tahun {{ tahun|stringformat:"s" }}</h5>
             <p style="text-align:center; color:#777; font-size: 10px; margin-bottom: 10px;">Sub Kegiatan: {{ subkeg_nama|escapejs }} | Kode: {{ kode_ket }}</p>
             ${table.outerHTML}
             <script>window.onload = function() { window.print(); };<\/script>

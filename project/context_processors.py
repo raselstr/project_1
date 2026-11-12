@@ -20,6 +20,8 @@ def menu_context_processor(request):
         request.session.modified = True
     
     
+    tahun_display = str(tahun) if tahun is not None else ""
+
     if request.user.is_authenticated:
         if request.session.get('is_superuser', False):
             menus = Menu.objects.all()
@@ -37,7 +39,7 @@ def menu_context_processor(request):
             "user_nama": request.session.get('user_nama', 'Super'),
             "subopd": request.session.get('subopd', 'Tidak Terikat'),
             "level": request.session.get('level', 'Super Admin'),
-            "tahun": tahun,
+            "tahun": tahun_display,
             "jadwal": jadwal_id,
             "jadwal_ket": jadwal_keterangan,
             "idsubopd" : request.session.get('idsubopd','None'),
@@ -50,7 +52,7 @@ def menu_context_processor(request):
             "user_nama": '',
             "subopd": '',
             "level": '',
-            "tahun": tahun,
+            "tahun": tahun_display,
             "jadwal":'',
             "jadwal_ket":'Tidak ada jadwal',
             "idsubopd":'',

@@ -106,7 +106,7 @@ def upload_sipd(request):
         "table": table,
         "judul": "Upload Excel SIPD",
         "judulskip": "Data yang dilewati",
-        "tahun": tahun,
+        "tahun": str(tahun) if tahun else "",
 
         # 🔥 dynamic config
         "url_upload": "/sipd/",
@@ -607,7 +607,7 @@ def monitor_sipd(request):
         'count_selisih': count_selisih,
         'count_belum': count_belum,
         'total_items': len(hasil),
-        'tahun': tahun,
+        'tahun': str(tahun),
         'dana': dana,
         'tahun_choices': FilterHelper.tahun_choices(),
         'dana_choices': FilterHelper.dana_choices(),
@@ -653,7 +653,7 @@ def monitor_sipd_print(request):
         'total_pagu': total_pagu,
         'total_sipd': total_sipd,
         'total_selisih': total_selisih,
-        'tahun': tahun,
+        'tahun': str(tahun),
         'dana': dana,
         'dana_nama': dana_nama,
         'tanggal_cetak': date.today(),
@@ -796,7 +796,7 @@ def monitor_sipd_detail(request):
     total_nilai_tbp = sum((item['nilai_tbp'] for item in tbp_list), Decimal(0))
 
     context = {
-        'tahun'           : tahun,
+        'tahun'           : str(tahun),
         'kode_ket'        : kode_ket,
         'kode_opd'        : kode_opd,
         'subopd_nama'     : subopd_nama,
