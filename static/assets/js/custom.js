@@ -95,23 +95,29 @@ $(document).ready(function() {
   });
 
   // 2. Universal Table Responsive Wrapper
-  // Memastikan semua tabel (termasuk yang digenerate dinamik) memiliki scrollbar horizontal
+  // Memastikan semua tabel data memiliki scrollbar horizontal, KECUALI tabel di dalam card summary (.card-large-icons)
   function applyTableResponsive(context) {
     var $root = context ? $(context) : $(document);
+
+    // Lepas pembungkus table-responsive jika membungkus tabel di dalam card-large-icons
+    $root.find('.card-large-icons .table-responsive > table').unwrap();
+
     $root.find('table').each(function() {
       var $t = $(this);
-      // Lewati tabel yang sudah berada dalam container scrollable
-      if ($t.closest('.table-responsive, .dataTables_wrapper, .dataTables_scrollBody, .sp2d-table-wrapper, .table-container').length) {
+      // Lewati tabel di dalam card-large-icons atau yang sudah berada dalam container scrollable
+      if ($t.closest('.card-large-icons, .card-icon, .table-responsive, .dataTables_wrapper, .dataTables_scrollBody, .sp2d-table-wrapper, .table-container').length) {
         return;
       }
       $t.wrap('<div class="table-responsive"></div>');
     });
 
-    // Inisialisasi indikator scroll jika tabel meluap
-    $('.table-responsive, .dataTables_scrollBody, .sp2d-table-wrapper, .table-container').each(function() {
+    // Inisialisasi indikator scroll jika tabel data meluap
+    $('.table-responsive, .dataTables_scrollBody, .sp2d-table-wrapper, .table-container').not('.card-large-icons *').each(function() {
       var el = this;
       if (el.scrollWidth > el.clientWidth) {
         $(el).addClass('has-horizontal-scroll');
+      } else {
+        $(el).removeClass('has-horizontal-scroll');
       }
     });
   }
@@ -244,7 +250,7 @@ $(document).ready(function() {
             var barColor = pct >= 80 ? 'linear-gradient(90deg, #059669, #10b981)' : (pct >= 50 ? 'linear-gradient(90deg, #0052cc, #38bdf8)' : 'linear-gradient(90deg, #d97706, #fbbf24)');
             var $lastTd = $row.find('td:last-child');
             $lastTd.append(
-              '<div class="progress-bar-wrap mt-1" style="height: 5px; width: 100%; min-width: 110px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">' +
+              '<div class="progress-bar-wrap mt-1" style="height: 5px; width: 100%; max-width: 140px; min-width: 60px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-left: auto;">' +
                 '<div style="height: 100%; width: ' + displayPct + '%; background: ' + barColor + '; border-radius: 4px; transition: width 0.8s ease;"></div>' +
               '</div>'
             );
