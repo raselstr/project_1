@@ -669,36 +669,42 @@ def monitor_sipd_detail(request):
     Menampilkan detail baris Monitor SIPD dalam Bootstrap Modal.
     Menampilkan data Upload Excel SIPD yang disinkronkan dengan data TBP:
     Kolom: No. SP2D, TBP, Tanggal SP2D, Tgl TBP, Nilai TBP.
-    Total penjumlahan Nilai TBP sama dengan nilai SIPD pada sub kegiatan tersebut.
+    Total penjumlahan Nilai TBP sama persis dengan nilai SIPD pada baris sub kegiatan tersebut.
     """
-    kode_ket    = request.GET.get('kode_ket', '').strip()
-    kode_opd    = request.GET.get('kode_opd', '').strip()
+    kode_ket    = clean(request.GET.get('kode_ket', ''))
+    kode_opd    = clean(request.GET.get('kode_opd', ''))
     tahun_param = request.GET.get('tahun', '')
 
-    if not kode_ket or not kode_opd or not tahun_param:
+    if not kode_ket or not tahun_param:
         return HttpResponse(
-            "<div class='alert alert-danger mb-0'>Parameter kode_ket, kode_opd dan tahun wajib diisi.</div>"
+            "<div class='alert alert-danger mb-0'>Parameter kode sub kegiatan dan tahun wajib diisi.</div>"
         )
 
+    # Bersihkan format tahun (misal '2.026' atau '2,026' dari template humanize)
+    clean_tahun = str(tahun_param).replace(".", "").replace(",", "").strip()
     try:
-        tahun = int(str(tahun_param).strip())
+        tahun = int(clean_tahun)
     except (TypeError, ValueError):
         return HttpResponse(
             "<div class='alert alert-danger mb-0'>Format tahun tidak valid.</div>"
         )
 
-    # --- Ambil semua SIPD untuk sub kegiatan & sub OPD ini ----------------
-    sipd_qs = (
-        Sipd.objects
-        .filter(tahun=tahun, kode_sub_kegiatan=kode_ket, kode_sub_skpd=kode_opd)
-        .order_by('tanggal_sp2d', 'nomor_sp2d', 'nomor_dokumen')
-    )
+    # --- Ambil data SIPD untuk sub kegiatan & sub OPD ini -----------------
+    filters = {'tahun': tahun, 'kode_sub_kegiatan': kode_ket}
+    if kode_opd:
+        filters['kode_sub_skpd'] = kode_opd
+
+    sipd_qs = Sipd.objects.filter(**filters).order_by('tanggal_sp2d', 'nomor_sp2d', 'nomor_dokumen')
+
+    # Jika tidak ditemukan dengan kode_opd exact, coba tanpa kode_opd
+    if not sipd_qs.exists() and kode_opd:
+        sipd_qs = Sipd.objects.filter(tahun=tahun, kode_sub_kegiatan=kode_ket).order_by('tanggal_sp2d', 'nomor_sp2d', 'nomor_dokumen')
 
     # Ambil nama dari baris pertama (fallback jika tidak ada rencana)
     subopd_nama = sipd_qs.values_list('nama_sub_skpd', flat=True).first() or kode_opd
     subkeg_nama = sipd_qs.values_list('nama_sub_kegiatan', flat=True).first() or kode_ket
 
-    # Total nilai SIPD langsung dari tabel Sipd
+    # Total nilai SIPD langsung dari tabel Sipd (asal usul nilai monitor SIPD)
     total_sipd = sipd_qs.aggregate(
         total=Sum('nilai_realisasi')
     )['total'] or Decimal(0)

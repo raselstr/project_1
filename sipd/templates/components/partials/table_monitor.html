@@ -58,8 +58,8 @@
                 <td class="align-middle text-center">
                     <button type="button"
                             class="btn btn-sm btn-info px-2"
-                            title="Lihat Detail Transaksi SIPD dalam Modal"
-                            onclick="openMonitorDetail('{{ item.posting_tahun }}', '{{ item.posting_ket }}', '{{ item.posting_subopd_kode }}')">
+                            title="Lihat Asal Usul Nilai SIPD & Sinkronisasi TBP"
+                            onclick="openMonitorDetail('{{ item.posting_tahun|stringformat:"d" }}', '{{ item.posting_ket|escapejs }}', '{{ item.posting_subopd_kode|escapejs }}')">
                         <i class="fas fa-search-plus mr-1"></i> Detail
                     </button>
                 </td>
