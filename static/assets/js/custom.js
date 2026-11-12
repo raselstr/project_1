@@ -1,13 +1,70 @@
 /**
  * Custom JavaScript for Tech Modern Theme & Mobile Responsive
- * v5.4 — Sidebar dipindah ke luar #app, backdrop di root stacking context
+ * v5.5 — Sidebar accordion fix + active state dari URL
  */
 
 "use strict";
 
 $(document).ready(function() {
 
-  // 1. Mobile Sidebar State Management
+  // =========================================================================
+  // 1. SIDEBAR ACCORDION — Hanya 1 submenu terbuka sekaligus
+  // =========================================================================
+  function initSidebarAccordion() {
+    // Tandai menu yang aktif berdasarkan URL saat ini
+    var currentUrl = window.location.href;
+    var currentPath = window.location.pathname;
+    var currentSearch = window.location.search;
+
+    // Cek setiap link submenu
+    $('.sidebar-menu li.dropdown ul.dropdown-menu li a.nav-link').each(function() {
+      var linkHref = $(this).attr('href') || '';
+      // Cocokkan path + query string submenu_id
+      if (linkHref && currentUrl.indexOf(linkHref) !== -1) {
+        $(this).closest('li').addClass('active');
+        var $parentDropdown = $(this).closest('li.dropdown');
+        $parentDropdown.addClass('active');
+        $parentDropdown.find('> ul.dropdown-menu').css('display', 'block');
+      }
+    });
+
+    // Cek juga link menu utama (dashboard tanpa submenu_id)
+    if (currentPath === '/' || currentPath.indexOf('/dashboard') !== -1) {
+      if (!currentSearch || currentSearch.indexOf('submenu_id') === -1) {
+        $('.sidebar-menu li.dropdown').first().addClass('active');
+        $('.sidebar-menu li.dropdown').first().find('> ul.dropdown-menu').css('display', 'block');
+      }
+    }
+
+    // Click handler — accordion: tutup semua, buka yang diklik
+    $(document).on('click', '.sidebar-toggle-dropdown', function(e) {
+      e.preventDefault();
+      var $thisDropdown = $(this).closest('li.dropdown');
+      var $thisMenu = $thisDropdown.find('> ul.dropdown-menu');
+      var isOpen = $thisMenu.is(':visible');
+
+      // Tutup semua dropdown lain
+      $('.sidebar-menu li.dropdown').not($thisDropdown).each(function() {
+        $(this).find('> ul.dropdown-menu').slideUp(180);
+        $(this).removeClass('open-temp');
+      });
+
+      // Toggle yang diklik
+      if (isOpen) {
+        $thisMenu.slideUp(180);
+        $thisDropdown.removeClass('open-temp');
+      } else {
+        $thisMenu.slideDown(180);
+        $thisDropdown.addClass('open-temp');
+      }
+    });
+  }
+
+  initSidebarAccordion();
+
+  // =========================================================================
+  // 2. Mobile Sidebar State Management
+  // =========================================================================
   function handleMobileSidebar() {
     if ($(window).outerWidth() <= 1024) {
       if (!$('body').hasClass('sidebar-show')) {
