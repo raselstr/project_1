@@ -1073,6 +1073,64 @@ select.form-control {
   overflow: hidden;
 }
 
+/* MODAL PDF BESAR / ULTRA WIDE VIEW */
+.modal-pdf-huge .modal-dialog {
+  max-width: 96vw !important;
+  width: 96vw !important;
+  height: 94vh !important;
+  margin: 3vh auto !important;
+}
+.modal-pdf-huge .modal-content {
+  height: 94vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: var(--tech-radius-lg) !important;
+  overflow: hidden !important;
+}
+.modal-pdf-huge .modal-body {
+  flex: 1 1 auto !important;
+  height: calc(94vh - 110px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #525659 !important;
+}
+.modal-pdf-huge iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: #ffffff !important;
+}
+.modal-pdf-huge.modal-fullscreen .modal-dialog {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+}
+.modal-pdf-huge.modal-fullscreen .modal-content {
+  height: 100vh !important;
+  border-radius: 0 !important;
+}
+.modal-pdf-huge.modal-fullscreen .modal-body {
+  height: calc(100vh - 110px) !important;
+}
+
+/* DROPDOWN FILTER Z-INDEX PROTECTION */
+.filter-card-wrapper {
+  position: relative !important;
+  z-index: 1050 !important;
+  overflow: visible !important;
+}
+.filter-card-wrapper .card-body {
+  overflow: visible !important;
+}
+.selectric-open {
+  z-index: 99999 !important;
+}
+.selectric-items {
+  z-index: 99999 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
 .modal-header {
   background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%) !important;
   border-bottom: none !important;
