@@ -1,0 +1,216 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Monitoring SIPD Tahun {{ tahun }}</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 10mm 12mm 10mm 12mm;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 10px;
+            color: #111;
+            background: #fff;
+            margin: 0;
+            padding: 12px;
+            line-height: 1.35;
+        }
+        .no-print {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 8px 16px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+        /* KOP SURAT */
+        .kop-wrapper {
+            border-bottom: 2.5px solid #0f172a;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .kop-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 2px 0;
+            color: #0f172a;
+        }
+        .kop-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+            margin: 0 0 2px 0;
+            text-transform: uppercase;
+        }
+        .kop-meta {
+            font-size: 9.5px;
+            color: #64748b;
+            margin: 0;
+        }
+        /* TABEL */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        th, td {
+            border: 1px solid #94a3b8;
+            padding: 5px 6px;
+            vertical-align: middle;
+        }
+        thead th {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+            font-size: 9.5px;
+        }
+        tfoot td {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        .font-mono { font-family: monospace; font-size: 9.5px; }
+
+        .btn-print {
+            padding: 6px 14px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .btn-print:hover { background: #0369a1; }
+
+        /* TANDA TANGAN */
+        .ttd-wrapper {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            page-break-inside: avoid;
+        }
+        .ttd-box {
+            text-align: center;
+            width: 250px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP TOOLBAR (NO PRINT) -->
+    <div class="no-print">
+        <div>
+            <strong>Laporan Monitoring SIPD Tahun {{ tahun }}</strong>
+            <span style="color: #64748b; margin-left: 8px;">(Format Cetak Landscape A4)</span>
+        </div>
+        <div>
+            <button type="button" class="btn-print" onclick="window.print()">
+                🖨️ Cetak / Simpan PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- KOP RESMI PEMERINTAHAN -->
+    <div class="kop-wrapper">
+        <h1 class="kop-title">Pemerintah Kabupaten Asahan</h1>
+        <h2 class="kop-sub">Badan Keuangan dan Aset Daerah (BKAD)</h2>
+        <div class="kop-title" style="font-size: 12px; margin-top: 4px;">
+            Laporan Komparasi Rencana Kegiatan vs Realisasi SIPD
+        </div>
+        <p class="kop-meta">
+            Tahun Anggaran {{ tahun }} &bull; Filter: {{ dana_nama }} &bull; Dicetak pada: {{ tanggal_cetak|date:"d F Y" }}
+        </p>
+    </div>
+
+    <!-- TABEL DATA MONITORING -->
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25px;">No</th>
+                <th style="width: 170px;">Sub OPD</th>
+                <th>Sub Kegiatan</th>
+                <th style="width: 130px;">Kode Sub Kegiatan</th>
+                <th style="width: 120px;">Pagu Rencana (Rp)</th>
+                <th style="width: 120px;">Realisasi SIPD (Rp)</th>
+                <th style="width: 120px;">Selisih (Rp)</th>
+                <th style="width: 70px;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td class="text-center">{{ forloop.counter }}</td>
+                <td>{{ item.subopd_nama }}</td>
+                <td>{{ item.subkegiatan_nama }}</td>
+                <td class="text-center font-mono">{{ item.posting_ket }}</td>
+                <td class="text-right">{{ item.posting_pagu|intcomma }}</td>
+                <td class="text-right">{{ item.nilai_sipd|intcomma }}</td>
+                <td class="text-right" style="{% if item.selisih != 0 %}color:#b91c1c; font-weight:bold;{% endif %}">
+                    {{ item.selisih|intcomma }}
+                </td>
+                <td class="text-center font-bold">
+                    {% if item.status == "SESUAI" %}
+                        SESUAI
+                    {% elif item.status == "SELISIH" %}
+                        SELISIH
+                    {% else %}
+                        BELUM ADA
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center" style="padding: 20px;">Tidak ada data monitoring SIPD.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-right">TOTAL KESELURUHAN:</td>
+                <td class="text-right">Rp {{ total_pagu|intcomma }}</td>
+                <td class="text-right">Rp {{ total_sipd|intcomma }}</td>
+                <td class="text-right">Rp {{ total_selisih|intcomma }}</td>
+                <td class="text-center">{{ data|length }} Keg.</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <!-- TANDA TANGAN -->
+    <div class="ttd-wrapper">
+        <div class="ttd-box">
+            Kisaran, {{ tanggal_cetak|date:"d F Y" }}<br>
+            <strong>BADAN KEUANGAN DAN ASET DAERAH</strong><br>
+            Kabupaten Asahan
+            <div style="height: 55px;"></div>
+            <u>________________________________</u><br>
+            NIP. ....................................................
+        </div>
+    </div>
+
+</body>
+</html>

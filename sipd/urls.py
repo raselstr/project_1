@@ -15,6 +15,8 @@ urlpatterns = [
     path("dokumen/<str:mode>/<int:pk>/", views.view_sipd, name="data_sipd"),
     path('modal-output/', views.modal_output, name='modal_output'),
     path("monitor/", views.monitor_sipd, name="monitor_sipd"),
+    path("monitor/detail/", views.monitor_sipd_detail, name="monitor_sipd_detail"),
+    path("monitor/print/", views.monitor_sipd_print, name="monitor_sipd_print"),
     # path('sipd/detail/<str:kode_kegiatan>/<str:kode_opd>/', views.sipd_detail, name='sipd_detail'),
 
 ]

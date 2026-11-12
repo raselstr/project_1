@@ -1,0 +1,270 @@
+{% load humanize %}
+
+<div class="modal-header d-flex justify-content-between align-items-center py-3 px-4">
+    <div>
+        <h5 class="modal-title font-weight-bold text-white mb-1">
+            <i class="fas fa-search-dollar text-cyan mr-2"></i> Detail Monitor SIPD
+        </h5>
+        <div class="text-white-50 small">
+            <span class="badge badge-light text-dark mr-1">
+                <i class="fas fa-calendar-alt mr-1"></i> Tahun {{ tahun }}
+            </span>
+            <span class="badge badge-info mr-1">
+                <i class="fas fa-code mr-1"></i> {{ kode_ket }}
+            </span>
+            {% if status == "SESUAI" %}
+                <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Sesuai</span>
+            {% elif status == "SELISIH" %}
+                <span class="badge badge-warning text-dark"><i class="fas fa-exclamation-triangle mr-1"></i> Ada Selisih</span>
+            {% else %}
+                <span class="badge badge-danger"><i class="fas fa-times-circle mr-1"></i> Belum Ada Data</span>
+            {% endif %}
+        </div>
+    </div>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.9; font-size: 1.5rem;">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body p-0">
+
+    <!-- INFO HEADER -->
+    <div class="bg-light border-bottom px-4 py-3">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <div class="font-weight-bold text-dark" style="font-size: 14px;">
+                    <i class="fas fa-building text-primary mr-2"></i> {{ subopd_nama }}
+                </div>
+                <div class="text-muted small mt-1">
+                    <i class="fas fa-tasks mr-1"></i> {{ subkeg_nama }}
+                </div>
+                <div class="text-muted small mt-1">
+                    <i class="fas fa-fingerprint mr-1"></i> Kode SKPD: <code>{{ kode_opd }}</code>
+                </div>
+            </div>
+            <div class="col-md-5 text-md-right mt-3 mt-md-0">
+                {% if status == "SESUAI" %}
+                    <div class="alert alert-success py-2 px-3 mb-0 d-inline-block">
+                        <i class="fas fa-check-circle mr-1"></i> <strong>SESUAI</strong> — Pagu dan realisasi SIPD cocok.
+                    </div>
+                {% elif status == "SELISIH" %}
+                    <div class="alert alert-warning py-2 px-3 mb-0 d-inline-block">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> <strong>ADA SELISIH</strong> sebesar Rp {{ selisih|intcomma }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger py-2 px-3 mb-0 d-inline-block">
+                        <i class="fas fa-times-circle mr-1"></i> <strong>BELUM ADA</strong> — Data SIPD belum tersedia.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4">
+
+        <!-- KARTU RINGKASAN -->
+        <div class="row mb-4">
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header"><h4 style="font-size: 11px;">Pagu Rencana</h4></div>
+                        <div class="card-body" style="font-size: 14px; font-weight: 700;">
+                            Rp {{ posting_pagu|intcomma }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                    <div class="card-icon {% if total_sipd == 0 %}bg-secondary{% else %}bg-success{% endif %} text-white">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header"><h4 style="font-size: 11px;">Total SIPD</h4></div>
+                        <div class="card-body {% if total_sipd == 0 %}text-muted{% else %}text-success{% endif %}" style="font-size: 14px; font-weight: 700;">
+                            Rp {{ total_sipd|intcomma }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                    <div class="card-icon {% if selisih == 0 %}bg-success{% else %}bg-danger{% endif %} text-white">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header"><h4 style="font-size: 11px;">Selisih</h4></div>
+                        <div class="card-body {% if selisih == 0 %}text-success{% else %}text-danger{% endif %}" style="font-size: 14px; font-weight: 700;">
+                            Rp {{ selisih|intcomma }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3 mb-2">
+                <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                    <div class="card-icon bg-info text-white">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="card-wrap">
+                        <div class="card-header"><h4 style="font-size: 11px;">Penyerapan SIPD</h4></div>
+                        <div class="card-body text-info" style="font-size: 14px; font-weight: 700;">
+                            {{ persen|floatformat:2 }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTIK JENIS DOKUMEN -->
+        {% if jenis_stats %}
+        <div class="card shadow-none border mb-4" style="border-radius: 8px;">
+            <div class="card-header bg-light py-2 px-3">
+                <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 13px;">
+                    <i class="fas fa-pie-chart text-info mr-2"></i> Distribusi Jenis Dokumen SIPD
+                </h6>
+            </div>
+            <div class="card-body py-3 px-3">
+                <div class="row">
+                    {% for jenis, total in jenis_stats.items %}
+                    <div class="col-md-4 col-6 mb-2">
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded border">
+                            <div>
+                                <span class="badge badge-secondary mr-2">{{ jenis|default:"(tidak ada)" }}</span>
+                            </div>
+                            <div class="font-weight-bold text-right" style="font-size: 12px;">
+                                Rp {{ total|intcomma }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- TABEL DAFTAR SP2D SIPD -->
+        <div class="card shadow-none border mb-0" style="border-radius: 8px;">
+            <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 13px;">
+                    <i class="fas fa-file-invoice-dollar mr-2 text-primary"></i>
+                    Daftar SP2D & Dokumen SIPD
+                    <span class="badge badge-primary ml-1">{{ sipd_count }} Baris</span>
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSipdDetail()">
+                    <i class="fas fa-print mr-1"></i> Cetak
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                    <table class="table table-sm table-bordered table-hover mb-0" id="sipdDetailTable" style="font-size: 12px;">
+                        <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th class="text-center" style="width: 40px;">No</th>
+                                <th style="width: 120px;">Tanggal SP2D</th>
+                                <th style="width: 240px;">Nomor SP2D</th>
+                                <th style="width: 100px; text-align:center;">Jenis Dok</th>
+                                <th>Kode & Nama Rekening</th>
+                                <th class="text-right" style="width: 160px;">Nilai (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sp2d in sp2d_list %}
+                            <tr>
+                                <td class="text-center text-muted">{{ forloop.counter }}</td>
+                                <td>{{ sp2d.tanggal_sp2d|default:"-" }}</td>
+                                <td class="font-weight-600 text-primary" style="font-family: monospace; font-size: 11px;">
+                                    {{ sp2d.nomor_sp2d|default:"-" }}
+                                    {% if sp2d.nomor_dokumen != sp2d.nomor_sp2d and sp2d.nomor_dokumen %}
+                                        <br><span class="text-muted" style="font-size: 10px;">Dok: {{ sp2d.nomor_dokumen }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if sp2d.jenis_dokumen == "SP2D" %}
+                                        <span class="badge badge-success" style="font-size: 10px;">SP2D</span>
+                                    {% elif sp2d.jenis_dokumen == "TBP" %}
+                                        <span class="badge badge-warning text-dark" style="font-size: 10px;">TBP</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary" style="font-size: 10px;">{{ sp2d.jenis_dokumen|default:"-" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="font-size: 11px;">
+                                    <span class="text-muted">{{ sp2d.kode_rekening }}</span><br>
+                                    {{ sp2d.nama_rekening }}
+                                </td>
+                                <td class="text-right font-weight-bold text-dark">
+                                    {{ sp2d.total_nilai|intcomma }}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="fas fa-inbox mb-2" style="font-size: 32px;"></i><br>
+                                    Tidak ada data SP2D SIPD untuk Sub Kegiatan dan Sub OPD ini.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="bg-light font-weight-bold" style="position: sticky; bottom: 0;">
+                            <tr>
+                                <td colspan="5" class="text-right text-uppercase">Total SIPD:</td>
+                                <td class="text-right {% if total_sipd == 0 %}text-muted{% else %}text-success{% endif %}" style="font-size: 13px;">
+                                    Rp {{ total_sipd|intcomma }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between align-items-center">
+    <div class="text-muted small">
+        <i class="fas fa-database mr-1"></i> Data SIPD Tahun {{ tahun }} &mdash; Sub OPD: {{ subopd_nama }}
+    </div>
+    <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">
+        <i class="fas fa-times mr-1"></i> Tutup
+    </button>
+</div>
+
+<script>
+function printSipdDetail() {
+    var table = document.getElementById('sipdDetailTable');
+    if (!table) return;
+    var printWin = window.open('', '_blank', 'width=1100,height=800');
+    printWin.document.write(`
+        <html>
+        <head>
+            <title>Cetak Detail SIPD - {{ subopd_nama|escapejs }} Tahun {{ tahun }}</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; font-size: 11px; color: #111; }
+                h4, h5 { margin: 0 0 4px 0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #aaa; padding: 5px 7px; vertical-align: middle; }
+                thead th { background: #07192f; color: #fff; font-size: 11px; }
+                tfoot td { background: #eee; font-weight: bold; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                @media print { @page { size: A4 landscape; margin: 10mm; } body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <h4 style="text-align:center;">RINCIAN DATA SIPD</h4>
+            <h5 style="text-align:center; color:#555;">{{ subopd_nama|escapejs }} - Tahun {{ tahun }}</h5>
+            <p style="text-align:center; color:#777; font-size: 10px; margin-bottom: 10px;">Sub Kegiatan: {{ subkeg_nama|escapejs }} | Kode: {{ kode_ket }}</p>
+            ${table.outerHTML}
+            <script>window.onload = function() { window.print(); };<\/script>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
+}
+</script>

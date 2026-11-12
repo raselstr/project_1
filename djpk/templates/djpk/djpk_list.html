@@ -1,93 +1,331 @@
 {% extends "base.html" %}
+{% load static %}
 {% load humanize %}
 
 {% block content %}
 <section class="section">
-<div class="container-fluid">
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-file-invoice-dollar text-primary mr-2"></i> Upload & Monitoring DJPK</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></div>
+                <div class="breadcrumb-item">DJPK</div>
+            </div>
+        </div>
+    </div>
 
-    <h3 class="mb-4">Upload DJPK per Tahap</h3>
+    <!-- SUMMARY METRICS -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm border-0">
+                <div class="card-icon bg-primary">
+                    <i class="fas fa-wallet text-white"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Pagu</h4>
+                    </div>
+                    <div class="card-body">
+                        Rp {{ total_pagu_all|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm border-0">
+                <div class="card-icon bg-success">
+                    <i class="fas fa-receipt text-white"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Realisasi</h4>
+                    </div>
+                    <div class="card-body">
+                        Rp {{ total_realisasi_all|intcomma }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <table class="table table-bordered table-hover align-middle ">
-                <thead class="table-light text-center">
-                    <tr>
-                        <th>Tahun</th>
-                        <th>Jenis Dana</th>
-                        <th>Pagu</th>
-                        <th>Tahap</th>
-                        <th>Realisasi</th>
-                        <th>Upload File DJPK</th>
-                        <th>Lihat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in rekap_data %}
-                    <tr>
-                        {% if row.show_group %}
-                            <td rowspan="{{ row.rowspan }}">{{ row.tahun }}</td>
-                            <td rowspan="{{ row.rowspan }}">{{ row.dana_nama }}</td>
-                            <td rowspan="{{ row.rowspan }}" class="text-end">
-                                {{ row.pagu|intcomma }}
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm border-0">
+                <div class="card-icon bg-danger">
+                    <i class="fas fa-file-pdf text-white"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>PDF Terupload</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_files_uploaded }} <small class="text-muted font-weight-normal" style="font-size: 13px;">/ {{ total_tahap_count }} Tahap</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm border-0">
+                <div class="card-icon bg-info">
+                    <i class="fas fa-layer-group text-white"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Baris Tahap</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_tahap_count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CARD TABLE -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h4 class="font-weight-bold text-dark mb-0">
+                <i class="fas fa-list-alt text-primary mr-2"></i> Rekapitulasi Data DJPK per Tahap
+            </h4>
+            <div class="card-header-action">
+                <span class="badge badge-light border text-muted">
+                    <i class="fas fa-info-circle mr-1"></i> Klik tombol di kolom aksi untuk melihat Data HTML atau Dokumen PDF dalam Modal
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0" style="font-size: 13px;">
+                    <thead class="thead-light text-center">
+                        <tr>
+                            <th style="width: 80px;">Tahun</th>
+                            <th>Jenis Dana</th>
+                            <th style="width: 170px;">Pagu (Rp)</th>
+                            <th style="width: 100px;">Tahap</th>
+                            <th style="width: 170px;">Realisasi (Rp)</th>
+                            <th style="width: 280px;">Upload File PDF DJPK</th>
+                            <th style="width: 160px;">Tampilan Data (Modal)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rekap_data %}
+                        <tr>
+                            {% if row.show_group %}
+                                <td rowspan="{{ row.rowspan }}" class="text-center font-weight-bold align-middle bg-white">
+                                    {{ row.tahun }}
+                                </td>
+                                <td rowspan="{{ row.rowspan }}" class="font-weight-bold align-middle bg-white">
+                                    {{ row.dana_nama }}
+                                </td>
+                                <td rowspan="{{ row.rowspan }}" class="text-right font-weight-bold align-middle bg-white">
+                                    {{ row.pagu|intcomma }}
+                                </td>
+                            {% endif %}
+
+                            <td class="text-center align-middle">
+                                <span class="badge badge-primary font-weight-bold px-2 py-1">
+                                    Tahap {{ row.tahap_id }}
+                                </span>
                             </td>
-                        {% endif %}
 
-                        <td>
-                            <span class="badge bg-white text-primary border border-primary">
-                                {{ row.tahap_id }}
-                            </span>
-                        </td>
-                        <td class="text-right">{{ row.realisasi|intcomma }}</td>
-                        <td>
-                            {% if request.user.is_superuser %}
-                                <form method="post"
-                                    enctype="multipart/form-data"
-                                    action="{% url 'djpk_list' %}">
-                                    {% csrf_token %}
+                            <td class="text-right align-middle font-weight-bold text-dark">
+                                {{ row.realisasi|intcomma }}
+                            </td>
 
-                                    <input type="hidden" name="tahun" value="{{ row.tahun }}">
-                                    <input type="hidden" name="dana_id" value="{{ row.dana_id }}">
-                                    <input type="hidden" name="tahap_id" value="{{ row.tahap_id }}">
+                            <td class="align-middle">
+                                {% if request.user.is_superuser %}
+                                    <form method="post"
+                                          enctype="multipart/form-data"
+                                          action="{% url 'djpk_list' %}"
+                                          class="d-flex align-items-center">
+                                        {% csrf_token %}
 
-                                    <input type="file" name="file" accept="application/pdf" required>
-                                    
-                                    <button type="submit" class="btn btn-sm btn-primary">
-                                        Upload
+                                        <input type="hidden" name="tahun" value="{{ row.tahun }}">
+                                        <input type="hidden" name="dana_id" value="{{ row.dana_id }}">
+                                        <input type="hidden" name="tahap_id" value="{{ row.tahap_id }}">
+
+                                        <div class="custom-file custom-file-sm mr-2" style="font-size: 11px;">
+                                            <input type="file" name="file" accept="application/pdf" class="custom-file-input form-control-sm" id="file_{{ forloop.counter }}" required onchange="updateFileName(this)">
+                                            <label class="custom-file-label text-truncate" for="file_{{ forloop.counter }}" style="font-size: 11px; height: 31px; line-height: 20px;">
+                                                Pilih PDF...
+                                            </label>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-sm btn-primary px-3 text-nowrap" style="height: 31px; line-height: 1;">
+                                            <i class="fas fa-upload mr-1"></i> Upload
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted small"><i class="fas fa-lock mr-1"></i> Akses Terbatas</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center align-middle">
+                                <div class="btn-group" role="group">
+                                    <!-- TOMBOL TAMPILKAN DATA HTML -->
+                                    <button type="button"
+                                            class="btn btn-sm btn-info"
+                                            title="Lihat Data Rincian (HTML) dalam Modal"
+                                            onclick="openDjpkModal('{{ row.tahun }}', '{{ row.dana_id }}', '{{ row.tahap_id }}', 'html')">
+                                        <i class="fas fa-table mr-1"></i> HTML
                                     </button>
-                                </form>
-                            {% else %}
-                                <span class="text-muted">Tidak ada akses</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if row.djpk %}
-                                <button type="button"
-                                        class="btn btn-sm btn-danger"
-                                        onclick="openPdfWindow('{{ row.djpk.file.url }}')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+                                    <!-- TOMBOL TAMPILKAN DOKUMEN PDF -->
+                                    {% if row.djpk %}
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger"
+                                                title="Lihat Dokumen PDF DJPK dalam Modal"
+                                                onclick="openDjpkModal('{{ row.tahun }}', '{{ row.dana_id }}', '{{ row.tahap_id }}', 'pdf')">
+                                            <i class="fas fa-file-pdf mr-1"></i> PDF
+                                        </button>
+                                    {% else %}
+                                        <button type="button"
+                                                class="btn btn-sm btn-secondary"
+                                                title="Belum ada file PDF (Klik untuk lihat status)"
+                                                onclick="openDjpkModal('{{ row.tahun }}', '{{ row.dana_id }}', '{{ row.tahap_id }}', 'pdf')">
+                                            <i class="fas fa-file-pdf mr-1"></i> PDF
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fas fa-folder-open mb-2" style="font-size: 32px;"></i><br>
+                                Tidak ada data DJPK yang tersedia.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================== -->
+<!-- MODAL BOOTSTRAP UNTUK TAMPILAN DATA DJPK (HTML & PDF)          -->
+<!-- ============================================================== -->
+<div class="modal fade" id="modalDjpk" tabindex="-1" role="dialog" aria-labelledby="modalDjpkTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content shadow-lg border-0" id="modalDjpkContent" style="border-radius: 8px; overflow: hidden;">
+            <!-- Loaded dynamically via openDjpkModal() -->
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="mt-3 font-weight-bold text-dark">Memuat Data & Dokumen DJPK...</div>
+            </div>
         </div>
     </div>
 </div>
-</section>
 
+{% endblock content %}
+
+{% block javascript %}
 <script>
-function openPdfWindow(url) {
-    window.open(
-        url,
-        "popupWindow",
-        "width=1000,height=800,scrollbars=yes,resizable=yes"
-    );
-}
+    function updateFileName(input) {
+        var fileName = input.files[0] ? input.files[0].name : "Pilih PDF...";
+        var label = input.nextElementSibling;
+        if (label) {
+            label.innerText = fileName;
+        }
+    }
+
+    function openDjpkModal(tahun, danaId, tahapId, tab) {
+        tab = tab || 'html';
+        
+        // Tampilkan modal dengan skeleton loading
+        $('#modalDjpkContent').html(`
+            <div class="modal-body text-center py-5">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div class="mt-3 font-weight-bold text-dark">Memuat Data & Dokumen DJPK...</div>
+                <div class="text-muted small">Tahun ${tahun} - Tahap ${tahapId}</div>
+            </div>
+        `);
+        
+        $('#modalDjpk').modal('show');
+
+        var url = "{% url 'djpk_detail' %}?tahun=" + encodeURIComponent(tahun) + 
+                  "&dana_id=" + encodeURIComponent(danaId) + 
+                  "&tahap_id=" + encodeURIComponent(tahapId) + 
+                  "&tab=" + encodeURIComponent(tab);
+
+        fetch(url)
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("Gagal mengambil data dari server (" + response.status + ")");
+                }
+                return response.text();
+            })
+            .then(function(html) {
+                $('#modalDjpkContent').html(html);
+            })
+            .catch(function(err) {
+                $('#modalDjpkContent').html(`
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title font-weight-bold">Terjadi Kesalahan</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body py-4 text-center">
+                        <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 40px;"></i>
+                        <p class="font-weight-bold text-dark">${err.message}</p>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                `);
+            });
+    }
+
+    function printModalHtmlArea(areaId) {
+        var elem = document.getElementById(areaId);
+        if (!elem) return;
+        var printWin = window.open('', '_blank', 'width=1000,height=800');
+        printWin.document.write(`
+            <html>
+            <head>
+                <title>Cetak Rincian DJPK</title>
+                <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; font-size: 11px; color: #111; }
+                    .table th, .table td { padding: 6px 8px; vertical-align: middle; }
+                    .no-print { display: none !important; }
+                    @media print {
+                        @page { size: A4 landscape; margin: 10mm; }
+                        body { padding: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h4 style="text-align:center; margin-bottom: 5px;">RINCIAN REALISASI DJPK</h4>
+                <p style="text-align:center; color:#555; margin-bottom: 20px;">Pemerintah Kabupaten Asahan - Badan Keuangan dan Aset Daerah</p>
+                ${elem.innerHTML}
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWin.document.close();
+    }
+
+    function printIframe(iframeId) {
+        var iframe = document.getElementById(iframeId);
+        if (iframe) {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch(e) {
+                window.open(iframe.src, '_blank');
+            }
+        }
+    }
 </script>
-
-
-
-{% endblock %}
+{% endblock javascript %}

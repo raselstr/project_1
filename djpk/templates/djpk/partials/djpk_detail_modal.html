@@ -1,0 +1,268 @@
+{% load humanize %}
+
+<div class="modal-header d-flex justify-content-between align-items-center py-3 px-4">
+    <div>
+        <h5 class="modal-title font-weight-bold text-white mb-1">
+            <i class="fas fa-folder-open text-cyan mr-2"></i> Rincian & Dokumen DJPK
+        </h5>
+        <div class="text-white-50 small">
+            <span class="badge badge-light text-dark mr-1"><i class="fas fa-calendar-alt mr-1"></i> Tahun {{ tahun }}</span>
+            <span class="badge badge-info mr-1"><i class="fas fa-coins mr-1"></i> {{ dana_nama }}</span>
+            <span class="badge badge-primary"><i class="fas fa-layer-group mr-1"></i> {{ tahap_nama }}</span>
+        </div>
+    </div>
+    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.9; font-size: 1.5rem;">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="modal-body p-0">
+    <!-- NAV TABS -->
+    <ul class="nav nav-tabs px-4 pt-3 bg-light border-bottom" id="djpkTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link font-weight-bold {% if active_tab != 'pdf' %}active{% endif %}" id="djpk-html-tab" data-toggle="tab" href="#djpk-html-content" role="tab" aria-controls="djpk-html-content" aria-selected="{% if active_tab != 'pdf' %}true{% else %}false{% endif %}">
+                <i class="fas fa-table text-primary mr-1"></i> Data Rincian (HTML)
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link font-weight-bold {% if active_tab == 'pdf' %}active{% endif %}" id="djpk-pdf-tab" data-toggle="tab" href="#djpk-pdf-content" role="tab" aria-controls="djpk-pdf-content" aria-selected="{% if active_tab == 'pdf' %}true{% else %}false{% endif %}">
+                <i class="fas fa-file-pdf text-danger mr-1"></i> Dokumen DJPK (PDF)
+                {% if djpk_obj and djpk_obj.file %}
+                    <span class="badge badge-success ml-1" style="font-size: 10px;">Tersedia</span>
+                {% else %}
+                    <span class="badge badge-secondary ml-1" style="font-size: 10px;">Belum Ada</span>
+                {% endif %}
+            </a>
+        </li>
+    </ul>
+
+    <!-- TAB CONTENTS -->
+    <div class="tab-content" id="djpkTabContent">
+        
+        <!-- ============================================== -->
+        <!-- TAB 1: HTML DATA                               -->
+        <!-- ============================================== -->
+        <div class="tab-pane fade {% if active_tab != 'pdf' %}show active{% endif %} p-4" id="djpk-html-content" role="tabpanel" aria-labelledby="djpk-html-tab">
+            
+            <!-- SUMMARY STAT CARDS -->
+            <div class="row mb-4">
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                        <div class="card-icon bg-primary text-white">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header"><h4 style="font-size: 11px;">Pagu {{ dana_nama }}</h4></div>
+                            <div class="card-body" style="font-size: 14px; font-weight: 700;">
+                                Rp {{ pagu|intcomma }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                        <div class="card-icon bg-success text-white">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header"><h4 style="font-size: 11px;">Realisasi {{ tahap_nama }}</h4></div>
+                            <div class="card-body text-success" style="font-size: 14px; font-weight: 700;">
+                                Rp {{ total_realisasi|intcomma }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                        <div class="card-icon bg-warning text-white">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header"><h4 style="font-size: 11px;">Sisa Pagu</h4></div>
+                            <div class="card-body text-warning" style="font-size: 14px; font-weight: 700;">
+                                Rp {{ sisa|intcomma }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="card card-statistic-1 shadow-none border mb-0" style="border-radius: 8px;">
+                        <div class="card-icon bg-info text-white">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="card-wrap">
+                            <div class="card-header"><h4 style="font-size: 11px;">Penyerapan</h4></div>
+                            <div class="card-body text-info" style="font-size: 14px; font-weight: 700;">
+                                {{ persen|floatformat:2 }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REKAPITULASI PER OPD -->
+            <div class="card shadow-none border mb-4" style="border-radius: 8px;">
+                <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 13px;">
+                        <i class="fas fa-building text-primary mr-2"></i> Rekapitulasi Realisasi per Sub OPD
+                    </h6>
+                    <span class="badge badge-primary">{{ opd_rekap|length }} OPD Terlibat</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped table-hover mb-0" style="font-size: 12.5px;">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">No</th>
+                                    <th>Nama Sub OPD</th>
+                                    <th class="text-right" style="width: 220px;">Total Realisasi (Rp)</th>
+                                    <th class="text-center" style="width: 140px;">Kontribusi (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for opd in opd_rekap %}
+                                <tr>
+                                    <td class="text-center font-weight-bold">{{ forloop.counter }}</td>
+                                    <td>{{ opd.subopd_nama }}</td>
+                                    <td class="text-right font-weight-bold text-dark">{{ opd.total|intcomma }}</td>
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="progress mr-2" style="width: 60px; height: 6px;">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ opd.persen|floatformat:0 }}%;"></div>
+                                            </div>
+                                            <span class="small font-weight-600">{{ opd.persen|floatformat:1 }}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">Tidak ada data rekap per OPD untuk tahap ini.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="bg-light font-weight-bold">
+                                <tr>
+                                    <td colspan="2" class="text-right text-uppercase">Total Realisasi:</td>
+                                    <td class="text-right text-success" style="font-size: 13px;">Rp {{ total_realisasi|intcomma }}</td>
+                                    <td class="text-center">100%</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABEL DAFTAR TRANSAKSI SP2D -->
+            <div class="card shadow-none border mb-0" style="border-radius: 8px;">
+                <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 13px;">
+                        <i class="fas fa-file-invoice mr-2 text-info"></i> Rincian SP2D Realisasi ({{ transactions|length }} Transaksi)
+                    </h6>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printModalHtmlArea('djpk-html-content')">
+                        <i class="fas fa-print mr-1"></i> Cetak Rincian
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                        <table class="table table-sm table-bordered table-hover mb-0" style="font-size: 12px;">
+                            <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+                                <tr>
+                                    <th class="text-center" style="width: 40px;">No</th>
+                                    <th style="width: 130px;">Tanggal SP2D</th>
+                                    <th style="width: 220px;">Nomor SP2D</th>
+                                    <th>Sub OPD</th>
+                                    <th>Sub Kegiatan / Rencana</th>
+                                    <th class="text-right" style="width: 170px;">Nilai (Rp)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in transactions %}
+                                <tr>
+                                    <td class="text-center">{{ forloop.counter }}</td>
+                                    <td>{{ t.tgl|default:"-" }}</td>
+                                    <td class="font-weight-600 text-primary">{{ t.sp2d|default:"-" }}</td>
+                                    <td>{{ t.subopd }}</td>
+                                    <td>{{ t.subkegiatan }}</td>
+                                    <td class="text-right font-weight-bold text-dark">{{ t.nilai|intcomma }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">Belum ada rincian data SP2D untuk tahap ini.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="bg-light font-weight-bold" style="position: sticky; bottom: 0;">
+                                <tr>
+                                    <td colspan="5" class="text-right text-uppercase">Total:</td>
+                                    <td class="text-right text-success font-weight-bold" style="font-size: 13px;">Rp {{ total_realisasi|intcomma }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ============================================== -->
+        <!-- TAB 2: PDF DOCUMENT                            -->
+        <!-- ============================================== -->
+        <div class="tab-pane fade {% if active_tab == 'pdf' %}show active{% endif %} p-4" id="djpk-pdf-content" role="tabpanel" aria-labelledby="djpk-pdf-tab">
+            
+            {% if djpk_obj and djpk_obj.file %}
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light border rounded">
+                    <div>
+                        <div class="font-weight-bold text-dark">
+                            <i class="fas fa-file-pdf text-danger mr-2"></i> {{ djpk_obj.file.name }}
+                        </div>
+                        <div class="text-muted small">
+                            Diunggah pada: {{ djpk_obj.updated_at|date:"d M Y H:i" }} | Ukuran siap cetak
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ djpk_obj.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary mr-1">
+                            <i class="fas fa-external-link-alt mr-1"></i> Buka Tab Baru
+                        </a>
+                        <a href="{{ djpk_obj.file.url }}" download class="btn btn-sm btn-success mr-1">
+                            <i class="fas fa-download mr-1"></i> Unduh File
+                        </a>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="printIframe('iframeDjpkPdf')">
+                            <i class="fas fa-print mr-1"></i> Cetak PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border rounded bg-dark" style="height: 65vh; overflow: hidden; position: relative;">
+                    <iframe id="iframeDjpkPdf" src="{{ djpk_obj.file.url }}#toolbar=1" width="100%" height="100%" style="border: none;"></iframe>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-file-upload text-muted" style="font-size: 54px;"></i>
+                    </div>
+                    <h5 class="text-dark font-weight-bold">File PDF DJPK Belum Diunggah</h5>
+                    <p class="text-muted col-md-8 mx-auto">
+                        Dokumen lampiran DJPK per tahap untuk <strong>{{ dana_nama }} - {{ tahap_nama }} Tahun {{ tahun }}</strong> belum diunggah ke sistem. Silakan unggah file PDF melalui formulir pada tabel utama DJPK.
+                    </p>
+                    <div class="alert alert-info d-inline-block text-left mb-0">
+                        <i class="fas fa-info-circle mr-1"></i> Format dokumen yang diterima adalah <strong>PDF (.pdf)</strong>.
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-footer bg-light py-2 px-4 d-flex justify-content-between align-items-center">
+    <div class="text-muted small">
+        <i class="fas fa-shield-alt mr-1"></i> Sistem Informasi Pengelolaan Keuangan TKDD BKAD Kab. Asahan
+    </div>
+    <button type="button" class="btn btn-secondary px-4" data-dismiss="modal">
+        <i class="fas fa-times mr-1"></i> Tutup
+    </button>
+</div>

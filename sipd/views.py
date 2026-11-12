@@ -450,11 +450,7 @@ def view_sipd(request, mode, pk):
         
     })
 
-def monitor_sipd(request):
-    tahun = request.session.get('tahun') or datetime.now().year
-    jadwal = request.session.get('jadwal')
-    dana = request.GET.get('dana') or None
-
+def _get_monitor_sipd_dataset(tahun, jadwal=None, dana=None):
     # ================= AMBIL SEMUA RENCANA (OBJECT) =================
     all_rencana = []
 
@@ -463,8 +459,9 @@ def monitor_sipd(request):
 
         filters = {
             'posting_tahun': tahun,
-            'posting_jadwal_id': jadwal,
         }
+        if jadwal:
+            filters['posting_jadwal_id'] = jadwal
 
         if dana:
             filters['posting_dana_id'] = dana
@@ -537,7 +534,7 @@ def monitor_sipd(request):
             'kode_sub_skpd'
         )
         .annotate(
-            nilai_realisasi=Sum('nilai_realisasi')  # pastikan field benar
+            nilai_realisasi=Sum('nilai_realisasi')
         )
     )
 
@@ -576,6 +573,29 @@ def monitor_sipd(request):
         total_sipd += nilai_sipd
 
     total_selisih = total_pagu - total_sipd
+    return hasil, total_pagu, total_sipd, total_selisih
+
+
+def monitor_sipd(request):
+    tahun_param = request.GET.get('tahun') or request.session.get('tahun') or datetime.now().year
+    try:
+        tahun = int(str(tahun_param).strip())
+    except (TypeError, ValueError):
+        tahun = datetime.now().year
+
+    jadwal = request.session.get('jadwal')
+    dana = request.GET.get('dana') or None
+    if dana:
+        try:
+            dana = int(dana)
+        except (TypeError, ValueError):
+            dana = None
+
+    hasil, total_pagu, total_sipd, total_selisih = _get_monitor_sipd_dataset(tahun, jadwal, dana)
+
+    count_sesuai = sum(1 for item in hasil if item['status'] == 'SESUAI')
+    count_selisih = sum(1 for item in hasil if item['status'] == 'SELISIH')
+    count_belum = sum(1 for item in hasil if item['status'] == 'BELUM ADA')
 
     # ================= CONTEXT =================
     context = {
@@ -583,8 +603,13 @@ def monitor_sipd(request):
         'total_pagu': total_pagu,
         'total_sipd': total_sipd,
         'total_selisih': total_selisih,
+        'count_sesuai': count_sesuai,
+        'count_selisih': count_selisih,
+        'count_belum': count_belum,
+        'total_items': len(hasil),
         'tahun': tahun,
         'dana': dana,
+        'tahun_choices': FilterHelper.tahun_choices(),
         'dana_choices': FilterHelper.dana_choices(),
     }
 
@@ -593,3 +618,146 @@ def monitor_sipd(request):
         return render(request, 'components/partials/table_monitor.html', context)
 
     return render(request, 'sipd/monitor_sipd.html', context)
+
+
+def monitor_sipd_print(request):
+    """
+    Halaman cetak / preview PDF untuk laporan keseluruhan Monitoring SIPD.
+    Dapat diakses langsung untuk dicetak fisik / save as PDF atau dimuat dalam Modal iframe.
+    """
+    tahun_param = request.GET.get('tahun') or request.session.get('tahun') or datetime.now().year
+    try:
+        tahun = int(str(tahun_param).strip())
+    except (TypeError, ValueError):
+        tahun = datetime.now().year
+
+    jadwal = request.session.get('jadwal')
+    dana = request.GET.get('dana') or None
+    if dana:
+        try:
+            dana = int(dana)
+        except (TypeError, ValueError):
+            dana = None
+
+    hasil, total_pagu, total_sipd, total_selisih = _get_monitor_sipd_dataset(tahun, jadwal, dana)
+
+    dana_nama = "Semua Jenis Dana"
+    if dana:
+        for val, label in FilterHelper.dana_choices():
+            if str(val) == str(dana):
+                dana_nama = label
+                break
+
+    context = {
+        'data': hasil,
+        'total_pagu': total_pagu,
+        'total_sipd': total_sipd,
+        'total_selisih': total_selisih,
+        'tahun': tahun,
+        'dana': dana,
+        'dana_nama': dana_nama,
+        'tanggal_cetak': date.today(),
+    }
+    return render(request, 'sipd/monitor_print.html', context)
+
+
+# =========================================================
+# 🔍 MONITOR SIPD DETAIL  (konten Modal)
+# =========================================================
+def monitor_sipd_detail(request):
+    """
+    Menampilkan detail baris Monitor SIPD dalam Bootstrap Modal.
+    Menampilkan: informasi sub OPD & sub kegiatan, daftar SP2D SIPD, dan saldo rencana vs SIPD.
+    """
+    kode_ket    = request.GET.get('kode_ket', '').strip()
+    kode_opd    = request.GET.get('kode_opd', '').strip()
+    tahun_param = request.GET.get('tahun', '')
+
+    if not kode_ket or not kode_opd or not tahun_param:
+        return HttpResponse(
+            "<div class='alert alert-danger mb-0'>Parameter kode_ket, kode_opd dan tahun wajib diisi.</div>"
+        )
+
+    try:
+        tahun = int(str(tahun_param).strip())
+    except (TypeError, ValueError):
+        return HttpResponse(
+            "<div class='alert alert-danger mb-0'>Format tahun tidak valid.</div>"
+        )
+
+    # --- Ambil semua SP2D SIPD yang cocok --------------------------------
+    sipd_qs = (
+        Sipd.objects
+        .filter(tahun=tahun, kode_sub_kegiatan=kode_ket, kode_sub_skpd=kode_opd)
+        .order_by('tanggal_sp2d', 'nomor_sp2d')
+    )
+
+    # Ambil nama dari baris pertama (fallback jika tidak ada rencana)
+    subopd_nama     = sipd_qs.values_list('nama_sub_skpd', flat=True).first() or kode_opd
+    subkeg_nama     = sipd_qs.values_list('nama_sub_kegiatan', flat=True).first() or kode_ket
+
+    # --- Hitung total SIPD ------------------------------------------------
+    total_sipd = sipd_qs.aggregate(
+        total=Sum('nilai_realisasi')
+    )['total'] or Decimal(0)
+
+    # --- Ambil pagu dari rencana ------------------------------------------
+    posting_pagu = Decimal(0)
+    for _, config in SIPD_REGISTRY.items():
+        model_rencana = config['model_rencana']
+        rencana_qs = model_rencana.objects.filter(
+            posting_tahun=tahun,
+            posting_ket=kode_ket,
+            posting_subopd__sub_opd_kode=kode_opd,
+        )
+        for r in rencana_qs:
+            posting_pagu += (r.posting_pagu or Decimal(0))
+            if r.posting_subopd and not subopd_nama:
+                try:
+                    subopd_nama = r.get_subopd()
+                except Exception:
+                    pass
+            if r.posting_subkegiatan and not subkeg_nama:
+                try:
+                    subkeg_nama = r.get_subkegiatan()
+                except Exception:
+                    pass
+
+    selisih = posting_pagu - total_sipd
+    persen  = (total_sipd / posting_pagu * 100) if posting_pagu and posting_pagu > 0 else Decimal(0)
+
+    # --- Grup SP2D (aggregate per nomor_sp2d) ----------------------------
+    sp2d_grouped = (
+        sipd_qs
+        .values(
+            'nomor_sp2d', 'nomor_dokumen', 'jenis_dokumen',
+            'tanggal_sp2d', 'kode_rekening', 'nama_rekening',
+        )
+        .annotate(total_nilai=Sum('nilai_realisasi'))
+        .order_by('tanggal_sp2d', 'nomor_sp2d')
+    )
+
+    # --- Statistik jenis dokumen -----------------------------------------
+    jenis_stats = {}
+    for row in sipd_qs.values('jenis_dokumen').annotate(total=Sum('nilai_realisasi')):
+        jenis_stats[row['jenis_dokumen']] = row['total'] or Decimal(0)
+
+    status = 'SESUAI' if selisih == 0 else ('BELUM ADA' if total_sipd == 0 else 'SELISIH')
+
+    context = {
+        'tahun'        : tahun,
+        'kode_ket'     : kode_ket,
+        'kode_opd'     : kode_opd,
+        'subopd_nama'  : subopd_nama,
+        'subkeg_nama'  : subkeg_nama,
+        'posting_pagu' : posting_pagu,
+        'total_sipd'   : total_sipd,
+        'selisih'      : selisih,
+        'persen'       : persen,
+        'status'       : status,
+        'sp2d_list'    : list(sp2d_grouped),
+        'jenis_stats'  : jenis_stats,
+        'sipd_count'   : sipd_qs.count(),
+    }
+
+    return render(request, 'sipd/partials/monitor_sipd_detail_modal.html', context)

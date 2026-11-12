@@ -1,75 +1,95 @@
 {% load humanize %}
 
-<table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width:100%;">
-    <thead>
-        <tr>
-            <th>Sub OPD</th>
-            <th>Sub Kegiatan</th>
-            <th>Kode Sub Kegiatan</th>
-            <th>Pagu</th>
-            <th>SIPD</th>
-            <th>Selisih</th>
-            <th>Status</th>
-        </tr>
-    </thead>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover mb-0" style="font-size: 12.5px;">
+        <thead class="thead-light text-center">
+            <tr>
+                <th style="width: 45px;">No</th>
+                <th style="width: 220px;">Sub OPD</th>
+                <th>Sub Kegiatan</th>
+                <th style="width: 170px;">Kode Sub Kegiatan</th>
+                <th style="width: 160px;" class="text-right">Pagu Rencana (Rp)</th>
+                <th style="width: 160px;" class="text-right">SIPD (Rp)</th>
+                <th style="width: 160px;" class="text-right">Selisih (Rp)</th>
+                <th style="width: 110px;">Status</th>
+                <th style="width: 110px;">Aksi (Modal)</th>
+            </tr>
+        </thead>
 
-    <tbody>
-        {% for item in data %}
-        <tr>
-            <td>{{ item.subopd_nama }}</td>
-            <td>{{ item.subkegiatan_nama }}</td>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td class="text-center font-weight-bold text-muted align-middle">{{ forloop.counter }}</td>
+                <td class="align-middle font-weight-600 text-dark">{{ item.subopd_nama }}</td>
+                <td class="align-middle">{{ item.subkegiatan_nama }}</td>
 
-            <td style="font-family: monospace;">
-                {{ item.posting_ket }}
-            </td>
+                <td class="align-middle text-center" style="font-family: monospace; font-size: 11.5px;">
+                    <code>{{ item.posting_ket }}</code>
+                </td>
 
-            <td style="text-align:right;">
-                {{ item.posting_pagu|intcomma }}
-            </td>
+                <td class="align-middle text-right font-weight-bold text-dark">
+                    {{ item.posting_pagu|intcomma }}
+                </td>
 
-            <td style="text-align:right;">
-                {{ item.nilai_sipd|intcomma }}
-            </td>
+                <td class="align-middle text-right font-weight-bold {% if item.nilai_sipd > 0 %}text-success{% else %}text-muted{% endif %}">
+                    {{ item.nilai_sipd|intcomma }}
+                </td>
 
-            <td style="text-align:right; 
-                       color:{% if item.selisih != 0 %}red{% else %}black{% endif %};">
-                {{ item.selisih|intcomma }}
-            </td>
+                <td class="align-middle text-right font-weight-bold {% if item.selisih != 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ item.selisih|intcomma }}
+                </td>
 
-            <td style="text-align:center;">
-                {% if item.status == "SESUAI" %}
-                    ✅
-                {% elif item.status == "SELISIH" %}
-                    ⚠️
-                {% else %}
-                    ❌
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="7" style="text-align:center;">Tidak ada data</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+                <td class="align-middle text-center">
+                    {% if item.status == "SESUAI" %}
+                        <span class="badge badge-success px-2 py-1" style="font-size: 11px;">
+                            <i class="fas fa-check-circle mr-1"></i> Sesuai
+                        </span>
+                    {% elif item.status == "SELISIH" %}
+                        <span class="badge badge-warning px-2 py-1 text-dark" style="font-size: 11px;">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> Selisih
+                        </span>
+                    {% else %}
+                        <span class="badge badge-secondary px-2 py-1" style="font-size: 11px;">
+                            <i class="fas fa-times-circle mr-1"></i> Belum Ada
+                        </span>
+                    {% endif %}
+                </td>
 
-    <tfoot style="font-weight:bold; background:#eee;">
-        <tr>
-            <td colspan="3">TOTAL</td>
+                <td class="align-middle text-center">
+                    <button type="button"
+                            class="btn btn-sm btn-info px-2"
+                            title="Lihat Detail Transaksi SIPD dalam Modal"
+                            onclick="openMonitorDetail('{{ item.posting_tahun }}', '{{ item.posting_ket }}', '{{ item.posting_subopd_kode }}')">
+                        <i class="fas fa-search-plus mr-1"></i> Detail
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center text-muted py-5">
+                    <i class="fas fa-inbox mb-2" style="font-size: 32px;"></i><br>
+                    Tidak ada data monitoring SIPD untuk kriteria filter yang dipilih.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
 
-            <td style="text-align:right;">
-                {{ total_pagu|intcomma }}
-            </td>
-
-            <td style="text-align:right;">
-                {{ total_sipd|intcomma }}
-            </td>
-
-            <td style="text-align:right;">
-                {{ total_selisih|intcomma }}
-            </td>
-
-            <td></td>
-        </tr>
-    </tfoot>
-</table>
+        <tfoot class="bg-light font-weight-bold" style="font-size: 13px;">
+            <tr>
+                <td colspan="4" class="text-right text-uppercase">Total Keseluruhan:</td>
+                <td class="text-right text-primary">
+                    Rp {{ total_pagu|intcomma }}
+                </td>
+                <td class="text-right text-success">
+                    Rp {{ total_sipd|intcomma }}
+                </td>
+                <td class="text-right {% if total_selisih != 0 %}text-danger{% else %}text-success{% endif %}">
+                    Rp {{ total_selisih|intcomma }}
+                </td>
+                <td colspan="2" class="text-center">
+                    <span class="badge badge-dark">{{ data|length }} Kegiatan</span>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
