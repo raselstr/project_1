@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'sipd',
     'djpk',
     'core',
+    'register_sp2d',
 ]
 
 MIDDLEWARE = [

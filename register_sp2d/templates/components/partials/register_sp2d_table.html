@@ -1,0 +1,8 @@
+{% load django_tables2 %}
+{% load humanize %}
+
+<div class="table-responsive">
+    <div class="overflow-auto" style="min-height: 200px;">
+        {% render_table table %}
+    </div>
+</div>
