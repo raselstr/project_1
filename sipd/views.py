@@ -667,7 +667,9 @@ def monitor_sipd_print(request):
 def monitor_sipd_detail(request):
     """
     Menampilkan detail baris Monitor SIPD dalam Bootstrap Modal.
-    Menampilkan: informasi sub OPD & sub kegiatan, daftar SP2D SIPD, dan saldo rencana vs SIPD.
+    Menampilkan data Upload Excel SIPD yang disinkronkan dengan data TBP:
+    Kolom: No. SP2D, TBP, Tanggal SP2D, Tgl TBP, Nilai TBP.
+    Total penjumlahan Nilai TBP sama dengan nilai SIPD pada sub kegiatan tersebut.
     """
     kode_ket    = request.GET.get('kode_ket', '').strip()
     kode_opd    = request.GET.get('kode_opd', '').strip()
@@ -685,18 +687,18 @@ def monitor_sipd_detail(request):
             "<div class='alert alert-danger mb-0'>Format tahun tidak valid.</div>"
         )
 
-    # --- Ambil semua SP2D SIPD yang cocok --------------------------------
+    # --- Ambil semua SIPD untuk sub kegiatan & sub OPD ini ----------------
     sipd_qs = (
         Sipd.objects
         .filter(tahun=tahun, kode_sub_kegiatan=kode_ket, kode_sub_skpd=kode_opd)
-        .order_by('tanggal_sp2d', 'nomor_sp2d')
+        .order_by('tanggal_sp2d', 'nomor_sp2d', 'nomor_dokumen')
     )
 
     # Ambil nama dari baris pertama (fallback jika tidak ada rencana)
-    subopd_nama     = sipd_qs.values_list('nama_sub_skpd', flat=True).first() or kode_opd
-    subkeg_nama     = sipd_qs.values_list('nama_sub_kegiatan', flat=True).first() or kode_ket
+    subopd_nama = sipd_qs.values_list('nama_sub_skpd', flat=True).first() or kode_opd
+    subkeg_nama = sipd_qs.values_list('nama_sub_kegiatan', flat=True).first() or kode_ket
 
-    # --- Hitung total SIPD ------------------------------------------------
+    # Total nilai SIPD langsung dari tabel Sipd
     total_sipd = sipd_qs.aggregate(
         total=Sum('nilai_realisasi')
     )['total'] or Decimal(0)
@@ -725,39 +727,72 @@ def monitor_sipd_detail(request):
 
     selisih = posting_pagu - total_sipd
     persen  = (total_sipd / posting_pagu * 100) if posting_pagu and posting_pagu > 0 else Decimal(0)
+    status  = 'SESUAI' if selisih == 0 else ('BELUM ADA' if total_sipd == 0 else 'SELISIH')
 
-    # --- Grup SP2D (aggregate per nomor_sp2d) ----------------------------
-    sp2d_grouped = (
-        sipd_qs
-        .values(
-            'nomor_sp2d', 'nomor_dokumen', 'jenis_dokumen',
-            'tanggal_sp2d', 'kode_rekening', 'nama_rekening',
+    # --- SINKRONISASI SIPD DENGAN DATA TBP --------------------------------
+    # Ambil nomor dokumen dari SIPD untuk dicocokkan dengan nomor_tbp di tabel TBP
+    tbp_docs = list(sipd_qs.values_list('nomor_dokumen', flat=True).distinct())
+    tbp_map = {
+        clean(t.nomor_tbp): t
+        for t in TBP.objects.filter(tahun=tahun, nomor_tbp__in=tbp_docs)
+    }
+
+    # Grouping data SIPD per TBP / Dokumen agar nilai TBP sesuai dengan rincian SIPD
+    grouped = {}
+    for s in sipd_qs:
+        dok_clean = clean(s.nomor_dokumen)
+        sp2d_clean = clean(s.nomor_sp2d)
+
+        tbp_obj = tbp_map.get(dok_clean)
+        sp2d_final = ""
+        if tbp_obj and tbp_obj.status_tbp:
+            sp2d_final = extract_nomor_dari_status(tbp_obj.status_tbp)
+        if not sp2d_final:
+            sp2d_final = sp2d_clean
+
+        # Kunci grouping per dokumen/TBP
+        key = dok_clean if (tbp_obj or s.jenis_dokumen == "TBP") else f"{sp2d_final}_{dok_clean}"
+
+        if key not in grouped:
+            grouped[key] = {
+                'nomor_sp2d': sp2d_final or "-",
+                'nomor_tbp': dok_clean if dok_clean else "-",
+                'tanggal_sp2d': s.tanggal_sp2d,
+                'tanggal_tbp': tbp_obj.tanggal_tbp if tbp_obj else None,
+                'nilai_tbp': Decimal(0),
+            }
+
+        grouped[key]['nilai_tbp'] += (s.nilai_realisasi or Decimal(0))
+
+        # Simpan tanggal SP2D yang valid/terawal
+        if s.tanggal_sp2d and (not grouped[key]['tanggal_sp2d'] or s.tanggal_sp2d < grouped[key]['tanggal_sp2d']):
+            grouped[key]['tanggal_sp2d'] = s.tanggal_sp2d
+
+    # Urutkan berdasarkan tanggal SP2D atau tanggal TBP
+    tbp_list = sorted(
+        grouped.values(),
+        key=lambda x: (
+            str(x['tanggal_sp2d'] or x['tanggal_tbp'] or ''),
+            x['nomor_sp2d']
         )
-        .annotate(total_nilai=Sum('nilai_realisasi'))
-        .order_by('tanggal_sp2d', 'nomor_sp2d')
     )
 
-    # --- Statistik jenis dokumen -----------------------------------------
-    jenis_stats = {}
-    for row in sipd_qs.values('jenis_dokumen').annotate(total=Sum('nilai_realisasi')):
-        jenis_stats[row['jenis_dokumen']] = row['total'] or Decimal(0)
-
-    status = 'SESUAI' if selisih == 0 else ('BELUM ADA' if total_sipd == 0 else 'SELISIH')
+    total_nilai_tbp = sum((item['nilai_tbp'] for item in tbp_list), Decimal(0))
 
     context = {
-        'tahun'        : tahun,
-        'kode_ket'     : kode_ket,
-        'kode_opd'     : kode_opd,
-        'subopd_nama'  : subopd_nama,
-        'subkeg_nama'  : subkeg_nama,
-        'posting_pagu' : posting_pagu,
-        'total_sipd'   : total_sipd,
-        'selisih'      : selisih,
-        'persen'       : persen,
-        'status'       : status,
-        'sp2d_list'    : list(sp2d_grouped),
-        'jenis_stats'  : jenis_stats,
-        'sipd_count'   : sipd_qs.count(),
+        'tahun'           : tahun,
+        'kode_ket'        : kode_ket,
+        'kode_opd'        : kode_opd,
+        'subopd_nama'     : subopd_nama,
+        'subkeg_nama'     : subkeg_nama,
+        'posting_pagu'    : posting_pagu,
+        'total_sipd'      : total_sipd,
+        'total_nilai_tbp' : total_nilai_tbp,
+        'selisih'         : selisih,
+        'persen'          : persen,
+        'status'          : status,
+        'tbp_list'        : tbp_list,
+        'item_count'      : len(tbp_list),
     }
 
     return render(request, 'sipd/partials/monitor_sipd_detail_modal.html', context)
