@@ -1,6 +1,6 @@
 /**
  * Custom JavaScript for Tech Modern Theme & Mobile Responsive
- * v5.5 — Sidebar accordion fix + active state dari URL
+ * v5.6 — Sidebar accordion fix + active state URL matching
  */
 
 "use strict";
@@ -8,59 +8,96 @@
 $(document).ready(function() {
 
   // =========================================================================
-  // 1. SIDEBAR ACCORDION — Hanya 1 submenu terbuka sekaligus
+  // 1. SIDEBAR ACCORDION & ACTIVE STATE
   // =========================================================================
-  function initSidebarAccordion() {
-    // Tandai menu yang aktif berdasarkan URL saat ini
+  function initSidebarActiveState() {
     var currentUrl = window.location.href;
-    var currentPath = window.location.pathname;
+    var currentPath = window.location.pathname.replace(/\/+$/, "");
     var currentSearch = window.location.search;
+    var currentParams = new URLSearchParams(currentSearch);
+    var currentSubmenuId = currentParams.get('submenu_id');
 
-    // Cek setiap link submenu
+    var $bestMatch = null;
+    var bestScore = -1;
+
+    // Cari submenu yang paling cocok dengan URL saat ini
     $('.sidebar-menu li.dropdown ul.dropdown-menu li a.nav-link').each(function() {
-      var linkHref = $(this).attr('href') || '';
-      // Cocokkan path + query string submenu_id
-      if (linkHref && currentUrl.indexOf(linkHref) !== -1) {
-        $(this).closest('li').addClass('active');
-        var $parentDropdown = $(this).closest('li.dropdown');
-        $parentDropdown.addClass('active');
-        $parentDropdown.find('> ul.dropdown-menu').css('display', 'block');
+      var $link = $(this);
+      var href = $link.attr('href') || '';
+      if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+
+      var linkUrl;
+      try {
+        linkUrl = new URL(href, window.location.origin);
+      } catch(e) {
+        return;
+      }
+
+      var linkPath = linkUrl.pathname.replace(/\/+$/, "");
+      var linkSubmenuId = linkUrl.searchParams.get('submenu_id');
+      var score = 0;
+
+      // 1. Jika submenu_id sama persis: skor tertinggi (100)
+      if (currentSubmenuId && linkSubmenuId && currentSubmenuId === linkSubmenuId) {
+        score += 100;
+      }
+
+      // 2. Jika pathname sama persis (skor 50)
+      if (currentPath && linkPath && currentPath === linkPath) {
+        score += 50;
+      }
+      // 3. Jika pathname merupakan awalan (misal currentPath = /pendidikan/rencana/list, linkPath = /pendidikan/rencana) (skor 30)
+      else if (linkPath && linkPath !== '' && linkPath !== '/' && currentPath.indexOf(linkPath) === 0) {
+        score += 30;
+      }
+
+      if (score > bestScore && score > 0) {
+        bestScore = score;
+        $bestMatch = $link;
       }
     });
 
-    // Cek juga link menu utama (dashboard tanpa submenu_id)
-    if (currentPath === '/' || currentPath.indexOf('/dashboard') !== -1) {
-      if (!currentSearch || currentSearch.indexOf('submenu_id') === -1) {
-        $('.sidebar-menu li.dropdown').first().addClass('active');
-        $('.sidebar-menu li.dropdown').first().find('> ul.dropdown-menu').css('display', 'block');
+    // Fallback: Dashboard utama jika di root path
+    if (!bestScore || bestScore <= 0) {
+      if (currentPath === '' || currentPath === '/' || currentPath === '/dashboard') {
+        var $dashLink = $('.sidebar-menu a[href*="dashboard"]').first();
+        if ($dashLink.length) {
+          $bestMatch = $dashLink;
+          bestScore = 10;
+        }
       }
     }
 
-    // Click handler — accordion: tutup semua, buka yang diklik
-    $(document).on('click', '.sidebar-toggle-dropdown', function(e) {
-      e.preventDefault();
-      var $thisDropdown = $(this).closest('li.dropdown');
-      var $thisMenu = $thisDropdown.find('> ul.dropdown-menu');
-      var isOpen = $thisMenu.is(':visible');
+    // Terapkan active state
+    if ($bestMatch && bestScore > 0) {
+      // Bersihkan semua active dan tutup dropdown lain
+      $('.sidebar-menu li.dropdown').removeClass('active open-temp');
+      $('.sidebar-menu li.dropdown ul.dropdown-menu li').removeClass('active');
+      $('.sidebar-menu li.dropdown ul.dropdown-menu').hide();
 
-      // Tutup semua dropdown lain
-      $('.sidebar-menu li.dropdown').not($thisDropdown).each(function() {
-        $(this).find('> ul.dropdown-menu').slideUp(180);
-        $(this).removeClass('open-temp');
-      });
+      // Tandai submenu item sebagai active
+      var $subLi = $bestMatch.closest('li');
+      $subLi.addClass('active');
 
-      // Toggle yang diklik
-      if (isOpen) {
-        $thisMenu.slideUp(180);
-        $thisDropdown.removeClass('open-temp');
-      } else {
-        $thisMenu.slideDown(180);
-        $thisDropdown.addClass('open-temp');
-      }
-    });
+      // Tandai parent menu dropdown sebagai active dan buka menunya
+      var $parentDropdown = $bestMatch.closest('li.dropdown');
+      $parentDropdown.addClass('active');
+      $parentDropdown.find('> ul.dropdown-menu').show();
+    }
   }
 
-  initSidebarAccordion();
+  initSidebarActiveState();
+
+  // Handler saat user mengklik submenu item
+  $(document).on('click', '.sidebar-menu ul.dropdown-menu li a.nav-link', function() {
+    var $link = $(this);
+    $('.sidebar-menu ul.dropdown-menu li').removeClass('active');
+    $link.closest('li').addClass('active');
+
+    var $parentDropdown = $link.closest('li.dropdown');
+    $('.sidebar-menu li.dropdown').not($parentDropdown).removeClass('active open-temp');
+    $parentDropdown.addClass('active');
+  });
 
   // =========================================================================
   // 2. Mobile Sidebar State Management

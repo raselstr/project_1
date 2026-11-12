@@ -84,13 +84,41 @@ $(function() {
       $(".main-sidebar").niceScroll(sidebar_nicescroll_opts);
       sidebar_nicescroll = $(".main-sidebar").getNiceScroll();
 
-      $(".main-sidebar .sidebar-menu li a.has-dropdown").off('click').on('click', function() {
+      $(".main-sidebar .sidebar-menu li a.has-dropdown").off('click').on('click', function(e) {
+        e.preventDefault();
         var me = $(this);
+        var parent = me.closest('li.dropdown');
+        var submenu = parent.find('> .dropdown-menu');
+        var isOpen = submenu.is(':visible');
 
-        me.parent().find('> .dropdown-menu').slideToggle(500, function() {
-          update_sidebar_nicescroll();
-          return false;
+        // ACCORDION: Tutup semua menu dropdown lain
+        $(".main-sidebar .sidebar-menu li.dropdown").not(parent).each(function() {
+          var other = $(this);
+          other.removeClass('open-temp');
+          if (!other.find('ul.dropdown-menu li.active').length) {
+            other.removeClass('active');
+          }
+          other.find('> .dropdown-menu').slideUp(250, function() {
+            update_sidebar_nicescroll();
+          });
         });
+
+        // Toggle submenu yang diklik
+        if (isOpen) {
+          submenu.slideUp(250, function() {
+            update_sidebar_nicescroll();
+          });
+          parent.removeClass('open-temp');
+          if (!parent.find('ul.dropdown-menu li.active').length) {
+            parent.removeClass('active');
+          }
+        } else {
+          submenu.slideDown(250, function() {
+            update_sidebar_nicescroll();
+          });
+          parent.addClass('open-temp active');
+        }
+
         return false;
       });
     }
