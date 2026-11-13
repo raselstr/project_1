@@ -290,6 +290,14 @@ class BaseRencanapendidikanpostingTable(tables.Table):
             'total_realisasi_pk',
             'realisasi_output',
         )
+        fields = (
+            'nomor',
+            'subkegiatan',
+            'posting_pagu',
+            'output_satuan',
+            'total_realisasi_pk',
+            'realisasi_output',
+        )
         exclude = ('posting_subopd',)
         
     
