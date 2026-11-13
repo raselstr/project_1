@@ -119,6 +119,7 @@ class RealisasikesehatanTable(BaseRealisasiTable):
         model = model
         fields = ("aksi", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id","verif")
+        exclude = ("realisasi_subopd", "realisasi_rencanaposting", "realisasi_subkegiatan",)
 
     model_name = 'realisasi_kesehatan'
 
@@ -128,6 +129,7 @@ class RealisasikesehatanTablesisa(BaseRealisasiTable):
         model = model_sisa
         fields = ("aksi", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id", "verif")
+        exclude = ("realisasi_subopd", "realisasi_rencanaposting", "realisasi_subkegiatan",)
 
     model_name = 'realisasi_kesehatansisa'
 
