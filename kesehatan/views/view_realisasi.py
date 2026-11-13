@@ -109,19 +109,23 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     data = get_object_or_404(model_realisasi, id=pk)
+    rencana_posting = getattr(data, 'realisasi_rencanaposting', None)
+    satuan = rencana_posting.get_satuan_kegiatan() if rencana_posting and hasattr(rencana_posting, 'get_satuan_kegiatan') else None
     if request.method == 'POST':
-        form = form_data(request.POST or None, instance=data)
+        form = form_data(request.POST or None, instance=data, satuan=satuan)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Update')
             return redirect(url_list)
     else:
-        form = form_data(instance=data)
+        form = form_data(instance=data, satuan=satuan)
     context = {
         'form': form,
         'judul': 'Update Rencana Kegiatan',
         'btntombol' : 'Update',
         'link_url': reverse(url_list),
+        'satuan': satuan,
+        'rencana_posting': rencana_posting,
     }
     return render(request, template_form, context)
 
@@ -142,23 +146,24 @@ def simpan(request, pk=None):
         realisasi_tahap=request.session.get('realisasi_tahap'),
         jadwal = request.session.get('jadwal'),
         realisasi_rencanaposting=rencana_posting.id
-        
     )
+    satuan = rencana_posting.get_satuan_kegiatan() if hasattr(rencana_posting, 'get_satuan_kegiatan') else None
     if request.method == 'POST':
-        form = form_data(request.POST or None, initial_data=initial_data)
+        form = form_data(request.POST or None, initial_data=initial_data, satuan=satuan)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(reverse(url_sp2d,args=[pk]))  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = form_data(initial=initial_data, initial_data=initial_data)
+        form = form_data(initial=initial_data, initial_data=initial_data, satuan=satuan)
 
     context = {
         'form': form,
         'judul': 'Form Realisasi Kegiatan',
-        
         'btntombol': 'Simpan',
         'link_url': reverse(url_sp2d,args=[pk]),  # Ganti dengan URL yang sesuai
+        'satuan': satuan,
+        'rencana_posting': rencana_posting,
     }
     return render(request, template_form, context)
 

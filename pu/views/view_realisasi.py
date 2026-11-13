@@ -112,47 +112,63 @@ def delete(request, pk):
 def update(request, pk):
     request.session['next'] = request.get_full_path()
     data = get_object_or_404(model_realisasi, id=pk)
+    rencana_posting = getattr(data, 'realisasi_rencanaposting', None)
+    satuan = rencana_posting.get_satuan_kegiatan() if rencana_posting and hasattr(rencana_posting, 'get_satuan_kegiatan') else None
     if request.method == 'POST':
-        form = form_data(request.POST or None, instance=data)
+        form = form_data(request.POST or None, instance=data, satuan=satuan)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Update')
             return redirect(url_list)
     else:
-        form = form_data(instance=data)
+        form = form_data(instance=data, satuan=satuan)
     context = {
         'form': form,
         'judul': 'Update Rencana Kegiatan',
         'btntombol' : 'Update',
         'link_url': reverse(url_list),
+        'satuan': satuan,
+        'rencana_posting': rencana_posting,
     }
     return render(request, template_form, context)
 
 @set_submenu_session
 @menu_access_required('simpan')
-def simpan(request):
+def simpan(request, pk=None):
     request.session['next'] = request.get_full_path()
+    rencana_posting = None
+    satuan = None
+    if pk:
+        try:
+            rencana_posting = model_data.objects.get(pk=pk)
+            satuan = rencana_posting.get_satuan_kegiatan() if hasattr(rencana_posting, 'get_satuan_kegiatan') else None
+        except model_data.DoesNotExist:
+            pass
     initial_data = dict(
         realisasi_tahun=request.session.get('realisasi_tahun'),
         realisasi_dana=request.session.get('realisasi_dana'),
         realisasi_subopd=request.session.get('realisasi_subopd'),
         realisasi_tahap=request.session.get('realisasi_tahap'),
-        jadwal = request.session.get('jadwal')
+        jadwal = request.session.get('jadwal'),
     )
+    if pk and rencana_posting:
+        initial_data['realisasi_rencanaposting'] = rencana_posting.id
     if request.method == 'POST':
-        form = form_data(request.POST or None, initial_data=initial_data)
+        form = form_data(request.POST or None, initial_data=initial_data, satuan=satuan)
         if form.is_valid():
             form.save()
             messages.success(request, 'Data Berhasil Simpan')
             return redirect(reverse(url_list))  # Ganti dengan URL redirect setelah berhasil
     else:
-        form = form_data(initial=initial_data, initial_data=initial_data)
+        form = form_data(initial=initial_data, initial_data=initial_data, satuan=satuan)
 
     context = {
         'form': form,
         'judul': 'Form Realisasi Kegiatan',
         'btntombol': 'Simpan',
         'link_url': reverse(url_list),
+        'satuan': satuan,
+        'rencana_posting': rencana_posting,
     }
     return render(request, template_form, context)
 

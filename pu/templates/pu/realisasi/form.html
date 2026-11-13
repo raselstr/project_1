@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
 <section class="section">
@@ -9,32 +10,94 @@
         <div id="btnSpinner" class="spinner-border text-primary" role="status" style="display: none;">
             <span class="sr-only">Loading...</span>
         </div>
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+        <div class="col-lg-8 col-md-10 col-12 col-sm-12 mx-auto">
             <div class="card">
                 <div class="card-header">
                     <h4>{{ judul }}</h4>
                 </div>
-                <div class="card-body col-12 col-md-10 mx-auto">
-                    <form method="post">
-                        <div class="modal-header">
-                            <h5 class="modal-title">{{ judul }}</h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                            </div>
-                        </div>
-                        {% if form.non_field_errors %}
-                        <div class="text-danger">
-                            {{ form.non_field_errors }}
+                <div class="card-body">
+                    <form method="post" id="form_input">
+                        {% csrf_token %}
+
+                        {# Hidden fields #}
+                        {{ form.realisasi_tahun }}
+                        {{ form.realisasi_dana }}
+                        {{ form.realisasi_tahap }}
+                        {{ form.realisasi_subopd }}
+                        {{ form.realisasi_rencanaposting }}
+
+                        {# Info sub kegiatan #}
+                        {% if rencana_posting %}
+                        <div class="alert alert-info py-2 px-3 mb-3" style="border-radius:6px; font-size:0.88rem;">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <strong>Sub Kegiatan:</strong> {{ rencana_posting.posting_subkegiatan|default:"-" }}
+                            {% if satuan %}
+                            &nbsp;|&nbsp; <strong>Satuan Output:</strong>
+                            <span class="badge badge-primary">{{ satuan }}</span>
+                            {% endif %}
                         </div>
                         {% endif %}
-                        <div class="modal-footer">
-                            <a href="{{link_url}}" class="btn btn-warning ml-2">Batal</a>
-                            <button type="submit" class="btn btn-primary">{{btntombol}}</button>
+
+                        {# No SP2D #}
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">No SP2D <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                {{ form.realisasi_sp2d }}
+                                {% if form.realisasi_sp2d.errors %}
+                                <div class="text-danger small">{{ form.realisasi_sp2d.errors }}</div>
+                                {% endif %}
+                            </div>
                         </div>
-                        <!-- Error non-field -->
+
+                        {# Tanggal SP2D #}
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Tanggal SP2D <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                {{ form.realisasi_tgl }}
+                                {% if form.realisasi_tgl.errors %}
+                                <div class="text-danger small">{{ form.realisasi_tgl.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {# Nilai SP2D #}
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Nilai SP2D (Rp) <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                {{ form.realisasi_nilai }}
+                                {% if form.realisasi_nilai.errors %}
+                                <div class="text-danger small">{{ form.realisasi_nilai.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {# Capaian Output + Satuan #}
+                        <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Capaian Output <span class="text-danger">*</span></label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    {{ form.realisasi_output }}
+                                    {% if satuan %}
+                                    <div class="input-group-append">
+                                        <span class="input-group-text font-weight-bold text-primary">{{ satuan }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% if form.realisasi_output.errors %}
+                                <div class="text-danger small">{{ form.realisasi_output.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {# Non-field errors #}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <div class="modal-footer px-0">
+                            <a href="{{ link_url }}" class="btn btn-warning ml-2">Batal</a>
+                            <button type="submit" id="btnSubmit" class="btn btn-primary">{{ btntombol }}</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -43,23 +106,11 @@
 </section>
 {% endblock content %}
 
-
-
-
-
-
-
-
-
-
-
-
 {% block javascript %}
-    <script>
-        $('#form_input').on('submit', function() {
-            $('#btnSubmit').prop('disabled', true); // Menonaktifkan tombol Simpan
-            $('#spinner').show(); // Menampilkan spinner
-        });
-    </script>
+<script>
+    $('#form_input').on('submit', function() {
+        $('#btnSubmit').prop('disabled', true);
+        $('#btnSpinner').show();
+    });
+</script>
 {% endblock javascript %}
-

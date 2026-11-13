@@ -152,7 +152,7 @@ class RealisasipuForm(forms.ModelForm):
             'realisasi_dana': forms.HiddenInput(),
             'realisasi_tahap': forms.HiddenInput(),
             'realisasi_subopd': forms.HiddenInput(),
-            'realisasi_rencanaposting': forms.Select(attrs={'class': 'form-control select2'}),
+            'realisasi_rencanaposting': forms.HiddenInput(),
             'realisasi_sp2d': forms.TextInput(attrs={'class': 'form-control'}),
             'realisasi_tgl': forms.DateInput(attrs={'class': 'form-control', 'type':'date'}),
             'realisasi_nilai': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -160,7 +160,9 @@ class RealisasipuForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         initial_data = kwargs.pop('initial_data', None)
+        satuan = kwargs.pop('satuan', None)
         super().__init__(*args, **kwargs)
+        self.satuan = satuan
         
         if initial_data:
             tahun = initial_data.get('realisasi_tahun')
@@ -175,3 +177,14 @@ class RealisasipuForm(forms.ModelForm):
                 posting_jadwal = jadwal,
             )
             self.fields['realisasi_rencanaposting'].queryset = queryset
+
+            if not self.satuan and initial_data.get('realisasi_rencanaposting'):
+                p_obj = model_posting.objects.filter(pk=initial_data['realisasi_rencanaposting']).first()
+                if p_obj and hasattr(p_obj, 'get_satuan_kegiatan'):
+                    self.satuan = p_obj.get_satuan_kegiatan()
+
+        if not self.satuan and hasattr(self.instance, 'realisasi_rencanaposting') and self.instance.realisasi_rencanaposting:
+            try:
+                self.satuan = self.instance.realisasi_rencanaposting.get_satuan_kegiatan()
+            except Exception:
+                pass
