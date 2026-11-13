@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load django_tables2 %}
+{% load static %}
+
+{% block style %}
+<style>
+  .card-stat-sm .card-icon { width: 50px; height: 50px; }
+  .card-stat-sm .card-wrap .card-header h4 { font-size: 11px; }
+  .card-stat-sm .card-wrap .card-body { font-size: 15px; font-weight: 700; }
+  .filter-row .form-control, .filter-row .custom-select { font-size: 13px; }
+
+  /* ===== MODAL UPLOAD ===== */
+  #uploadModal .modal-dialog { max-width: 650px; }
+  #logModal .modal-dialog { max-width: 950px; }
+</style>
+{% endblock style %}
+
+{% block content %}
+<section class="section">
+  <div class="section-header d-flex justify-content-between align-items-center flex-wrap">
+    <div>
+      <h1><i class="fas fa-file-invoice-dollar text-primary mr-2"></i> Data SIPD</h1>
+      <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></div>
+        <div class="breadcrumb-item">SIPD</div>
+        <div class="breadcrumb-item">Upload Excel SIPD</div>
+      </div>
+    </div>
+    <div class="mt-2 mt-md-0">
+      <button class="btn btn-outline-info btn-sm mr-2 font-weight-bold" onclick="openLogModal('')">
+        <i class="fas fa-clipboard-list mr-1"></i> Log Riwayat Upload
+      </button>
+      <button class="btn btn-primary btn-sm mr-2 font-weight-bold" data-toggle="modal" data-target="#uploadModal">
+        <i class="fas fa-upload mr-1"></i> Upload Excel
+      </button>
+      <a href="{% url 'export_sipd_excel' %}" class="btn btn-success btn-sm font-weight-bold">
+        <i class="fas fa-file-excel mr-1"></i> Export Excel
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!-- RINGKASAN STATISTIK           -->
+  <!-- ============================= -->
+  <div class="row">
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card card-statistic-1 card-stat-sm shadow-sm border-0">
+        <div class="card-icon bg-primary"><i class="fas fa-list-ol text-white"></i></div>
+        <div class="card-wrap">
+          <div class="card-header"><h4>Total Transaksi</h4></div>
+          <div class="card-body">{{ total_items|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card card-statistic-1 card-stat-sm shadow-sm border-0">
+        <div class="card-icon bg-success"><i class="fas fa-coins text-white"></i></div>
+        <div class="card-wrap">
+          <div class="card-header"><h4>Total Nilai Realisasi</h4></div>
+          <div class="card-body" style="font-size:13px;">Rp {{ total_realisasi|floatformat:0|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card card-statistic-1 card-stat-sm shadow-sm border-0">
+        <div class="card-icon bg-info"><i class="fas fa-file-invoice text-white"></i></div>
+        <div class="card-wrap">
+          <div class="card-header"><h4>Jumlah SP2D</h4></div>
+          <div class="card-body">{{ total_sp2d|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+      <div class="card card-statistic-1 card-stat-sm shadow-sm border-0">
+        <div class="card-icon bg-warning"><i class="fas fa-building text-white"></i></div>
+        <div class="card-wrap">
+          <div class="card-header"><h4>Jumlah Sub SKPD</h4></div>
+          <div class="card-body">{{ total_skpd|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================= -->
+  <!-- FILTER + TABEL                -->
+  <!-- ============================= -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+      <h4 class="mb-0 font-weight-bold">
+        <i class="fas fa-table text-primary mr-2"></i>
+        Data SIPD Tahun {{ tahun|stringformat:"s" }}
+      </h4>
+    </div>
+    <div class="card-body">
+
+      <!-- FILTER -->
+      <form method="get" class="filter-row mb-3">
+        <div class="row g-2 align-items-end">
+          <!-- Cari -->
+          <div class="col-12 col-md-6">
+            <label class="font-weight-bold small">Cari (SKPD / Kegiatan / Rekening / SP2D / Dokumen)</label>
+            <input type="text" name="q" class="form-control form-control-sm"
+                   value="{{ q_search }}" placeholder="Ketik untuk mencari..."
+                   hx-get="{% url 'upload_sipd' %}"
+                   hx-trigger="keyup changed delay:400ms"
+                   hx-target="#table-wrapper"
+                   hx-push-url="true">
+          </div>
+          <!-- Baris per halaman -->
+          <div class="col-6 col-md-3">
+            <label class="font-weight-bold small">Baris</label>
+            <select name="per_page" class="form-control form-control-sm"
+                    hx-get="{% url 'upload_sipd' %}"
+                    hx-trigger="change"
+                    hx-target="#table-wrapper"
+                    hx-include="[name='q']"
+                    hx-push-url="true">
+              <option value="10">10 Baris</option>
+              <option value="25">25 Baris</option>
+              <option value="50">50 Baris</option>
+              <option value="all">Semua</option>
+            </select>
+          </div>
+          <!-- Reset -->
+          <div class="col-6 col-md-3 text-right">
+            <a href="{% url 'upload_sipd' %}" class="btn btn-outline-secondary btn-sm w-100 font-weight-bold">
+              <i class="fas fa-undo mr-1"></i> Reset Filter
+            </a>
+          </div>
+        </div>
+      </form>
+
+      <!-- TABEL CONTAINER -->
+      <div id="table-wrapper">
+        {% include "sipd/partials/table_sipd.html" %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================= -->
+<!-- 📤 MODAL UPLOAD EXCEL SIPD                                -->
+<!-- ========================================================= -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white py-3">
+        <h5 class="modal-title font-weight-bold" id="uploadModalLabel">
+          <i class="fas fa-file-excel mr-2"></i> Upload Excel SIPD
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" id="closeUploadModal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- FORM UPLOAD -->
+        <form id="sipdUploadForm" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="form-group mb-3">
+            <label class="font-weight-bold text-dark mb-1">
+              Pilih File Excel Laporan SIPD <span class="text-danger">*</span>
+            </label>
+            <div class="custom-file">
+              <input type="file" name="file" class="custom-file-input" id="excelFile" accept=".xlsx, .xls" required>
+              <label class="custom-file-label" for="excelFile" id="fileLabel">Pilih berkas (.xlsx, .xls)...</label>
+            </div>
+            <small class="form-text text-muted">
+              Pastikan format file sesuai dengan ekspor SIPD.
+            </small>
+          </div>
+
+          <div class="alert alert-info py-2 px-3 small mb-3">
+            <i class="fas fa-info-circle mr-1"></i>
+            Tahun aktif: <strong>{{ tahun|stringformat:"s" }}</strong>. Data akan disimpan atau diperbarui otomatis bila nomor dokumen dan SP2D sudah ada.
+          </div>
+
+          <!-- PROGRESS BAR (TERSEMBUNYI SAAT AWAL) -->
+          <div id="progressContainer" class="d-none my-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small font-weight-bold text-primary" id="progressTitle">Mengunggah & memproses berkas...</span>
+              <span class="small font-weight-bold text-primary" id="progressPercent">0%</span>
+            </div>
+            <div class="progress" style="height: 18px; border-radius: 9px;">
+              <div id="progressBar"
+                   class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                   role="progressbar"
+                   style="width: 0%; font-size: 11px; font-weight: bold;">
+                0%
+              </div>
+            </div>
+            <div id="progressMessage" class="mt-3"></div>
+          </div>
+
+          <div class="d-flex justify-content-end align-items-center mt-3">
+            <button type="button" class="btn btn-secondary btn-sm mr-2" data-dismiss="modal" id="btnCancel">
+              Batal
+            </button>
+            <button type="submit" class="btn btn-primary btn-sm font-weight-bold" id="btnSubmit">
+              <i class="fas fa-cloud-upload-alt mr-1"></i> Mulai Upload
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 📋 MODAL LOG RIWAYAT UPLOAD                               -->
+<!-- ========================================================= -->
+<div class="modal fade" id="logModal" tabindex="-1" role="dialog" aria-labelledby="logModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white py-3">
+        <h5 class="modal-title font-weight-bold" id="logModalLabel">
+          <i class="fas fa-clipboard-list mr-2"></i> Log Riwayat Upload Excel SIPD (Tahun {{ tahun|stringformat:"s" }})
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-3">
+        <div id="logContent">
+          <div class="text-center py-4">
+            <i class="fas fa-spinner fa-spin fa-2x text-muted mb-2"></i>
+            <p class="text-muted small">Memuat log riwayat...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+const URL_UPLOAD   = "{% url 'upload_sipd' %}";
+const URL_LIST     = "{% url 'upload_sipd' %}";
+const URL_LOG      = "{% url 'sipd_log' %}";
+
+// Handle nama file pada custom file input
+document.getElementById('excelFile').addEventListener('change', function(e) {
+    const fileName = e.target.files[0] ? e.target.files[0].name : "Pilih berkas (.xlsx, .xls)...";
+    document.getElementById('fileLabel').innerText = fileName;
+});
+
+// Buka Modal Log
+function openLogModal() {
+    $('#logModal').modal('show');
+    const logBox = document.getElementById('logContent');
+    logBox.innerHTML = `
+        <div class="text-center py-4">
+            <i class="fas fa-spinner fa-spin fa-2x text-primary mb-2"></i>
+            <p class="text-muted small">Memuat log...</p>
+        </div>`;
+    fetch(URL_LOG)
+        .then(res => res.text())
+        .then(html => {
+            logBox.innerHTML = html;
+        })
+        .catch(err => {
+            logBox.innerHTML = `<div class="alert alert-danger">Gagal memuat log: ${err}</div>`;
+        });
+}
+
+// Upload & Progress Bar Polling
+document.addEventListener("DOMContentLoaded", function() {
+    const form       = document.getElementById("sipdUploadForm");
+    const fileInput  = document.getElementById("excelFile");
+    const progBox    = document.getElementById("progressContainer");
+    const progBar    = document.getElementById("progressBar");
+    const progPct    = document.getElementById("progressPercent");
+    const progTitle  = document.getElementById("progressTitle");
+    const progMsg    = document.getElementById("progressMessage");
+    const uploadBtn  = document.getElementById("btnSubmit");
+    const cancelBtn  = document.getElementById("btnCancel");
+    const closeBtn   = document.getElementById("closeUploadModal");
+
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        if (!fileInput.files.length) {
+            alert("Silakan pilih file Excel terlebih dahulu!");
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        // UI Feedback saat mulai upload
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mengunggah...';
+        cancelBtn.disabled = true;
+        closeBtn.disabled = true;
+
+        progBox.classList.remove("d-none");
+        progBar.style.width = "0%";
+        progBar.className   = "progress-bar progress-bar-striped progress-bar-animated bg-primary";
+        progPct.innerText   = "0%";
+        progTitle.innerText = "Mengunggah berkas ke server...";
+        progMsg.innerHTML   = "";
+
+        fetch(URL_UPLOAD, {
+            method: "POST",
+            body: formData,
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("Gagal mengunggah file. Pastikan format file benar.");
+                return res.json();
+            })
+            .then(data => {
+                const taskId = data.task_id;
+                if (!taskId) {
+                    throw new Error("Task ID tidak diterima dari server.");
+                }
+
+                progTitle.innerText = "Memproses dan membaca baris Excel...";
+
+                // Polling progress setiap 800ms
+                const poller = setInterval(() => {
+                    fetch(`/sipd/progress/${taskId}/`)
+                        .then(r => r.json())
+                        .then(p => {
+                            if (p.done) {
+                                clearInterval(poller);
+
+                                progBar.style.width = "100%";
+                                progBar.className   = "progress-bar bg-success";
+                                progPct.innerText   = "100%";
+                                progTitle.innerText = "Selesai!";
+
+                                cancelBtn.disabled  = false;
+                                closeBtn.disabled   = false;
+
+                                let summaryHtml = "";
+                                if (p.skipped_summary && p.skipped_summary.length > 0) {
+                                    summaryHtml = `<ul class="mb-2 pl-3">` +
+                                        p.skipped_summary.map(s => `<li><strong>${s.count} baris:</strong> ${s.reason}</li>`).join('') + `</ul>`;
+                                }
+
+                                let html = `
+                                    <div class="alert alert-success py-2 px-3 mb-3 text-center">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        <strong>Proses Import Selesai!</strong>
+                                        <div class="row text-center mt-2">
+                                            <div class="col-4">
+                                                <div class="bg-white p-2 border rounded">
+                                                    <span class="badge badge-success px-2 py-1" style="font-size: 13px;">${p.saved}</span>
+                                                    <div class="small font-weight-bold text-muted mt-1">Data Baru</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="bg-white p-2 border rounded">
+                                                    <span class="badge badge-warning text-dark px-2 py-1" style="font-size: 13px;">${p.updated}</span>
+                                                    <div class="small font-weight-bold text-muted mt-1">Diperbaharui</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="bg-white p-2 border rounded">
+                                                    <span class="badge badge-danger px-2 py-1" style="font-size: 13px;">${p.skipped}</span>
+                                                    <div class="small font-weight-bold text-muted mt-1">Dilewati</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+
+                                if (p.updated > 0) {
+                                    html += `
+                                        <div class="card border-warning mb-2 shadow-none" style="border-radius: 8px;">
+                                            <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                                                <span class="font-weight-bold text-dark small">
+                                                    <i class="fas fa-sync-alt text-warning mr-1"></i>
+                                                    <strong>Alasan ${p.updated} Data Diperbaharui:</strong>
+                                                </span>
+                                                ${p.updated_items && p.updated_items.length > 0 ? `
+                                                    <button class="btn btn-xs btn-outline-warning font-weight-bold text-dark" type="button" data-toggle="collapse" data-target="#collapseUpdatedList">
+                                                        <i class="fas fa-list mr-1"></i> Tampilkan Rincian Data
+                                                    </button>
+                                                ` : ''}
+                                            </div>
+                                            <div class="card-body py-2 px-3 small text-dark bg-white">
+                                                <p class="mb-1 text-muted">
+                                                    <i class="fas fa-info-circle text-warning mr-1"></i>
+                                                    ${p.updated_reason || "Data transaksi sudah terdaftar di database untuk Tahun tersebut. Sistem memperbarui nilai realisasi dan data terkait dengan data terbaru dari file Excel."}
+                                                </p>
+                                                ${p.updated_items && p.updated_items.length > 0 ? `
+                                                    <div class="collapse mt-2" id="collapseUpdatedList">
+                                                        <div class="table-responsive" style="max-height: 160px; overflow-y: auto;">
+                                                            <table class="table table-bordered table-sm mb-0" style="font-size: 11px;">
+                                                                <thead class="thead-light">
+                                                                    <tr><th style="width: 55px;" class="text-center">Baris</th><th>No. SP2D</th><th>Unit SKPD</th><th>Alasan</th></tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    ${p.updated_items.map(it => `
+                                                                        <tr>
+                                                                            <td class="text-center font-weight-bold">#${it.excel_row}</td>
+                                                                            <td style="font-family: monospace;">${it.nomor_sp2d}</td>
+                                                                            <td>${it.unit_skpd}</td>
+                                                                            <td class="text-muted">${it.reason}</td>
+                                                                        </tr>
+                                                                    `).join('')}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+
+                                if (p.skipped > 0) {
+                                    html += `
+                                        <div class="card border-danger mb-2 shadow-none" style="border-radius: 8px;">
+                                            <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                                                <span class="font-weight-bold text-dark small">
+                                                    <i class="fas fa-times-circle text-danger mr-1"></i>
+                                                    <strong>Alasan ${p.skipped} Data Dilewati:</strong>
+                                                </span>
+                                                ${p.skipped_items && p.skipped_items.length > 0 ? `
+                                                    <button class="btn btn-xs btn-outline-danger font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseSkippedList">
+                                                        <i class="fas fa-list mr-1"></i> Tampilkan Rincian Data
+                                                    </button>
+                                                ` : ''}
+                                            </div>
+                                            <div class="card-body py-2 px-3 small text-dark bg-white">
+                                                ${summaryHtml}
+                                                ${p.skipped_items && p.skipped_items.length > 0 ? `
+                                                    <div class="collapse mt-2" id="collapseSkippedList">
+                                                        <div class="table-responsive" style="max-height: 160px; overflow-y: auto;">
+                                                            <table class="table table-bordered table-sm mb-0" style="font-size: 11px;">
+                                                                <thead class="thead-light">
+                                                                    <tr><th style="width: 55px;" class="text-center">Baris</th><th>No. SP2D</th><th>Penyebab Dilewati</th></tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    ${p.skipped_items.map(it => `
+                                                                        <tr>
+                                                                            <td class="text-center font-weight-bold text-danger">#${it.excel_row}</td>
+                                                                            <td style="font-family: monospace;">${it.nomor_sp2d}</td>
+                                                                            <td class="text-danger font-weight-500">${it.reason}</td>
+                                                                        </tr>
+                                                                    `).join('')}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+
+                                progMsg.innerHTML = html;
+
+                                // refresh tabel via HTMX
+                                htmx.ajax("GET", URL_LIST, { target: "#table-wrapper", swap: "innerHTML" });
+
+                                uploadBtn.disabled = false;
+                                uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-1"></i> Mulai Upload';
+                                return;
+                            }
+
+                            if (p.current && p.total) {
+                                const pct = Math.round((p.current / p.total) * 100);
+                                progBar.style.width = pct + "%";
+                                progPct.innerText   = pct + "%";
+                                progTitle.innerText = `Memproses baris ${p.current} dari ${p.total}...`;
+                            }
+                        });
+                }, 800);
+            })
+            .catch(err => {
+                alert("Error: " + err);
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt mr-1"></i> Mulai Upload';
+                cancelBtn.disabled  = false;
+                closeBtn.disabled   = false;
+            });
+    });
+});
+</script>
+{% endblock javascript %}

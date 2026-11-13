@@ -5,6 +5,7 @@
 # Baris 8+   : data (kolom A..K)
 # ============================================================
 import csv
+import re
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from pathlib import Path
@@ -65,12 +66,37 @@ def _clean_str(val):
 
 
 def _to_decimal(val):
+    if val is None:
+        return Decimal("0")
+    if isinstance(val, (int, float, Decimal)):
+        return Decimal(str(val))
+    s = str(val).strip()
+    if not s or s.lower() in ("none", "nan", "-", "null"):
+        return Decimal("0")
+
+    # Hapus prefix Rp jika ada
+    s = re.sub(r"^[Rr][Pp]\.?\s*", "", s).strip()
+
+    # Deteksi format ribuan / desimal
+    if "." in s and "," in s:
+        # Contoh: 1.234.567,89 (Format Indo)
+        if s.rfind(",") > s.rfind("."):
+            s = s.replace(".", "").replace(",", ".")
+        else:  # 1,234,567.89 (Format US)
+            s = s.replace(",", "")
+    elif "." in s:
+        # Contoh: 50.000.000 atau 126.180 (Format ribuan Indo dengan titik)
+        parts = s.split(".")
+        if len(parts) > 2 or all(len(p) == 3 for p in parts[1:]):
+            s = s.replace(".", "")
+    elif "," in s:
+        parts = s.split(",")
+        if len(parts) > 2 or all(len(p) == 3 for p in parts[1:]):
+            s = s.replace(",", "")
+        else:
+            s = s.replace(",", ".")
+
     try:
-        if val is None:
-            return Decimal("0")
-        s = str(val).replace(",", "").strip()
-        if not s or s.lower() in ("none", "nan"):
-            return Decimal("0")
         return Decimal(s)
     except (InvalidOperation, ValueError):
         return Decimal("0")

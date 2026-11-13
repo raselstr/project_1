@@ -132,12 +132,11 @@
                         <thead class="thead-light text-center" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
                                 <th style="width: 45px;">No</th>
-                                <th style="width: 110px;">Tgl SP2D</th>
-                                <th style="width: 220px;">No. SP2D</th>
-                                <th style="width: 110px;">Tgl TBP</th>
-                                <th style="width: 220px;">Nomor TBP</th>
-                                <th style="width: 170px;" class="text-right">Nilai TBP (Rp)</th>
-                                <th style="min-width: 220px;">Status TBP</th>
+                                <th style="width: 120px;">Tgl SP2D</th>
+                                <th style="width: 260px;">No. SP2D</th>
+                                <th style="width: 120px;">Tgl TBP</th>
+                                <th style="width: 240px;">Nomor TBP</th>
+                                <th style="width: 180px;" class="text-right">Nilai TBP (Rp)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,29 +158,10 @@
                                 <td class="text-right font-weight-bold text-dark align-middle" style="white-space: nowrap;">
                                     {{ item.nilai_tbp|intcomma }}
                                 </td>
-                                <td class="align-middle" style="font-size: 11.5px;">
-                                    {% if item.status_tbp and item.status_tbp != "-" %}
-                                        {% if "Telah Terbit SP2D" in item.status_tbp %}
-                                            <span class="badge badge-light text-success border border-success font-weight-600 text-left d-inline-block text-wrap" style="font-size: 11px; line-height: 1.35; max-width: 100%;">
-                                                <i class="fas fa-check-circle mr-1"></i>{{ item.status_tbp }}
-                                            </span>
-                                        {% elif "Belum Dibuatkan" in item.status_tbp %}
-                                            <span class="badge badge-light text-warning border border-warning font-weight-600 text-left d-inline-block text-wrap" style="font-size: 11px; line-height: 1.35; max-width: 100%;">
-                                                <i class="fas fa-clock mr-1"></i>{{ item.status_tbp }}
-                                            </span>
-                                        {% else %}
-                                            <span class="badge badge-light text-secondary border font-weight-600 text-left d-inline-block text-wrap" style="font-size: 11px; line-height: 1.35; max-width: 100%;">
-                                                {{ item.status_tbp }}
-                                            </span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-5">
+                                <td colspan="6" class="text-center text-muted py-5">
                                     <i class="fas fa-inbox mb-2" style="font-size: 32px;"></i><br>
                                     Tidak ada data SIPD / TBP untuk Sub Kegiatan dan Sub OPD ini.
                                 </td>
@@ -196,7 +176,6 @@
                                 <td class="text-right text-success font-weight-bold" style="font-size: 14px; white-space: nowrap;">
                                     Rp {{ total_nilai_tbp|intcomma }}
                                 </td>
-                                <td class="bg-light"></td>
                             </tr>
                         </tfoot>
                     </table>

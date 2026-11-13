@@ -1,5 +1,7 @@
 # views.py
 import csv
+import threading
+import uuid
 from pathlib import Path
 from datetime import date, datetime
 import re
@@ -34,6 +36,8 @@ from .forms import SipdUploadForm, TBPUploadForm
 from .tables import SipdTable, TBPTable
 from .filters import SipdFilter
 from .tasks import import_sipd_task, import_tbp_task
+from .utils.importer import import_sipd_excel
+from .utils.importer_tbp import import_tbp_excel
 
 
 # =========================================================
@@ -81,7 +85,12 @@ def skipped_view(request, tahun, prefix):
 # 📥 UPLOAD SIPD
 # =========================================================
 def upload_sipd(request):
-    tahun = request.session.get("tahun")
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    try:
+        tahun = int(clean_tahun)
+    except (TypeError, ValueError):
+        tahun = 2026
+
     form = SipdUploadForm(request.POST or None, request.FILES or None)
 
     if request.method == "POST":
@@ -89,36 +98,62 @@ def upload_sipd(request):
             return JsonResponse({"error": form.errors}, status=400)
 
         file_path = handle_uploaded_file(form.cleaned_data["file"], "sipd")
-        task = import_sipd_task.delay(str(file_path), tahun)
+        task_id = str(uuid.uuid4())
+        cache_key = f"sipd_{task_id}"
+        cache.set(cache_key, {"current": 0, "total": 1, "done": False}, 3600)
 
-        return JsonResponse({"task_id": task.id})
+        # Jalankan via threading agar independen dari image celery
+        thread = threading.Thread(
+            target=import_sipd_excel,
+            args=(str(file_path), tahun, cache_key),
+            daemon=True
+        )
+        thread.start()
 
-    qs = Sipd.objects.all()
-    if tahun:
-        qs = qs.filter(tahun=tahun)
+        return JsonResponse({"task_id": task_id})
 
-    sipd_filter = SipdFilter(request.GET, queryset=qs)
-    table = SipdTable(sipd_filter.qs)
+    qs = Sipd.objects.filter(tahun=tahun)
+
+    # --- Ringkasan Statistik ---
+    stats = qs.aggregate(total_realisasi=Sum("nilai_realisasi"))
+    total_items = qs.count()
+    total_realisasi = stats["total_realisasi"] or Decimal(0)
+    total_sp2d = qs.exclude(nomor_sp2d="").values("nomor_sp2d").distinct().count()
+    total_skpd = qs.exclude(nama_sub_skpd="").values("nama_sub_skpd").distinct().count()
+
+    # --- Filter & Search ---
+    q_search = request.GET.get("q", "").strip()
+    if q_search:
+        qs = qs.filter(
+            Q(nama_sub_skpd__icontains=q_search) |
+            Q(kode_sub_kegiatan__icontains=q_search) |
+            Q(nama_sub_kegiatan__icontains=q_search) |
+            Q(nomor_sp2d__icontains=q_search) |
+            Q(nomor_dokumen__icontains=q_search) |
+            Q(kode_rekening__icontains=q_search) |
+            Q(nama_rekening__icontains=q_search)
+        )
+
+    table = SipdTable(qs.order_by("-tanggal_sp2d", "kode_sub_kegiatan"))
     apply_pagination(request, table)
 
     context = {
         "form": form,
         "table": table,
-        "judul": "Upload Excel SIPD",
-        "judulskip": "Data yang dilewati",
-        "tahun": str(tahun) if tahun else "",
-
-        # 🔥 dynamic config
+        "judul": "Data SIPD",
+        "tahun": str(tahun),
+        "q_search": q_search,
+        "total_items": total_items,
+        "total_realisasi": total_realisasi,
+        "total_sp2d": total_sp2d,
+        "total_skpd": total_skpd,
+        "url_list": "/sipd/",
         "url_upload": "/sipd/",
         "url_progress": "/sipd/progress/TASK_ID/",
-        "url_list": "/sipd/",
         "url_export": "/sipd/export/",
-        "url_skipped": f"/sipd/skipped/{tahun}/" if tahun else None,
-
-        "table_template": "components/partials/table.html",
     }
 
-    template = "components/partials/table.html" if request.htmx else "components/upload.html"
+    template = "sipd/partials/table_sipd.html" if request.htmx else "sipd/upload_sipd.html"
     return render(request, template, context)
 
 
@@ -126,32 +161,64 @@ def sipd_import_progress(request, task_id):
     return import_progress(request, task_id, "sipd")
 
 
+def sipd_log_view(request):
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    log_path = Path(settings.MEDIA_ROOT) / "import" / f"sipd_log_{clean_tahun}.csv"
+    rows = []
+    if log_path.exists():
+        try:
+            with open(log_path, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    rows.append(r)
+        except Exception:
+            pass
+
+    rows = rows[::-1][:200]
+    return render(request, "sipd/partials/sipd_log_list.html", {
+        "rows": rows,
+        "tahun": str(clean_tahun),
+    })
+
+
 def skipped_sipd_view(request, tahun):
     return skipped_view(request, tahun, "sipd")
 
 
 def export_sipd_excel(request):
-    tahun = request.session.get("tahun")
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    try:
+        tahun = int(clean_tahun)
+    except (TypeError, ValueError):
+        tahun = 2026
 
-    qs = Sipd.objects.all()
-    if tahun:
-        qs = qs.filter(tahun=tahun)
+    qs = Sipd.objects.filter(tahun=tahun)
 
-    qs = SipdFilter(request.GET, queryset=qs).qs
+    q_search = request.GET.get("q", "").strip()
+    if q_search:
+        qs = qs.filter(
+            Q(nama_sub_skpd__icontains=q_search) |
+            Q(kode_sub_kegiatan__icontains=q_search) |
+            Q(nama_sub_kegiatan__icontains=q_search) |
+            Q(nomor_sp2d__icontains=q_search) |
+            Q(nomor_dokumen__icontains=q_search)
+        )
 
     wb = Workbook()
     ws = wb.active
     ws.title = "Data SIPD"
 
     headers = [
-        "Tahun", "Nama Sub SKPD", "Kode Sub Kegiatan",
-        "Kode Rekening", "Nomor SP2D", "Nilai Realisasi"
+        "Tahun", "Nama Sub SKPD", "Kode Sub Kegiatan", "Nama Sub Kegiatan",
+        "Kode Rekening", "Nama Rekening", "Nomor Dokumen", "Nomor SP2D",
+        "Tanggal SP2D", "Nilai Realisasi"
     ]
     ws.append(headers)
 
     for row in qs.values_list(
-        "tahun", "nama_sub_skpd", "kode_sub_kegiatan",
-        "kode_rekening", "nomor_sp2d", "nilai_realisasi"
+        "tahun", "nama_sub_skpd", "kode_sub_kegiatan", "nama_sub_kegiatan",
+        "kode_rekening", "nama_rekening", "nomor_dokumen", "nomor_sp2d",
+        "tanggal_sp2d", "nilai_realisasi"
     ):
         ws.append(row)
 
@@ -166,7 +233,12 @@ def export_sipd_excel(request):
 # 📥 UPLOAD TBP
 # =========================================================
 def upload_tbp(request):
-    tahun = request.session.get("tahun")
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    try:
+        tahun = int(clean_tahun)
+    except (TypeError, ValueError):
+        tahun = 2026
+
     form = TBPUploadForm(request.POST or None, request.FILES or None)
 
     if request.method == "POST":
@@ -174,29 +246,59 @@ def upload_tbp(request):
             return JsonResponse({"error": form.errors}, status=400)
 
         file_path = handle_uploaded_file(form.cleaned_data["file"], "tbp")
-        task = import_tbp_task.delay(str(file_path), tahun)
+        task_id = str(uuid.uuid4())
+        cache_key = f"tbp_{task_id}"
+        cache.set(cache_key, {"current": 0, "total": 1, "done": False}, 3600)
 
-        return JsonResponse({"task_id": task.id})
+        # Jalankan via threading agar independen dari image celery
+        thread = threading.Thread(
+            target=import_tbp_excel,
+            args=(str(file_path), tahun, cache_key),
+            daemon=True
+        )
+        thread.start()
 
-    qs = TBP.objects.all().order_by("-tanggal_tbp")
-    table = TBPTable(qs)
+        return JsonResponse({"task_id": task_id})
+
+    qs = TBP.objects.filter(tahun=tahun)
+
+    # --- Ringkasan Statistik ---
+    stats = qs.aggregate(total_nilai=Sum("nilai_tbp"))
+    total_items = qs.count()
+    total_nilai_tbp = stats["total_nilai"] or Decimal(0)
+    total_tbp_unik = qs.exclude(nomor_tbp="").values("nomor_tbp").distinct().count()
+    latest_tbp = qs.order_by("-tanggal_tbp").first()
+    tbp_terakhir = latest_tbp.tanggal_tbp.strftime("%d-%m-%Y") if (latest_tbp and latest_tbp.tanggal_tbp) else "-"
+
+    # --- Filter & Search ---
+    q_search = request.GET.get("q", "").strip()
+    if q_search:
+        qs = qs.filter(
+            Q(nomor_tbp__icontains=q_search) |
+            Q(keterangan_tbp__icontains=q_search) |
+            Q(status_tbp__icontains=q_search)
+        )
+
+    table = TBPTable(qs.order_by("-tanggal_tbp", "-id"))
     apply_pagination(request, table)
 
     context = {
         "form": form,
         "table": table,
-        "judul": "Upload TBP",
-
+        "judul": "Data TBP",
+        "tahun": str(tahun),
+        "q_search": q_search,
+        "total_items": total_items,
+        "total_nilai_tbp": total_nilai_tbp,
+        "total_tbp_unik": total_tbp_unik,
+        "tbp_terakhir": tbp_terakhir,
+        "url_list": "/sipd/tbp/",
         "url_upload": "/sipd/tbp/",
         "url_progress": "/sipd/tbp/progress/TASK_ID/",
-        "url_list": "/sipd/tbp/",
         "url_export": "/sipd/tbp/export/",
-        "url_skipped": None,
-
-        "table_template": "components/partials/table.html",
     }
 
-    template = "components/partials/table.html" if request.htmx else "components/upload.html"
+    template = "sipd/partials/table_tbp.html" if request.htmx else "sipd/upload_tbp.html"
     return render(request, template, context)
 
 
@@ -204,20 +306,54 @@ def tbp_import_progress(request, task_id):
     return import_progress(request, task_id, "tbp")
 
 
+def tbp_log_view(request):
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    log_path = Path(settings.MEDIA_ROOT) / "import" / f"tbp_log_{clean_tahun}.csv"
+    rows = []
+    if log_path.exists():
+        try:
+            with open(log_path, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for r in reader:
+                    rows.append(r)
+        except Exception:
+            pass
+
+    rows = rows[::-1][:200]
+    return render(request, "sipd/partials/tbp_log_list.html", {
+        "rows": rows,
+        "tahun": str(clean_tahun),
+    })
+
+
 def export_tbp_excel(request):
-    qs = TBP.objects.all().order_by("-tanggal_tbp")
+    clean_tahun = str(request.session.get("tahun") or "2026").replace(".", "").replace(",", "").strip()
+    try:
+        tahun = int(clean_tahun)
+    except (TypeError, ValueError):
+        tahun = 2026
+
+    qs = TBP.objects.filter(tahun=tahun).order_by("-tanggal_tbp")
+
+    q_search = request.GET.get("q", "").strip()
+    if q_search:
+        qs = qs.filter(
+            Q(nomor_tbp__icontains=q_search) |
+            Q(keterangan_tbp__icontains=q_search) |
+            Q(status_tbp__icontains=q_search)
+        )
 
     wb = Workbook()
     ws = wb.active
     ws.title = "Data TBP"
 
-    ws.append(["Tahun", "Tanggal", "Nomor", "Nilai"])
+    ws.append(["Tahun", "Tanggal TBP", "Nomor TBP", "Keterangan", "Status TBP", "Nilai TBP"])
 
-    for row in qs.values_list("tahun", "tanggal_tbp", "nomor_tbp", "nilai_tbp"):
+    for row in qs.values_list("tahun", "tanggal_tbp", "nomor_tbp", "keterangan_tbp", "status_tbp", "nilai_tbp"):
         ws.append(row)
 
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="tbp.xlsx"'
+    response["Content-Disposition"] = f'attachment; filename="tbp_{tahun}.xlsx"'
 
     wb.save(response)
     return response
@@ -735,12 +871,29 @@ def monitor_sipd_detail(request):
     persen  = (total_sipd / posting_pagu * 100) if posting_pagu and posting_pagu > 0 else Decimal(0)
     status  = 'SESUAI' if selisih == 0 else ('BELUM ADA' if total_sipd == 0 else 'SELISIH')
 
-    # --- SINKRONISASI SIPD DENGAN DATA TBP --------------------------------
+    # --- SINKRONISASI SIPD DENGAN DATA TBP & REGISTER SP2D ----------------
     # Ambil nomor dokumen dari SIPD untuk dicocokkan dengan nomor_tbp di tabel TBP
     tbp_docs = [d for d in sipd_qs.values_list('nomor_dokumen', flat=True).distinct() if d]
     cleaned_docs = {clean(d) for d in tbp_docs if d}
     tbp_qs = TBP.objects.filter(tahun=tahun, nomor_tbp__in=list(cleaned_docs.union(set(tbp_docs))))
     tbp_map = {clean(t.nomor_tbp): t for t in tbp_qs}
+
+    # Ambil pemetaan Tanggal SP2D dari Register SP2D
+    from register_sp2d.models import RegisterSP2D
+    all_sp2ds = set()
+    for s in sipd_qs:
+        if s.nomor_sp2d:
+            all_sp2ds.add(clean(s.nomor_sp2d))
+    for t in tbp_qs:
+        if t.status_tbp:
+            ext = extract_nomor_dari_status(t.status_tbp)
+            if ext:
+                all_sp2ds.add(clean(ext))
+
+    register_map = {
+        clean(r.nomor_sp2d): (r.tanggal_pembuatan or r.tanggal_pencairan)
+        for r in RegisterSP2D.objects.filter(tahun=tahun, nomor_sp2d__in=list(all_sp2ds))
+    }
 
     # Grouping data SIPD per TBP / Dokumen agar nilai TBP sesuai dengan rincian SIPD
     grouped = {}
@@ -755,6 +908,9 @@ def monitor_sipd_detail(request):
         if not sp2d_final:
             sp2d_final = sp2d_clean
 
+        # Tanggal SP2D diambil dari Register SP2D (fallback ke s.tanggal_sp2d jika tidak ada di register)
+        tgl_sp2d_val = register_map.get(clean(sp2d_final)) or register_map.get(clean(sp2d_clean)) or s.tanggal_sp2d
+
         # Kunci grouping per dokumen/TBP
         key = dok_clean if (tbp_obj or s.jenis_dokumen == "TBP") else f"{sp2d_final}_{dok_clean}"
 
@@ -762,21 +918,16 @@ def monitor_sipd_detail(request):
             grouped[key] = {
                 'nomor_sp2d': sp2d_final or "-",
                 'nomor_tbp': dok_clean if dok_clean else "-",
-                'tanggal_sp2d': s.tanggal_sp2d,
+                'tanggal_sp2d': tgl_sp2d_val,
                 'tanggal_tbp': tbp_obj.tanggal_tbp if tbp_obj else None,
-                'status_tbp': (tbp_obj.status_tbp.strip() if tbp_obj and tbp_obj.status_tbp else "-"),
                 'nilai_tbp': Decimal(0),
             }
 
         grouped[key]['nilai_tbp'] += (s.nilai_realisasi or Decimal(0))
 
-        # Simpan tanggal SP2D yang valid/terawal
-        if s.tanggal_sp2d and (not grouped[key]['tanggal_sp2d'] or s.tanggal_sp2d < grouped[key]['tanggal_sp2d']):
-            grouped[key]['tanggal_sp2d'] = s.tanggal_sp2d
-
-        # Update status_tbp jika sebelumnya belum ada
-        if grouped[key].get('status_tbp') in ('-', '', None) and tbp_obj and tbp_obj.status_tbp:
-            grouped[key]['status_tbp'] = tbp_obj.status_tbp.strip()
+        # Simpan tanggal SP2D yang valid dari Register SP2D
+        if tgl_sp2d_val and not grouped[key]['tanggal_sp2d']:
+            grouped[key]['tanggal_sp2d'] = tgl_sp2d_val
 
         # Update tanggal_tbp jika sebelumnya belum ada
         if not grouped[key].get('tanggal_tbp') and tbp_obj and tbp_obj.tanggal_tbp:
