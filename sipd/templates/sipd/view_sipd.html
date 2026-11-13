@@ -1,9 +1,9 @@
 {% load humanize %}
-<form method="post" action="{{ request.path }}">
+<form method="post" action="{{ request.path }}" style="width: 100%;">
   {% csrf_token %}
 
   <!-- INFO HEADER DPA & TOTAL -->
-  <div class="alert alert-light border mb-3 py-2 px-3 d-flex justify-content-between align-items-center flex-wrap" style="border-radius: 6px;">
+  <div class="alert alert-light border mb-2 py-2 px-3 d-flex justify-content-between align-items-center flex-wrap" style="border-radius: 6px;">
     <div>
       <span class="badge badge-primary mr-1"><i class="fas fa-barcode mr-1"></i> Kode DPA: {{ rencana.posting_ket }}</span>
       <span class="text-dark font-weight-bold ml-1">{{ rencana.posting_subkegiatan|default:"Sub Kegiatan" }}</span>
@@ -11,23 +11,23 @@
     <div class="mt-2 mt-md-0">
       <span class="text-muted small mr-1 font-weight-bold">Total Nilai SIPD:</span>
       <span class="badge badge-success font-weight-bold" style="font-size: 13.5px;">
-        Rp {{ total_nilai|floatformat:0|intcomma }}
+        Rp {{ total_nilai_formatted|default:total_nilai }}
       </span>
     </div>
   </div>
 
-  <div class="table-responsive" style="max-height: 460px; overflow-y: auto;">
-    <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px;">
+  <div class="table-responsive" style="max-height: calc(80vh - 180px); overflow-y: auto;">
+    <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px; width: 100%;">
       <thead class="thead-light text-center" style="position: sticky; top: 0; z-index: 2;">
         <tr>
-          <th style="width: 40px;" class="align-middle">
+          <th style="width: 38px;" class="align-middle">
             <input type="checkbox" id="check-all">
           </th>
-          <th style="width: 105px;" class="align-middle">Tanggal SP2D</th>
-          <th style="width: 240px;" class="align-middle">Nomor SP2D</th>
-          <th style="width: 135px;" class="align-middle">Kode DPA Kegiatan</th>
-          <th style="min-width: 200px;" class="align-middle">Nomor Dokumen</th>
-          <th style="width: 155px;" class="text-right align-middle">Nilai Realisasi (Rp)</th>
+          <th style="width: 100px;" class="align-middle">Tanggal SP2D</th>
+          <th style="width: 230px;" class="align-middle">Nomor SP2D</th>
+          <th style="width: 130px;" class="align-middle">Kode DPA Kegiatan</th>
+          <th class="align-middle">Rincian Nomor Dokumen & Nilai Realisasi</th>
+          <th style="width: 165px;" class="text-right align-middle">Total SP2D (Rp)</th>
         </tr>
       </thead>
 
@@ -56,11 +56,39 @@
           <td class="text-center align-middle font-weight-bold" style="font-size: 11px;">
             <span class="badge badge-light border">{{ row.kode_sub_kegiatan|default:rencana.posting_ket }}</span>
           </td>
-          <td class="align-middle" style="font-family: monospace; font-size: 9.5px; color: #555; word-break: break-all; line-height: 1.4;">
-            {{ row.nomor_dokumen|default:"-" }}
+          <td class="align-middle p-1">
+            {% if row.rincian_dokumen|length == 1 %}
+              {% with dok=row.rincian_dokumen.0 %}
+              <div class="d-flex justify-content-between align-items-center px-1">
+                <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.2;">
+                  {{ dok.nomor }}
+                </span>
+                <span class="font-weight-bold text-dark ml-2 text-nowrap" style="font-size: 9px;">
+                  Rp {{ dok.nilai_formatted|default:dok.nilai }}
+                </span>
+              </div>
+              {% endwith %}
+            {% else %}
+              <div style="max-height: 140px; overflow-y: auto;">
+                <table class="table table-sm table-borderless mb-0" style="width: 100%; table-layout: fixed;">
+                  <tbody>
+                    {% for dok in row.rincian_dokumen %}
+                    <tr style="border-bottom: 1px dashed #e9ecef;">
+                      <td class="p-1 align-middle text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.2;">
+                        <span class="text-secondary mr-1">{{ forloop.counter }}.</span>{{ dok.nomor }}
+                      </td>
+                      <td class="p-1 text-right align-middle font-weight-bold text-dark text-nowrap" style="width: 110px; font-size: 8.5px;">
+                        Rp {{ dok.nilai_formatted|default:dok.nilai }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endif %}
           </td>
           <td class="text-right align-middle font-weight-bold text-success" style="white-space: nowrap;">
-            Rp {{ row.nilai_realisasi|floatformat:0|intcomma }}
+            Rp {{ row.nilai_formatted|default:row.nilai_realisasi }}
           </td>
         </tr>
         {% empty %}
@@ -78,17 +106,17 @@
             Total Nilai Realisasi:
           </td>
           <td class="text-right text-success font-weight-bold" style="white-space: nowrap; font-size: 13.5px;">
-            Rp {{ total_nilai|floatformat:0|intcomma }}
+            Rp {{ total_nilai_formatted|default:total_nilai }}
           </td>
         </tr>
       </tfoot>
     </table>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-    <div class="text-muted small">
+  <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+    <div class="text-muted small" style="font-size: 11px;">
       <i class="fas fa-info-circle mr-1 text-primary"></i>
-      Tanggal SP2D disinkronkan dari tabel Register SP2D, nomor dokumen dari tabel SIPD.
+      Tanggal SP2D disinkronkan dari tabel Register SP2D, rincian dokumen & nilai dari tabel SIPD.
     </div>
     <button type="submit" class="btn btn-success font-weight-bold px-4"
             onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
@@ -101,6 +129,8 @@
 (function() {
   const modalDlg = document.querySelector('#verifikasiModal .modal-dialog');
   if (modalDlg) {
+    modalDlg.style.maxWidth = '95vw';
+    modalDlg.style.width = '95vw';
   }
 
   const checkAll = document.getElementById('check-all');

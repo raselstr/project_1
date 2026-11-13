@@ -538,6 +538,7 @@ def view_sipd(request, mode, pk):
                 "tanggal_sp2d": tgl_sp2d,
                 "kode_sub_kegiatan": row.get("kode_sub_kegiatan") or rencana.posting_ket,
                 "nomor_dokumen_list": set(),
+                "dokumen_dict": {},
                 "keterangan_list": [],
                 "nilai_realisasi": Decimal(0),
             }
@@ -547,8 +548,12 @@ def view_sipd(request, mode, pk):
         )
 
         dok = clean(row.get("nomor_dokumen", ""))
+        val = row.get("nilai_realisasi") or Decimal(0)
         if dok:
             grouped_sp2d[nomor_sp2d_final]["nomor_dokumen_list"].add(dok)
+            if dok not in grouped_sp2d[nomor_sp2d_final]["dokumen_dict"]:
+                grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][dok] = Decimal(0)
+            grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][dok] += val
 
         ket = clean(row.get("keterangan_dokumen", ""))
         if ket and ket not in grouped_sp2d[nomor_sp2d_final]["keterangan_list"]:
@@ -567,10 +572,31 @@ def view_sipd(request, mode, pk):
     for item in grouped_sp2d.values():
         item["nomor_dokumen"] = ", ".join(sorted(item["nomor_dokumen_list"])) if item["nomor_dokumen_list"] else "-"
         item["keterangan"] = " / ".join(item["keterangan_list"]) if item["keterangan_list"] else "-"
+        val_sp2d = item.get("nilai_realisasi") or Decimal(0)
+        item["nilai_formatted"] = f"{int(val_sp2d):,}".replace(",", ".")
+
+        # Susun rincian per nomor dokumen beserta nilai realisasinya
+        dok_items = []
+        if item.get("dokumen_dict"):
+            for dok_num in sorted(item["dokumen_dict"].keys()):
+                val = item["dokumen_dict"][dok_num]
+                dok_items.append({
+                    "nomor": dok_num,
+                    "nilai": val,
+                    "nilai_formatted": f"{int(val):,}".replace(",", "."),
+                })
+        else:
+            dok_items.append({
+                "nomor": item["nomor_dokumen"],
+                "nilai": val_sp2d,
+                "nilai_formatted": f"{int(val_sp2d):,}".replace(",", "."),
+            })
+        item["rincian_dokumen"] = dok_items
 
     # ================= FINAL DATA =================
     data_final = list(grouped_sp2d.values())
     total_nilai = sum((row["nilai_realisasi"] for row in data_final), Decimal(0))
+    total_nilai_formatted = f"{int(total_nilai):,}".replace(",", ".")
 
     # mapping untuk POST
     sp2d_mapping = {
@@ -628,6 +654,7 @@ def view_sipd(request, mode, pk):
         'rencana': rencana,
         'data': data_final,
         'total_nilai': total_nilai,
+        'total_nilai_formatted': total_nilai_formatted,
         'sp2d_sudah_realisasi': sp2d_done,
     })
 
