@@ -92,7 +92,7 @@ class BaseRealisasiTable(tables.Table):
 class RealisasipuTable(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model
-        fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
+        fields = ("aksi", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id","verif")
 
     model_name = 'realisasi_pu'
@@ -101,7 +101,7 @@ class RealisasipuTable(BaseRealisasiTable):
 class RealisasipuTablesisa(BaseRealisasiTable):
     class Meta(BaseRealisasiTable.Meta):
         model = model_sisa
-        fields = ("aksi", "realisasi_subopd", "realisasi_rencanaposting", "realisasi_sp2d", 
+        fields = ("aksi", "realisasi_sp2d", 
                   "realisasi_tgl", "realisasi_nilai", "output_satuan", "realisasi_tahap_id", "verif")
 
     model_name = 'realisasi_pusisa'
