@@ -284,13 +284,13 @@ class BaseRencanapendidikanpostingTable(tables.Table):
     class Meta(BaseMetaTable):
         sequence = (
             'nomor',
-            'posting_subopd',
             'subkegiatan',
             'posting_pagu',
             'output_satuan',
             'total_realisasi_pk',
             'realisasi_output',
         )
+        exclude = ('posting_subopd',)
         
     
     def __init__(self, *args, show_aksi=False, **kwargs):
