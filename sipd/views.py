@@ -480,7 +480,7 @@ def view_sipd(request, mode, pk):
     # ================= AGREGASI SIPD =================
     sipd_qs = (
         sipd_qs_raw
-        .values('nomor_sp2d', 'nomor_dokumen', 'jenis_dokumen')
+        .values('nomor_sp2d', 'nomor_dokumen', 'jenis_dokumen', 'kode_sub_kegiatan', 'keterangan_dokumen')
         .annotate(
             tanggal_sp2d=Min('tanggal_sp2d'),
             nilai_realisasi=Sum('nilai_realisasi'),
@@ -536,12 +536,23 @@ def view_sipd(request, mode, pk):
             grouped_sp2d[nomor_sp2d_final] = {
                 "nomor_sp2d_final": nomor_sp2d_final,
                 "tanggal_sp2d": tgl_sp2d,
+                "kode_sub_kegiatan": row.get("kode_sub_kegiatan") or rencana.posting_ket,
+                "nomor_dokumen_list": set(),
+                "keterangan_list": [],
                 "nilai_realisasi": Decimal(0),
             }
 
         grouped_sp2d[nomor_sp2d_final]["nilai_realisasi"] += (
             row["nilai_realisasi"] or Decimal(0)
         )
+
+        dok = clean(row.get("nomor_dokumen", ""))
+        if dok:
+            grouped_sp2d[nomor_sp2d_final]["nomor_dokumen_list"].add(dok)
+
+        ket = clean(row.get("keterangan_dokumen", ""))
+        if ket and ket not in grouped_sp2d[nomor_sp2d_final]["keterangan_list"]:
+            grouped_sp2d[nomor_sp2d_final]["keterangan_list"].append(ket)
 
         # Prioritaskan tanggal dari Register SP2D
         if nomor_sp2d_final in register_map:
@@ -553,8 +564,13 @@ def view_sipd(request, mode, pk):
         elif row["tanggal_sp2d"] and row["tanggal_sp2d"] < grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"]:
             grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = row["tanggal_sp2d"]
 
+    for item in grouped_sp2d.values():
+        item["nomor_dokumen"] = ", ".join(sorted(item["nomor_dokumen_list"])) if item["nomor_dokumen_list"] else "-"
+        item["keterangan"] = " / ".join(item["keterangan_list"]) if item["keterangan_list"] else "-"
+
     # ================= FINAL DATA =================
     data_final = list(grouped_sp2d.values())
+    total_nilai = sum((row["nilai_realisasi"] for row in data_final), Decimal(0))
 
     # mapping untuk POST
     sp2d_mapping = {
@@ -611,8 +627,8 @@ def view_sipd(request, mode, pk):
     return render(request, 'sipd/view_sipd.html', {
         'rencana': rencana,
         'data': data_final,
+        'total_nilai': total_nilai,
         'sp2d_sudah_realisasi': sp2d_done,
-        
     })
 
 def _get_monitor_sipd_dataset(tahun, jadwal=None, dana=None):
@@ -950,9 +966,16 @@ def monitor_sipd_detail(request):
                 'tanggal_sp2d': tgl_sp2d_val,
                 'tanggal_tbp': tbp_obj.tanggal_tbp if tbp_obj else None,
                 'nilai_tbp': Decimal(0),
+                'kode_dpa': s.kode_sub_kegiatan or "-",
+                'keterangan_list': [],
             }
 
         grouped[key]['nilai_tbp'] += (s.nilai_realisasi or Decimal(0))
+
+        # Kumpulkan keterangan unik
+        ket = (s.keterangan_dokumen or "").strip()
+        if ket and ket not in grouped[key]['keterangan_list']:
+            grouped[key]['keterangan_list'].append(ket)
 
         # Simpan tanggal SP2D yang valid dari Register SP2D
         if tgl_sp2d_val and not grouped[key]['tanggal_sp2d']:
@@ -961,6 +984,10 @@ def monitor_sipd_detail(request):
         # Update tanggal_tbp jika sebelumnya belum ada
         if not grouped[key].get('tanggal_tbp') and tbp_obj and tbp_obj.tanggal_tbp:
             grouped[key]['tanggal_tbp'] = tbp_obj.tanggal_tbp
+
+    # Konversi keterangan_list ke string gabungan, lalu urutkan
+    for item in grouped.values():
+        item['keterangan'] = '; '.join(item.get('keterangan_list', [])) or '-'
 
     # Urutkan berdasarkan tanggal SP2D (atau tanggal TBP jika tanggal SP2D kosong), lalu nomor SP2D
     tbp_list = sorted(
