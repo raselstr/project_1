@@ -90,7 +90,8 @@ def verif(request, pk):
 
     realisasi.realisasi_verif = int(verif_status)
     realisasi.save()
-    return redirect(url_list)
+    next_url = request.session.get('next') or reverse(url_list)
+    return redirect(next_url)
 
 
 @set_submenu_session
