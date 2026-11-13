@@ -488,6 +488,28 @@ def view_sipd(request, mode, pk):
         .order_by('tanggal_sp2d', 'nomor_sp2d')
     )
 
+    # ================= MAPPING REGISTER SP2D =================
+    from register_sp2d.models import RegisterSP2D
+
+    candidate_sp2ds = set()
+    for row in sipd_qs:
+        if row["jenis_dokumen"] == "TBP":
+            cand = tbp_map.get(clean(row["nomor_dokumen"]), "")
+        else:
+            cand = clean(row["nomor_sp2d"])
+        if cand:
+            candidate_sp2ds.add(cand)
+        if row["nomor_sp2d"]:
+            candidate_sp2ds.add(clean(row["nomor_sp2d"]))
+
+    register_map = {
+        clean(r.nomor_sp2d): (r.tanggal_pembuatan or r.tanggal_pencairan)
+        for r in RegisterSP2D.objects.filter(
+            tahun=rencana.posting_tahun,
+            nomor_sp2d__in=list(candidate_sp2ds)
+        )
+    }
+
     # ================= GROUP FINAL =================
     grouped_sp2d = {}
 
@@ -506,11 +528,14 @@ def view_sipd(request, mode, pk):
         if nomor_sp2d_final in sp2d_done:
             continue
 
+        # Ambil tanggal SP2D dari Register SP2D, fallback ke tanggal_sp2d dari SIPD
+        tgl_sp2d = register_map.get(nomor_sp2d_final) or register_map.get(clean(row["nomor_sp2d"])) or row["tanggal_sp2d"]
+
         # ================= GROUP =================
         if nomor_sp2d_final not in grouped_sp2d:
             grouped_sp2d[nomor_sp2d_final] = {
                 "nomor_sp2d_final": nomor_sp2d_final,
-                "tanggal_sp2d": row["tanggal_sp2d"],
+                "tanggal_sp2d": tgl_sp2d,
                 "nilai_realisasi": Decimal(0),
             }
 
@@ -518,11 +543,15 @@ def view_sipd(request, mode, pk):
             row["nilai_realisasi"] or Decimal(0)
         )
 
-        # ambil tanggal paling awal
-        if row["tanggal_sp2d"]:
-            existing = grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"]
-            if not existing or row["tanggal_sp2d"] < existing:
-                grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = row["tanggal_sp2d"]
+        # Prioritaskan tanggal dari Register SP2D
+        if nomor_sp2d_final in register_map:
+            grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = register_map[nomor_sp2d_final]
+        elif clean(row["nomor_sp2d"]) in register_map:
+            grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = register_map[clean(row["nomor_sp2d"])]
+        elif not grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"]:
+            grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = row["tanggal_sp2d"]
+        elif row["tanggal_sp2d"] and row["tanggal_sp2d"] < grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"]:
+            grouped_sp2d[nomor_sp2d_final]["tanggal_sp2d"] = row["tanggal_sp2d"]
 
     # ================= FINAL DATA =================
     data_final = list(grouped_sp2d.values())

@@ -1,54 +1,65 @@
+{% load humanize %}
 <form method="post" action="{{ request.path }}">
   {% csrf_token %}
-  <pre>{{ data|slice:":5" }}</pre>
-  <table class="table table-sm table-bordered">
-    <thead>
-      <tr>
-        <th class="text-center">
-          <input type="checkbox" id="check-all">
-        </th>
-        <th>Tanggal SP2D</th>
-        <th>Nomor SP2D</th>
-        <th class="text-end">Nilai</th>
-      </tr>
-    </thead>
+  <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+    <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12.5px;">
+      <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+        <tr>
+          <th class="text-center" style="width: 45px;">
+            <input type="checkbox" id="check-all">
+          </th>
+          <th class="text-center" style="width: 120px;">Tanggal SP2D</th>
+          <th>Nomor SP2D</th>
+          <th class="text-right" style="width: 160px;">Nilai Realisasi (Rp)</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      {% for row in data %}
-      <tr>
-        <td class="text-center">
-          <input type="checkbox"
-                class="check-item"
-                name="sp2d"
-                value="{{ row.nomor_sp2d_final }}">
-        </td>
-        <td>{{ row.tanggal_sp2d }}</td>
-        <td>
-          {{ row.nomor_sp2d_final }}
-          {% if "LPJ" in row.nomor_sp2d_final %}
-            <span class="badge bg-warning">LPJ</span>
-          {% else %}
-            <span class="badge bg-success">SP2D</span>
-          {% endif %}
-        </td>
-        <td class="text-end">
-          {{ row.nilai_realisasi|floatformat:2 }}
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="4" class="text-center text-muted">
-          Data SIPD tidak ditemukan
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td class="text-center align-middle">
+            <input type="checkbox"
+                  class="check-item"
+                  name="sp2d"
+                  value="{{ row.nomor_sp2d_final }}">
+          </td>
+          <td class="text-center align-middle" style="white-space: nowrap;">
+            {{ row.tanggal_sp2d|date:"d-m-Y"|default:row.tanggal_sp2d|default:"-" }}
+          </td>
+          <td class="align-middle">
+            <span class="font-weight-600 text-primary" style="font-family: monospace; font-size: 11.5px;">
+              {{ row.nomor_sp2d_final }}
+            </span>
+            {% if "LPJ" in row.nomor_sp2d_final %}
+              <span class="badge badge-warning text-dark ml-1">LPJ</span>
+            {% else %}
+              <span class="badge badge-success ml-1">SP2D</span>
+            {% endif %}
+          </td>
+          <td class="text-right align-middle font-weight-bold text-success" style="white-space: nowrap;">
+            Rp {{ row.nilai_realisasi|floatformat:0|intcomma }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">
+            <i class="fas fa-inbox mr-1"></i> Data SIPD tidak ditemukan atau semua data sudah direalisasikan.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-  <button type="submit" class="btn btn-success"
-          onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
-    Simpan ke Realisasi
-  </button>
+  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+    <div class="text-muted small">
+      <i class="fas fa-info-circle mr-1"></i> Tanggal SP2D disinkronkan dari tabel Register SP2D.
+    </div>
+    <button type="submit" class="btn btn-success font-weight-bold"
+            onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
+      <i class="fas fa-save mr-1"></i> Simpan ke Realisasi
+    </button>
+  </div>
 </form>
 
 <script>
