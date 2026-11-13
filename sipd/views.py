@@ -960,13 +960,15 @@ def monitor_sipd_detail(request):
         key = dok_clean if (tbp_obj or s.jenis_dokumen == "TBP") else f"{sp2d_final}_{dok_clean}"
 
         if key not in grouped:
+            # Tanggal dokumen: dari TBP jika ada, fallback ke tanggal_dokumen SIPD
+            tgl_dok = (tbp_obj.tanggal_tbp if tbp_obj else None) or s.tanggal_dokumen
             grouped[key] = {
-                'nomor_sp2d': sp2d_final or "-",
-                'nomor_tbp': dok_clean if dok_clean else "-",
-                'tanggal_sp2d': tgl_sp2d_val,
-                'tanggal_tbp': tbp_obj.tanggal_tbp if tbp_obj else None,
-                'nilai_tbp': Decimal(0),
-                'kode_dpa': s.kode_sub_kegiatan or "-",
+                'nomor_sp2d'   : sp2d_final or "-",
+                'nomor_dokumen': dok_clean if dok_clean else "-",
+                'tanggal_sp2d' : tgl_sp2d_val,
+                'tanggal_dokumen': tgl_dok,
+                'nilai_tbp'    : Decimal(0),
+                'kode_dpa'     : s.kode_sub_kegiatan or "-",
                 'keterangan_list': [],
             }
 
@@ -981,22 +983,25 @@ def monitor_sipd_detail(request):
         if tgl_sp2d_val and not grouped[key]['tanggal_sp2d']:
             grouped[key]['tanggal_sp2d'] = tgl_sp2d_val
 
-        # Update tanggal_tbp jika sebelumnya belum ada
-        if not grouped[key].get('tanggal_tbp') and tbp_obj and tbp_obj.tanggal_tbp:
-            grouped[key]['tanggal_tbp'] = tbp_obj.tanggal_tbp
+        # Update tanggal_dokumen jika belum terisi — utamakan dari TBP, lalu dari SIPD
+        if not grouped[key].get('tanggal_dokumen'):
+            if tbp_obj and tbp_obj.tanggal_tbp:
+                grouped[key]['tanggal_dokumen'] = tbp_obj.tanggal_tbp
+            elif s.tanggal_dokumen:
+                grouped[key]['tanggal_dokumen'] = s.tanggal_dokumen
 
     # Konversi keterangan_list ke string gabungan, lalu urutkan
     for item in grouped.values():
         item['keterangan'] = '; '.join(item.get('keterangan_list', [])) or '-'
 
-    # Urutkan berdasarkan tanggal SP2D (atau tanggal TBP jika tanggal SP2D kosong), lalu nomor SP2D
+    # Urutkan berdasarkan tanggal SP2D lalu nomor SP2D
     tbp_list = sorted(
         grouped.values(),
         key=lambda x: (
-            str(x['tanggal_sp2d'] or x['tanggal_tbp'] or ''),
+            str(x['tanggal_sp2d'] or x['tanggal_dokumen'] or ''),
             x['nomor_sp2d'] or '',
-            str(x['tanggal_tbp'] or ''),
-            x['nomor_tbp'] or ''
+            str(x['tanggal_dokumen'] or ''),
+            x['nomor_dokumen'] or ''
         )
     )
 
