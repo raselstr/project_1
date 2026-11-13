@@ -1,16 +1,33 @@
 {% load humanize %}
 <form method="post" action="{{ request.path }}">
   {% csrf_token %}
-  <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-    <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12.5px;">
-      <thead class="thead-light" style="position: sticky; top: 0; z-index: 1;">
+
+  <!-- INFO HEADER DPA & TOTAL -->
+  <div class="alert alert-light border mb-3 py-2 px-3 d-flex justify-content-between align-items-center flex-wrap" style="border-radius: 6px;">
+    <div>
+      <span class="badge badge-primary mr-1"><i class="fas fa-barcode mr-1"></i> Kode DPA: {{ rencana.posting_ket }}</span>
+      <span class="text-dark font-weight-bold ml-1">{{ rencana.posting_subkegiatan|default:"Sub Kegiatan" }}</span>
+    </div>
+    <div class="mt-2 mt-md-0">
+      <span class="text-muted small mr-1 font-weight-bold">Total Nilai SIPD:</span>
+      <span class="badge badge-success font-weight-bold" style="font-size: 13.5px;">
+        Rp {{ total_nilai|floatformat:0|intcomma }}
+      </span>
+    </div>
+  </div>
+
+  <div class="table-responsive" style="max-height: 460px; overflow-y: auto;">
+    <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px;">
+      <thead class="thead-light text-center" style="position: sticky; top: 0; z-index: 2;">
         <tr>
-          <th class="text-center" style="width: 45px;">
+          <th style="width: 40px;" class="align-middle">
             <input type="checkbox" id="check-all">
           </th>
-          <th class="text-center" style="width: 120px;">Tanggal SP2D</th>
-          <th>Nomor SP2D</th>
-          <th class="text-right" style="width: 160px;">Nilai Realisasi (Rp)</th>
+          <th style="width: 105px;" class="align-middle">Tanggal SP2D</th>
+          <th style="width: 240px;" class="align-middle">Nomor SP2D</th>
+          <th style="width: 135px;" class="align-middle">Kode DPA Kegiatan</th>
+          <th style="min-width: 200px;" class="align-middle">Nomor Dokumen</th>
+          <th style="width: 155px;" class="text-right align-middle">Nilai Realisasi (Rp)</th>
         </tr>
       </thead>
 
@@ -27,14 +44,20 @@
             {{ row.tanggal_sp2d|date:"d-m-Y"|default:row.tanggal_sp2d|default:"-" }}
           </td>
           <td class="align-middle">
-            <span class="font-weight-600 text-primary" style="font-family: monospace; font-size: 11.5px;">
+            <span class="font-weight-bold text-primary" style="font-family: monospace; font-size: 13px;">
               {{ row.nomor_sp2d_final }}
             </span>
             {% if "LPJ" in row.nomor_sp2d_final %}
-              <span class="badge badge-warning text-dark ml-1">LPJ</span>
+              <span class="badge badge-warning text-dark ml-1" style="font-size: 10px;">LPJ</span>
             {% else %}
-              <span class="badge badge-success ml-1">SP2D</span>
+              <span class="badge badge-success ml-1" style="font-size: 10px;">SP2D</span>
             {% endif %}
+          </td>
+          <td class="text-center align-middle font-weight-bold" style="font-size: 11px;">
+            <span class="badge badge-light border">{{ row.kode_sub_kegiatan|default:rencana.posting_ket }}</span>
+          </td>
+          <td class="align-middle" style="font-family: monospace; font-size: 9.5px; color: #555; word-break: break-all; line-height: 1.4;">
+            {{ row.nomor_dokumen|default:"-" }}
           </td>
           <td class="text-right align-middle font-weight-bold text-success" style="white-space: nowrap;">
             Rp {{ row.nilai_realisasi|floatformat:0|intcomma }}
@@ -42,20 +65,32 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="4" class="text-center text-muted py-4">
+          <td colspan="6" class="text-center text-muted py-4">
             <i class="fas fa-inbox mr-1"></i> Data SIPD tidak ditemukan atau semua data sudah direalisasikan.
           </td>
         </tr>
         {% endfor %}
       </tbody>
+
+      <tfoot class="bg-light font-weight-bold" style="position: sticky; bottom: 0; z-index: 1;">
+        <tr>
+          <td colspan="5" class="text-right text-uppercase" style="font-size: 12px;">
+            Total Nilai Realisasi:
+          </td>
+          <td class="text-right text-success font-weight-bold" style="white-space: nowrap; font-size: 13.5px;">
+            Rp {{ total_nilai|floatformat:0|intcomma }}
+          </td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 
   <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
     <div class="text-muted small">
-      <i class="fas fa-info-circle mr-1"></i> Tanggal SP2D disinkronkan dari tabel Register SP2D.
+      <i class="fas fa-info-circle mr-1 text-primary"></i>
+      Tanggal SP2D disinkronkan dari tabel Register SP2D, nomor dokumen dari tabel SIPD.
     </div>
-    <button type="submit" class="btn btn-success font-weight-bold"
+    <button type="submit" class="btn btn-success font-weight-bold px-4"
             onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
       <i class="fas fa-save mr-1"></i> Simpan ke Realisasi
     </button>
@@ -63,23 +98,24 @@
 </form>
 
 <script>
-document.body.addEventListener('htmx:afterSwap', function (evt) {
-  // pastikan yang di-swap adalah modal
-  if (!evt.target.closest('#verifikasiModal')) return;
+(function() {
+  const modalDlg = document.querySelector('#verifikasiModal .modal-dialog');
+  if (modalDlg) {
+  }
 
   const checkAll = document.getElementById('check-all');
   const items = document.querySelectorAll('.check-item');
 
-  if (!checkAll || items.length === 0) return;
-
-  checkAll.addEventListener('change', function () {
-    items.forEach(cb => cb.checked = checkAll.checked);
-  });
-
-  items.forEach(cb => {
-    cb.addEventListener('change', function () {
-      checkAll.checked = [...items].every(i => i.checked);
+  if (checkAll && items.length > 0) {
+    checkAll.addEventListener('change', function () {
+      items.forEach(cb => cb.checked = checkAll.checked);
     });
-  });
-});
+
+    items.forEach(cb => {
+      cb.addEventListener('change', function () {
+        checkAll.checked = [...items].every(i => i.checked);
+      });
+    });
+  }
+})();
 </script>
