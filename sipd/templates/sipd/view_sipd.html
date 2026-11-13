@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <div class="table-responsive" style="max-height: calc(80vh - 180px); overflow-y: auto;">
+  <div style="width: 100%; overflow-x: hidden;">
     <table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px; width: 100%;">
       <thead class="thead-light text-center" style="position: sticky; top: 0; z-index: 2;">
         <tr>
@@ -55,68 +55,40 @@
               <span class="badge badge-success ml-1" style="font-size: 10px;">SP2D</span>
             {% endif %}
           </td>
-          <td class="align-middle p-1">
-            {% if row.rincian_dokumen|length == 1 %}
-              {% with dok=row.rincian_dokumen.0 %}
-              <label class="d-flex justify-content-between align-items-center w-100 mb-0 px-2 py-1" style="cursor: pointer;">
-                <div class="d-flex align-items-center" style="min-width: 0; flex: 1;">
+          <td class="align-middle p-2">
+            <div class="py-1">
+              {% for dok in row.rincian_dokumen %}
+              <div class="py-1 {% if not forloop.last %}border-bottom{% endif %}" style="border-bottom-style: dashed !important; border-bottom-color: #dee2e6 !important;">
+                <label class="d-inline-flex align-items-center flex-wrap mb-0" style="cursor: pointer;">
                   <input type="checkbox"
                          class="check-dokumen mr-2"
                          name="selected_dokumen"
                          value="{{ row.nomor_sp2d_final }}::{{ dok.nomor }}"
-                         data-idx="{{ forloop.counter }}"
+                         data-idx="{{ forloop.parentloop.counter }}"
                          data-sp2d="{{ row.nomor_sp2d_final }}"
                          data-nilai="{{ dok.nilai|stringformat:'f' }}">
-                  <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.25;">
+                  {% if row.rincian_dokumen|length > 1 %}
+                    <span class="text-secondary font-weight-bold mr-1" style="font-size: 11px;">{{ forloop.counter }}.</span>
+                  {% endif %}
+                  <span class="text-dark font-weight-600 mr-2" style="font-family: monospace; font-size: 11px; word-break: break-all;">
                     {{ dok.nomor }}
                   </span>
-                </div>
-                <span class="font-weight-bold text-dark ml-2 text-nowrap" style="font-size: 9px;">
-                  Rp {{ dok.nilai_formatted|default:dok.nilai }}
-                </span>
-              </label>
-              {% endwith %}
-            {% else %}
-              <div style="max-height: 140px; overflow-y: auto;">
-                <table class="table table-sm table-borderless mb-0" style="width: 100%; table-layout: fixed;">
-                  <tbody>
-                    {% for dok in row.rincian_dokumen %}
-                    <tr style="border-bottom: 1px dashed #e9ecef;">
-                      <td class="p-1 align-middle">
-                        <label class="d-flex justify-content-between align-items-center w-100 mb-0" style="cursor: pointer;">
-                          <div class="d-flex align-items-center" style="min-width: 0; flex: 1;">
-                            <input type="checkbox"
-                                   class="check-dokumen mr-1"
-                                   name="selected_dokumen"
-                                   value="{{ row.nomor_sp2d_final }}::{{ dok.nomor }}"
-                                   data-idx="{{ forloop.parentloop.counter }}"
-                                   data-sp2d="{{ row.nomor_sp2d_final }}"
-                                   data-nilai="{{ dok.nilai|stringformat:'f' }}">
-                            <span class="text-secondary mr-1" style="font-size: 8px;">{{ forloop.counter }}.</span>
-                            <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.25;">
-                              {{ dok.nomor }}
-                            </span>
-                          </div>
-                          <span class="font-weight-bold text-dark ml-2 text-nowrap" style="width: 110px; text-align: right; font-size: 8.5px;">
-                            Rp {{ dok.nilai_formatted|default:dok.nilai }}
-                          </span>
-                        </label>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                  <span class="badge badge-light border text-dark font-weight-bold px-2 py-1 text-nowrap" style="font-size: 11px;">
+                    Rp {{ dok.nilai_formatted|default:dok.nilai }}
+                  </span>
+                </label>
               </div>
-            {% endif %}
+              {% endfor %}
+            </div>
           </td>
           <td class="text-right align-middle" style="white-space: nowrap;">
             <div class="sp2d-total-text font-weight-bold text-muted"
                  id="total-text-{{ forloop.counter }}"
                  data-idx="{{ forloop.counter }}"
-                 style="font-size: 13px;">
+                 style="font-size: 13.5px;">
               Rp 0
             </div>
-            <small class="text-muted d-block sp2d-max-text" style="font-size: 9.5px;">
+            <small class="text-muted d-block sp2d-max-text" style="font-size: 10px;">
               Maks: Rp {{ row.nilai_formatted|default:row.nilai_realisasi }}
             </small>
             <input type="hidden"
@@ -141,7 +113,7 @@
           <td colspan="4" class="text-right text-uppercase" style="font-size: 12px;">
             Total Nilai Realisasi Terpilih:
           </td>
-          <td class="text-right text-success font-weight-bold" id="grand-total-realisasi" style="white-space: nowrap; font-size: 13.5px;">
+          <td class="text-right text-success font-weight-bold" id="grand-total-realisasi" style="white-space: nowrap; font-size: 14px;">
             Rp 0
           </td>
         </tr>
@@ -149,8 +121,8 @@
     </table>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-    <div class="text-muted small" style="font-size: 11px;">
+  <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+    <div class="text-muted small" style="font-size: 11.5px;">
       <i class="fas fa-info-circle mr-1 text-primary"></i>
       Centang rincian dokumen yang ingin direalisasikan. Total Nilai SP2D terhitung otomatis dari akumulasi dokumen yang dicentang.
     </div>
