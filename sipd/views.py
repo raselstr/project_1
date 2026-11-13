@@ -554,6 +554,11 @@ def view_sipd(request, mode, pk):
             if dok not in grouped_sp2d[nomor_sp2d_final]["dokumen_dict"]:
                 grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][dok] = Decimal(0)
             grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][dok] += val
+        else:
+            fallback_dok = "-"
+            if fallback_dok not in grouped_sp2d[nomor_sp2d_final]["dokumen_dict"]:
+                grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][fallback_dok] = Decimal(0)
+            grouped_sp2d[nomor_sp2d_final]["dokumen_dict"][fallback_dok] += val
 
         ket = clean(row.get("keterangan_dokumen", ""))
         if ket and ket not in grouped_sp2d[nomor_sp2d_final]["keterangan_list"]:
@@ -606,18 +611,52 @@ def view_sipd(request, mode, pk):
 
     # ================= POST =================
     if request.method == "POST":
-        selected = request.POST.getlist('sp2d')
+        selected_sp2d = request.POST.getlist('sp2d')
+        selected_dokumen = request.POST.getlist('selected_dokumen')
 
-        if not selected:
-            messages.warning(request, 'Tidak ada SP2D yang dipilih')
+        checked_doks = set(selected_dokumen)
+
+        # Jika selected_sp2d kosong tapi ada dokumen yang diceklis, kumpulkan sp2d dari dokumen
+        if not selected_sp2d and checked_doks:
+            selected_sp2d = list({item.split('::')[0] for item in checked_doks if '::' in item})
+
+        if not selected_sp2d:
+            messages.warning(request, 'Tidak ada SP2D atau rincian dokumen yang dipilih')
             return redirect(request.path)
 
         objs = []
 
-        for sp2d in selected:
+        for sp2d in selected_sp2d:
             row = sp2d_mapping.get(sp2d)
 
             if not row:
+                continue
+
+            # Hitung nilai akumulasi rincian dokumen yang diceklis
+            nilai_akumulasi = Decimal(0)
+            has_checked_dok = False
+
+            if checked_doks:
+                for dok_num, dok_val in row.get("dokumen_dict", {}).items():
+                    key = f"{sp2d}::{dok_num}"
+                    if key in checked_doks:
+                        nilai_akumulasi += (dok_val or Decimal(0))
+                        has_checked_dok = True
+
+            # Jika tidak ada dokumen spesifik yang cocok, periksa custom hidden input nilai_<sp2d>
+            if not has_checked_dok:
+                custom_val = request.POST.get(f'nilai_{sp2d}')
+                if custom_val:
+                    try:
+                        clean_num = str(custom_val).replace('.', '').replace(',', '.')
+                        nilai_akumulasi = Decimal(clean_num)
+                    except Exception:
+                        nilai_akumulasi = row['nilai_realisasi']
+                else:
+                    nilai_akumulasi = row['nilai_realisasi']
+
+            # Jangan simpan SP2D yang nilainya 0 (tidak ada dokumen yang dipilih)
+            if nilai_akumulasi <= 0:
                 continue
 
             objs.append(
@@ -634,9 +673,13 @@ def view_sipd(request, mode, pk):
                     realisasi_output=0,
                     realisasi_sp2d=sp2d,
                     realisasi_tgl=row['tanggal_sp2d'] or date.today(),
-                    realisasi_nilai=row['nilai_realisasi'],
+                    realisasi_nilai=nilai_akumulasi,
                 )
             )
+
+        if not objs:
+            messages.warning(request, 'Tidak ada data realisasi dengan nilai lebih dari 0 yang dapat disimpan.')
+            return redirect(request.path)
 
         try:
             with transaction.atomic():
@@ -646,7 +689,9 @@ def view_sipd(request, mode, pk):
             messages.error(request, f'Gagal menyimpan: {e.messages}')
             return redirect(url_sp2d, pk=rencana.pk)
 
-        messages.success(request, f'{len(objs)} SP2D berhasil disimpan')
+        total_saved = sum((o.realisasi_nilai for o in objs), Decimal(0))
+        total_saved_str = f"{int(total_saved):,}".replace(",", ".")
+        messages.success(request, f'{len(objs)} SP2D berhasil disimpan dengan total nilai Rp {total_saved_str}')
         return redirect(url_sp2d, pk=rencana.pk)
 
     # ================= RENDER =================

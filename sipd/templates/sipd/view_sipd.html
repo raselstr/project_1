@@ -1,5 +1,5 @@
 {% load humanize %}
-<form method="post" action="{{ request.path }}" style="width: 100%;">
+<form method="post" action="{{ request.path }}" id="form-realisasi-sipd" style="width: 100%;">
   {% csrf_token %}
 
   <!-- INFO HEADER DPA & TOTAL -->
@@ -9,7 +9,7 @@
       <span class="text-dark font-weight-bold ml-1">{{ rencana.posting_subkegiatan|default:"Sub Kegiatan" }}</span>
     </div>
     <div class="mt-2 mt-md-0">
-      <span class="text-muted small mr-1 font-weight-bold">Total Nilai SIPD:</span>
+      <span class="text-muted small mr-1 font-weight-bold">Total Nilai SIPD Tersedia:</span>
       <span class="badge badge-success font-weight-bold" style="font-size: 13.5px;">
         Rp {{ total_nilai_formatted|default:total_nilai }}
       </span>
@@ -21,24 +21,26 @@
       <thead class="thead-light text-center" style="position: sticky; top: 0; z-index: 2;">
         <tr>
           <th style="width: 38px;" class="align-middle">
-            <input type="checkbox" id="check-all">
+            <input type="checkbox" id="check-all" title="Pilih Semua SP2D & Dokumen">
           </th>
-          <th style="width: 100px;" class="align-middle">Tanggal SP2D</th>
-          <th style="width: 230px;" class="align-middle">Nomor SP2D</th>
-          <th style="width: 130px;" class="align-middle">Kode DPA Kegiatan</th>
+          <th style="width: 105px;" class="align-middle">Tanggal SP2D</th>
+          <th style="width: 240px;" class="align-middle">Nomor SP2D</th>
           <th class="align-middle">Rincian Nomor Dokumen & Nilai Realisasi</th>
-          <th style="width: 165px;" class="text-right align-middle">Total SP2D (Rp)</th>
+          <th style="width: 175px;" class="text-right align-middle">Total Nilai SP2D (Rp)</th>
         </tr>
       </thead>
 
       <tbody>
         {% for row in data %}
-        <tr>
+        <tr data-row-idx="{{ forloop.counter }}">
           <td class="text-center align-middle">
             <input type="checkbox"
-                  class="check-item"
+                  class="check-sp2d"
                   name="sp2d"
-                  value="{{ row.nomor_sp2d_final }}">
+                  value="{{ row.nomor_sp2d_final }}"
+                  data-idx="{{ forloop.counter }}"
+                  data-sp2d="{{ row.nomor_sp2d_final }}"
+                  title="Pilih seluruh dokumen pada SP2D ini">
           </td>
           <td class="text-center align-middle" style="white-space: nowrap;">
             {{ row.tanggal_sp2d|date:"d-m-Y"|default:row.tanggal_sp2d|default:"-" }}
@@ -53,20 +55,26 @@
               <span class="badge badge-success ml-1" style="font-size: 10px;">SP2D</span>
             {% endif %}
           </td>
-          <td class="text-center align-middle font-weight-bold" style="font-size: 11px;">
-            <span class="badge badge-light border">{{ row.kode_sub_kegiatan|default:rencana.posting_ket }}</span>
-          </td>
           <td class="align-middle p-1">
             {% if row.rincian_dokumen|length == 1 %}
               {% with dok=row.rincian_dokumen.0 %}
-              <div class="d-flex justify-content-between align-items-center px-1">
-                <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.2;">
-                  {{ dok.nomor }}
-                </span>
+              <label class="d-flex justify-content-between align-items-center w-100 mb-0 px-2 py-1" style="cursor: pointer;">
+                <div class="d-flex align-items-center" style="min-width: 0; flex: 1;">
+                  <input type="checkbox"
+                         class="check-dokumen mr-2"
+                         name="selected_dokumen"
+                         value="{{ row.nomor_sp2d_final }}::{{ dok.nomor }}"
+                         data-idx="{{ forloop.counter }}"
+                         data-sp2d="{{ row.nomor_sp2d_final }}"
+                         data-nilai="{{ dok.nilai|stringformat:'f' }}">
+                  <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.25;">
+                    {{ dok.nomor }}
+                  </span>
+                </div>
                 <span class="font-weight-bold text-dark ml-2 text-nowrap" style="font-size: 9px;">
                   Rp {{ dok.nilai_formatted|default:dok.nilai }}
                 </span>
-              </div>
+              </label>
               {% endwith %}
             {% else %}
               <div style="max-height: 140px; overflow-y: auto;">
@@ -74,11 +82,25 @@
                   <tbody>
                     {% for dok in row.rincian_dokumen %}
                     <tr style="border-bottom: 1px dashed #e9ecef;">
-                      <td class="p-1 align-middle text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.2;">
-                        <span class="text-secondary mr-1">{{ forloop.counter }}.</span>{{ dok.nomor }}
-                      </td>
-                      <td class="p-1 text-right align-middle font-weight-bold text-dark text-nowrap" style="width: 110px; font-size: 8.5px;">
-                        Rp {{ dok.nilai_formatted|default:dok.nilai }}
+                      <td class="p-1 align-middle">
+                        <label class="d-flex justify-content-between align-items-center w-100 mb-0" style="cursor: pointer;">
+                          <div class="d-flex align-items-center" style="min-width: 0; flex: 1;">
+                            <input type="checkbox"
+                                   class="check-dokumen mr-1"
+                                   name="selected_dokumen"
+                                   value="{{ row.nomor_sp2d_final }}::{{ dok.nomor }}"
+                                   data-idx="{{ forloop.parentloop.counter }}"
+                                   data-sp2d="{{ row.nomor_sp2d_final }}"
+                                   data-nilai="{{ dok.nilai|stringformat:'f' }}">
+                            <span class="text-secondary mr-1" style="font-size: 8px;">{{ forloop.counter }}.</span>
+                            <span class="text-dark" style="font-family: monospace; font-size: 8px; word-break: break-all; line-height: 1.25;">
+                              {{ dok.nomor }}
+                            </span>
+                          </div>
+                          <span class="font-weight-bold text-dark ml-2 text-nowrap" style="width: 110px; text-align: right; font-size: 8.5px;">
+                            Rp {{ dok.nilai_formatted|default:dok.nilai }}
+                          </span>
+                        </label>
                       </td>
                     </tr>
                     {% endfor %}
@@ -87,13 +109,27 @@
               </div>
             {% endif %}
           </td>
-          <td class="text-right align-middle font-weight-bold text-success" style="white-space: nowrap;">
-            Rp {{ row.nilai_formatted|default:row.nilai_realisasi }}
+          <td class="text-right align-middle" style="white-space: nowrap;">
+            <div class="sp2d-total-text font-weight-bold text-muted"
+                 id="total-text-{{ forloop.counter }}"
+                 data-idx="{{ forloop.counter }}"
+                 style="font-size: 13px;">
+              Rp 0
+            </div>
+            <small class="text-muted d-block sp2d-max-text" style="font-size: 9.5px;">
+              Maks: Rp {{ row.nilai_formatted|default:row.nilai_realisasi }}
+            </small>
+            <input type="hidden"
+                   name="nilai_{{ row.nomor_sp2d_final }}"
+                   id="hidden-nilai-{{ forloop.counter }}"
+                   class="sp2d-hidden-nilai"
+                   data-idx="{{ forloop.counter }}"
+                   value="0">
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="6" class="text-center text-muted py-4">
+          <td colspan="5" class="text-center text-muted py-4">
             <i class="fas fa-inbox mr-1"></i> Data SIPD tidak ditemukan atau semua data sudah direalisasikan.
           </td>
         </tr>
@@ -102,11 +138,11 @@
 
       <tfoot class="bg-light font-weight-bold" style="position: sticky; bottom: 0; z-index: 1;">
         <tr>
-          <td colspan="5" class="text-right text-uppercase" style="font-size: 12px;">
-            Total Nilai Realisasi:
+          <td colspan="4" class="text-right text-uppercase" style="font-size: 12px;">
+            Total Nilai Realisasi Terpilih:
           </td>
-          <td class="text-right text-success font-weight-bold" style="white-space: nowrap; font-size: 13.5px;">
-            Rp {{ total_nilai_formatted|default:total_nilai }}
+          <td class="text-right text-success font-weight-bold" id="grand-total-realisasi" style="white-space: nowrap; font-size: 13.5px;">
+            Rp 0
           </td>
         </tr>
       </tfoot>
@@ -116,10 +152,9 @@
   <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
     <div class="text-muted small" style="font-size: 11px;">
       <i class="fas fa-info-circle mr-1 text-primary"></i>
-      Tanggal SP2D disinkronkan dari tabel Register SP2D, rincian dokumen & nilai dari tabel SIPD.
+      Centang rincian dokumen yang ingin direalisasikan. Total Nilai SP2D terhitung otomatis dari akumulasi dokumen yang dicentang.
     </div>
-    <button type="submit" class="btn btn-success font-weight-bold px-4"
-            onclick="return document.querySelectorAll('.check-item:checked').length > 0;">
+    <button type="submit" class="btn btn-success font-weight-bold px-4" id="btn-submit-realisasi">
       <i class="fas fa-save mr-1"></i> Simpan ke Realisasi
     </button>
   </div>
@@ -133,19 +168,121 @@
     modalDlg.style.width = '95vw';
   }
 
-  const checkAll = document.getElementById('check-all');
-  const items = document.querySelectorAll('.check-item');
+  function formatRupiah(num) {
+    var n = Math.round(Number(num) || 0);
+    return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
-  if (checkAll && items.length > 0) {
-    checkAll.addEventListener('change', function () {
-      items.forEach(cb => cb.checked = checkAll.checked);
+  function recalculateAll() {
+    var grandTotal = 0;
+
+    var sp2dCbs = document.querySelectorAll('.check-sp2d');
+    sp2dCbs.forEach(function(sp2dCb) {
+      var idx = sp2dCb.getAttribute('data-idx');
+      var dokCbs = document.querySelectorAll('.check-dokumen[data-idx="' + idx + '"]');
+
+      var rowSum = 0;
+      var checkedCount = 0;
+
+      dokCbs.forEach(function(dCb) {
+        if (dCb.checked) {
+          checkedCount++;
+          rowSum += parseFloat(dCb.getAttribute('data-nilai') || 0);
+        }
+      });
+
+      // Aturan: minimal 1 Rincian Nomor Dokumen dan NilaiRealisasi maka terchecklist SP2D
+      sp2dCb.checked = (checkedCount > 0);
+
+      // Update tampilan Total Nilai SP2D baris ini
+      var totalTextEl = document.getElementById('total-text-' + idx);
+      if (totalTextEl) {
+        totalTextEl.textContent = formatRupiah(rowSum);
+        if (rowSum > 0) {
+          totalTextEl.classList.remove('text-muted');
+          totalTextEl.classList.add('text-success');
+        } else {
+          totalTextEl.classList.remove('text-success');
+          totalTextEl.classList.add('text-muted');
+        }
+      }
+
+      // Update input hidden untuk nilai SP2D
+      var hiddenNilaiEl = document.getElementById('hidden-nilai-' + idx);
+      if (hiddenNilaiEl) {
+        hiddenNilaiEl.value = Math.round(rowSum);
+      }
+
+      grandTotal += rowSum;
     });
 
-    items.forEach(cb => {
-      cb.addEventListener('change', function () {
-        checkAll.checked = [...items].every(i => i.checked);
+    // Update Grand Total di footer tabel
+    var grandTotalEl = document.getElementById('grand-total-realisasi');
+    if (grandTotalEl) {
+      grandTotalEl.textContent = formatRupiah(grandTotal);
+    }
+
+    // Update check-all di thead
+    var checkAll = document.getElementById('check-all');
+    var allDokCbs = document.querySelectorAll('.check-dokumen');
+    if (checkAll && allDokCbs.length > 0) {
+      var allChecked = Array.from(allDokCbs).every(function(cb) { return cb.checked; });
+      var anyChecked = Array.from(allDokCbs).some(function(cb) { return cb.checked; });
+      checkAll.checked = allChecked;
+      checkAll.indeterminate = !allChecked && anyChecked;
+    }
+  }
+
+  // 1. Event listener ketika checkbox dokumen diklik
+  document.querySelectorAll('.check-dokumen').forEach(function(dCb) {
+    dCb.addEventListener('change', function() {
+      recalculateAll();
+    });
+  });
+
+  // 2. Event listener ketika checkbox SP2D di kolom kiri diklik
+  document.querySelectorAll('.check-sp2d').forEach(function(sp2dCb) {
+    sp2dCb.addEventListener('change', function() {
+      var idx = this.getAttribute('data-idx');
+      var isChecked = this.checked;
+      var dokCbs = document.querySelectorAll('.check-dokumen[data-idx="' + idx + '"]');
+      dokCbs.forEach(function(dCb) {
+        dCb.checked = isChecked;
       });
+      recalculateAll();
+    });
+  });
+
+  // 3. Event listener check-all di header tabel
+  var checkAll = document.getElementById('check-all');
+  if (checkAll) {
+    checkAll.addEventListener('change', function() {
+      var isChecked = this.checked;
+      document.querySelectorAll('.check-dokumen').forEach(function(cb) {
+        cb.checked = isChecked;
+      });
+      document.querySelectorAll('.check-sp2d').forEach(function(cb) {
+        cb.checked = isChecked;
+      });
+      recalculateAll();
     });
   }
+
+  // 4. Validasi submit form
+  var form = document.getElementById('form-realisasi-sipd');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      var checkedDoks = document.querySelectorAll('.check-dokumen:checked');
+      var checkedSp2d = document.querySelectorAll('.check-sp2d:checked');
+      if (checkedDoks.length === 0 && checkedSp2d.length === 0) {
+        e.preventDefault();
+        alert('Silakan pilih minimal 1 rincian dokumen atau SP2D untuk direalisasikan.');
+        return false;
+      }
+    });
+  }
+
+  // Jalankan perhitungan awal saat modal pertama kali terbuka
+  recalculateAll();
 })();
 </script>
