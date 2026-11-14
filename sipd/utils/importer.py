@@ -2,7 +2,7 @@ from pathlib import Path
 import csv
 import re
 from decimal import Decimal, InvalidOperation
-from datetime import datetime
+from datetime import datetime, date
 from collections import defaultdict
 import pandas as pd
 
@@ -53,18 +53,18 @@ MAX_LEN_MAP = {
 }
 
 MONTH_MAP = {
-    "januari": 1, "jan": 1,
-    "februari": 2, "pebruari": 2, "feb": 2, "peb": 2,
-    "maret": 3, "mar": 3,
+    "januari": 1, "jan": 1, "january": 1,
+    "februari": 2, "pebruari": 2, "feb": 2, "peb": 2, "february": 2,
+    "maret": 3, "mar": 3, "march": 3,
     "april": 4, "apr": 4,
     "mei": 5, "may": 5,
-    "juni": 6, "jun": 6,
-    "juli": 7, "jul": 7,
-    "agustus": 8, "agt": 8, "agu": 8,
-    "september": 9, "sep": 9,
-    "oktober": 10, "okt": 10,
-    "november": 11, "nopember": 11, "nov": 11,
-    "desember": 12, "des": 12,
+    "juni": 6, "jun": 6, "june": 6,
+    "juli": 7, "jul": 7, "july": 7,
+    "agustus": 8, "agt": 8, "agu": 8, "august": 8, "aug": 8,
+    "september": 9, "sep": 9, "sept": 9,
+    "oktober": 10, "okt": 10, "october": 10, "oct": 10,
+    "november": 11, "nopember": 11, "nov": 11, "nop": 11,
+    "desember": 12, "des": 12, "december": 12, "dec": 12,
 }
 
 
@@ -90,7 +90,7 @@ def parse_indonesian_decimal(val):
     if isinstance(val, float):
         return Decimal(f"{val:.6f}").normalize()
 
-    s = str(val).strip()
+    s = str(val).strip().replace("\xa0", " ")
     if not s or s.lower() in ("none", "nan", "-", "null", ""):
         return Decimal("0")
 
@@ -103,8 +103,16 @@ def parse_indonesian_decimal(val):
         is_negative = True
         s = s[1:].strip()
 
-    # Hapus prefix Rp jika ada
-    s = re.sub(r"^[Rr][Pp]\.?\s*", "", s).strip()
+    # Hapus prefix Rp atau IDR jika ada
+    s = re.sub(r"^(?:[Rr][Pp]\.?|[Ii][Dd][Rr]\.?)\s*", "", s).strip()
+
+    # Cek minus jika letaknya setelah simbol mata uang, contoh: "Rp -1.096,00"
+    if s.startswith("-"):
+        is_negative = True
+        s = s[1:].strip()
+
+    # Hapus suffix rupiah seperti ",-" atau ",--" (contoh: Rp. 1.096,-)
+    s = re.sub(r",\s*-+$", "", s).strip()
 
     # Deteksi format ribuan / desimal
     if "." in s and "," in s:
@@ -135,35 +143,67 @@ def to_date(val):
         return None
     if isinstance(val, (datetime, pd.Timestamp)):
         return val.date()
+    if isinstance(val, date):
+        return val
     if hasattr(val, "date") and callable(getattr(val, "date")):
         try:
             return val.date()
         except Exception:
             pass
 
-    s = str(val).strip()
-    if not s or s.lower() in ("none", "nan", "-", "null", ""):
+    # Tangani angka Excel serial date (e.g. 45340 -> 2024-02-18)
+    if isinstance(val, (int, float)) and not isinstance(val, bool):
+        if 20000 <= val <= 80000:
+            try:
+                return pd.to_datetime(val, unit="D", origin="1899-12-30").date()
+            except Exception:
+                pass
+
+    s = str(val).strip().replace("\xa0", " ")
+    if not s or s.lower() in ("none", "nan", "-", "null", "", "0"):
         return None
 
-    # Format teks Indonesia e.g. "18 Februari 2026", "9 Januari 2026", "18-Februari-2026"
-    m = re.match(r"^(\d{1,2})[\s\-\/]+([a-zA-Z]+)[\s\-\/]+(\d{4})", s)
-    if m:
-        day, m_str, year = m.groups()
+    # Bersihkan nama hari Indonesia di awal: 'Kamis, 18 Februari 2026' -> '18 Februari 2026'
+    s = re.sub(r"^(?:senin|selasa|rabu|kamis|jumat|jum'?at|sabtu|minggu)[,\s]+", "", s, flags=re.IGNORECASE).strip()
+
+    # Bersihkan zona waktu di akhir: WIB, WITA, WIT, UTC, GMT
+    s = re.sub(r"\b(?:wib|wita|wit|utc|gmt)\b", "", s, flags=re.IGNORECASE).strip()
+
+    # 1. Format teks bulan Indonesia/Inggris: '18 Februari 2026', '9 Januari 2026', '18 Feb 2026 14.30'
+    m_text = re.match(r"^(\d{1,2})[\s\-\/\.]*([a-zA-Z]+)[\s\-\/\.]*(\d{2,4})", s)
+    if m_text:
+        day_s, m_str, yr_s = m_text.groups()
         m_num = MONTH_MAP.get(m_str.lower())
         if m_num:
+            yr = int(yr_s)
+            if yr < 100:
+                yr += 2000 if yr < 70 else 1900
             try:
-                return datetime(int(year), m_num, int(day)).date()
+                return date(yr, m_num, int(day_s))
             except ValueError:
-                return None
+                pass
 
-    # Format ISO: YYYY-MM-DD
-    if re.match(r"^\d{4}-\d{1,2}-\d{1,2}", s):
+    # 2. Format ISO: YYYY-MM-DD / YYYY/MM/DD / YYYY.MM.DD (dengan waktu HH:MM[:SS] atau HH.MM[.SS])
+    m_iso = re.match(r"^(\d{4})[\-\/\.](\d{1,2})[\-\/\.](\d{1,2})", s)
+    if m_iso:
+        yr, mo, dy = map(int, m_iso.groups())
         try:
-            return datetime.strptime(s[:10], "%Y-%m-%d").date()
+            return date(yr, mo, dy)
         except ValueError:
             pass
 
-    # Format tanggal standar DD/MM/YYYY atau DD-MM-YYYY
+    # 3. Format Indonesia: DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY (dengan waktu HH:MM[:SS] atau HH.MM[.SS])
+    m_indo = re.match(r"^(\d{1,2})[\-\/\.](\d{1,2})[\-\/\.](\d{2,4})", s)
+    if m_indo:
+        dy, mo, yr = map(int, m_indo.groups())
+        if yr < 100:
+            yr += 2000 if yr < 70 else 1900
+        try:
+            return date(yr, mo, dy)
+        except ValueError:
+            pass
+
+    # 4. Fallback pandas parser
     try:
         p = pd.to_datetime(s, errors="coerce", dayfirst=True)
         if not pd.isna(p):
