@@ -9,6 +9,7 @@ import pandas as pd
 from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
+from django.utils import timezone
 
 from sipd.models import TBP
 from .mapping import EXCEL_FIELD_MAPPING_TBP
@@ -21,25 +22,61 @@ DATE_FIELDS = {"tanggal_tbp"}
 
 UNIQUE_FIELDS = ("tahun", "nomor_tbp")
 
+MAX_LEN_MAP_TBP = {
+    "nomor_tbp": 100,
+    "status_tbp": 255,
+}
+
+MONTH_MAP = {
+    "januari": 1, "jan": 1,
+    "februari": 2, "pebruari": 2, "feb": 2, "peb": 2,
+    "maret": 3, "mar": 3,
+    "april": 4, "apr": 4,
+    "mei": 5, "may": 5,
+    "juni": 6, "jun": 6,
+    "juli": 7, "jul": 7,
+    "agustus": 8, "agt": 8, "agu": 8,
+    "september": 9, "sep": 9,
+    "oktober": 10, "okt": 10,
+    "november": 11, "nopember": 11, "nov": 11,
+    "desember": 12, "des": 12,
+}
+
 
 # ================= HELPERS =================
-def clean_str(val):
+def clean_str(val, max_len=None):
     if pd.isna(val) or val is None:
         return ""
+    if isinstance(val, float) and val.is_integer():
+        val = int(val)
     val = str(val).strip()
     if val.lower() in ("", "nan", "none", "null", "draft", "-"):
         return ""
+    if max_len and len(val) > max_len:
+        val = val[:max_len]
     return val
 
 
 def parse_indonesian_decimal(val):
     if val is None or pd.isna(val):
         return Decimal("0")
-    if isinstance(val, (int, float, Decimal)):
+    if isinstance(val, (int, Decimal)):
         return Decimal(str(val))
+    if isinstance(val, float):
+        return Decimal(f"{val:.6f}").normalize()
+
     s = str(val).strip()
-    if not s or s.lower() in ("none", "nan", "-", "null"):
+    if not s or s.lower() in ("none", "nan", "-", "null", ""):
         return Decimal("0")
+
+    # Format akuntansi dalam tanda kurung: (123.450) -> -123450
+    is_negative = False
+    if s.startswith("(") and s.endswith(")"):
+        is_negative = True
+        s = s[1:-1].strip()
+    elif s.startswith("-"):
+        is_negative = True
+        s = s[1:].strip()
 
     # Hapus prefix Rp jika ada
     s = re.sub(r"^[Rr][Pp]\.?\s*", "", s).strip()
@@ -62,28 +99,114 @@ def parse_indonesian_decimal(val):
             s = s.replace(",", ".")
 
     try:
-        return Decimal(s)
+        dec = Decimal(s)
+        return -dec if is_negative else dec
     except (InvalidOperation, ValueError):
         return Decimal("0")
 
 
 def to_date(val):
-    try:
-        if pd.isna(val) or val is None:
-            return None
-        if hasattr(val, "date"):
-            return val.date()
-        parsed = pd.to_datetime(val, errors="coerce")
-        if pd.isna(parsed):
-            return None
-        return parsed.date()
-    except Exception:
+    if val is None or pd.isna(val):
         return None
+    if isinstance(val, (datetime, pd.Timestamp)):
+        return val.date()
+    if hasattr(val, "date") and callable(getattr(val, "date")):
+        try:
+            return val.date()
+        except Exception:
+            pass
+
+    s = str(val).strip()
+    if not s or s.lower() in ("none", "nan", "-", "null", ""):
+        return None
+
+    # Format teks Indonesia e.g. "18 Februari 2026", "9 Januari 2026", "18-Februari-2026"
+    m = re.match(r"^(\d{1,2})[\s\-\/]+([a-zA-Z]+)[\s\-\/]+(\d{4})", s)
+    if m:
+        day, m_str, year = m.groups()
+        m_num = MONTH_MAP.get(m_str.lower())
+        if m_num:
+            try:
+                return datetime(int(year), m_num, int(day)).date()
+            except ValueError:
+                return None
+
+    # Format ISO: YYYY-MM-DD
+    if re.match(r"^\d{4}-\d{1,2}-\d{1,2}", s):
+        try:
+            return datetime.strptime(s[:10], "%Y-%m-%d").date()
+        except ValueError:
+            pass
+
+    # Format tanggal standar DD/MM/YYYY atau DD-MM-YYYY
+    try:
+        p = pd.to_datetime(s, errors="coerce", dayfirst=True)
+        if not pd.isna(p):
+            return p.date()
+    except Exception:
+        pass
+
+    return None
+
+
+def load_tbp_dataframe(file_path: str):
+    """
+    Membaca file Excel atau CSV TBP secara otomatis mendeteksi baris header
+    meskipun terdapat baris judul/metadata di bagian atas file, serta
+    menyaring baris total/footer di bagian bawah.
+    """
+    file_str = str(file_path).lower()
+    target_keywords = ["nomor tbp", "tanggal tbp", "status tbp", "nilai tbp"]
+
+    if file_str.endswith(".csv"):
+        df_preview = pd.read_csv(file_path, header=None, nrows=30, dtype=str)
+        header_idx = 0
+        for idx, row in df_preview.iterrows():
+            vals = [str(v).strip().lower() for v in row if pd.notna(v)]
+            if any(k in vals for k in target_keywords):
+                header_idx = idx
+                break
+        df = pd.read_csv(file_path, header=header_idx)
+    else:
+        excel_obj = pd.ExcelFile(file_path)
+        sheet_name = excel_obj.sheet_names[0]
+        df_preview = pd.read_excel(excel_obj, sheet_name=sheet_name, header=None, nrows=30, dtype=str)
+        header_idx = 0
+        for idx, row in df_preview.iterrows():
+            vals = [str(v).strip().lower() for v in row if pd.notna(v)]
+            if any(k in vals for k in target_keywords):
+                header_idx = idx
+                break
+        df = pd.read_excel(excel_obj, sheet_name=sheet_name, header=header_idx)
+
+    df.columns = [str(c).strip() for c in df.columns]
+
+    # Filter baris footer / total / baris kosong
+    keep_indices = []
+    col_map = {str(c).strip().lower(): c for c in df.columns}
+    col_nomor_tbp = col_map.get("nomor tbp")
+
+    for idx, row in df.iterrows():
+        nomor_tbp = clean_str(row.get(col_nomor_tbp)) if col_nomor_tbp else ""
+        first_val = clean_str(row.iloc[0] if len(row) > 0 else "").lower()
+
+        if first_val in ("total", "jumlah", "grand total", "subtotal", "sub total"):
+            continue
+        if not nomor_tbp:
+            continue
+        keep_indices.append(idx)
+
+    df = df.loc[keep_indices].reset_index(drop=True)
+    return df, header_idx
 
 
 # ================= IMPORT FUNCTION =================
 def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
-    df = pd.read_excel(file_path)
+    """
+    Import Excel TBP dengan tracking data baru, diperbaharui, dan dilewati.
+    Mendukung file asli SIPD tanpa perlu menghapus header judul atau baris total.
+    """
+    df, header_offset = load_tbp_dataframe(file_path)
     total_rows = len(df)
 
     processed = 0
@@ -95,7 +218,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
 
     # Pre-load existing map
     existing_map = {
-        (obj.tahun, obj.nomor_tbp): obj
+        (obj.tahun, clean_str(obj.nomor_tbp)): obj
         for obj in TBP.objects.filter(tahun=tahun)
     }
 
@@ -107,6 +230,9 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
     skipped_items = []
     skipped_reason_counts = defaultdict(int)
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Pemetaan kolom case-insensitive
+    col_name_map = {str(col).strip().lower(): col for col in df.columns}
 
     with open(log_path, "w", newline="", encoding="utf-8") as f_log, \
          open(skipped_path, "w", newline="", encoding="utf-8") as f_skip:
@@ -125,7 +251,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
 
             for idx, row in df_chunk.iterrows():
                 processed += 1
-                excel_row_num = processed + 1
+                excel_row_num = header_offset + processed + 1
 
                 if processed % 150 == 0:
                     cache.set(
@@ -137,16 +263,18 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
                 try:
                     data = {"tahun": tahun}
 
-                    # mapping excel → model
+                    # mapping excel → model dengan normalisasi nama kolom
                     for excel_col, model_field in EXCEL_FIELD_MAPPING_TBP.items():
-                        val = row.get(excel_col)
+                        actual_col = col_name_map.get(excel_col.strip().lower())
+                        val = row.get(actual_col) if actual_col else None
 
                         if "nilai" in model_field:
                             data[model_field] = parse_indonesian_decimal(val)
                         elif model_field in DATE_FIELDS:
                             data[model_field] = to_date(val)
                         else:
-                            data[model_field] = clean_str(val)
+                            max_len = MAX_LEN_MAP_TBP.get(model_field)
+                            data[model_field] = clean_str(val, max_len)
 
                     # validasi unique kosong
                     if any(data.get(f, "") == "" for f in UNIQUE_FIELDS):
@@ -165,7 +293,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
                         writer_log.writerow([excel_row_num, data.get("nomor_tbp") or "-", data.get("status_tbp") or "-", "DILEWATI", reason, now_str])
                         continue
 
-                    key = tuple(data[f] for f in UNIQUE_FIELDS)
+                    key = (data["tahun"], data["nomor_tbp"])
 
                     # skip duplicate dalam file
                     if key in seen_in_file:
@@ -192,6 +320,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
                         obj.keterangan_tbp = data.get("keterangan_tbp")
                         obj.status_tbp = data.get("status_tbp")
                         obj.nilai_tbp = data.get("nilai_tbp")
+                        obj.updated_at = timezone.now()
 
                         update_batch.append(obj)
                         updated += 1
@@ -230,7 +359,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
 
                 if len(insert_batch) >= DB_CHUNK:
                     with transaction.atomic():
-                        TBP.objects.bulk_create(insert_batch, batch_size=DB_CHUNK)
+                        TBP.objects.bulk_create(insert_batch, batch_size=DB_CHUNK, ignore_conflicts=True)
                     insert_batch.clear()
 
                 if len(update_batch) >= DB_CHUNK:
@@ -244,7 +373,7 @@ def import_tbp_excel(file_path: str, tahun: int, cache_key: str):
 
             if insert_batch:
                 with transaction.atomic():
-                    TBP.objects.bulk_create(insert_batch, batch_size=DB_CHUNK)
+                    TBP.objects.bulk_create(insert_batch, batch_size=DB_CHUNK, ignore_conflicts=True)
                 insert_batch.clear()
 
             if update_batch:
