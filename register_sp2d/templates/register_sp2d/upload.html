@@ -62,7 +62,7 @@
         <div class="card-icon bg-success"><i class="fas fa-coins text-white"></i></div>
         <div class="card-wrap">
           <div class="card-header"><h4>Total Nilai Bruto</h4></div>
-          <div class="card-body" style="font-size:13px;">Rp {{ total_bruto|floatformat:0|intcomma }}</div>
+          <div class="card-body" style="font-size:13px;">Rp {{ total_bruto|floatformat:2|intcomma }}</div>
         </div>
       </div>
     </div>
@@ -71,7 +71,7 @@
         <div class="card-icon bg-danger"><i class="fas fa-minus-circle text-white"></i></div>
         <div class="card-wrap">
           <div class="card-header"><h4>Total Potongan</h4></div>
-          <div class="card-body" style="font-size:13px;">Rp {{ total_potongan|floatformat:0|intcomma }}</div>
+          <div class="card-body" style="font-size:13px;">Rp {{ total_potongan|floatformat:2|intcomma }}</div>
         </div>
       </div>
     </div>
@@ -80,7 +80,7 @@
         <div class="card-icon bg-info"><i class="fas fa-hand-holding-usd text-white"></i></div>
         <div class="card-wrap">
           <div class="card-header"><h4>Total Nilai Neto</h4></div>
-          <div class="card-body" style="font-size:13px;">Rp {{ total_neto|floatformat:0|intcomma }}</div>
+          <div class="card-body" style="font-size:13px;">Rp {{ total_neto|floatformat:2|intcomma }}</div>
         </div>
       </div>
     </div>

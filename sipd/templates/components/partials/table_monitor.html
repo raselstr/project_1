@@ -28,15 +28,15 @@
                 </td>
 
                 <td class="align-middle text-right font-weight-bold text-dark">
-                    {{ item.posting_pagu|intcomma }}
+                    {{ item.posting_pagu|floatformat:2|intcomma }}
                 </td>
 
                 <td class="align-middle text-right font-weight-bold {% if item.nilai_sipd > 0 %}text-success{% else %}text-muted{% endif %}">
-                    {{ item.nilai_sipd|intcomma }}
+                    {{ item.nilai_sipd|floatformat:2|intcomma }}
                 </td>
 
                 <td class="align-middle text-right font-weight-bold {% if item.selisih != 0 %}text-danger{% else %}text-success{% endif %}">
-                    {{ item.selisih|intcomma }}
+                    {{ item.selisih|floatformat:2|intcomma }}
                 </td>
 
                 <td class="align-middle text-center">
@@ -78,13 +78,13 @@
             <tr>
                 <td colspan="4" class="text-right text-uppercase">Total Keseluruhan:</td>
                 <td class="text-right text-primary">
-                    Rp {{ total_pagu|intcomma }}
+                    Rp {{ total_pagu|floatformat:2|intcomma }}
                 </td>
                 <td class="text-right text-success">
-                    Rp {{ total_sipd|intcomma }}
+                    Rp {{ total_sipd|floatformat:2|intcomma }}
                 </td>
                 <td class="text-right {% if total_selisih != 0 %}text-danger{% else %}text-success{% endif %}">
-                    Rp {{ total_selisih|intcomma }}
+                    Rp {{ total_selisih|floatformat:2|intcomma }}
                 </td>
                 <td colspan="2" class="text-center">
                     <span class="badge badge-dark">{{ data|length }} Kegiatan</span>

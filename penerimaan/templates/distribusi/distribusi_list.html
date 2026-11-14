@@ -44,7 +44,7 @@
                                     </td>
                                     <td style="text-align: left;">{{ data.distri_penerimaan }}</td>
                                     <td style="text-align: left;">{{ data.distri_subopd }}</td>
-                                    <td style="text-align: right;">{{ data.distri_nilai|intcomma }}</td>
+                                    <td style="text-align: right;">{{ data.distri_nilai|floatformat:2|intcomma }}</td>
                                     <td style="text-align: left;">{{ data.distri_ket }}</td>
                                 </tr>
                                 {% endfor %}
@@ -52,7 +52,7 @@
                         <tfoot>
                             <tr>
                                 <th colspan="2" style="text-align: right;"><strong>Total Keseluruhan:</strong></th>
-                                <th style="text-align: left;"><strong>{{ total|intcomma }}</strong></th>
+                                <th style="text-align: left;"><strong>{{ total|floatformat:2|intcomma }}</strong></th>
                                 
                             </tr>
                         </tfoot>

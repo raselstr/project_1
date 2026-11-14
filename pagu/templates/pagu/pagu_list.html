@@ -70,7 +70,7 @@
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
-                                    <td style="text-align: left;">{{ data.pagudausg_tahun }}</td>
+                                    <td style="text-align: left;">{{ data.pagudausg_tahun|stringformat:"s" }}</td>
                                     <td style="text-align: left;">{{ data.pagudausg_opd }}</td>
                                     <td style="text-align: left;">{{ data.pagudausg_dana }}</td>
                                     <td style="text-align: right;">{{ data.pagudausg_nilai|default:"0,00"|floatformat:2|intcomma }}</td>

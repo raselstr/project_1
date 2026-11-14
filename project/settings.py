@@ -92,6 +92,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'project.context_processors.menu_context_processor',
             ],
+            'builtins': [
+                'penerimaan.templatetags.custom_filters',
+            ],
         },
     },
 ]

@@ -71,7 +71,7 @@
                         <h4>Total Pagu</h4>
                     </div>
                     <div class="card-body">
-                        Rp {{ total_pagu_all|intcomma }}
+                        Rp {{ total_pagu_all|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                         <h4>Total Realisasi</h4>
                     </div>
                     <div class="card-body">
-                        Rp {{ total_realisasi_all|intcomma }}
+                        Rp {{ total_realisasi_all|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
@@ -158,13 +158,13 @@
                         <tr>
                             {% if row.show_group %}
                                 <td rowspan="{{ row.rowspan }}" class="text-center font-weight-bold align-middle bg-white">
-                                    {{ row.tahun }}
+                                    {{ row.tahun|stringformat:"s" }}
                                 </td>
                                 <td rowspan="{{ row.rowspan }}" class="font-weight-bold align-middle bg-white">
                                     {{ row.dana_nama }}
                                 </td>
                                 <td rowspan="{{ row.rowspan }}" class="text-right font-weight-bold align-middle bg-white">
-                                    {{ row.pagu|intcomma }}
+                                    {{ row.pagu|floatformat:2|intcomma }}
                                 </td>
                             {% endif %}
 
@@ -175,7 +175,7 @@
                             </td>
 
                             <td class="text-right align-middle font-weight-bold text-dark">
-                                {{ row.realisasi|intcomma }}
+                                {{ row.realisasi|floatformat:2|intcomma }}
                             </td>
 
                             <td class="align-middle">
@@ -186,7 +186,7 @@
                                           class="d-flex align-items-center">
                                         {% csrf_token %}
 
-                                        <input type="hidden" name="tahun" value="{{ row.tahun }}">
+                                        <input type="hidden" name="tahun" value="{{ row.tahun|stringformat:"s" }}">
                                         <input type="hidden" name="dana_id" value="{{ row.dana_id }}">
                                         <input type="hidden" name="tahap_id" value="{{ row.tahap_id }}">
 
@@ -211,7 +211,7 @@
                                     <button type="button"
                                             class="btn btn-sm btn-danger font-weight-bold px-3 shadow-sm"
                                             title="Lihat Dokumen PDF DJPK dalam Modal"
-                                            onclick="openDjpkPdfModal('{{ row.djpk.file.url }}', '{{ row.dana_nama|escapejs }}', '{{ row.tahap_id }}', '{{ row.tahun }}')">
+                                            onclick="openDjpkPdfModal('{{ row.djpk.file.url }}', '{{ row.dana_nama|escapejs }}', '{{ row.tahap_id }}', '{{ row.tahun|stringformat:"s" }}')">
                                         <i class="fas fa-file-pdf mr-1"></i> Lihat PDF
                                     </button>
                                 {% else %}

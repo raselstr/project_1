@@ -1,3 +1,4 @@
+from decimal import Decimal
 import django_tables2 as tables
 from .models import RencDankel, RealisasiDankelsisa
 from django.urls import reverse
@@ -8,7 +9,11 @@ model_sisa = RealisasiDankelsisa
 
 class totalrealisasi(tables.Column):
     def render_footer(self, bound_column, table):
-        return sum(bound_column.accessor.resolve(row) for row in table.data)
+        total = sum((bound_column.accessor.resolve(row) for row in table.data), Decimal(0))
+        try:
+            return f"{Decimal(str(total)):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        except Exception:
+            return total
 
 
 class BaseRencanaTable(tables.Table):

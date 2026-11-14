@@ -7,14 +7,11 @@ from .models import TBP
 
 
 def format_rupiah(value):
-    if value is None:
-        return "0"
+    if value is None or value == "":
+        return "0,00"
     try:
         val = Decimal(str(value))
-        if val % 1 == 0:
-            return f"{int(val):,}".replace(",", ".")
-        else:
-            return f"{val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except Exception:
         return str(value)
 

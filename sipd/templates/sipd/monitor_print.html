@@ -168,10 +168,10 @@
                 <td>{{ item.subopd_nama }}</td>
                 <td>{{ item.subkegiatan_nama }}</td>
                 <td class="text-center font-mono">{{ item.posting_ket }}</td>
-                <td class="text-right">{{ item.posting_pagu|intcomma }}</td>
-                <td class="text-right">{{ item.nilai_sipd|intcomma }}</td>
+                <td class="text-right">{{ item.posting_pagu|floatformat:2|intcomma }}</td>
+                <td class="text-right">{{ item.nilai_sipd|floatformat:2|intcomma }}</td>
                 <td class="text-right" style="{% if item.selisih != 0 %}color:#b91c1c; font-weight:bold;{% endif %}">
-                    {{ item.selisih|intcomma }}
+                    {{ item.selisih|floatformat:2|intcomma }}
                 </td>
                 <td class="text-center font-bold">
                     {% if item.status == "SESUAI" %}
@@ -192,9 +192,9 @@
         <tfoot>
             <tr>
                 <td colspan="4" class="text-right">TOTAL KESELURUHAN:</td>
-                <td class="text-right">Rp {{ total_pagu|intcomma }}</td>
-                <td class="text-right">Rp {{ total_sipd|intcomma }}</td>
-                <td class="text-right">Rp {{ total_selisih|intcomma }}</td>
+                <td class="text-right">Rp {{ total_pagu|floatformat:2|intcomma }}</td>
+                <td class="text-right">Rp {{ total_sipd|floatformat:2|intcomma }}</td>
+                <td class="text-right">Rp {{ total_selisih|floatformat:2|intcomma }}</td>
                 <td class="text-center">{{ data|length }} Keg.</td>
             </tr>
         </tfoot>

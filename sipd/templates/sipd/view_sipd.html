@@ -141,8 +141,8 @@
   }
 
   function formatRupiah(num) {
-    var n = Math.round(Number(num) || 0);
-    return 'Rp ' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    var n = Number(num) || 0;
+    return 'Rp ' + n.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function recalculateAll() {

@@ -33,7 +33,7 @@ from sipd.registry import (
 from .models import Sipd, TBP
 from pendidikan.models import Realisasi
 from .forms import SipdUploadForm, TBPUploadForm
-from .tables import SipdTable, TBPTable
+from .tables import SipdTable, TBPTable, format_rupiah
 from .filters import SipdFilter
 from .tasks import import_sipd_task, import_tbp_task
 from .utils.importer import import_sipd_excel
@@ -578,7 +578,7 @@ def view_sipd(request, mode, pk):
         item["nomor_dokumen"] = ", ".join(sorted(item["nomor_dokumen_list"])) if item["nomor_dokumen_list"] else "-"
         item["keterangan"] = " / ".join(item["keterangan_list"]) if item["keterangan_list"] else "-"
         val_sp2d = item.get("nilai_realisasi") or Decimal(0)
-        item["nilai_formatted"] = f"{int(val_sp2d):,}".replace(",", ".")
+        item["nilai_formatted"] = format_rupiah(val_sp2d)
 
         # Susun rincian per nomor dokumen beserta nilai realisasinya
         dok_items = []
@@ -588,20 +588,20 @@ def view_sipd(request, mode, pk):
                 dok_items.append({
                     "nomor": dok_num,
                     "nilai": val,
-                    "nilai_formatted": f"{int(val):,}".replace(",", "."),
+                    "nilai_formatted": format_rupiah(val),
                 })
         else:
             dok_items.append({
                 "nomor": item["nomor_dokumen"],
                 "nilai": val_sp2d,
-                "nilai_formatted": f"{int(val_sp2d):,}".replace(",", "."),
+                "nilai_formatted": format_rupiah(val_sp2d),
             })
         item["rincian_dokumen"] = dok_items
 
     # ================= FINAL DATA =================
     data_final = list(grouped_sp2d.values())
     total_nilai = sum((row["nilai_realisasi"] for row in data_final), Decimal(0))
-    total_nilai_formatted = f"{int(total_nilai):,}".replace(",", ".")
+    total_nilai_formatted = format_rupiah(total_nilai)
 
     # mapping untuk POST
     sp2d_mapping = {
@@ -690,7 +690,7 @@ def view_sipd(request, mode, pk):
             return redirect(url_sp2d, pk=rencana.pk)
 
         total_saved = sum((o.realisasi_nilai for o in objs), Decimal(0))
-        total_saved_str = f"{int(total_saved):,}".replace(",", ".")
+        total_saved_str = format_rupiah(total_saved)
         messages.success(request, f'{len(objs)} SP2D berhasil disimpan dengan total nilai Rp {total_saved_str}')
         return redirect(url_sp2d, pk=rencana.pk)
 

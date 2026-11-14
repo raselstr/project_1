@@ -73,8 +73,8 @@
           <tr>
             <td>{{ l.created_at|date:"d M Y H:i" }}</td>
             <td class="text-capitalize">{{ l.sektor }}</td>
-            <td>{{ l.tahun_asal }}</td>
-            <td>{{ l.tahun_tujuan }}</td>
+            <td>{{ l.tahun_asal|stringformat:"s" }}</td>
+            <td>{{ l.tahun_tujuan|stringformat:"s" }}</td>
             <td>
               {% if l.status == "SUCCESS" %}
                 <span class="badge bg-success">SUCCESS</span>

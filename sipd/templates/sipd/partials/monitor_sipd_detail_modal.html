@@ -46,7 +46,7 @@
                 <div class="d-inline-block text-right">
                     <div class="small text-muted font-weight-bold">Total Nilai SIPD Sub Kegiatan:</div>
                     <div class="text-success font-weight-bold" style="font-size: 18px;">
-                        Rp {{ total_sipd|intcomma }}
+                        Rp {{ total_sipd|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                     <div class="card-wrap">
                         <div class="card-header"><h4 style="font-size: 11px;">Pagu Rencana</h4></div>
                         <div class="card-body" style="font-size: 14px; font-weight: 700;">
-                            Rp {{ posting_pagu|intcomma }}
+                            Rp {{ posting_pagu|floatformat:2|intcomma }}
                         </div>
                     </div>
                 </div>
@@ -79,7 +79,7 @@
                     <div class="card-wrap">
                         <div class="card-header"><h4 style="font-size: 11px;">Total SIPD</h4></div>
                         <div class="card-body {% if total_sipd == 0 %}text-muted{% else %}text-success{% endif %}" style="font-size: 14px; font-weight: 700;">
-                            Rp {{ total_sipd|intcomma }}
+                            Rp {{ total_sipd|floatformat:2|intcomma }}
                         </div>
                     </div>
                 </div>
@@ -93,7 +93,7 @@
                     <div class="card-wrap">
                         <div class="card-header"><h4 style="font-size: 11px;">Selisih</h4></div>
                         <div class="card-body {% if selisih == 0 %}text-success{% else %}text-danger{% endif %}" style="font-size: 14px; font-weight: 700;">
-                            Rp {{ selisih|intcomma }}
+                            Rp {{ selisih|floatformat:2|intcomma }}
                         </div>
                     </div>
                 </div>
@@ -164,7 +164,7 @@
                                     {{ item.keterangan|default:"-" }}
                                 </td>
                                 <td class="text-right font-weight-bold text-dark align-middle" style="white-space: nowrap;">
-                                    {{ item.nilai_tbp|intcomma }}
+                                    {{ item.nilai_tbp|floatformat:2|intcomma }}
                                 </td>
                             </tr>
                             {% empty %}
@@ -182,7 +182,7 @@
                                     Total Penjumlahan Nilai (Sama dengan Nilai SIPD):
                                 </td>
                                 <td class="text-right text-success font-weight-bold" style="font-size: 14px; white-space: nowrap;">
-                                    Rp {{ total_nilai_tbp|intcomma }}
+                                    Rp {{ total_nilai_tbp|floatformat:2|intcomma }}
                                 </td>
                             </tr>
                         </tfoot>

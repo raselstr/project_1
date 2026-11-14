@@ -227,7 +227,7 @@
     <tr>
       <td class="label">Tahun Anggaran</td>
       <td class="separator">:</td>
-      <td class="value"><strong>{{ rencana_tahun }}</strong></td>
+      <td class="value"><strong>{{ rencana_tahun|stringformat:"s" }}</strong></td>
       <td class="label" style="width: 110px;">OPD / Sub OPD</td>
       <td class="separator">:</td>
       <td class="value"><strong>{{ rencana_subopd|default:"Semua OPD" }}</strong></td>

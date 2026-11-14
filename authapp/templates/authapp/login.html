@@ -408,7 +408,7 @@
             <select class="form-control" name="tahun" id="tahun" required>
               <option value="">-- Pilih Tahun Anggaran --</option>
               {% for tahun in tahun %}
-              <option value="{{ tahun }}">{{ tahun }}</option>
+              <option value="{{ tahun|stringformat:'s' }}">{{ tahun|stringformat:'s' }}</option>
               {% endfor %}
             </select>
             <div class="invalid-feedback">Pilih Tahun Anggaran</div>

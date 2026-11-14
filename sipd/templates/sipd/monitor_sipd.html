@@ -100,7 +100,7 @@
                         <h4>Total Pagu Rencana</h4>
                     </div>
                     <div class="card-body">
-                        Rp {{ total_pagu|intcomma }}
+                        Rp {{ total_pagu|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                         <h4>Total Realisasi SIPD</h4>
                     </div>
                     <div class="card-body text-success">
-                        Rp {{ total_sipd|intcomma }}
+                        Rp {{ total_sipd|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>
@@ -132,7 +132,7 @@
                         <h4>Total Selisih</h4>
                     </div>
                     <div class="card-body {% if total_selisih != 0 %}text-danger{% else %}text-muted{% endif %}">
-                        Rp {{ total_selisih|intcomma }}
+                        Rp {{ total_selisih|floatformat:2|intcomma }}
                     </div>
                 </div>
             </div>

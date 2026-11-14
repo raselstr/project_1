@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ judul }} - Tahun {{ tahun }}</title>
+    <title>{{ judul }} - Tahun {{ tahun|stringformat:"s" }}</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'assets/modules/bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'assets/modules/fontawesome/css/all.min.css' %}">
@@ -105,7 +105,7 @@
     <!-- TOMBOL AKSI CETAK / TUTUP -->
     <div class="no-print d-flex justify-content-between align-items-center p-2 mb-3 bg-light border rounded">
         <div>
-            <strong>Pratinjau Cetak Laporan SP2D</strong> (Tahun Anggaran {{ tahun }})
+            <strong>Pratinjau Cetak Laporan SP2D</strong> (Tahun Anggaran {{ tahun|stringformat:"s" }})
         </div>
         <div>
             <button onclick="window.print();" class="btn btn-primary btn-sm mr-1">
@@ -121,7 +121,7 @@
     <div class="header-kop">
         <h3>PEMERINTAH KABUPATEN ASAHAN</h3>
         <h4>LAPORAN REALISASI SP2D</h4>
-        <div style="font-size: 11pt;">TAHUN ANGGARAN {{ tahun }}</div>
+        <div style="font-size: 11pt;">TAHUN ANGGARAN {{ tahun|stringformat:"s" }}</div>
     </div>
 
     <!-- META INFORMASI -->
@@ -140,7 +140,7 @@
             <td>{{ opd_nama }}</td>
             <td><strong>Tahun Login</strong></td>
             <td>:</td>
-            <td>{{ tahun }}</td>
+            <td>{{ tahun|stringformat:"s" }}</td>
         </tr>
         <tr>
             <td><strong>Tahap Pencairan</strong></td>
@@ -261,7 +261,7 @@
             {% empty %}
                 <tr>
                     <td colspan="13" style="text-align: center; padding: 25px;">
-                        Tidak ada data realisasi SP2D untuk filter Tahun {{ tahun }}.
+                        Tidak ada data realisasi SP2D untuk filter Tahun {{ tahun|stringformat:"s" }}.
                     </td>
                 </tr>
             {% endfor %}

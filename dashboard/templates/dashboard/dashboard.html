@@ -14,7 +14,7 @@
             </div>
             <div class="mt-2 mt-md-0">
                 <span class="badge badge-primary px-3 py-2" style="font-size: 0.85rem;">
-                    <i class="fas fa-calendar-alt mr-1"></i> TA {{ tahun }}
+                    <i class="fas fa-calendar-alt mr-1"></i> TA {{ tahun|stringformat:"s" }}
                 </span>
             </div>
         </div>
@@ -60,7 +60,7 @@
                                 Total Pagu Anggaran
                             </div>
                             <div class="kpi-value font-weight-bold mt-1" style="font-size: 1.6rem; letter-spacing: -0.02em;">
-                                Rp {{ total_pagu|intcomma }}
+                                Rp {{ total_pagu|floatformat:2|intcomma }}
                             </div>
                         </div>
                         <div class="kpi-icon-wrap">
@@ -82,7 +82,7 @@
                                 Total Realisasi Keuangan
                             </div>
                             <div class="kpi-value font-weight-bold mt-1" style="font-size: 1.6rem; letter-spacing: -0.02em;">
-                                Rp {{ total_realisasi|intcomma }}
+                                Rp {{ total_realisasi|floatformat:2|intcomma }}
                             </div>
                         </div>
                         <div class="kpi-icon-wrap">
@@ -104,7 +104,7 @@
                                 Total Sisa Anggaran
                             </div>
                             <div class="kpi-value font-weight-bold mt-1" style="font-size: 1.6rem; letter-spacing: -0.02em;">
-                                Rp {{ total_sisa|intcomma }}
+                                Rp {{ total_sisa|floatformat:2|intcomma }}
                             </div>
                         </div>
                         <div class="kpi-icon-wrap">
@@ -137,7 +137,7 @@
                                     <span>{{ row.realisasi_tahap__tahap_dana }}</span>
                                 </div>
                                 <div class="rekap-item-value">
-                                    Rp {{ row.realisasi|intcomma }}
+                                    Rp {{ row.realisasi|floatformat:2|intcomma }}
                                 </div>
                             </div>
                             {% empty %}
@@ -168,7 +168,7 @@
                                     <span>{{ row.subopd_nama }}</span>
                                 </div>
                                 <div class="rekap-item-value">
-                                    Rp {{ row.total|intcomma }}
+                                    Rp {{ row.total|floatformat:2|intcomma }}
                                 </div>
                             </div>
                             {% empty %}
