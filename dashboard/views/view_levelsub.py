@@ -1,14 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.core.exceptions import ValidationError
-from project.decorators import menu_access_required, set_submenu_session
 from django.forms import modelformset_factory
+from project.decorators import menu_access_required, set_submenu_session
 
 from ..models import Levelsub, Submenu, Level
 from ..forms import LevelsubForm
 
-Model_data = Levelsub
-Form_data = LevelsubForm
 template_list = 'levelsub/levelsub_list.html'
 
 
@@ -16,107 +13,81 @@ template_list = 'levelsub/levelsub_list.html'
 @menu_access_required('simpan')
 def manage_levelsubs(request, number):
     request.session['next'] = request.get_full_path()
-    LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
     level = get_object_or_404(Level, pk=number)
-    submenus = Submenu.objects.all().order_by('submenu_menu')
     
+    # Pastikan setiap Submenu yang ada memiliki entri Levelsub untuk level ini
+    submenus = Submenu.objects.all().select_related('submenu_menu').order_by('submenu_menu__id', 'id')
     for submenu in submenus:
-        Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
+        Levelsub.objects.get_or_create(levelsub_level=level, levelsub_submenu=submenu)
     
+    LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
+    queryset = Levelsub.objects.filter(levelsub_level=level).select_related(
+        'levelsub_submenu__submenu_menu'
+    ).order_by('levelsub_submenu__submenu_menu__id', 'levelsub_submenu__id')
 
     if request.method == 'POST':
-        formset = LevelsubFormSet(request.POST, queryset=Levelsub.objects.filter(levelsub_level=level))
+        formset = LevelsubFormSet(request.POST, queryset=queryset)
         if formset.is_valid():
             instances = formset.save(commit=False)
             for instance in instances:
                 instance.levelsub_level = level
                 instance.save()
-                
-            return redirect('list_level')  # Ganti dengan URL yang sesuai
+            
+            messages.success(request, f'Hak akses sub menu untuk level "{level.level_nama}" berhasil disimpan!')
+            
+            if request.POST.get('simpan_kembali') == '1':
+                return redirect('list_level')
+            return redirect('list_levelsub', number=level.id)
+        else:
+            messages.error(request, 'Terjadi kesalahan saat memvalidasi form. Silakan periksa kembali.')
     else:
-        
-        formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=level))
-    
-    return render(request, template_list, {'formset': formset, 'level': level, 'judul':'Daftar List Aktifitas'})
+        formset = LevelsubFormSet(queryset=queryset)
 
+    # Kelompokkan formset berdasarkan Menu induk
+    menu_groups = []
+    current_menu_id = None
+    current_group = None
 
-# def list(request, number):
-#     submenus = Submenu.objects.all().order_by('submenu_menu')
-    
-#     # Pastikan setiap Submenu memiliki entri di Levelsub untuk level yang diberikan
-#     for submenu in submenus:
-#         Levelsub.objects.get_or_create(levelsub_level_id=number, levelsub_submenu=submenu)
-    
-#     if request.method == 'POST':
-#         formset = LevelsubFormSet(request.POST)
-#         if formset.is_valid():
-#             formset.save()
-#             return redirect('list_level')  # Ganti dengan URL yang sesuai
-#     else:
-#         formset = LevelsubFormSet(queryset=Levelsub.objects.filter(levelsub_level=number))
-    
-#     context = {
-#         'formset': formset,
-#         'number': number,
-#         'tbltombol': 'Simpan Pengaturan'
-#     }
-#     return render(request, 'levelsub/levelsub_list.html', context)
+    for form in formset.forms:
+        submenu = form.instance.levelsub_submenu
+        menu = submenu.submenu_menu
+        if current_menu_id != menu.id:
+            current_menu_id = menu.id
+            current_group = {
+                'menu': menu,
+                'items': [],
+                'total_count': 0,
+                'active_count': 0,
+            }
+            menu_groups.append(current_group)
 
-# LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
-# @menu_access_required
-# def list(request, number):
-#     data = Submenu.objects.prefetch_related('levelsub_set').order_by('submenu_menu')
-    
-#     form = Form_data(request.POST or None, number)
+        # Cek apakah form memiliki hak akses aktif (Lihat, Simpan, Edit, atau Hapus)
+        is_active = bool(
+            form['lihat'].value() or 
+            form['simpan'].value() or 
+            form['edit'].value() or 
+            form['hapus'].value()
+        )
+        current_group['items'].append({
+            'form': form,
+            'submenu': submenu,
+            'is_active': is_active,
+        })
+        current_group['total_count'] += 1
+        if is_active:
+            current_group['active_count'] += 1
 
-#     context = {
-#         'data': data,
-#         'form':form,
-#         'number':number,
-#         'tbltombol' : 'Simpan Pengaturan'
-#     }
-#     return render(request, template_list, context)
+    total_submenus = len(formset.forms)
+    total_active = sum(g['active_count'] for g in menu_groups)
+    all_levels = Level.objects.all().order_by('id')
 
-# @menu_access_required
-# def simpan_level(request):
-#     data = Level.objects.all()
-#     if request.method == "POST":
-#         form = LevelForm(request.POST or None)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Data Berhasil disimpan')
-#             return redirect('list_level')
-#     else:
-#         form = LevelForm()
-#     context = {
-#         'form'  : form,
-#         'datas': data
-#     }
-#     return render(request, "level/level_list.html", context)
-
-# @menu_access_required
-# def update_level(request, pk):
-#     data = get_object_or_404(Level, id=pk)
-#     formupdate = LevelForm(request.POST or None, instance=data)
-#     if request.method == "POST":
-#         if formupdate.is_valid():
-#             formupdate.save()
-#             messages.success(request, "Data Berhasil diupdate")
-#             return redirect("list_level")
-#     else:
-#         formupdate = LevelForm(instance=data)
-
-#     context = {"form": formupdate, "datas": data, "judul": "Update Level"}
-#     return render(request, "level/level_edit.html", context)
-
-# @menu_access_required
-# def delete_level(request, pk):
-#     try:
-#         data = Level.objects.get(id=pk)
-#         data.delete()
-#         messages.warning(request, "Data Berhasil dihapus")
-#     except Level.DoesNotExist:
-#         messages.error(request,"Dana tidak ditemukan")
-#     except ValidationError as e:
-#         messages.error(request, str(e))
-#     return redirect("list_level")
+    context = {
+        'formset': formset,
+        'menu_groups': menu_groups,
+        'level': level,
+        'all_levels': all_levels,
+        'total_submenus': total_submenus,
+        'total_active': total_active,
+        'judul': f'Hak Akses Sub Menu - {level.level_nama}',
+    }
+    return render(request, template_list, context)

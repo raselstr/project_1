@@ -2,70 +2,164 @@
 
 {% block content %}
 <section class="section">
-    <div class="section-header">
-        <h1>{{judul}}</h1>
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>{{judul}}</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="{% url 'dashboard' %}">Dashboard</a></div>
+                <div class="breadcrumb-item">Level Pengguna</div>
+            </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#modalTambah">
+                <i class="fas fa-plus-circle mr-1"></i> {{tombol}}
+            </button>
+        </div>
     </div>
+
     {% include 'includes/infobox.html' %}
+
+    <!-- Info Cards Ringkasan -->
     <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{judul}}</h4>
-                    <div class="card-header-action"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button></div>
+        <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm">
+                <div class="card-icon bg-primary">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Level</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_levels|default:datas.count }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm">
+                <div class="card-icon bg-info">
+                    <i class="fas fa-th-list"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Total Sub Menu Sistem</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_submenus|default:40 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+            <div class="card card-statistic-1 shadow-sm">
+                <div class="card-icon bg-success">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Pengguna Terdaftar</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ total_users|default:0 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Penjelasan -->
+    <div class="alert alert-light border shadow-sm alert-has-icon mb-4">
+        <div class="alert-icon text-primary"><i class="fas fa-info-circle fa-lg"></i></div>
+        <div class="alert-body">
+            <div class="alert-title font-weight-bold text-dark">Manajemen Akses Sub Menu per Level</div>
+            Pilih dan klik tombol <span class="badge badge-warning text-dark font-weight-bold"><i class="fas fa-sliders-h mr-1"></i> Atur Akses Sub Menu</span> pada tabel di bawah untuk menentukan menu apa saja yang dapat dibuka dan hak aksi (Lihat, Simpan, Edit, Hapus) yang dimiliki oleh masing-masing level pengguna.
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-table mr-2 text-primary"></i>Daftar Level & Hak Akses Menu</h4>
                 </div>
                 <div class="card-body">
-                    <table class="display" id="tabel1" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">No</th>
-                                <th style="text-align: center;">Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                            {% for data in datas %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="tabel1" style="width:100%">
+                            <thead>
                                 <tr>
-                                    <td style="text-align: center;">
-                                        {% comment %} <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#modalTambahOPD" onclick="editOpd('{{ opd.id }}', '{{ opd.kode_opd }}', '{{ opd.nama_opd }}')">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </button> {% endcomment %}
-                                        <a href="{% url 'update_level' data.id %}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="{% url 'delete_level' data.id %}" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                        <a href="{% url 'list_levelsub' data.id%}" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-tasks"></i>
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td style="text-align: left;">{{ data.level_nama }}</td>
+                                    <th style="width: 50px; text-align: center;">No</th>
+                                    <th>Nama Level</th>
+                                    <th style="text-align: center;">Pengguna Terdaftar</th>
+                                    <th style="text-align: center;">Hak Akses Sub Menu</th>
+                                    <th style="width: 250px; text-align: center;">Aksi</th>
                                 </tr>
-                            {% endfor %}
-                            
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {% for data in datas %}
+                                    <tr>
+                                        <td style="text-align: center; vertical-align: middle;">{{ forloop.counter }}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-item mr-3 text-primary bg-light rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                                    <i class="fas fa-shield-alt"></i>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-dark font-weight-600" style="font-size: 1.05rem;">{{ data.level_nama }}</strong>
+                                                    <div class="text-muted small">ID: {{ data.id }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                                                <i class="fas fa-users text-primary mr-1"></i> {{ data.total_users|default:0 }} Pengguna
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            {% if data.active_subs > 0 %}
+                                                <span class="badge badge-success px-2 py-1 font-weight-normal shadow-sm">
+                                                    <i class="fas fa-check-circle mr-1"></i> {{ data.active_subs }} / {{ total_submenus }} Sub Menu Aktif
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-secondary px-2 py-1 font-weight-normal">
+                                                    <i class="fas fa-ban mr-1"></i> Belum ada sub menu aktif
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <a href="{% url 'list_levelsub' data.id %}" class="btn btn-warning btn-sm font-weight-bold shadow-sm mr-1" data-toggle="tooltip" title="Kelola Hak Akses Sub Menu untuk {{ data.level_nama }}">
+                                                <i class="fas fa-sliders-h mr-1"></i> Atur Akses Sub Menu
+                                            </a>
+                                            <a href="{% url 'update_level' data.id %}" class="btn btn-info btn-sm mr-1" data-toggle="tooltip" title="Edit Nama Level">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                            <a href="{% url 'delete_level' data.id %}" class="btn btn-danger btn-sm" data-toggle="tooltip" title="Hapus Level" onclick="return confirm('Apakah Anda yakin ingin menghapus level \'{{ data.level_nama }}\'?');">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Modal Tambah OPD -->
+<!-- Modal Tambah Level -->
 <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
+                <h5 class="modal-title" id="modalTambahLabel"><i class="fas fa-plus-circle text-primary mr-2"></i>{{tombol}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             
             <div class="modal-body">
-                
                 <form id="formTambah" method="POST" action="{% url 'simpan_level' %}">
                     {% csrf_token %}
                     {% for field in form %}
@@ -74,62 +168,84 @@
                             {{ field }}
                             {% if field.errors %}
                                 {% for error in field.errors %}
-                                <div class="text-danger">
-                                    <p>{{ error }}</p>
+                                <div class="text-danger mt-1 small">
+                                    <p class="mb-0">{{ error }}</p>
                                 </div>
                                 {% endfor %}
                             {% endif %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Simpan Level</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-    
 {% endblock content %}
 
 {% block style %}
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+  <style>
+    .card-statistic-1 {
+      border-radius: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-statistic-1:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08) !important;
+    }
+  </style>
 {% endblock style %}
 
 {% block src %}
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
   <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
 {% endblock src %}
+
 {% block javascript %}
     <script>
-        new DataTable('#tabel1', {
-            layout: {
-                topStart: {
-                    pageLength: {
-                        menu: [ 
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']    
-                        ],
-                    }
-                },
-                topEnd: {
-                    search: {
-                        placeholder: 'cari'
-                    }
-                },
-                bottomEnd: {
-                    paging: {
-                        numbers: 5
-                    }
-                    
-                }
-            }
-        });
-
-        
-    </script>
-    <script>
         $(document).ready(function() {
+            new DataTable('#tabel1', {
+                language: {
+                    search: "Cari:",
+                    lengthMenu: "Tampilkan _MENU_ data",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ level",
+                    infoEmpty: "Menampilkan 0 data",
+                    zeroRecords: "Tidak ditemukan data yang cocok",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Lanjut",
+                        previous: "Kembali"
+                    }
+                },
+                layout: {
+                    topStart: {
+                        pageLength: {
+                            menu: [ 
+                                [10, 25, 50, -1],
+                                [10, 25, 50, 'Semua']    
+                            ],
+                        }
+                    },
+                    topEnd: {
+                        search: {
+                            placeholder: 'Cari level...'
+                        }
+                    },
+                    bottomEnd: {
+                        paging: {
+                            numbers: 5
+                        }
+                    }
+                }
+            });
+
             {% if form.errors %}
                 $('#modalTambah').modal('show');
             {% endif %}
@@ -137,16 +253,12 @@
             $('#clear').on('click', function() {
                 $('#formTambah').find('input[type="text"]').val('');
                 $('.text-danger').remove();
-                window.location.href = "{% url 'list_level' %}";
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
+
             {% if messages %}
             {% for message in messages %}
                 iziToast.{{ message.tags }}({
-                    title: '{{ message.tags }}',
+                    title: '{{ message.tags|title }}',
                     message: '{{ message }}',
                     position: 'topRight'
                 });
@@ -154,13 +266,4 @@
             {% endif %}
         });
     </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%' // Ensure Select2 takes full width of the container
-            });
-        });
-    </script>
-    
 {% endblock javascript %}
-

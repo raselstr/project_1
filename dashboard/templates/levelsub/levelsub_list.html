@@ -2,178 +2,853 @@
 
 {% block content %}
 <section class="section">
-    <div class="section-header">
-        <h1>{{judul}}</h1>
+    <!-- Header & Breadcrumbs -->
+    <div class="section-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>{{ judul }}</h1>
+            <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></div>
+                <div class="breadcrumb-item"><a href="{% url 'list_level' %}">Level Pengguna</a></div>
+                <div class="breadcrumb-item active">{{ level.level_nama }}</div>
+            </div>
+        </div>
+        <div>
+            <a href="{% url 'list_level' %}" class="btn btn-outline-secondary mr-2">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali ke Daftar
+            </a>
+            <button type="button" class="btn btn-primary shadow-sm btn-trigger-save">
+                <i class="fas fa-save mr-1"></i> Simpan Pengaturan
+            </button>
+        </div>
     </div>
+
     {% include 'includes/infobox.html' %}
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4>{{judul}} untuk {{ level }}</h4>
-                    <div class="card-header-action"><button type="button" class="btn btn-primary"></button></div>
-                </div>
-                <div class="card-body">
-                            <form method="post">
-                                <button type="submit" class="btn btn-primary float-right">Simpan Aktifitas untuk {{level}}</button>
-                                <table class="table table-bordered table-sm" >
-                                {% csrf_token %}
-                                {{ formset.management_form }}
-                                {% for form in formset %}
-                                    <div class="form-row">
-                                        {{ form.as_table }}
+
+    <!-- Hero Card Level Info & Quick Switcher -->
+    <div class="card shadow-sm border-0 mb-4 hero-level-card">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-7 col-md-12 mb-3 mb-lg-0">
+                    <div class="d-flex align-items-center">
+                        <div class="hero-icon-badge mr-3">
+                            <i class="fas fa-user-shield fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center flex-wrap">
+                                <h3 class="mb-1 font-weight-bold text-dark mr-3">{{ level.level_nama }}</h3>
+                                <!-- Quick Level Switcher Dropdown -->
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle font-weight-600 px-3 py-1" type="button" id="dropdownLevelSwitch" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-exchange-alt mr-1"></i> Ganti Level
+                                    </button>
+                                    <div class="dropdown-menu shadow" aria-labelledby="dropdownLevelSwitch" style="max-height: 280px; overflow-y: auto;">
+                                        <h6 class="dropdown-header text-uppercase font-weight-bold">Pilih Level Lain</h6>
+                                        {% for l in all_levels %}
+                                            <a class="dropdown-item d-flex justify-content-between align-items-center {% if l.id == level.id %}active font-weight-bold{% endif %}" href="{% url 'list_levelsub' l.id %}">
+                                                <span>{{ l.level_nama }}</span>
+                                                {% if l.id == level.id %}
+                                                    <i class="fas fa-check-circle ml-2 text-white"></i>
+                                                {% endif %}
+                                            </a>
+                                        {% endfor %}
                                     </div>
-                                {% endfor %}
-                                </table>
-                                
-                            </form>
+                                </div>
+                            </div>
+                            <p class="text-muted mb-0 mt-1">
+                                Kelola sub menu yang dapat diakses serta izin aksi (<strong>Lihat</strong>, <strong>Simpan</strong>, <strong>Edit</strong>, <strong>Hapus</strong>) untuk peran ini.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-
-
-                    {% comment %} <table class="display" id="tabel1" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;">Aksi</th>
-                                <th style="text-align: center;">No</th>
-                                <th style="text-align: center;">Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                            {% for data in datas %}
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <a href="{% url 'update_level' data.id %}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-pencil-alt"></i>
-                                        </a>
-                                        <a href="{% url 'delete_level' data.id %}" class="btn btn-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                        <a href="{% url 'delete_level' data.id %}" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-tasks"></i>
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center;">{{ forloop.counter }}</td>
-                                    <td style="text-align: left;">{{ data.level_nama }}</td>
-                                </tr>
-                            {% endfor %}
-                            
-                        </tbody>
-                    </table> {% endcomment %}
+                <div class="col-lg-5 col-md-12">
+                    <div class="d-flex justify-content-lg-end align-items-center flex-wrap">
+                        <div class="stat-pill mr-3 mb-2 mb-sm-0 text-center">
+                            <span class="text-muted small text-uppercase font-weight-600 d-block">Total Sub Menu</span>
+                            <span class="h5 font-weight-bold text-dark mb-0">{{ total_submenus }}</span>
+                        </div>
+                        <div class="stat-pill mr-3 mb-2 mb-sm-0 text-center">
+                            <span class="text-muted small text-uppercase font-weight-600 d-block">Sub Menu Aktif</span>
+                            <span class="h5 font-weight-bold text-success mb-0" id="stat-active-count">{{ total_active }}</span>
+                        </div>
+                        <div class="stat-pill text-center">
+                            <span class="text-muted small text-uppercase font-weight-600 d-block">Nonaktif</span>
+                            <span class="h5 font-weight-bold text-secondary mb-0" id="stat-inactive-count">{{ total_submenus|add:"-"|add:total_active }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Toolbar: Live Search, Filter Tabs & Bulk Actions -->
+    <div class="card shadow-sm mb-4 sticky-top-toolbar">
+        <div class="card-body py-3 px-4">
+            <div class="row align-items-center">
+                <!-- Live Search Box -->
+                <div class="col-lg-4 col-md-5 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+                        </div>
+                        <input type="text" id="filterSearch" class="form-control border-left-0 pl-0" placeholder="Cari menu, sub menu, link..." autocomplete="off">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary border-left-0" type="button" id="clearSearch" title="Hapus pencarian">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="col-lg-4 col-md-7 mb-2 mb-lg-0 text-center text-md-left">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <button type="button" class="btn btn-sm btn-primary active btn-filter-tab" data-filter="all">
+                            Semua (<span id="tab-all-count">{{ total_submenus }}</span>)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-filter-tab" data-filter="active">
+                            <i class="fas fa-check-circle mr-1"></i> Aktif (<span id="tab-active-count">{{ total_active }}</span>)
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-filter-tab" data-filter="inactive">
+                            <i class="fas fa-minus-circle mr-1"></i> Nonaktif (<span id="tab-inactive-count">{{ total_submenus|add:"-"|add:total_active }}</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Global Quick Actions -->
+                <div class="col-lg-4 col-md-12 text-lg-right text-center mt-2 mt-lg-0">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-success font-weight-600" id="btn-bulk-all" title="Centang semua izin (Lihat, Simpan, Edit, Hapus) untuk semua sub menu">
+                            <i class="fas fa-check-double mr-1"></i> Semua Akses
+                        </button>
+                        <button type="button" class="btn btn-outline-info font-weight-600" id="btn-bulk-view" title="Centang izin Lihat saja untuk semua sub menu">
+                            <i class="far fa-eye mr-1"></i> Lihat Saja
+                        </button>
+                        <button type="button" class="btn btn-outline-danger font-weight-600" id="btn-bulk-clear" title="Nonaktifkan semua izin sub menu">
+                            <i class="fas fa-ban mr-1"></i> Kosongkan
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary font-weight-600" id="btn-toggle-all-cards" title="Buka atau tutup semua grup menu">
+                            <i class="fas fa-compress-alt mr-1"></i> <span id="toggle-cards-text">Tutup Card</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unsaved changes warning indicator -->
+            <div id="top-unsaved-badge" class="alert alert-warning py-1 px-3 mt-2 mb-0 d-none text-center">
+                <i class="fas fa-exclamation-triangle mr-1"></i> Ada perubahan yang belum disimpan. Klik <strong>Simpan Pengaturan</strong> untuk menerapkan.
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <form method="POST" id="form-levelsub">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        <input type="hidden" name="simpan_kembali" id="input-simpan-kembali" value="0">
+
+        <!-- Loop Menu Groups -->
+        {% for group in menu_groups %}
+            <div class="card shadow-sm mb-4 menu-group-card" id="card-menu-{{ group.menu.id }}" data-menu-name="{{ group.menu.menu_nama|lower }}">
+                <!-- Card Header with Menu Actions -->
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between py-2 px-3 menu-header-clickable" data-toggle="collapse" data-target="#collapse-menu-{{ group.menu.id }}" aria-expanded="true">
+                    <div class="d-flex align-items-center py-1">
+                        <div class="menu-icon-square mr-2">
+                            <i class="{{ group.menu.menu_icon|default:'fas fa-folder' }} text-primary"></i>
+                        </div>
+                        <h5 class="mb-0 text-dark font-weight-bold" style="font-size: 1.05rem;">{{ group.menu.menu_nama }}</h5>
+                        <span class="badge {% if group.active_count > 0 %}badge-primary{% else %}badge-secondary{% endif %} ml-2 menu-counter-badge" id="badge-menu-{{ group.menu.id }}">
+                            <span class="active-count">{{ group.active_count }}</span> / {{ group.total_count }} Aktif
+                        </span>
+                    </div>
+
+                    <div class="card-header-action d-flex align-items-center py-1" onclick="event.stopPropagation();">
+                        <div class="btn-group btn-group-sm mr-2">
+                            <button type="button" class="btn btn-outline-success btn-sm btn-menu-all font-weight-600" data-target="{{ group.menu.id }}" title="Aktifkan semua izin di menu {{ group.menu.menu_nama }}">
+                                <i class="fas fa-check-double mr-1"></i> Semua
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm btn-menu-view font-weight-600" data-target="{{ group.menu.id }}" title="Hanya aktifkan izin Lihat di menu {{ group.menu.menu_nama }}">
+                                <i class="far fa-eye mr-1"></i> Lihat Saja
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm btn-menu-clear font-weight-600" data-target="{{ group.menu.id }}" title="Nonaktifkan semua izin di menu {{ group.menu.menu_nama }}">
+                                <i class="fas fa-times mr-1"></i> Kosongkan
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-light border btn-collapse-indicator" data-toggle="collapse" data-target="#collapse-menu-{{ group.menu.id }}">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Body / Submenu Table -->
+                <div id="collapse-menu-{{ group.menu.id }}" class="collapse show menu-collapse-body">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm mb-0">
+                                <thead>
+                                    <tr class="bg-light text-muted text-uppercase small">
+                                        <th style="width: 34%; padding-left: 20px;">Sub Menu</th>
+                                        <th style="width: 18%; text-align: center;">Status & Aksi Cepat</th>
+                                        <th style="width: 12%; text-align: center;"><i class="far fa-eye text-info mr-1"></i> Lihat</th>
+                                        <th style="width: 12%; text-align: center;"><i class="fas fa-plus-circle text-success mr-1"></i> Simpan</th>
+                                        <th style="width: 12%; text-align: center;"><i class="fas fa-pencil-alt text-warning mr-1"></i> Edit</th>
+                                        <th style="width: 12%; text-align: center;"><i class="fas fa-trash-alt text-danger mr-1"></i> Hapus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in group.items %}
+                                        <tr class="submenu-row {% if item.is_active %}row-active{% else %}row-inactive{% endif %}" id="row-{{ item.form.prefix }}" data-submenu-name="{{ item.submenu.submenu_nama|lower }}" data-menu-name="{{ group.menu.menu_nama|lower }}" data-link="{{ item.submenu.submenu_link|lower }}">
+                                            {{ item.form.id }}
+                                            <td style="padding-left: 20px; vertical-align: middle;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="submenu-icon-box mr-3">
+                                                        <i class="{{ item.submenu.submenu_icon|default:'fas fa-angle-right' }} text-secondary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="font-weight-600 text-dark submenu-title" style="font-size: 0.95rem;">{{ item.submenu.submenu_nama }}</span>
+                                                        {% if item.submenu.submenu_link %}
+                                                            <div class="text-muted small font-monospace"><i class="fas fa-link mr-1"></i>{{ item.submenu.submenu_link }}</div>
+                                                        {% else %}
+                                                            <div class="text-muted small font-italic">No route link</div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span class="badge {% if item.is_active %}badge-success{% else %}badge-light text-muted border{% endif %} mr-2 row-status-badge px-2 py-1">
+                                                        {% if item.is_active %}<i class="fas fa-check-circle mr-1"></i>Aktif{% else %}<i class="fas fa-minus-circle mr-1"></i>Nonaktif{% endif %}
+                                                    </span>
+                                                    <button type="button" class="btn btn-xs btn-outline-primary btn-row-toggle px-2 py-1 font-weight-600" title="Centang / Hapus semua izin baris ini">
+                                                        <i class="fas fa-check-double mr-1"></i>Semua
+                                                    </button>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <div class="d-flex justify-content-center">
+                                                    <label class="custom-switch switch-lihat m-0" for="{{ item.form.lihat.id_for_label }}" data-toggle="tooltip" title="Izinkan melihat data pada {{ item.submenu.submenu_nama }}">
+                                                        {{ item.form.lihat }}
+                                                        <span class="custom-switch-indicator"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <div class="d-flex justify-content-center">
+                                                    <label class="custom-switch switch-simpan m-0" for="{{ item.form.simpan.id_for_label }}" data-toggle="tooltip" title="Izinkan menambah/menyimpan data pada {{ item.submenu.submenu_nama }}">
+                                                        {{ item.form.simpan }}
+                                                        <span class="custom-switch-indicator"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <div class="d-flex justify-content-center">
+                                                    <label class="custom-switch switch-edit m-0" for="{{ item.form.edit.id_for_label }}" data-toggle="tooltip" title="Izinkan mengubah/update data pada {{ item.submenu.submenu_nama }}">
+                                                        {{ item.form.edit }}
+                                                        <span class="custom-switch-indicator"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+
+                                            <td class="text-center" style="vertical-align: middle;">
+                                                <div class="d-flex justify-content-center">
+                                                    <label class="custom-switch switch-hapus m-0" for="{{ item.form.hapus.id_for_label }}" data-toggle="tooltip" title="Izinkan menghapus data pada {{ item.submenu.submenu_nama }}">
+                                                        {{ item.form.hapus }}
+                                                        <span class="custom-switch-indicator"></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Empty State When Search Yields Nothing -->
+        <div class="no-search-results alert alert-warning text-center d-none my-4 p-4 shadow-sm">
+            <i class="fas fa-search fa-2x mb-2 d-block text-warning"></i>
+            <h5 class="font-weight-bold">Tidak ada sub menu yang cocok</h5>
+            <p class="text-muted mb-0">Silakan ubah kata kunci pencarian atau bersihkan filter.</p>
+        </div>
+
+        <!-- Card Aksi Bawah -->
+        <div class="card shadow-sm border bg-light mt-4 mb-5">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between py-3">
+                <div class="mb-2 mb-sm-0">
+                    <a href="{% url 'list_level' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i> Kembali ke Daftar Level
+                    </a>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-outline-primary mr-2 btn-trigger-save-back">
+                        <i class="fas fa-save mr-1"></i> Simpan & Kembali ke Daftar
+                    </button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm btn-submit-main">
+                        <i class="fas fa-check-circle mr-1"></i> Simpan Pengaturan Akses
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </section>
 
-<!-- Modal Tambah OPD -->
-{% comment %} <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id=clear>
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                
-                <form id="formTambah" method="POST" action="{% url 'simpan_level' %}">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                {% for error in field.errors %}
-                                <div class="text-danger">
-                                    <p>{{ error }}</p>
-                                </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary float-right">Simpan</button>
-                </form>
+<!-- Floating Sticky Bottom Action Bar -->
+<div class="sticky-bottom-bar shadow-lg">
+    <div class="d-flex align-items-center justify-content-between flex-wrap">
+        <div class="d-flex align-items-center mb-2 mb-md-0">
+            <div class="d-flex align-items-center">
+                <span class="badge badge-primary px-2 py-1 font-weight-bold mr-2">
+                    <i class="fas fa-user-shield mr-1"></i> {{ level.level_nama }}
+                </span>
+                <span class="badge badge-success px-2 py-1 font-weight-bold mr-2" id="bottom-active-badge">
+                    <span id="bottom-active-count">{{ total_active }}</span> / {{ total_submenus }} Aktif
+                </span>
+                <span class="badge badge-warning px-2 py-1 font-weight-bold d-none" id="bottom-unsaved-badge">
+                    <i class="fas fa-circle mr-1 small"></i> Belum Disimpan
+                </span>
             </div>
         </div>
+        <div class="d-flex align-items-center">
+            <a href="{% url 'list_level' %}" class="btn btn-sm btn-light border mr-2">
+                <i class="fas fa-times mr-1"></i> Batal
+            </a>
+            <button type="button" class="btn btn-sm btn-outline-primary mr-2 btn-trigger-save-back font-weight-600">
+                <i class="fas fa-save mr-1"></i> Simpan & Kembali
+            </button>
+            <button type="button" class="btn btn-sm btn-primary px-3 shadow-sm btn-trigger-save font-weight-bold">
+                <i class="fas fa-check-circle mr-1"></i> Simpan Perubahan
+            </button>
+        </div>
     </div>
-</div> {% endcomment %}
+</div>
 
-    
 {% endblock content %}
 
 {% block style %}
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+<style>
+    /* Hero Card & Info Styling */
+    .hero-level-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+        border-radius: 10px;
+        border: 1px solid #dbeafe !important;
+    }
+    .hero-icon-badge {
+        width: 58px;
+        height: 58px;
+        background: #e0f2fe;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stat-pill {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 16px;
+        min-width: 100px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* Sticky Toolbar */
+    .sticky-top-toolbar {
+        border-radius: 10px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Menu Cards */
+    .menu-group-card {
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        transition: box-shadow 0.2s ease;
+    }
+    .menu-group-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 82, 204, 0.08) !important;
+    }
+    .menu-header-clickable {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        cursor: pointer;
+        user-select: none;
+    }
+    .menu-header-clickable:hover {
+        background: #f1f5f9;
+    }
+    .menu-icon-square {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: #e0f2fe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .submenu-icon-box {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+
+    /* Submenu Row States */
+    .submenu-row {
+        transition: background-color 0.15s ease, border-left-color 0.15s ease;
+    }
+    .submenu-row.row-active {
+        background-color: #f0f7ff !important;
+        border-left: 4px solid #0284c7 !important;
+    }
+    .submenu-row.row-inactive {
+        border-left: 4px solid transparent !important;
+    }
+    .submenu-row:hover {
+        background-color: #e2e8f0 !important;
+    }
+    .submenu-row.row-active:hover {
+        background-color: #e0f2fe !important;
+    }
+
+    /* Custom Switch Controls */
+    .custom-switch {
+        padding-left: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        margin: 0;
+        user-select: none;
+    }
+    .custom-switch-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        margin: 0;
+    }
+    .custom-switch-indicator {
+        display: inline-block;
+        height: 24px;
+        width: 44px;
+        background: #cbd5e1;
+        border-radius: 50px;
+        position: relative;
+        vertical-align: middle;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .custom-switch-indicator:before {
+        content: '';
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        top: 3px;
+        left: 3px;
+        background: #ffffff;
+        border-radius: 50%;
+        transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+    .custom-switch-input:checked + .custom-switch-indicator:before {
+        left: 23px;
+    }
+
+    /* Color Coded Switches */
+    .switch-lihat .custom-switch-input:checked + .custom-switch-indicator {
+        background: #0284c7 !important; /* Info / Cyan */
+    }
+    .switch-simpan .custom-switch-input:checked + .custom-switch-indicator {
+        background: #10b981 !important; /* Success / Emerald */
+    }
+    .switch-edit .custom-switch-input:checked + .custom-switch-indicator {
+        background: #f59e0b !important; /* Warning / Amber */
+    }
+    .switch-hapus .custom-switch-input:checked + .custom-switch-indicator {
+        background: #ef4444 !important; /* Danger / Red */
+    }
+
+    /* Small font monospace for links */
+    .font-monospace {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.78rem;
+    }
+
+    /* Sticky Bottom Floating Bar */
+    .sticky-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 250px;
+        right: 0;
+        z-index: 890;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid #bfdbfe;
+        box-shadow: 0 -4px 15px rgba(0, 82, 204, 0.08);
+        padding: 10px 30px;
+        transition: left 0.3s ease;
+    }
+    body.sidebar-mini .sticky-bottom-bar {
+        left: 65px;
+    }
+    @media (max-width: 1024px) {
+        .sticky-bottom-bar {
+            left: 0 !important;
+            padding: 10px 15px;
+        }
+    }
+</style>
 {% endblock style %}
 
-{% block src %}
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
-  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
-{% endblock src %}
 {% block javascript %}
-    <script>
-        new DataTable('#tabel1', {
-            layout: {
-                topStart: {
-                    pageLength: {
-                        menu: [ 
-                            [10, 25, 50, -1],
-                            [10, 25, 50, 'All']    
-                        ],
-                    }
-                },
-                topEnd: {
-                    search: {
-                        placeholder: 'cari'
-                    }
-                },
-                bottomEnd: {
-                    paging: {
-                        numbers: 5
-                    }
-                    
-                }
+<script>
+$(document).ready(function() {
+    var isDirty = false;
+    var currentFilter = 'all'; // 'all', 'active', 'inactive'
+
+    function markDirty() {
+        if (!isDirty) {
+            isDirty = true;
+            $('#top-unsaved-badge, #bottom-unsaved-badge').removeClass('d-none');
+        }
+    }
+
+    // Update row state (visual class, status badge, row toggle button)
+    function updateRowState($row) {
+        var activeCount = $row.find('.perm-input:checked').length;
+        var hasActive = activeCount > 0;
+        var $badge = $row.find('.row-status-badge');
+        var $btnToggle = $row.find('.btn-row-toggle');
+
+        if (hasActive) {
+            $row.removeClass('row-inactive').addClass('row-active');
+            $badge.removeClass('badge-light text-muted border').addClass('badge-success')
+                  .html('<i class="fas fa-check-circle mr-1"></i>Aktif');
+        } else {
+            $row.removeClass('row-active').addClass('row-inactive');
+            $badge.removeClass('badge-success').addClass('badge-light text-muted border')
+                  .html('<i class="fas fa-minus-circle mr-1"></i>Nonaktif');
+        }
+
+        if (activeCount === 4) {
+            $btnToggle.removeClass('btn-outline-primary').addClass('btn-primary')
+                      .html('<i class="fas fa-check-square mr-1"></i>Semua');
+        } else {
+            $btnToggle.removeClass('btn-primary').addClass('btn-outline-primary')
+                      .html('<i class="fas fa-check-double mr-1"></i>Semua');
+        }
+    }
+
+    // Update all counters across the page
+    function updateAllCounters() {
+        var grandTotal = 0;
+        var grandActive = 0;
+
+        $('.menu-group-card').each(function() {
+            var $card = $(this);
+            var cardTotal = $card.find('.submenu-row').length;
+            var cardActive = $card.find('.submenu-row.row-active').length;
+
+            grandTotal += cardTotal;
+            grandActive += cardActive;
+
+            $card.find('.active-count').text(cardActive);
+            var $cardBadge = $card.find('.menu-counter-badge');
+            if (cardActive > 0) {
+                $cardBadge.removeClass('badge-secondary').addClass('badge-primary');
+            } else {
+                $cardBadge.removeClass('badge-primary').addClass('badge-secondary');
             }
         });
 
-        
-    </script>
-    <script>
-        $(document).ready(function() {
-            {% if form.errors %}
-                $('#modalTambah').modal('show');
-            {% endif %}
+        var grandInactive = grandTotal - grandActive;
+        $('#stat-active-count, #tab-active-count, #bottom-active-count').text(grandActive);
+        $('#stat-inactive-count, #tab-inactive-count').text(grandInactive);
+        $('#tab-all-count').text(grandTotal);
+    }
 
-            $('#clear').on('click', function() {
-                $('#formTambah').find('input[type="text"]').val('');
-                $('.text-danger').remove();
-                window.location.href = "{% url 'list_level' %}";
+    // Filter rows based on search input and filter tab
+    function filterRows() {
+        var query = ($('#filterSearch').val() || '').toLowerCase().trim();
+        var visibleCount = 0;
+
+        $('.menu-group-card').each(function() {
+            var $card = $(this);
+            var cardMenuName = ($card.data('menu-name') || '').toLowerCase();
+            var menuVisibleCount = 0;
+
+            $card.find('.submenu-row').each(function() {
+                var $row = $(this);
+                var subName = ($row.data('submenu-name') || '').toLowerCase();
+                var linkName = ($row.data('link') || '').toLowerCase();
+                var isActive = $row.hasClass('row-active');
+
+                var matchesSearch = !query || subName.includes(query) || cardMenuName.includes(query) || linkName.includes(query);
+                var matchesFilter = true;
+
+                if (currentFilter === 'active') {
+                    matchesFilter = isActive;
+                } else if (currentFilter === 'inactive') {
+                    matchesFilter = !isActive;
+                }
+
+                if (matchesSearch && matchesFilter) {
+                    $row.show();
+                    menuVisibleCount++;
+                    visibleCount++;
+                } else {
+                    $row.hide();
+                }
             });
+
+            if (menuVisibleCount > 0) {
+                $card.show();
+            } else {
+                $card.hide();
+            }
         });
-    </script>
-    <script>
-        $(document).ready(function() {
-            {% if messages %}
-            {% for message in messages %}
-                iziToast.{{ message.tags }}({
-                    title: '{{ message.tags }}',
-                    message: '{{ message }}',
-                    position: 'topRight'
-                });
-            {% endfor %}
-            {% endif %}
+
+        if (visibleCount === 0) {
+            $('.no-search-results').removeClass('d-none');
+        } else {
+            $('.no-search-results').addClass('d-none');
+        }
+    }
+
+    // Search events
+    $('#filterSearch').on('input', function() {
+        filterRows();
+    });
+
+    $('#clearSearch').on('click', function() {
+        $('#filterSearch').val('').trigger('input');
+    });
+
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('#filterSearch').is(':focus')) {
+            $('#filterSearch').val('').trigger('input');
+        }
+    });
+
+    // Filter tab events
+    $('.btn-filter-tab').on('click', function() {
+        $('.btn-filter-tab').removeClass('active btn-primary').addClass('btn-outline-primary');
+        $(this).addClass('active btn-primary').removeClass('btn-outline-primary');
+        currentFilter = $(this).data('filter');
+        filterRows();
+    });
+
+    // Checkbox change handler with smart dependency rules
+    $(document).on('change', '.perm-input', function() {
+        markDirty();
+        var $this = $(this);
+        var $row = $this.closest('tr');
+
+        // Rule 1: If simpan, edit, or hapus is turned ON, turn ON lihat automatically
+        if ($this.is(':checked') && ($this.hasClass('perm-simpan') || $this.hasClass('perm-edit') || $this.hasClass('perm-hapus'))) {
+            var $lihat = $row.find('.perm-lihat');
+            if (!$lihat.is(':checked')) {
+                $lihat.prop('checked', true);
+            }
+        }
+
+        // Rule 2: If lihat is turned OFF, turn OFF simpan, edit, and hapus
+        if (!$this.is(':checked') && $this.hasClass('perm-lihat')) {
+            $row.find('.perm-simpan, .perm-edit, .perm-hapus').prop('checked', false);
+        }
+
+        updateRowState($row);
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Row-level Toggle All
+    $(document).on('click', '.btn-row-toggle', function(e) {
+        e.preventDefault();
+        markDirty();
+        var $row = $(this).closest('tr');
+        var $inputs = $row.find('.perm-input');
+        var allChecked = $inputs.filter(':checked').length === 4;
+
+        if (allChecked) {
+            $inputs.prop('checked', false);
+        } else {
+            $inputs.prop('checked', true);
+        }
+
+        updateRowState($row);
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Menu-level Quick Actions: Semua Akses
+    $(document).on('click', '.btn-menu-all', function(e) {
+        e.stopPropagation();
+        markDirty();
+        var target = $(this).data('target');
+        var $card = $('#card-menu-' + target);
+        $card.find('.perm-input').prop('checked', true);
+        $card.find('.submenu-row').each(function() {
+            updateRowState($(this));
         });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.select2').select2({
-                width: '100%' // Ensure Select2 takes full width of the container
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Menu-level Quick Actions: Lihat Saja
+    $(document).on('click', '.btn-menu-view', function(e) {
+        e.stopPropagation();
+        markDirty();
+        var target = $(this).data('target');
+        var $card = $('#card-menu-' + target);
+        $card.find('.perm-lihat').prop('checked', true);
+        $card.find('.perm-simpan, .perm-edit, .perm-hapus').prop('checked', false);
+        $card.find('.submenu-row').each(function() {
+            updateRowState($(this));
+        });
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Menu-level Quick Actions: Kosongkan
+    $(document).on('click', '.btn-menu-clear', function(e) {
+        e.stopPropagation();
+        markDirty();
+        var target = $(this).data('target');
+        var $card = $('#card-menu-' + target);
+        $card.find('.perm-input').prop('checked', false);
+        $card.find('.submenu-row').each(function() {
+            updateRowState($(this));
+        });
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Global Bulk: Semua Akses Full
+    $('#btn-bulk-all').on('click', function() {
+        markDirty();
+        $('.perm-input').prop('checked', true);
+        $('.submenu-row').each(function() {
+            updateRowState($(this));
+        });
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Global Bulk: Semua Lihat Saja
+    $('#btn-bulk-view').on('click', function() {
+        markDirty();
+        $('.perm-lihat').prop('checked', true);
+        $('.perm-simpan, .perm-edit, .perm-hapus').prop('checked', false);
+        $('.submenu-row').each(function() {
+            updateRowState($(this));
+        });
+        updateAllCounters();
+        if (currentFilter !== 'all') {
+            filterRows();
+        }
+    });
+
+    // Global Bulk: Kosongkan Semua
+    $('#btn-bulk-clear').on('click', function() {
+        if (confirm('Apakah Anda yakin ingin menonaktifkan semua akses sub menu untuk level ini?')) {
+            markDirty();
+            $('.perm-input').prop('checked', false);
+            $('.submenu-row').each(function() {
+                updateRowState($(this));
             });
+            updateAllCounters();
+            if (currentFilter !== 'all') {
+                filterRows();
+            }
+        }
+    });
+
+    // Accordion Toggle All Cards
+    var allCardsOpen = true;
+    $('#btn-toggle-all-cards').on('click', function() {
+        if (allCardsOpen) {
+            $('.menu-collapse-body').collapse('hide');
+            $('.btn-collapse-indicator i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            $('#toggle-cards-text').text('Buka Card');
+            $(this).find('i').removeClass('fa-compress-alt').addClass('fa-expand-alt');
+            allCardsOpen = false;
+        } else {
+            $('.menu-collapse-body').collapse('show');
+            $('.btn-collapse-indicator i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            $('#toggle-cards-text').text('Tutup Card');
+            $(this).find('i').removeClass('fa-expand-alt').addClass('fa-compress-alt');
+            allCardsOpen = true;
+        }
+    });
+
+    // Update individual chevron on accordion toggle
+    $('.menu-collapse-body').on('show.bs.collapse', function() {
+        $(this).closest('.menu-group-card').find('.btn-collapse-indicator i').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    }).on('hide.bs.collapse', function() {
+        $(this).closest('.menu-group-card').find('.btn-collapse-indicator i').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    });
+
+    // Form Submission Triggers
+    $('.btn-trigger-save').on('click', function() {
+        $('#input-simpan-kembali').val('0');
+        $('#form-levelsub').submit();
+    });
+
+    $('.btn-trigger-save-back').on('click', function() {
+        $('#input-simpan-kembali').val('1');
+        $('#form-levelsub').submit();
+    });
+
+    $('#form-levelsub').on('submit', function() {
+        isDirty = false;
+        $('button[type="submit"], .btn-trigger-save, .btn-trigger-save-back').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...');
+    });
+
+    // Warn before navigating away if there are unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (isDirty) {
+            e.preventDefault();
+            e.returnValue = 'Perubahan hak akses sub menu belum disimpan!';
+            return e.returnValue;
+        }
+    });
+
+    // Initial tooltips
+    $('[data-toggle="tooltip"]').tooltip({ boundary: 'window' });
+
+    // Toast messages
+    {% if messages %}
+    {% for message in messages %}
+        iziToast.{{ message.tags }}({
+            title: '{{ message.tags|title }}',
+            message: '{{ message }}',
+            position: 'topRight'
         });
-    </script>
-    
+    {% endfor %}
+    {% endif %}
+});
+</script>
 {% endblock javascript %}
-

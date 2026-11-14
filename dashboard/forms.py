@@ -70,19 +70,15 @@ class LevelForm(forms.ModelForm):
         self.fields['level_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Level'})
 
 class LevelsubForm(forms.ModelForm):
-    levelsub_submenu = forms.ModelChoiceField(queryset=Submenu.objects.all(), label='Level Sub Menu')
-
     class Meta:
         model = Levelsub
-        fields = ['levelsub_submenu', 'lihat', 'simpan', 'edit', 'hapus']        
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['levelsub_level'].widget.attrs.update({'class': 'form-control'})
-    #     self.fields['levelsub_submenu'].widget.attrs.update({'class': 'form-control'})
-    #     self.fields['lihat'].widget.attrs.update({'class': 'form-control'})
-    #     self.fields['simpan'].widget.attrs.update({'class': 'form-control'})
-    #     self.fields['update'].widget.attrs.update({'class': 'form-control'})
-    #     self.fields['delete'].widget.attrs.update({'class': 'form-control'})
+        fields = ['lihat', 'simpan', 'edit', 'hapus']
+        widgets = {
+            'lihat': forms.CheckboxInput(attrs={'class': 'custom-switch-input perm-input perm-lihat'}),
+            'simpan': forms.CheckboxInput(attrs={'class': 'custom-switch-input perm-input perm-simpan'}),
+            'edit': forms.CheckboxInput(attrs={'class': 'custom-switch-input perm-input perm-edit'}),
+            'hapus': forms.CheckboxInput(attrs={'class': 'custom-switch-input perm-input perm-hapus'}),
+        }
     
 class UserlevelForm(forms.ModelForm):
     class Meta:
