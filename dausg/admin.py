@@ -17,3 +17,7 @@ admin.site.register(models.DausgkesehatanSub)
 admin.site.register(models.DausgpuProg)
 admin.site.register(models.DausgpuKeg)
 admin.site.register(models.DausgpuSub)
+
+admin.site.register(models.DauGajiAsnProg)
+admin.site.register(models.DauGajiAsnKeg)
+admin.site.register(models.DauGajiAsnSub)

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+    </div>
+    {% include 'includes/infobox.html' %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <a href="{% url 'list_daugajiasnkeg' number %}" type="button" class="btn btn-warning mr-3">Kembali</a>
+                    <h4>{{judul}}</h4>
+                    <div class="card-header-action">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalupload"><i class="fas fa-file-excel"></i> <i class="fas fa-file-import"></i></button>
+                            <a href="{% url 'export_daugajiasnsub' %}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-export"></i> <i class="fas fa-file-excel"></i>
+                            </a>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalTambah">{{tombol}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display" id="tabel1" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Aksi</th>
+                                <th style="text-align: center;">Kegiatan</th>
+                                <th style="text-align: center;">Sub Kegiatan</th>
+                                <th style="text-align: center;">Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in datas %}
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <a href="{% url 'update_daugajiasnsub' number sub data.id %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <a href="{% url 'delete_daugajiasnsub' number sub data.id %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                    <td style="text-align: left;">{{ data.daugajisub_keg }}</td>
+                                    <td style="text-align: left;">{{ data.daugajisub_nama }}</td>
+                                    <td style="text-align: left;">{{ data.daugajisub_satuan }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Modal Tambah -->
+    <div class="modal fade" id="modalTambah" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahLabel">{{tombol}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clear">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTambah" method="POST" action="{% url 'simpan_daugajiasnsub' number sub %}">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger">
+                                        <p>{{ error }}</p>
+                                    </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary float-right">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Upload -->
+    <div class="modal fade" id="modalupload" tabindex="-1" role="dialog" aria-labelledby="modaluploadLabel" aria-hidden="true"> 
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalUploadLabel">{{tombol}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="clearUpload">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data" 
+                        hx-post="{% url 'upload_daugajiasnsub' %}"
+                        hx-on="htmx:afterOnLoad: location.reload()">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile" name="myfile" accept=".xlsx">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary float-right">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block style %}
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+{% endblock style %}
+
+{% block src %}
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+  <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js"></script>
+{% endblock src %}
+
+{% block javascript %}
+    <script>
+        new DataTable('#tabel1', {
+            layout: {
+                topStart: {
+                    pageLength: {
+                        menu: [ 
+                            [10, 25, 50, -1],
+                            [10, 25, 50, 'All']    
+                        ],
+                    }
+                },
+                topEnd: {
+                    search: {
+                        placeholder: 'cari'
+                    }
+                },
+                bottomEnd: {
+                    paging: {
+                        numbers: 5
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            {% if form.errors %}
+                $('#modalTambah').modal('show');
+            {% endif %}
+
+            $('#clear').on('click', function() {
+                $('#formTambah').find('input[type="text"]').val('');
+                $('.text-danger').remove();
+                window.location.href = "{% url 'list_daugajiasnsub' number sub %}";
+            });
+
+            $('#modalupload form').on('submit', function() {
+                $('#modalupload').modal('hide');
+            });
+
+            $('#modalupload').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset();
+                $('.custom-file-label').html('Choose file');
+            });
+
+            {% if messages %}
+            {% for message in messages %}
+                iziToast.{{ message.tags }}({
+                    title: '{{ message.tags }}',
+                    message: '{{ message }}',
+                    position: 'topRight'
+                });
+            {% endfor %}
+            {% endif %}
+
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+        });
+    </script>
+{% endblock javascript %}

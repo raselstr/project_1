@@ -1,5 +1,11 @@
 from import_export import resources
-from .models import DankelProg,DankelKeg,Dankelsub,DausgpendidikanProg, DausgpendidikanKeg, DausgpendidikanSub, DausgkesehatanProg, DausgkesehatanKeg, DausgkesehatanSub, DausgpuProg, DausgpuKeg, DausgpuSub
+from .models import (
+    DankelProg, DankelKeg, Dankelsub,
+    DausgpendidikanProg, DausgpendidikanKeg, DausgpendidikanSub,
+    DausgkesehatanProg, DausgkesehatanKeg, DausgkesehatanSub,
+    DausgpuProg, DausgpuKeg, DausgpuSub,
+    DauGajiAsnProg, DauGajiAsnKeg, DauGajiAsnSub,
+)
 from opd.models import Opd, Subopd
 from pagu.models import Pagudausg
 
@@ -50,6 +56,18 @@ class DausgpuKegResource(resources.ModelResource):
 class DausgpuSubResource(resources.ModelResource):
     class Meta:
         model = DausgpuSub
+
+class DauGajiAsnProgResource(resources.ModelResource):
+    class Meta:
+        model = DauGajiAsnProg
+
+class DauGajiAsnKegResource(resources.ModelResource):
+    class Meta:
+        model = DauGajiAsnKeg
+
+class DauGajiAsnSubResource(resources.ModelResource):
+    class Meta:
+        model = DauGajiAsnSub
 
 class OpdResource(resources.ModelResource):
     class Meta:

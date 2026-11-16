@@ -53,6 +53,10 @@ class CopyTahunView(LoginRequiredMixin, UserPassesTestMixin, View):
                 DankelProg, DankelKeg, Dankelsub,
                 "dankelkeg_prog", "dankelsub_keg", "dankel_tahun",
             ),
+            "gajiasn": (
+                DauGajiAsnProg, DauGajiAsnKeg, DauGajiAsnSub,
+                "daugajikeg_prog", "daugajisub_keg", "daugajiprog_tahun",
+            ),
         }
 
         if sektor not in mapping:

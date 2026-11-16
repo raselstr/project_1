@@ -95,3 +95,26 @@ class DausgpuSub (models.Model):
     
     def __str__(self):
         return f'{self.dausgpusub_keg}-({self.dausgpusub_satuan}) {self.dausgpusub_nama}'
+
+class DauGajiAsnProg (models.Model):
+    daugajiprog_tahun = models.IntegerField(verbose_name="Tahun")
+    daugajiprog_dana = models.ForeignKey(Subkegiatan, verbose_name="Dana", on_delete=models.CASCADE)
+    daugajiprog_prog = models.CharField(verbose_name="Program DAUSG Gaji ASN", max_length=500)
+    
+    def __str__(self):
+        return self.daugajiprog_prog
+
+class DauGajiAsnKeg (models.Model):
+    daugajikeg_prog = models.ForeignKey(DauGajiAsnProg, verbose_name="Program DAUSG Gaji ASN", on_delete=models.CASCADE, related_name='daugajikegs')
+    daugajikeg_nama = models.CharField(verbose_name="Kegiatan DAUSG Gaji ASN", max_length=500)
+    
+    def __str__(self):
+        return self.daugajikeg_nama
+
+class DauGajiAsnSub (models.Model):
+    daugajisub_keg = models.ForeignKey(DauGajiAsnKeg, verbose_name="Kegiatan DAUSG Gaji ASN", on_delete=models.CASCADE, related_name='daugajisubs')
+    daugajisub_nama = models.CharField(verbose_name="Sub Kegiatan DAUSG Gaji ASN",max_length=500)
+    daugajisub_satuan = models.CharField(verbose_name="Satuan",max_length=200)
+    
+    def __str__(self):
+        return f'{self.daugajisub_keg}-({self.daugajisub_satuan}) {self.daugajisub_nama}'
