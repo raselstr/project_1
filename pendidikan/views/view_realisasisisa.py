@@ -36,8 +36,8 @@ url_home = 'realisasi_pendidikan_home'
 url_filter = 'realisasi_pendidikan_filtersisa'
 url_list = 'realisasi_pendidikan_listsisa'
 url_simpan = 'realisasi_pendidikan_simpansisa'
-url_update = 'realisasi_pendidikan_updatesisa'
-url_delete = 'realisasi_pendidikan_deletesisa'
+url_update = 'realisasi_pendidikansisa_update'
+url_delete = 'realisasi_pendidikansisa_delete'
 url_verif = 'realisasi_pendidikan_verifsisa'
 url_sp2d = 'realisasi_pendidikan_sp2dsisa'
 url_sipd = 'data_sipd'
@@ -221,7 +221,7 @@ def sp2d(request, pk=None):
         datarencana = None
     
     SIPD_REGISTRY = 'realisasisisa'
-    table = tabel_realisasi(data, request=request, keys=SIPD_REGISTRY)
+    table = tabel_realisasi(data, request=request, key=SIPD_REGISTRY)
     tabelrencana = tabel_rencana(datarencana, request=request)
     
     context = {

@@ -49,7 +49,7 @@ class BaseRealisasiTable(tables.Table):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)  # Ambil request dari kwargs
-        self.key = kwargs.pop('key', None)
+        self.key = kwargs.pop('key', None) or kwargs.pop('keys', None)
         super().__init__(*args, **kwargs)  # Panggil inisialisasi superclass
 
     def render_aksi(self, record):

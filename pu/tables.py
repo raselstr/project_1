@@ -48,6 +48,7 @@ class BaseRealisasiTable(tables.Table):
     
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)  # Ambil request dari kwargs
+        self.key = kwargs.pop('key', None) or kwargs.pop('keys', None)
         super().__init__(*args, **kwargs)  # Panggil inisialisasi superclass
     
     def render_aksi(self, record):
@@ -84,7 +85,7 @@ class BaseRealisasiTable(tables.Table):
 
     def render_output_satuan(self, record):
         try:
-            satuan = getattr(record.realisasi_subkegiatan, 'dausgkesehatansub_satuan', '')
+            satuan = getattr(record.realisasi_subkegiatan, 'dausgpusub_satuan', '')
             return f"{record.realisasi_output or 0} {satuan}"
         except Exception:
             return ""

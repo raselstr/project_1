@@ -41,6 +41,7 @@ url_simpan = 'realisasi_pu_simpansisa'
 url_update = 'realisasi_pusisa_update'
 url_delete = 'realisasi_pusisa_delete'
 url_verif = 'realisasi_pu_verifsisa'
+url_sp2d = 'realisasi_pu_sp2dsisa'
 url_sipd = 'data_sipd'
 
 template_form = 'pu/realisasi/form.html'
@@ -214,10 +215,9 @@ def sp2d(request, pk=None):
         data = None
         datarencana = None
     
-    table = tabel_realisasi(data, request=request)
-    tabelrencana = tabel_rencana(datarencana, request=request)
-    
     SIPD_REGISTRY = 'realisasi_pu_sisa'
+    table = tabel_realisasi(data, request=request, key=SIPD_REGISTRY)
+    tabelrencana = tabel_rencana(datarencana, request=request)
     
     context = {
         'judul': 'Daftar Realisasi DAU Bidang PU Sisa Tahun Lalu',
