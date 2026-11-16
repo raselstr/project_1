@@ -325,9 +325,12 @@ def home(request):
 
     try:
         dana = model_dana.objects.get(sub_slug=sesidana)
-        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
     except model_dana.DoesNotExist:
         dana = None
+
+    try:
+        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
+    except model_dana.DoesNotExist:
         danasisa = None
 
     if dana:

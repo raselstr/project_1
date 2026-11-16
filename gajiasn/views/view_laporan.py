@@ -452,9 +452,57 @@ def sp2d(request):
 def home(request):
     tahun = request.session.get('tahun')
     sesisubopd = request.session.get('idsubopd')
+    jadwal = request.session.get('jadwal')
 
     table = tabel(rekap(request))
     table.paginate = False
+
+    try:
+        dana = model_dana.objects.get(sub_slug=sesidana)
+    except model_dana.DoesNotExist:
+        dana = None
+
+    try:
+        danasisa = model_dana.objects.get(sub_slug=sesidanasisa)
+    except model_dana.DoesNotExist:
+        danasisa = None
+
+    if dana:
+        pagu = model_rencana().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
+        penerimaan = model_penerimaan().totalpenerimaan(tahun=tahun, dana=dana)
+        realisasi = model_realisasi().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=dana)
+        realisasi_dana_total = model_realisasi().get_realisasi_dana_total(tahun=tahun, dana=dana.id)
+        persendana = model_realisasi().get_persendana(tahun=tahun, opd=sesisubopd, dana=dana)
+        persenpagu = model_realisasi().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=dana, posting=jadwal)
+        sisadana = penerimaan - realisasi_dana_total
+        penerimaan_warning = get_penerimaan_warning(tahun, dana.id)
+
+        pagusisa = model_rencanasisa().get_pagu(tahun=tahun, opd=sesisubopd, dana=danasisa) if danasisa else 0
+        rencanasisa = model_datasisa().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=danasisa, posting=jadwal) if danasisa else 0
+        penerimaansisa = model_penerimaan().totalpenerimaan(tahun=tahun, dana=danasisa) if danasisa else 0
+        realisasisisa = model_realisasisisa().get_realisasi_total(tahun=tahun, opd=sesisubopd, dana=danasisa) if danasisa else 0
+        persendanasisa = model_realisasisisa().get_persendana(tahun=tahun, opd=sesisubopd, dana=danasisa) if danasisa else 0
+        persenpagusisa = model_realisasisisa().get_persenpagu(tahun=tahun, opd=sesisubopd, dana=danasisa, posting=jadwal) if danasisa else 0
+        sisadanasisa = (penerimaansisa - realisasisisa) if danasisa else 0
+    else:
+        pagu = 0
+        rencana = 0
+        penerimaan = 0
+        realisasi = 0
+        realisasi_dana_total = 0
+        persendana = 0
+        persenpagu = 0
+        sisadana = 0
+        penerimaan_warning = None
+
+        pagusisa = 0
+        rencanasisa = 0
+        penerimaansisa = 0
+        realisasisisa = 0
+        persendanasisa = 0
+        persenpagusisa = 0
+        sisadanasisa = 0
 
     context = {
         'judul': 'Laporan Realisasi DAU SG Gaji ASN',
@@ -463,6 +511,24 @@ def home(request):
         'link_url': reverse(url_filter),
         'link_urlsisa': reverse(url_filtersisa),
         'table': table,
+
+        'datapagu': pagu,
+        'datarencana': rencana,
+        'penerimaan': penerimaan,
+        'realisasi': realisasi,
+        'realisasi_dana': realisasi_dana_total,
+        'persendana': persendana,
+        'persenpagu': persenpagu,
+        'sisadana': sisadana,
+        'penerimaan_warning': penerimaan_warning,
+
+        'pagusisa': pagusisa,
+        'rencanasisa': rencanasisa,
+        'penerimaansisa': penerimaansisa,
+        'realisasisisa': realisasisisa,
+        'persendanasisa': persendanasisa,
+        'persenpagusisa': persenpagusisa,
+        'sisadanasisa': sisadanasisa,
     }
     return render(request, template_home, context)
 
