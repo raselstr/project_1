@@ -156,6 +156,7 @@ class LaporanRealisasiExcelService:
             'pendidikan': 'Bidang Pendidikan',
             'kesehatan': 'Bidang Kesehatan',
             'pu': 'Bidang Pekerjaan Umum',
+            'gajiasn': 'Bidang Gaji ASN',
         }
         bidang_label = labels.get(jenis_dana, jenis_dana.title())
         sumber_label = "Sisa Tahun Lalu" if sumber == 'sisa' else "Tahun Berjalan"
@@ -173,8 +174,8 @@ class LaporanRealisasiExcelService:
 
         styles = cls._create_styles()
 
-        # Deteksi jumlah tahap: PU = 3 tahap, Pendidikan & Kesehatan = 5 tahap
-        is_3_tahap = (jenis_dana == 'pu') and ('total_tahap4_keseluruhan' not in context)
+        # Deteksi jumlah tahap: PU & Gaji ASN = 3 tahap, Pendidikan & Kesehatan = 5 tahap
+        is_3_tahap = (jenis_dana in ('pu', 'gajiasn')) and ('total_tahap4_keseluruhan' not in context)
         num_tahaps = 3 if is_3_tahap else 5
 
         # Hitung total kolom

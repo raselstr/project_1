@@ -1,0 +1,190 @@
+from django import forms
+from ..models import Rencanagajiasnsisa, Rencanagajiasnpostingsisa, Subkegiatan, Subopd, Realisasigajiasnsisa
+from dausg.models import DauGajiAsnSub
+from jadwal.models import Jadwal
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
+
+model_rencana = Rencanagajiasnsisa
+model_posting = Rencanagajiasnpostingsisa
+model_subkegiatan = Subkegiatan
+model_subopd = Subopd
+model_realisasi = Realisasigajiasnsisa
+data_subkegiatan = DauGajiAsnSub
+model_jadwal = Jadwal
+
+
+class RencanagajiasnFilterForm(forms.ModelForm):
+    class Meta:
+        model = model_rencana
+        fields = ['rencana_tahun', 'rencana_dana', 'rencana_subopd']
+        widgets = {
+            'rencana_tahun': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'rencana_dana': forms.Select(attrs={'class': 'form-control select2'}),
+            'rencana_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        sesidana = kwargs.pop('sesidana', None)
+        sesisubopd = kwargs.pop('sesisubopd', None)
+        super().__init__(*args, **kwargs)
+
+        self.fields['rencana_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
+        if sesisubopd is None:
+            allow_all_budgeted_subopd(self.fields['rencana_subopd'])
+
+        if sesidana is not None:
+            self.fields['rencana_dana'].queryset = model_subkegiatan.objects.filter(sub_slug=sesidana)
+        else:
+            self.fields['rencana_dana'].queryset = model_subkegiatan.objects.all()
+
+        if tahun is not None:
+            self.fields['rencana_tahun'].initial = tahun
+
+    def _post_clean(self):
+        pass
+
+
+class RencanagajiasnForm(forms.ModelForm):
+    class Meta:
+        model = model_rencana
+        fields = '__all__'
+        widgets = {
+            'rencana_tahun': forms.HiddenInput(),
+            'rencana_dana': forms.HiddenInput(),
+            'rencana_subopd': forms.HiddenInput(),
+            'rencana_kegiatan': forms.Select(attrs={'class': 'form-control select2'}),
+            'rencana_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rencana_output': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rencana_ket': forms.TextInput(attrs={'class': 'form-control'}),
+            'rencana_pagudpa': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        super().__init__(*args, **kwargs)
+
+        if tahun:
+            self.fields['rencana_kegiatan'].queryset = data_subkegiatan.objects.filter(
+                daugajisub_keg__daugajikeg_prog__daugajiprog_tahun=tahun
+            )
+        else:
+            self.fields['rencana_kegiatan'].queryset = data_subkegiatan.objects.none()
+
+
+class RencanagajiasnPostingForm(forms.ModelForm):
+    class Meta:
+        model = model_posting
+        fields = ['posting_jadwal', 'posting_subopd']
+        widgets = {
+            'posting_jadwal': forms.Select(attrs={'class': 'form-control select2'}),
+            'posting_subopd': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        postingid = kwargs.pop('jadwal', None)
+        sesidana = kwargs.pop('sesidana', None)
+        sesisubopd = kwargs.pop('sesisubopd', None)
+        super().__init__(*args, **kwargs)
+
+        if postingid:
+            self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, id=postingid)
+            self.fields['posting_jadwal'].initial = postingid
+        else:
+            self.fields['posting_jadwal'].queryset = model_jadwal.objects.filter(jadwal_tahun=tahun, jadwal_aktif=True)
+            active_jadwal = self.fields['posting_jadwal'].queryset.first()
+            if active_jadwal:
+                self.fields['posting_jadwal'].initial = active_jadwal.id
+        self.fields['posting_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
+        allow_all_budgeted_subopd(self.fields['posting_subopd'])
+
+
+class RealisasigajiasnFilterForm(forms.ModelForm):
+    class Meta:
+        model = Realisasigajiasnsisa
+        fields = ['realisasi_tahun', 'realisasi_dana', 'realisasi_subopd', 'realisasi_tahap']
+        widgets = {
+            'realisasi_tahun': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'realisasi_dana': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Dana',
+            }),
+            'realisasi_subopd': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Sub OPD',
+            }),
+            'realisasi_tahap': forms.Select(attrs={
+                'class': 'form-control select2',
+                'data-placeholder': 'Pilih Tahap',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tahun = kwargs.pop('tahun', None)
+        sesidana = kwargs.pop('sesidana', None)
+        sesisubopd = kwargs.pop('sesisubopd', None)
+        super().__init__(*args, **kwargs)
+
+        self.fields['realisasi_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
+        if sesisubopd is None:
+            allow_all_budgeted_subopd(self.fields['realisasi_subopd'])
+
+        if sesidana is not None:
+            self.fields['realisasi_dana'].queryset = Subkegiatan.objects.filter(sub_slug=sesidana)
+        else:
+            self.fields['realisasi_dana'].queryset = Subkegiatan.objects.all()
+
+        if tahun is not None:
+            self.fields['realisasi_tahun'].initial = tahun
+
+    def _post_clean(self):
+        pass
+
+
+class RealisasigajiasnForm(forms.ModelForm):
+    class Meta:
+        model = model_realisasi
+        fields = '__all__'
+        widgets = {
+            'realisasi_tahun': forms.HiddenInput(),
+            'realisasi_dana': forms.HiddenInput(),
+            'realisasi_tahap': forms.HiddenInput(),
+            'realisasi_subopd': forms.HiddenInput(),
+            'realisasi_rencanaposting': forms.HiddenInput(),
+            'realisasi_sp2d': forms.TextInput(attrs={'class': 'form-control'}),
+            'realisasi_tgl': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'realisasi_nilai': forms.NumberInput(attrs={'class': 'form-control'}),
+            'realisasi_output': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        initial_data = kwargs.pop('initial_data', None)
+        satuan = kwargs.pop('satuan', None)
+        super().__init__(*args, **kwargs)
+        self.satuan = satuan
+
+        if initial_data:
+            tahun = initial_data.get('realisasi_tahun')
+            dana = initial_data.get('realisasi_dana')
+            subopd = initial_data.get('realisasi_subopd')
+            jadwal = initial_data.get('jadwal')
+
+            queryset = model_posting.objects.filter(
+                posting_tahun=tahun,
+                posting_dana=dana,
+                posting_subopd=subopd,
+                posting_jadwal=jadwal,
+            )
+            self.fields['realisasi_rencanaposting'].queryset = queryset
+
+            if not self.satuan and initial_data.get('realisasi_rencanaposting'):
+                p_obj = model_posting.objects.filter(pk=initial_data['realisasi_rencanaposting']).first()
+                if p_obj and hasattr(p_obj, 'get_satuan_kegiatan'):
+                    self.satuan = p_obj.get_satuan_kegiatan()
+
+        if not self.satuan and hasattr(self.instance, 'realisasi_rencanaposting') and self.instance.realisasi_rencanaposting:
+            try:
+                self.satuan = self.instance.realisasi_rencanaposting.get_satuan_kegiatan()
+            except Exception:
+                pass

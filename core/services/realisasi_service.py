@@ -20,6 +20,11 @@ from pu.models import (
     Realisasipusisa,
 )
 
+from gajiasn.models import (
+    Realisasigajiasn,
+    Realisasigajiasnsisa,
+)
+
 from dankel.models import (
     RealisasiDankel,
     RealisasiDankelsisa,
@@ -44,6 +49,8 @@ class   RealisasiService:
         Realisasikesehatansisa: COMMON_REALISASI_FIELDS,
         Realisasipu: COMMON_REALISASI_FIELDS,
         Realisasipusisa: COMMON_REALISASI_FIELDS,
+        Realisasigajiasn: COMMON_REALISASI_FIELDS,
+        Realisasigajiasnsisa: COMMON_REALISASI_FIELDS,
 
         RealisasiDankel: {
             "tahun": "realisasidankel_tahun",

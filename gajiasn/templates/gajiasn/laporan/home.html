@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+{% load django_tables2 %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <h1>{{judul}}</h1>
+        <div class="section-header-breadcrumb">
+            <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
+            <div class="breadcrumb-item">Settings</div>
+        </div>
+    </div>
+
+    <div class="section-body">
+        <h2 class="section-title">{{judul}}</h2>
+        <p class="section-lead">
+            {{uraian}}
+        </p>
+        {% include "includes/realisasi_penerimaan_warning.html" %}
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab1}}</h4>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Pagu Kegiatan </td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{datarencana|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Penerimaan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{penerimaan|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Nilai Realisasi OPD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{realisasi|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Realisasi Dana</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{realisasi_dana|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persendana|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan Pagu</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persenpagu|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>Sisa Dana di RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{sisadana|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                        </table>
+                        <a href="#" 
+                            class="card-cta" 
+                            hx-get="{{link_url}}" 
+                            hx-target="#filter .modal-content"
+                            hx-trigger="click"  
+                            data-toggle="modal" 
+                            data-target="#filter"
+                            hx-indicator="#modal-spinner">
+                            {{tab1}}....<i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-large-icons">
+                    <div class="card-icon bg-primary text-white">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="card-body">
+                        <h4>{{tab2}}</h4>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Pagu Kegiatan </td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{rencanasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Penerimaan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{penerimaansisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>Nilai Realisasi</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{realisasisisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persendanasisa|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>% Penyerapan Pagu</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{persenpagusisa|default:"0.00"|floatformat:2|intcomma}}%</td>
+                            </tr>
+                            <tr>
+                                <td>Sisa Dana di RKUD</td>
+                                <td> :  </td>
+                                <td style="text-align: right;">{{sisadanasisa|default:"0.00"|floatformat:2|intcomma}}</td>
+                            </tr>
+                        </table>
+                        <a href="#" 
+                            class="card-cta" 
+                            hx-get="{{link_urlsisa}}" 
+                            hx-target="#filter .modal-content"
+                            hx-trigger="click"  
+                            data-toggle="modal" 
+                            data-target="#filter"
+                            hx-indicator="#modal-spinner">
+                            {{tab2}}....<i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Rekap {{judul}}</h4>
+                        <ul class="nav nav-pills card-header-pills" id="rekapLaporanTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="laporan-utama-tab" data-toggle="pill" href="#pane-laporan-utama" role="tab" aria-controls="pane-laporan-utama" aria-selected="true">
+                                    <i class="fas fa-calendar-check mr-1"></i> {{tab1|default:"Tahun Berjalan"}}
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="laporan-sisa-tab" data-toggle="pill" href="#pane-laporan-sisa" role="tab" aria-controls="pane-laporan-sisa" aria-selected="false">
+                                    <i class="fas fa-history mr-1"></i> {{tab2|default:"Sisa Tahun Lalu"}}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="rekapLaporanTabContent">
+                            <div class="tab-pane fade show active" id="pane-laporan-utama" role="tabpanel" aria-labelledby="laporan-utama-tab">
+                                {% if rekap_data %}
+                                    {% render_table rekap_data %}
+                                {% else %}
+                                    <p class="text-muted text-center my-3">Tidak ada data rekap tahun berjalan.</p>
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="pane-laporan-sisa" role="tabpanel" aria-labelledby="laporan-sisa-tab">
+                                {% if rekap_data_sisa %}
+                                    {% render_table rekap_data_sisa %}
+                                {% else %}
+                                    <p class="text-muted text-center my-3">Tidak ada data rekap sisa tahun lalu.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="filter" tabindex="-1" role="dialog" aria-labelledby="modalTambahLabel" aria-hidden="true"> 
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block style %}
+    <meta http-equiv="refresh" content="30">
+{% endblock style %}
+
+
+
+

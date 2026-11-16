@@ -1,0 +1,387 @@
+from django.db import models
+from datetime import datetime
+from django.db.models import Sum, Q
+from django.db.models import UniqueConstraint
+from django.core.exceptions import ValidationError
+from decimal import Decimal
+
+from opd.models import Subopd
+from dana.models import Subkegiatan, TahapDana
+from dausg.models import DauGajiAsnSub
+from pagu.models import Pagudausg
+from penerimaan.models import Penerimaan
+from jadwal.models import Jadwal
+from core.forms.budget_opd import scoped_opd_id
+
+model_opd = 'opd.Subopd'
+model_dana = 'dana.Subkegiatan'
+model_tahap = 'dana.TahapDana'
+model_subkegiatan = 'dausg.DauGajiAsnSub'
+model_pagu = 'pagu.Pagudausg'
+model_posting = 'jadwal.Jadwal'
+modelpagu = Pagudausg
+model_penerimaan = Penerimaan
+
+VERIF = [
+    (0, 'Input Dinas'),
+    (1, 'Disetujui'),
+]
+
+
+class BaseRencanagajiasn(models.Model):
+    rencana_tahun = models.IntegerField(verbose_name="Tahun", default=datetime.now().year)
+    rencana_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana', on_delete=models.CASCADE)
+    rencana_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd', on_delete=models.CASCADE)
+    rencana_kegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    rencana_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG', max_digits=17, decimal_places=2, default=0)
+    rencana_output = models.DecimalField(verbose_name='Output', max_digits=8, decimal_places=2, default=0)
+    rencana_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
+    rencana_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA', max_digits=17, decimal_places=2, default=0)
+    rencana_verif = models.IntegerField(choices=VERIF, default=0, editable=False)
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+        model_class = self.__class__
+
+        if model_class.objects.filter(
+            rencana_tahun=self.rencana_tahun,
+            rencana_subopd=self.rencana_subopd_id,
+            rencana_kegiatan=self.rencana_kegiatan_id
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError('Rencana Kegiatan untuk Tahun, Sub Opd dan Sub Kegiatan ini sudah ada, silahkan masukkan yang lain.')
+
+        total_rencana = self.get_total_rencana(self.rencana_tahun, self.rencana_subopd_id, self.rencana_dana_id)
+        total_pagudausg = self.get_pagu(self.rencana_tahun, self.rencana_subopd_id, self.rencana_dana_id)
+
+        if self.pk:
+            total_rencana -= self.__class__.objects.get(pk=self.pk).rencana_pagu
+
+        total_rencana += self.rencana_pagu
+
+        if total_rencana > total_pagudausg:
+            raise ValidationError(f'Total rencana anggaran Rp. {total_rencana:,.2f} tidak boleh lebih besar dari total Pagu anggaran yang tersedia Rp. {total_pagudausg:,.2f}.')
+
+    def save(self, *args, **kwargs):
+        total_realisasi_pk = 0
+        if self.pk:
+            original = self.__class__.objects.get(pk=self.pk)
+            if original.rencana_kegiatan_id != self.rencana_kegiatan_id:
+                total_realisasi_pk = self.get_realisasi_pk(original.rencana_kegiatan_id)
+                if total_realisasi_pk > 0:
+                    raise ValidationError('Tidak bisa mengubah "Sub Kegiatan DAU SG" karena sudah ada realisasi.')
+        if self.rencana_pagu < total_realisasi_pk:
+            raise ValidationError(f'Kegiatan ini sudah ada realisasi sebesar Rp. {total_realisasi_pk:,.2f}. Nilai Rencana Rp. {self.rencana_pagu:,.2f} tidak boleh lebih kecil dari Nilai Realisasi')
+        super().save(*args, **kwargs)
+
+    def get_pagu(self, tahun, opd, dana):
+        filters = Q(pagudausg_tahun=tahun) & Q(pagudausg_dana=dana)
+        opd = scoped_opd_id(opd)
+        if opd:
+            filters &= Q(pagudausg_opd=opd)
+        return modelpagu.objects.filter(filters).aggregate(total_nilai=Sum('pagudausg_nilai'))['total_nilai'] or Decimal(0)
+
+    def get_total_rencana(self, tahun, opd, dana):
+        filters = Q(rencana_tahun=tahun) & Q(rencana_dana=dana)
+        opd = scoped_opd_id(opd)
+        if opd:
+            filters &= Q(rencana_subopd=opd)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('rencana_pagu'))['total_nilai'] or Decimal(0)
+
+    def get_sisa(self, tahun, opd, dana):
+        total_rencana = self.get_total_rencana(tahun, opd, dana)
+        total_pagu = self.get_pagu(tahun, opd, dana)
+        return total_pagu - total_rencana
+
+    def get_realisasi_pk(self, kode):
+        filters = Q(realisasi_tahun=self.rencana_tahun) & Q(realisasi_dana=self.rencana_dana_id)
+        if self.rencana_kegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=kode)
+        if self.rencana_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.rencana_subopd_id)
+        nilai_realisasi = self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+        return nilai_realisasi
+
+    def get_satuan_kegiatan(self):
+        return self.rencana_kegiatan.daugajisub_satuan if self.rencana_kegiatan else None
+
+    def get_subkegiatan(self):
+        return self.rencana_kegiatan.daugajisub_nama if self.rencana_kegiatan else None
+
+    def get_kegiatan(self):
+        return self.rencana_kegiatan.daugajisub_keg.daugajikeg_nama if self.rencana_kegiatan else None
+
+    def __str__(self):
+        return f"{self.rencana_kegiatan}"
+
+
+class Rencanagajiasn(BaseRencanagajiasn):
+    class Meta(BaseRencanagajiasn.Meta):
+        constraints = [
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_gajiasn')
+        ]
+        db_table = 'gajiasn_rencanagajiasn'
+
+
+class Rencanagajiasnsisa(BaseRencanagajiasn):
+    class Meta(BaseRencanagajiasn.Meta):
+        constraints = [
+            UniqueConstraint(fields=['rencana_tahun', 'rencana_subopd', 'rencana_kegiatan'], name='unique_rencana_gajiasnsisa')
+        ]
+        db_table = 'gajiasn_rencanagajiasnsisa'
+
+
+class BaseRencanagajiasnposting(models.Model):
+    VERIF = [
+        (1, 'Rencana Induk'),
+        (2, 'Rencana Perubahan'),
+    ]
+    posting_tahun = models.IntegerField(verbose_name="Tahun", default=datetime.now().year)
+    posting_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana', on_delete=models.CASCADE)
+    posting_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd', on_delete=models.CASCADE)
+    posting_subkegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE)
+    posting_pagu = models.DecimalField(verbose_name='Pagu Kegiatan DAU SG', max_digits=17, decimal_places=2, default=0)
+    posting_output = models.DecimalField(verbose_name='Output', max_digits=8, decimal_places=2, default=0)
+    posting_ket = models.TextField(verbose_name='Kode Sub Kegiatan DPA *) contoh :  1.01.01.2.01.0001 ', max_length=17)
+    posting_pagudpa = models.DecimalField(verbose_name='Nilai Pagu Sub Kegiatan sesuai DPA', max_digits=17, decimal_places=2, default=0)
+    posting_jadwal = models.ForeignKey(model_posting, verbose_name='Posting Jadwal', null=True, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+    def get_total_rencana(self, tahun, opd, dana, posting):
+        filters = Q(posting_tahun=tahun) & Q(posting_dana=dana) & Q(posting_jadwal=posting)
+        opd = scoped_opd_id(opd)
+        if opd:
+            filters &= Q(posting_subopd=opd)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+
+    def get_satuan_kegiatan(self):
+        return self.posting_subkegiatan.daugajisub_satuan if self.posting_subkegiatan else None
+
+    def get_subopd(self):
+        return self.posting_subopd.sub_nama if self.posting_subopd else None
+
+    def get_subkegiatan(self):
+        return self.posting_subkegiatan.daugajisub_nama if self.posting_subkegiatan else None
+
+    def get_kegiatan(self):
+        return self.posting_subkegiatan.daugajisub_keg.daugajikeg_nama if self.posting_subkegiatan else None
+
+    def get_total_realisasi_pk(self):
+        from gajiasn.models import Realisasigajiasn, Realisasigajiasnsisa
+
+        model = Realisasigajiasnsisa if self.__class__.__name__.endswith('sisa') else Realisasigajiasn
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
+    def get_total_realisasi_output_pk(self):
+        from gajiasn.models import Realisasigajiasn, Realisasigajiasnsisa
+
+        model = Realisasigajiasnsisa if self.__class__.__name__.endswith('sisa') else Realisasigajiasn
+
+        filters = Q(realisasi_tahun=self.posting_tahun) & Q(realisasi_dana=self.posting_dana_id)
+        if self.posting_subkegiatan_id is not None:
+            filters &= Q(realisasi_subkegiatan_id=self.posting_subkegiatan_id)
+        if self.posting_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.posting_subopd_id)
+
+        return model.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_output'))['total_nilai'] or Decimal(0)
+
+    def __str__(self):
+        return f"{self.posting_subkegiatan}"
+
+
+class Rencanagajiasnposting(BaseRencanagajiasnposting):
+    posting_rencanaid = models.ForeignKey('gajiasn.Rencanagajiasn', verbose_name='Id Rencana', on_delete=models.CASCADE)
+
+    class Meta(BaseRencanagajiasnposting.Meta):
+        db_table = 'gajiasn_rencanagajiasnposting'
+
+
+class Rencanagajiasnpostingsisa(BaseRencanagajiasnposting):
+    posting_rencanaid = models.ForeignKey('gajiasn.Rencanagajiasnsisa', verbose_name='Id Rencana', on_delete=models.CASCADE)
+
+    class Meta(BaseRencanagajiasnposting.Meta):
+        db_table = 'gajiasn_rencanagajiasnpostingsisa'
+
+
+class BaseRealisasigajiasn(models.Model):
+    VERIF = [
+        (0, 'Diinput Dinas'),
+        (1, 'Disetujui APIP'),
+    ]
+    realisasi_tahun = models.IntegerField(verbose_name="Tahun", default=datetime.now().year)
+    realisasi_dana = models.ForeignKey(model_dana, verbose_name='Sumber Dana', on_delete=models.CASCADE)
+    realisasi_tahap = models.ForeignKey(model_tahap, verbose_name='Tahap Realisasi', on_delete=models.CASCADE)
+    realisasi_subopd = models.ForeignKey(model_opd, verbose_name='Sub Opd', on_delete=models.CASCADE)
+    realisasi_subkegiatan = models.ForeignKey(model_subkegiatan, verbose_name='Sub Kegiatan DAU SG', on_delete=models.CASCADE, editable=False)
+    realisasi_output = models.DecimalField(verbose_name='Capaian Output', max_digits=17, decimal_places=2, default=0)
+    realisasi_sp2d = models.CharField(verbose_name='No SP2D', max_length=100)
+    realisasi_tgl = models.DateField(verbose_name='Tanggal SP2D')
+    realisasi_nilai = models.DecimalField(verbose_name='Nilai SP2D', max_digits=17, decimal_places=2, default=0)
+    realisasi_verif = models.IntegerField(choices=VERIF, default=0, editable=False, verbose_name='Verifikasi')
+
+    class Meta:
+        abstract = True
+
+    def clean(self):
+        super().clean()
+        if hasattr(self, 'realisasi_rencanaposting') and self.realisasi_rencanaposting:
+            if hasattr(self.realisasi_rencanaposting, 'posting_rencanaid_id') and not getattr(self, 'realisasi_rencana_id', None):
+                self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            if hasattr(self.realisasi_rencanaposting, 'posting_subkegiatan_id') and not getattr(self, 'realisasi_subkegiatan_id', None):
+                self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        from core.services.realisasi_validation_service import RealisasiValidationService
+        RealisasiValidationService.validate_realisasi(self)
+
+    def get_realisasi_total(self, tahun, opd, dana):
+        filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
+        opd = scoped_opd_id(opd)
+        if opd:
+            filters &= Q(realisasi_subopd=opd)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
+    def get_realisasi_dana_total(self, tahun, dana):
+        filters = Q(realisasi_tahun=tahun) & Q(realisasi_dana=dana)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
+    def get_realisasi_pk(self):
+        filters = Q(realisasi_tahun=self.realisasi_tahun) & Q(realisasi_dana=self.realisasi_dana_id)
+        if self.realisasi_rencanaposting_id is not None:
+            filters &= Q(realisasi_rencanaposting_id=self.realisasi_rencanaposting_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(realisasi_subopd=self.realisasi_subopd_id)
+        return self.__class__.objects.filter(filters).aggregate(total_nilai=Sum('realisasi_nilai'))['total_nilai'] or Decimal(0)
+
+
+class Realisasigajiasn(BaseRealisasigajiasn):
+    realisasi_rencanaposting = models.ForeignKey(Rencanagajiasnposting, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencanagajiasn, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+
+    class Meta(BaseRealisasigajiasn.Meta):
+        db_table = 'gajiasn_realisasigajiasn'
+
+    def save(self, *args, **kwargs):
+        if self.realisasi_rencanaposting:
+            self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def get_rencana_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_rencanaposting_id is not None:
+            filters &= Q(id=self.realisasi_rencanaposting_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        return Rencanagajiasnposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+
+    def get_rencanaoutput_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        if self.realisasi_output is not None:
+            filters &= Q(id=self.realisasi_rencanaposting_id)
+        return Rencanagajiasnposting.objects.filter(filters).aggregate(total_nilai=Sum('posting_output'))['total_nilai'] or Decimal(0)
+
+    def get_persendana(self, tahun, opd, dana):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            penerimaan = model_penerimaan().totalpenerimaan(tahun, dana)
+            if totalrealisasi is None:
+                return None
+            if penerimaan is None:
+                return 0
+            return (totalrealisasi / penerimaan) * 100
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"
+        except Exception:
+            return 0
+
+    def get_persenpagu(self, tahun, opd, dana, posting):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            persenpagu = Rencanagajiasnposting().get_total_rencana(tahun, opd, dana, posting)
+            if totalrealisasi is None:
+                return None
+            if persenpagu is None:
+                return 0
+            return (totalrealisasi / persenpagu) * 100
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"
+        except Exception:
+            return 0
+
+    def __str__(self):
+        return f'{self.realisasi_rencanaposting}'
+
+
+class Realisasigajiasnsisa(BaseRealisasigajiasn):
+    realisasi_rencanaposting = models.ForeignKey(Rencanagajiasnpostingsisa, verbose_name='Kegiatan', on_delete=models.CASCADE)
+    realisasi_rencana = models.ForeignKey(Rencanagajiasnsisa, verbose_name="Id Rencana", on_delete=models.CASCADE, editable=False)
+
+    class Meta(BaseRealisasigajiasn.Meta):
+        db_table = 'gajiasn_realisasigajiasnsisa'
+
+    def save(self, *args, **kwargs):
+        if self.realisasi_rencanaposting:
+            self.realisasi_rencana_id = self.realisasi_rencanaposting.posting_rencanaid_id
+            self.realisasi_subkegiatan_id = self.realisasi_rencanaposting.posting_subkegiatan_id
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def get_rencana_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_rencanaposting_id is not None:
+            filters &= Q(id=self.realisasi_rencanaposting_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        return Rencanagajiasnpostingsisa.objects.filter(filters).aggregate(total_nilai=Sum('posting_pagu'))['total_nilai'] or Decimal(0)
+
+    def get_rencanaoutput_pk(self):
+        filters = Q(posting_tahun=self.realisasi_tahun) & Q(posting_dana_id=self.realisasi_dana_id)
+        if self.realisasi_subopd_id is not None:
+            filters &= Q(posting_subopd_id=self.realisasi_subopd_id)
+        if self.realisasi_output is not None:
+            filters &= Q(id=self.realisasi_rencanaposting_id)
+        return Rencanagajiasnpostingsisa.objects.filter(filters).aggregate(total_nilai=Sum('posting_output'))['total_nilai'] or Decimal(0)
+
+    def get_persendana(self, tahun, opd, dana):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            penerimaan = model_penerimaan().totalpenerimaan(tahun, dana)
+            if totalrealisasi is None:
+                return None
+            if penerimaan is None:
+                return 0
+            return (totalrealisasi / penerimaan) * 100
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"
+        except Exception:
+            return 0
+
+    def get_persenpagu(self, tahun, opd, dana, posting):
+        try:
+            totalrealisasi = self.get_realisasi_total(tahun, opd, dana)
+            persenpagu = Rencanagajiasnpostingsisa().get_total_rencana(tahun, opd, dana, posting)
+            if totalrealisasi is None:
+                return None
+            if persenpagu is None:
+                return 0
+            return (totalrealisasi / persenpagu) * 100
+        except ZeroDivisionError:
+            return "Error: Pembagian tidak terdefinisi"
+        except Exception:
+            return 0
+
+    def __str__(self):
+        return f'{self.realisasi_rencanaposting}'

@@ -11,6 +11,7 @@ urlpatterns = [
     path('djpk/', include('djpk.urls')),
     path('laporan/', include('core.urls')),
     path('pu/', include('pu.urls')),
+    path('gajiasn/', include('gajiasn.urls')),
     path('kesehatan/', include('kesehatan.urls')),
     path('pendidikan/', include('pendidikan.urls')),
     path('jadwal/', include('jadwal.urls')),

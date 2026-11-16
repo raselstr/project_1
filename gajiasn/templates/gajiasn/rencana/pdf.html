@@ -1,0 +1,394 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ judul }}</title>
+  <style>
+    @page { 
+      size: A4 landscape; 
+      margin: 10mm 12mm 10mm 12mm; 
+    }
+    * { 
+      box-sizing: border-box; 
+    }
+    body {
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      font-size: 10px;
+      color: #111;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.35;
+    }
+
+    /* ===== KOP DOKUMEN RESMI ===== */
+    .kop-wrapper {
+      border-bottom: 2.5px solid #2c3e50;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    .kop-header {
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .kop-title {
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 3px 0;
+      color: #1a252f;
+    }
+    .kop-subtitle {
+      font-size: 11px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 0 0 2px 0;
+      text-transform: uppercase;
+    }
+    .kop-jadwal {
+      display: inline-block;
+      margin-top: 3px;
+      padding: 2px 10px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+    .kop-jadwal.normal {
+      background-color: #eaf2f8;
+      color: #1b4f72;
+      border: 1px solid #aed6f1;
+    }
+    .kop-jadwal.perubahan {
+      background-color: #fdedec;
+      color: #78281f;
+      border: 1px solid #f5b7b1;
+    }
+    .kop-jadwal.draft {
+      background-color: #fef9e7;
+      color: #7d6608;
+      border: 1px solid #f9e79f;
+    }
+
+    .kop-meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 10px;
+    }
+    .kop-meta-table td {
+      padding: 2px 4px;
+      vertical-align: top;
+    }
+    .kop-meta-table td.label {
+      width: 130px;
+      font-weight: bold;
+      color: #333;
+    }
+    .kop-meta-table td.separator {
+      width: 12px;
+      text-align: center;
+    }
+    .kop-meta-table td.value {
+      color: #111;
+    }
+
+    /* ===== TABEL DATA LAPORAN ===== */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5px;
+      margin-top: 4px;
+    }
+    table.data-table th {
+      background-color: #2c3e50;
+      color: #ffffff;
+      text-align: center;
+      padding: 6px 4px;
+      border: 1px solid #566573;
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+    table.data-table th.sub-th {
+      background-color: #34495e;
+      font-size: 8.5px;
+      padding: 4px 3px;
+    }
+    table.data-table th.th-semula {
+      background-color: #1a5276;
+    }
+    table.data-table th.th-menjadi {
+      background-color: #117864;
+    }
+    table.data-table th.th-selisih {
+      background-color: #78281f;
+    }
+    table.data-table td {
+      border: 1px solid #bdc3c7;
+      padding: 3.5px 5px;
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    table.data-table tbody tr:hover {
+      background-color: #eaf2f8;
+    }
+    table.data-table tfoot tr {
+      background-color: #2c3e50;
+      color: #ffffff;
+      font-weight: bold;
+    }
+    table.data-table tfoot td {
+      border: 1px solid #566573;
+      padding: 5px 5px;
+    }
+
+    /* Format Kolom Spesifik */
+    .col-no { text-align: center; width: 28px; }
+    .col-opd { width: 120px; font-weight: 500; }
+    .col-kegiatan { width: 130px; }
+    .col-subkeg { }
+    .col-pagu { text-align: right; white-space: nowrap; width: 95px; }
+    .col-output { text-align: center; width: 45px; }
+    .col-satuan { text-align: center; width: 50px; }
+    .col-kode { text-align: center; width: 85px; font-family: monospace; font-size: 9px; }
+    .col-pagudpa { text-align: right; white-space: nowrap; width: 95px; }
+
+    /* Kolom Perbandingan */
+    .col-pagu-cmp { text-align: right; white-space: nowrap; width: 88px; }
+    .col-out-cmp  { text-align: center; width: 42px; }
+    .col-selisih  { text-align: right; white-space: nowrap; width: 88px; font-weight: bold; }
+    .col-selout   { text-align: center; width: 42px; font-weight: bold; }
+    .val-negative { color: #c0392b; }
+    .val-positive { color: #27ae60; }
+
+    /* ===== AREA TANDA TANGAN ===== */
+    .ttd-container {
+      margin-top: 18px;
+      width: 100%;
+      page-break-inside: avoid;
+    }
+    .ttd-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ttd-box {
+      width: 320px;
+      text-align: center;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+    .ttd-tempat { margin-bottom: 3px; }
+    .ttd-jabatan { font-weight: bold; margin-bottom: 45px; text-transform: uppercase; }
+    .ttd-nama { font-weight: bold; text-decoration: underline; font-size: 10.5px; }
+    .ttd-nip { font-size: 9.5px; color: #222; }
+
+    /* ===== CETAK / PRINT STYLES ===== */
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      table.data-table { page-break-inside: auto; }
+      table.data-table tr { page-break-inside: avoid; page-break-after: auto; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== KOP LAPORAN ===== -->
+<div class="kop-wrapper">
+  <div class="kop-header">
+    <h2 class="kop-title">{{ judul|upper }}</h2>
+    {% if is_perubahan %}
+      <div class="kop-subtitle">PERBANDINGAN JADWAL: {{ jadwal_induk.jadwal_keterangan|default:"INDUK"|upper }} &rarr; {{ jadwal_perubahan.jadwal_keterangan|default:"PERUBAHAN"|upper }}</div>
+      <div class="kop-jadwal perubahan">&#9632; FORMAT PERUBAHAN RENCANA KEGIATAN</div>
+    {% elif is_draft_changed %}
+      <div class="kop-subtitle">RENCANA PERUBAHAN KEGIATAN (SEMULA VS MENJADI - DRAFT BELUM DIPOSTING)</div>
+      <div class="kop-jadwal draft">&#9632; FORMAT DRAFT PERUBAHAN RENCANA</div>
+    {% elif jadwal_terpilih %}
+      <div class="kop-subtitle">VERSI JADWAL: {{ jadwal_terpilih.jadwal_keterangan|default:"INDUK"|upper }}</div>
+      <div class="kop-jadwal normal">&#9632; FORMAT RENCANA KEGIATAN SESUAI JADWAL POSTING</div>
+    {% else %}
+      <div class="kop-jadwal normal">&#9632; FORMAT DAFTAR RENCANA KEGIATAN</div>
+    {% endif %}
+  </div>
+
+  <table class="kop-meta-table">
+    <tr>
+      <td class="label">Tahun Anggaran</td>
+      <td class="separator">:</td>
+      <td class="value"><strong>{{ rencana_tahun|stringformat:"s" }}</strong></td>
+      <td class="label" style="width: 110px;">OPD / Sub OPD</td>
+      <td class="separator">:</td>
+      <td class="value"><strong>{{ rencana_subopd|default:"Semua OPD" }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">Sumber Dana</td>
+      <td class="separator">:</td>
+      <td class="value">{{ rencana_dana|default:"-" }}</td>
+      <td class="label">Tanggal Cetak</td>
+      <td class="separator">:</td>
+      <td class="value">{% now "d F Y H:i" %} WIB</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ===== TABEL KONTEN ===== -->
+{% if is_perubahan or is_draft_changed %}
+<!-- TABEL MODE PERBANDINGAN (SEMULA VS MENJADI) -->
+<table class="data-table">
+  <thead>
+    <tr>
+      <th rowspan="2" class="col-no">No</th>
+      <th rowspan="2" class="col-opd">OPD / Sub OPD</th>
+      <th rowspan="2" class="col-kegiatan">Kegiatan</th>
+      <th rowspan="2" class="col-subkeg">Sub Kegiatan</th>
+      <th colspan="2" class="th-semula">
+        {% if is_draft_changed %}Semula (Terposting){% else %}Semula / Induk ({{ jadwal_induk.jadwal_keterangan|default:"Induk" }}){% endif %}
+      </th>
+      <th colspan="2" class="th-menjadi">
+        {% if is_draft_changed %}Menjadi (Draft Perubahan){% else %}Menjadi / Perubahan ({{ jadwal_perubahan.jadwal_keterangan|default:"Perubahan" }}){% endif %}
+      </th>
+      <th colspan="2" class="th-selisih">Perubahan / Selisih (+/-)</th>
+      <th rowspan="2" class="col-satuan">Satuan</th>
+      <th rowspan="2" class="col-kode">Kode DPA</th>
+      <th rowspan="2" class="col-pagudpa">Pagu DPA (Rp)</th>
+    </tr>
+    <tr>
+      <th class="sub-th th-semula col-pagu-cmp">Pagu (Rp)</th>
+      <th class="sub-th th-semula col-out-cmp">Output</th>
+      <th class="sub-th th-menjadi col-pagu-cmp">Pagu (Rp)</th>
+      <th class="sub-th th-menjadi col-out-cmp">Output</th>
+      <th class="sub-th th-selisih col-pagu-cmp">Pagu (Rp)</th>
+      <th class="sub-th th-selisih col-out-cmp">Output</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in data %}
+    <tr>
+      <td class="col-no">{{ forloop.counter }}</td>
+      <td class="col-opd">{{ row.rencana_subopd }}</td>
+      <td class="col-kegiatan">{{ row.get_kegiatan }}</td>
+      <td class="col-subkeg">{{ row.get_subkegiatan }}</td>
+      <td class="col-pagu-cmp">{{ row.induk_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-out-cmp">{{ row.induk_output|floatformat:0|intcomma }}</td>
+      <td class="col-pagu-cmp">{{ row.perubahan_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-out-cmp">{{ row.perubahan_output|floatformat:0|intcomma }}</td>
+      <td class="col-selisih {% if row.selisih_pagu < 0 %}val-negative{% elif row.selisih_pagu > 0 %}val-positive{% endif %}">
+        {{ row.selisih_pagu|floatformat:2|intcomma }}
+      </td>
+      <td class="col-selout {% if row.selisih_output < 0 %}val-negative{% elif row.selisih_output > 0 %}val-positive{% endif %}">
+        {{ row.selisih_output|floatformat:0|intcomma }}
+      </td>
+      <td class="col-satuan">{{ row.get_satuan_kegiatan|default:"-" }}</td>
+      <td class="col-kode">{{ row.rencana_ket|default:"-" }}</td>
+      <td class="col-pagudpa">{{ row.rencana_pagudpa|floatformat:2|intcomma }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="13" style="text-align: center; padding: 12px; color: #7f8c8d;">
+        Tidak ada data rencana kegiatan untuk filter yang dipilih.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4" style="text-align: right; padding-right: 8px;">TOTAL KESELURUHAN :</td>
+      <td class="col-pagu-cmp">{{ total_induk_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-out-cmp">{{ total_induk_output|floatformat:0|intcomma }}</td>
+      <td class="col-pagu-cmp">{{ total_perubahan_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-out-cmp">{{ total_perubahan_output|floatformat:0|intcomma }}</td>
+      <td class="col-selisih">{{ total_selisih_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-selout">{{ total_selisih_output|floatformat:0|intcomma }}</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+</table>
+
+{% else %}
+<!-- TABEL MODE NORMAL (INDUK / TUNGGAL) -->
+<table class="data-table">
+  <thead>
+    <tr>
+      <th class="col-no">No</th>
+      <th class="col-opd">OPD / Sub OPD</th>
+      <th class="col-kegiatan">Kegiatan</th>
+      <th class="col-subkeg">Nama Sub Kegiatan</th>
+      <th class="col-pagu">Pagu Rencana (Rp)</th>
+      <th class="col-output">Output</th>
+      <th class="col-satuan">Satuan</th>
+      <th class="col-kode">Kode DPA</th>
+      <th class="col-pagudpa">Pagu DPA (Rp)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in data %}
+    <tr>
+      <td class="col-no">{{ forloop.counter }}</td>
+      <td class="col-opd">{{ row.rencana_subopd }}</td>
+      <td class="col-kegiatan">{{ row.get_kegiatan }}</td>
+      <td class="col-subkeg">{{ row.get_subkegiatan }}</td>
+      <td class="col-pagu">{{ row.induk_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-output">{{ row.induk_output|floatformat:0|intcomma }}</td>
+      <td class="col-satuan">{{ row.get_satuan_kegiatan|default:"-" }}</td>
+      <td class="col-kode">{{ row.rencana_ket|default:"-" }}</td>
+      <td class="col-pagudpa">{{ row.rencana_pagudpa|floatformat:2|intcomma }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="9" style="text-align: center; padding: 12px; color: #7f8c8d;">
+        Tidak ada data rencana kegiatan untuk filter yang dipilih.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="4" style="text-align: right; padding-right: 8px;">TOTAL KESELURUHAN :</td>
+      <td class="col-pagu">{{ total_induk_pagu|floatformat:2|intcomma }}</td>
+      <td class="col-output">{{ total_induk_output|floatformat:0|intcomma }}</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+</table>
+{% endif %}
+
+<!-- ===== AREA TANDA TANGAN ===== -->
+{% if ttd %}
+<div class="ttd-container">
+  <table class="ttd-table">
+    <tr>
+      <td style="width: 60%;"></td>
+      <td>
+        {% for pejabat in ttd %}
+        <div class="ttd-box">
+          <div class="ttd-tempat">Kisaran, ___________________</div>
+          <div class="ttd-jabatan">{{ pejabat.pejabat_jabatan }}</div>
+          <div class="ttd-nama">{{ pejabat.pejabat_nama }}</div>
+          <div class="ttd-nip">NIP. {{ pejabat.pejabat_nip }}</div>
+        </div>
+        {% endfor %}
+      </td>
+    </tr>
+  </table>
+</div>
+{% endif %}
+
+<script>
+  window.addEventListener('load', function() { 
+    window.print(); 
+  });
+</script>
+</body>
+</html>

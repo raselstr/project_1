@@ -15,24 +15,27 @@ from dankel.models import RealisasiDankel, RealisasiDankelsisa
 from pendidikan.models import Realisasi as RealisasiPend, Realisasisisa as RealisasisisaPend
 from kesehatan.models import Realisasikesehatan, Realisasikesehatansisa
 from pu.models import Realisasipu, Realisasipusisa
+from gajiasn.models import Realisasigajiasn, Realisasigajiasnsisa
 
 
 class LaporanSp2dService:
 
     DANA_CHOICES = [
-        ('all', 'Semua Dana (Kelurahan, Pendidikan, Kesehatan, PU)'),
+        ('all', 'Semua Dana (Kelurahan, Pendidikan, Kesehatan, PU, Gaji ASN)'),
         ('dankel', 'Dana Kelurahan'),
         ('pendidikan', 'Bidang Pendidikan'),
         ('kesehatan', 'Bidang Kesehatan'),
         ('pu', 'Bidang Pekerjaan Umum'),
+        ('gajiasn', 'Bidang Gaji ASN'),
     ]
 
     DANA_LABELS = {
-        'all': 'Semua Dana (Kelurahan, Pendidikan, Kesehatan, PU)',
+        'all': 'Semua Dana (Kelurahan, Pendidikan, Kesehatan, PU, Gaji ASN)',
         'dankel': 'Dana Kelurahan',
         'pendidikan': 'Bidang Pendidikan',
         'kesehatan': 'Bidang Kesehatan',
         'pu': 'Bidang Pekerjaan Umum',
+        'gajiasn': 'Bidang Gaji ASN',
     }
 
     @classmethod
@@ -379,6 +382,14 @@ class LaporanSp2dService:
                 'dausgpusub', 'dausgpusub_keg', 'dausgpukeg_prog'
             ))
 
+        # 5. GAJI ASN
+        if jenis_dana in ('all', 'gajiasn'):
+            items.extend(fetch_standard(
+                Realisasigajiasn, Realisasigajiasnsisa,
+                'Bidang Gaji ASN',
+                'daugajisub', 'daugajisub_keg', 'daugajikeg_prog'
+            ))
+
         # Enrich dengan Keterangan SP2D dari SIPD / TBP
         sp2d_numbers = [item['nomor_sp2d'] for item in items if item.get('nomor_sp2d')]
         keterangan_map = cls.get_sp2d_keterangan_map(sp2d_numbers, tahun=tahun)
@@ -542,6 +553,7 @@ class LaporanSp2dService:
                 ('pendidikan', 'Bidang Pendidikan'),
                 ('kesehatan', 'Bidang Kesehatan'),
                 ('pu', 'Bidang Pekerjaan Umum'),
+                ('gajiasn', 'Bidang Gaji ASN'),
             ]
             for d_key, d_name in dana_names:
                 d_items = [it for it in raw_items if it.get('jenis_dana') == d_name]

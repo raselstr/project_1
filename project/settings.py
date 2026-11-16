@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'pendidikan',
     'kesehatan',
     'pu',
+    'gajiasn',
     'jadwal',
     'sipd',
     'djpk',

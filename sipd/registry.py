@@ -17,6 +17,12 @@ from pu.models import (
     Realisasipu,
     Realisasipusisa,
 )
+from gajiasn.models import (
+    Rencanagajiasnposting,
+    Rencanagajiasnpostingsisa,
+    Realisasigajiasn,
+    Realisasigajiasnsisa,
+)
 
 SIPD_REGISTRY = {
     'realisasi': {
@@ -67,6 +73,22 @@ SIPD_REGISTRY = {
         'model_realisasi_sisa': Realisasipu,
         'url_sp2d' : "realisasi_pu_sp2dsisa",
         'field_subkegiatan': 'posting_subkegiatan__dausgpusub_nama',
+    },
+    'realisasi_gajiasn': {
+        'model_rencana': Rencanagajiasnposting,
+        'model_rencana_sisa': Rencanagajiasnpostingsisa,
+        'model_realisasi': Realisasigajiasn,
+        'model_realisasi_sisa': Realisasigajiasnsisa,
+        'url_sp2d': "realisasi_gajiasn_sp2d",
+        'field_subkegiatan': 'posting_subkegiatan__daugajisub_nama',
+    },
+    'realisasi_gajiasn_sisa': {
+        'model_rencana': Rencanagajiasnpostingsisa,
+        'model_rencana_sisa': Rencanagajiasnposting,
+        'model_realisasi': Realisasigajiasnsisa,
+        'model_realisasi_sisa': Realisasigajiasn,
+        'url_sp2d': "realisasi_gajiasn_sp2dsisa",
+        'field_subkegiatan': 'posting_subkegiatan__daugajisub_nama',
     },
 }
 

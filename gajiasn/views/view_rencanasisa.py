@@ -1,0 +1,342 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+from django.urls import reverse
+from django.contrib import messages
+from project.decorators import menu_access_required, set_submenu_session
+import logging
+
+from gajiasn.models import Rencanagajiasnsisa, Rencanagajiasnpostingsisa
+from gajiasn.forms.sisa import RencanagajiasnFilterForm, RencanagajiasnForm
+from dausg.models import Subkegiatan
+from opd.models import Pejabat, Subopd
+from gajiasn.tables import RencanasisaTable
+from core.forms.budget_opd import scoped_opd_id
+from core.services.rencana_service import enrich_rencana_with_perubahan
+from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
+
+form_filter = RencanagajiasnFilterForm
+form_data = RencanagajiasnForm
+
+tabel_rencana = RencanasisaTable
+
+model_data = Rencanagajiasnsisa
+model_pagu = Subkegiatan
+model_pejabat = Pejabat
+model_subopd = Subopd
+
+url_home = 'rencana_gajiasn_home'
+url_filter = 'rencana_gajiasn_filtersisa'
+url_list = 'rencana_gajiasn_listsisa'
+url_simpan = 'rencana_gajiasn_simpansisa'
+url_update = 'rencana_gajiasn_updatesisa'
+url_delete = 'rencana_gajiasn_deletesisa'
+url_cetak = 'rencana_gajiasn_cetaksisa'
+url_excel = 'rencana_gajiasn_excelsisa'
+
+template_form = 'gajiasn/rencana/form.html'
+template_home = 'gajiasn/rencana/home.html'
+template_list = 'gajiasn/rencana/list.html'
+template_modal = 'gajiasn/rencana/modal.html'
+template_pdf = 'gajiasn/rencana/pdf.html'
+
+sesidana = 'sisa-dukungan-pemenuhan-kebutuhan-penggajian-aparatur-sipil-negara-daerah'
+
+logger = logging.getLogger(__name__)
+
+
+@set_submenu_session
+@menu_access_required('delete')
+def delete(request, pk):
+    request.session['next'] = request.get_full_path()
+    try:
+        data = model_data.objects.get(id=pk)
+        data.delete()
+        messages.warning(request, "Data Berhasil dihapus")
+    except model_data.DoesNotExist:
+        messages.error(request, "Dana tidak ditemukan")
+    except ValidationError as e:
+        messages.error(request, str(e))
+    return redirect(url_list)
+
+
+@set_submenu_session
+@menu_access_required('update')
+def update(request, pk):
+    request.session['next'] = request.get_full_path()
+    data = get_object_or_404(model_data, id=pk)
+    if request.method == 'POST':
+        form = form_data(request.POST or None, instance=data)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Data Berhasil Update')
+                return redirect(url_list)
+            except ValidationError as e:
+                form.add_error(None, e.message)
+    else:
+        form = form_data(instance=data)
+    context = {
+        'form': form,
+        'judul': 'Update Rencana Kegiatan',
+        'btntombol': 'Update',
+        'link_url': reverse(url_list),
+    }
+    return render(request, template_form, context)
+
+
+@set_submenu_session
+@menu_access_required('simpan')
+def simpan(request):
+    request.session['next'] = request.get_full_path()
+    initial_data = dict(
+        rencana_tahun=request.session.get('rencana_tahun'),
+        rencana_dana=request.session.get('rencana_dana'),
+        rencana_subopd=request.session.get('rencana_subopd')
+    )
+    tahun = request.session.get('tahun')
+    if request.method == 'POST':
+        form = form_data(request.POST or None, tahun=tahun)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Data Berhasil Simpan')
+            return redirect(reverse(url_list))
+    else:
+        form = form_data(initial=initial_data, tahun=tahun)
+
+    context = {
+        'form': form,
+        'judul': 'Form Rencana Kegiatan DAU SG Gaji ASN Tahun Lalu',
+        'btntombol': 'Simpan',
+        'link_url': reverse(url_list),
+    }
+    return render(request, template_form, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def list(request):
+    request.session['next'] = request.get_full_path()
+    rencana_tahun = request.session.get('rencana_tahun')
+    rencana_dana = request.session.get('rencana_dana')
+    rencana_subopd = request.session.get('rencana_subopd')
+
+    filters = Q()
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    rencana_subopd = scoped_opd_id(rencana_subopd)
+    if rencana_subopd:
+        filters &= Q(rencana_subopd_id=rencana_subopd)
+
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = None
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanagajiasnpostingsisa,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
+    )
+
+    context = {
+        'judul': 'Daftar Kegiatan Sisa DAU SG Gaji ASN',
+        'tombol': 'Tambah Perencanaan Sisa Tahun Lalu',
+        'kembali': 'Kembali',
+        'link_url': reverse(url_simpan),
+        'link_url_kembali': reverse(url_home),
+        'link_url_cetak': reverse(url_cetak),
+        'link_url_excel': reverse(url_excel),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
+        'data': data,
+        'is_perubahan': is_perubahan,
+    }
+    context.update(context_extra)
+    return render(request, template_list, context)
+
+
+def filter(request):
+    if request.method == 'GET':
+        logger.debug(f"Received GET data: {request.GET}")
+        tahunrencana = request.session.get('tahun')
+        sesisubopd = request.session.get('idsubopd')
+        form = form_filter(request.GET or None, tahun=tahunrencana, sesidana=sesidana, sesisubopd=sesisubopd)
+
+        if form.is_valid():
+            logger.debug(f"Form is valid: {form.cleaned_data}")
+            request.session['rencana_tahun'] = form.cleaned_data.get('rencana_tahun')
+            request.session['rencana_dana'] = form.cleaned_data.get('rencana_dana').id if form.cleaned_data.get('rencana_dana') else None
+            request.session['rencana_subopd'] = form.cleaned_data.get('rencana_subopd').id if form.cleaned_data.get('rencana_subopd') else None
+            return redirect(url_list)
+        else:
+            logger.debug(f"Form errors: {form.errors}")
+    else:
+        form = form_filter()
+
+    context = {
+        'judul': 'Rencana Kegiatan Sisa Tahun Lalu',
+        'isi_modal': 'Ini adalah isi modal Rencana Kegiatan.',
+        'btntombol': 'Filter',
+        'form': form,
+        'link_url': reverse(url_filter),
+    }
+    return render(request, template_modal, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def home(request):
+    tahun = request.session.get('tahun')
+    sesisubopd = request.session.get('idsubopd')
+
+    try:
+        dana = model_pagu.objects.get(sub_slug=sesidana)
+    except model_pagu.DoesNotExist:
+        dana = None
+
+    if dana:
+        pagu = model_data().get_pagu(tahun=tahun, opd=sesisubopd, dana=dana)
+        rencana = model_data().get_total_rencana(tahun=tahun, opd=sesisubopd, dana=dana)
+        sisa = model_data().get_sisa(tahun=tahun, opd=sesisubopd, dana=dana)
+    else:
+        pagu = 0
+        rencana = 0
+        sisa = 0
+
+    context = {
+        'judul': 'Rencana Kegiatan Sisa DAU SG Gaji ASN',
+        'tab1': 'Rencana Kegiatan Tahun Berjalan',
+        'datapagu': pagu,
+        'datarencana': rencana,
+        'datasisa': sisa,
+        'link_url': reverse(url_filter),
+    }
+    return render(request, template_home, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def cetak(request):
+    request.session['next'] = request.get_full_path()
+    rencana_tahun = request.session.get('rencana_tahun')
+    rencana_dana = request.session.get('rencana_dana')
+    rencana_subopd = request.session.get('rencana_subopd')
+
+    filters = Q()
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    rencana_subopd = scoped_opd_id(rencana_subopd)
+    if rencana_subopd:
+        filters &= Q(rencana_subopd_id=rencana_subopd)
+
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = None
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanagajiasnpostingsisa,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
+    )
+
+    if rencana_subopd:
+        ttd = model_pejabat.objects.filter(pejabat_sub=rencana_subopd)
+    else:
+        ttd = None
+
+    tabel = tabel_rencana(data)
+
+    subopd_obj = model_subopd.objects.filter(id=rencana_subopd).first() if rencana_subopd else None
+    dana_obj = model_pagu.objects.filter(id=rencana_dana).first()
+    subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
+    dana_laporan = dana_obj.sub_nama if dana_obj else '-'
+
+    context = {
+        'judul': 'Daftar Kegiatan Sisa DAU SG Gaji ASN',
+        'tombol': 'Tambah Perencanaan',
+        'kembali': 'Kembali',
+        'link_url': reverse(url_simpan),
+        'link_url_kembali': reverse(url_home),
+        'link_url_update': url_update,
+        'link_url_delete': url_delete,
+        'data': data,
+        'tabel': tabel,
+        'ttd': ttd,
+        'rencana_tahun': rencana_tahun,
+        'rencana_dana': dana_laporan,
+        'rencana_subopd': subopd_laporan,
+        'is_perubahan': is_perubahan,
+    }
+    context.update(context_extra)
+    return render(request, template_pdf, context)
+
+
+@set_submenu_session
+@menu_access_required('list')
+def excel(request):
+    request.session['next'] = request.get_full_path()
+    rencana_tahun = request.session.get('rencana_tahun')
+    rencana_dana = request.session.get('rencana_dana')
+    rencana_subopd = request.session.get('rencana_subopd')
+
+    filters = Q()
+    if rencana_tahun:
+        filters &= Q(rencana_tahun=rencana_tahun)
+    if rencana_dana:
+        filters &= Q(rencana_dana_id=rencana_dana)
+    scoped_sub = scoped_opd_id(rencana_subopd)
+    if scoped_sub:
+        filters &= Q(rencana_subopd_id=scoped_sub)
+
+    try:
+        data = model_data.objects.filter(filters)
+    except model_data.DoesNotExist:
+        data = []
+
+    is_perubahan, context_extra, data = enrich_rencana_with_perubahan(
+        data if data is not None else [],
+        rencana_tahun,
+        Rencanagajiasnpostingsisa,
+        'posting_rencanaid',
+        'posting_pagu',
+        'posting_output',
+        jadwal_field='posting_jadwal',
+        rencana_pagu_field='rencana_pagu',
+        rencana_output_field='rencana_output',
+        selected_jadwal=request.GET.get('jadwal'),
+    )
+
+    subopd_obj = model_subopd.objects.filter(id=rencana_subopd).first() if rencana_subopd else None
+    dana_obj = model_pagu.objects.filter(id=rencana_dana).first()
+    subopd_laporan = subopd_obj.sub_nama if subopd_obj else 'Semua OPD'
+    dana_laporan = dana_obj.sub_nama if dana_obj else '-'
+
+    context = {
+        'data': data,
+        'rencana_tahun': rencana_tahun,
+        'rencana_dana': dana_laporan,
+        'rencana_subopd': subopd_laporan,
+        'is_perubahan': is_perubahan,
+    }
+    context.update(context_extra)
+    return LaporanRencanaExcelService.export(context, bidang='gajiasn', sumber='sisa')

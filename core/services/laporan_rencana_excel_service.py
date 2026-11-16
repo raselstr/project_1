@@ -144,6 +144,7 @@ class LaporanRencanaExcelService:
             'pendidikan': 'Bidang Pendidikan',
             'kesehatan': 'Bidang Kesehatan',
             'pu': 'Bidang Pekerjaan Umum',
+            'gajiasn': 'Bidang Gaji ASN',
             'dankel': 'Dana Kelurahan',
         }
         bidang_label = labels.get(bidang, bidang.title())

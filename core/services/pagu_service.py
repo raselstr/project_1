@@ -25,6 +25,11 @@ from dankel.models import (
     RencDankeljadwalsisa,
 )
 
+from gajiasn.models import (
+    Rencanagajiasnposting,
+    Rencanagajiasnpostingsisa,
+)
+
 
 class PaguService:
 
@@ -46,6 +51,9 @@ class PaguService:
 
         Rencanapuposting: COMMON_PAGU_FIELDS,
         Rencanapupostingsisa: COMMON_PAGU_FIELDS,
+
+        Rencanagajiasnposting: COMMON_PAGU_FIELDS,
+        Rencanagajiasnpostingsisa: COMMON_PAGU_FIELDS,
 
         RencDankeljadwal: {
             "tahun": "rencdankel_tahun",
