@@ -1,5 +1,5 @@
 # Dockerfile
-FROM python:3.12-bullseye
+FROM python:3.12-bookworm
 
 WORKDIR /project_1
 
@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y \
     gcc \
     netcat-openbsd \
     postgresql-client \
-    python3-distutils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements dan install
@@ -23,9 +22,6 @@ COPY . /project_1/
 
 # Pastikan skrip siap dijalankan
 RUN chmod +x /project_1/wait_for_db.sh
-
-# Jalankan collectstatic (opsional, tapi direkomendasikan)
-RUN python manage.py collectstatic --noinput
 
 # Entry point untuk menunggu DB
 ENTRYPOINT ["/project_1/wait_for_db.sh"]
