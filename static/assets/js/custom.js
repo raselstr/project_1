@@ -60,6 +60,7 @@ $(document).ready(function() {
       $('.sidebar-menu li.dropdown').removeClass('active open-temp');
       $('.sidebar-menu li.dropdown ul.dropdown-menu li').removeClass('active');
       $('.sidebar-menu li.sub-dropdown').removeClass('active open');
+      $('.sidebar-menu ul.sub-dropdown-menu li').removeClass('active');
       $('.sidebar-menu ul.dropdown-menu').hide();
       $('.sidebar-menu ul.sub-dropdown-menu').hide();
 
@@ -69,7 +70,7 @@ $(document).ready(function() {
       if (isLevel3) {
         // Buka sub-dropdown (level 2) parent
         var $subDropLi = $bestMatch.closest('li.sub-dropdown');
-        $subDropLi.addClass('active open');
+        $subDropLi.addClass('open');
         $subDropLi.find('> ul.sub-dropdown-menu').show();
       }
 
@@ -88,7 +89,7 @@ $(document).ready(function() {
     var $thisDropdown = $(this).closest('li.dropdown');
     if (!$thisDropdown.hasClass('active')) {
       // Tutup semua sub-dropdown di menu lain
-      $('.sidebar-menu li.dropdown').not($thisDropdown).find('li.sub-dropdown').removeClass('active open');
+      $('.sidebar-menu li.dropdown').not($thisDropdown).find('li.sub-dropdown').removeClass('open');
       $('.sidebar-menu li.dropdown').not($thisDropdown).find('ul.sub-dropdown-menu').slideUp(150);
     }
   });
@@ -102,14 +103,14 @@ $(document).ready(function() {
     var isOpen = $li.hasClass('open');
 
     // Tutup semua sub-dropdown lain di dalam menu yang sama
-    $li.siblings('li.sub-dropdown').removeClass('active open');
+    $li.siblings('li.sub-dropdown').removeClass('open');
     $li.siblings('li.sub-dropdown').find('> ul.sub-dropdown-menu').slideUp(150);
 
     if (isOpen) {
-      $li.removeClass('open active');
+      $li.removeClass('open');
       $menu.slideUp(200);
     } else {
-      $li.addClass('open active');
+      $li.addClass('open');
       $menu.slideDown(200);
     }
   });
@@ -119,10 +120,11 @@ $(document).ready(function() {
     var $link = $(this);
     // Clear all level 3 active
     $('.sidebar-menu ul.sub-dropdown-menu li').removeClass('active');
+    $('.sidebar-menu ul.dropdown-menu li').not('.sub-dropdown').removeClass('active');
     $link.closest('li').addClass('active');
-    // Keep level 2 open/active
+    // Keep level 2 open
     var $subDropLi = $link.closest('li.sub-dropdown');
-    $subDropLi.addClass('active open');
+    $subDropLi.addClass('open');
     // Keep level 1 active
     var $parentDropdown = $link.closest('li.dropdown');
     $('.sidebar-menu li.dropdown').not($parentDropdown).removeClass('active open-temp');

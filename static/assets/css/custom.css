@@ -150,14 +150,22 @@ body.sidebar-mini .navbar {
   box-sizing: border-box !important;
 }
 
-/* Link Rincian Sub Menu (Level 3 link) — override Stisla padding-left: 65px */
-.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link {
+/* Link Rincian Sub Menu (Level 3 link) — default normal/inactive
+   Override Stisla .main-sidebar .sidebar-menu li.active a agar tidak mewarnai semua anak */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link,
+.main-sidebar .sidebar-menu li.active ul.sub-dropdown-menu li a.nav-link,
+.main-sidebar .sidebar-menu li.sub-dropdown.active ul.sub-dropdown-menu li a.nav-link,
+.main-sidebar .sidebar-menu li.sub-dropdown.open ul.sub-dropdown-menu li a.nav-link {
   display: flex !important;
   align-items: center !important;
   padding: 6px 12px 6px 14px !important;
   height: 32px !important;
   font-size: 12.5px !important;
+  font-weight: 400 !important;
   color: #a2abb9 !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
   text-decoration: none !important;
   transition: all 0.2s;
   border-radius: 3px;
@@ -165,8 +173,12 @@ body.sidebar-mini .navbar {
   box-sizing: border-box !important;
 }
 
-.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link:hover {
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link:hover,
+.main-sidebar .sidebar-menu li.active ul.sub-dropdown-menu li a.nav-link:hover,
+.main-sidebar .sidebar-menu li.sub-dropdown.active ul.sub-dropdown-menu li a.nav-link:hover,
+.main-sidebar .sidebar-menu li.sub-dropdown.open ul.sub-dropdown-menu li a.nav-link:hover {
   color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   padding-left: 18px !important;
 }
@@ -187,15 +199,41 @@ body.sidebar-mini .navbar {
   text-overflow: clip !important;
 }
 
-/* Active states */
+/* HANYA item rincian sub menu yang elemen li-nya berstatus .active yang aktif */
 .main-sidebar .sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
-.main-sidebar .sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
+.main-sidebar .sidebar-menu li.active ul.sub-dropdown-menu li.active > a.nav-link,
+.main-sidebar .sidebar-menu li.sub-dropdown.active ul.sub-dropdown-menu li.active > a.nav-link,
+.main-sidebar .sidebar-menu li.sub-dropdown.open ul.sub-dropdown-menu li.active > a.nav-link {
   color: #00f0ff !important;
   font-weight: 600 !important;
-  background: rgba(0, 240, 255, 0.12) !important;
+  background-color: rgba(0, 240, 255, 0.14) !important;
+  background: rgba(0, 240, 255, 0.14) !important;
 }
 
 .main-sidebar .sidebar-menu li.sub-dropdown.active > a.sub-nav-link,
 .main-sidebar .sidebar-menu li.sub-dropdown.open > a.sub-nav-link {
   color: #fff !important;
+}
+
+/* Item dropdown level 2 biasa (bukan sub-dropdown) */
+.main-sidebar .sidebar-menu ul.dropdown-menu > li:not(.sub-dropdown):not(.active) > a.nav-link,
+.main-sidebar .sidebar-menu li.active ul.dropdown-menu > li:not(.sub-dropdown):not(.active) > a.nav-link {
+  color: #9ea6b4 !important;
+  font-weight: 400 !important;
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+.main-sidebar .sidebar-menu ul.dropdown-menu > li:not(.sub-dropdown):not(.active) > a.nav-link:hover,
+.main-sidebar .sidebar-menu li.active ul.dropdown-menu > li:not(.sub-dropdown):not(.active) > a.nav-link:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.main-sidebar .sidebar-menu ul.dropdown-menu > li:not(.sub-dropdown).active > a.nav-link,
+.main-sidebar .sidebar-menu li.active ul.dropdown-menu > li:not(.sub-dropdown).active > a.nav-link {
+  color: #00f0ff !important;
+  font-weight: 600 !important;
+  background-color: rgba(0, 240, 255, 0.14) !important;
+  background: rgba(0, 240, 255, 0.14) !important;
 }

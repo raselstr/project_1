@@ -40,7 +40,7 @@
                                       <!-- RINCIAN SUB MENU (LEVEL 3) -->
                                       <ul class="sub-dropdown-menu">
                                           {% for rincian in sub.rincians %}
-                                          <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
+                                          <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.session.current_submenu_id == rincian.id|stringformat:'s' or rincian.rinciansubmenu_link and request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
                                               <a class="nav-link" href="{% if rincian.rinciansubmenu_link %}{% url rincian.rinciansubmenu_link %}?submenu_id={{ rincian.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ rincian.id }}{% endif %}">
                                                   <i class="{{ rincian.rinciansubmenu_icon }}"></i>
                                                   <span>{{ rincian.rinciansubmenu_nama }}</span>
@@ -62,7 +62,7 @@
                           </a>
                           <ul class="dropdown-menu">
                               {% for rincian in item.rincians %}
-                              <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
+                              <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.session.current_submenu_id == rincian.id|stringformat:'s' or rincian.rinciansubmenu_link and request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
                                   <a class="nav-link" href="{% if rincian.rinciansubmenu_link %}{% url rincian.rinciansubmenu_link %}?submenu_id={{ rincian.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ rincian.id }}{% endif %}">
                                       <i class="{{ rincian.rinciansubmenu_icon }}"></i>
                                       <span>{{ rincian.rinciansubmenu_nama }}</span>
