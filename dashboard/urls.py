@@ -1,7 +1,7 @@
 from django.urls import path
 
 # from . import views
-from .views import view_dashboard, view_menu, view_submenu,view_level, view_userlevel, view_pengguna, view_levelsub
+from .views import view_dashboard, view_menu, view_submenu, view_rinciansubmenu, view_level, view_userlevel, view_pengguna, view_levelsub
 
 urlpatterns = [
     # path("levelsub/<int:number>/", view_levelsub.list, name="list_levelsub"),
@@ -27,6 +27,11 @@ urlpatterns = [
     path("submenu/simpan/", view_submenu.simpan_submenu, name="simpan_submenu"),
     path("submenu/delete/<int:pk>", view_submenu.delete_submenu, name="delete_submenu"),
     path("submenu/update/<int:pk>", view_submenu.update_submenu, name="update_submenu"),
+
+    path("rinciansubmenu/", view_rinciansubmenu.list_rinciansubmenu, name="list_rinciansubmenu"),
+    path("rinciansubmenu/simpan/", view_rinciansubmenu.simpan_rinciansubmenu, name="simpan_rinciansubmenu"),
+    path("rinciansubmenu/delete/<int:pk>", view_rinciansubmenu.delete_rinciansubmenu, name="delete_rinciansubmenu"),
+    path("rinciansubmenu/update/<int:pk>", view_rinciansubmenu.update_rinciansubmenu, name="update_rinciansubmenu"),
     
     path("level/", view_level.list_level, name="list_level"),
     path("level/simpan/", view_level.simpan_level, name="simpan_level"),

@@ -54,17 +54,21 @@ def login_view(request):
                     # Jika bukan superuser, ambil objek Userlevel
                     try:
                         userlevel = Userlevel.objects.get(user_nama=user)
-                        submenu_ids = Levelsub.objects.filter(
+                        levelsub_qs = Levelsub.objects.filter(
                             levelsub_level=userlevel.userlevel
                         ).filter(
                             Q(lihat=True) | Q(simpan=True) | Q(edit=True) | Q(hapus=True)
-                        ).values_list('levelsub_submenu__id', flat=True)
+                        )
+                        # Ambil ID rincian sub menu yang diizinkan
+                        rincian_ids = list(levelsub_qs.exclude(levelsub_rinciansubmenu__isnull=True).values_list('levelsub_rinciansubmenu__id', flat=True))
+                        if not rincian_ids:
+                            rincian_ids = list(levelsub_qs.values_list('levelsub_submenu__id', flat=True))
                         request.session['is_superuser'] = False
                         request.session['user_nama'] = user.username
                         request.session['subopd'] = userlevel.userlevelopd.sub_nama
                         request.session['idsubopd'] = userlevel.userlevelopd.id
                         request.session['level'] = userlevel.userlevel.level_nama
-                        request.session['submenus'] = list(submenu_ids)
+                        request.session['submenus'] = [r for r in rincian_ids if r is not None]
                         request.session['jadwal'] = jadwal_id
                         request.session['jadwal_ket'] = jadwal_keterangan
                         request.session['tahun'] = int(tahun)

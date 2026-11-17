@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.forms import modelformset_factory
 from project.decorators import menu_access_required, set_submenu_session
 
-from ..models import Levelsub, Submenu, Level
+from ..models import Levelsub, Rinciansubmenu, Level
 from ..forms import LevelsubForm
 
 template_list = 'levelsub/levelsub_list.html'
@@ -15,15 +15,35 @@ def manage_levelsubs(request, number):
     request.session['next'] = request.get_full_path()
     level = get_object_or_404(Level, pk=number)
     
-    # Pastikan setiap Submenu yang ada memiliki entri Levelsub untuk level ini
-    submenus = Submenu.objects.all().select_related('submenu_menu').order_by('submenu_menu__id', 'id')
-    for submenu in submenus:
-        Levelsub.objects.get_or_create(levelsub_level=level, levelsub_submenu=submenu)
+    # Pastikan setiap Rinciansubmenu yang ada memiliki entri Levelsub untuk level ini
+    rincians = Rinciansubmenu.objects.all().select_related(
+        'rinciansubmenu_submenu__submenu_menu'
+    ).order_by(
+        'rinciansubmenu_submenu__submenu_menu__menu_urutan',
+        'rinciansubmenu_submenu__submenu_menu__id',
+        'rinciansubmenu_submenu__submenu_urutan',
+        'rinciansubmenu_submenu__id',
+        'rinciansubmenu_urutan',
+        'id'
+    )
+    for rincian in rincians:
+        Levelsub.objects.get_or_create(
+            levelsub_level=level,
+            levelsub_rinciansubmenu=rincian,
+            defaults={'lihat': False, 'simpan': False, 'edit': False, 'hapus': False}
+        )
     
     LevelsubFormSet = modelformset_factory(Levelsub, form=LevelsubForm, extra=0)
     queryset = Levelsub.objects.filter(levelsub_level=level).select_related(
-        'levelsub_submenu__submenu_menu'
-    ).order_by('levelsub_submenu__submenu_menu__id', 'levelsub_submenu__id')
+        'levelsub_rinciansubmenu__rinciansubmenu_submenu__submenu_menu'
+    ).order_by(
+        'levelsub_rinciansubmenu__rinciansubmenu_submenu__submenu_menu__menu_urutan',
+        'levelsub_rinciansubmenu__rinciansubmenu_submenu__submenu_menu__id',
+        'levelsub_rinciansubmenu__rinciansubmenu_submenu__submenu_urutan',
+        'levelsub_rinciansubmenu__rinciansubmenu_submenu__id',
+        'levelsub_rinciansubmenu__rinciansubmenu_urutan',
+        'levelsub_rinciansubmenu__id'
+    )
 
     if request.method == 'POST':
         formset = LevelsubFormSet(request.POST, queryset=queryset)
@@ -33,7 +53,7 @@ def manage_levelsubs(request, number):
                 instance.levelsub_level = level
                 instance.save()
             
-            messages.success(request, f'Hak akses sub menu untuk level "{level.level_nama}" berhasil disimpan!')
+            messages.success(request, f'Hak akses untuk level "{level.level_nama}" berhasil disimpan!')
             
             if request.POST.get('simpan_kembali') == '1':
                 return redirect('list_level')
@@ -49,7 +69,10 @@ def manage_levelsubs(request, number):
     current_group = None
 
     for form in formset.forms:
-        submenu = form.instance.levelsub_submenu
+        rincian = form.instance.levelsub_rinciansubmenu
+        if not rincian:
+            continue
+        submenu = rincian.rinciansubmenu_submenu
         menu = submenu.submenu_menu
         if current_menu_id != menu.id:
             current_menu_id = menu.id
@@ -70,6 +93,7 @@ def manage_levelsubs(request, number):
         )
         current_group['items'].append({
             'form': form,
+            'rincian': rincian,
             'submenu': submenu,
             'is_active': is_active,
         })
@@ -88,6 +112,6 @@ def manage_levelsubs(request, number):
         'all_levels': all_levels,
         'total_submenus': total_submenus,
         'total_active': total_active,
-        'judul': f'Hak Akses Sub Menu - {level.level_nama}',
+        'judul': f'Hak Akses - {level.level_nama}',
     }
     return render(request, template_list, context)

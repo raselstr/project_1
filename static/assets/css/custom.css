@@ -2,7 +2,112 @@
  *
  * You can write your CSS code here, DO NOT touch the default JavaScript file
  * because it will make it harder for you to update.
- * 
+ *
+ * v2.0 — Tambahan: 3-level sidebar menu (sub-dropdown), compact posting table
  */
+
+/* ============================================================
+   3-LEVEL SIDEBAR: SUB-DROPDOWN
+   ============================================================ */
+
+/* Sub-dropdown item di dalam dropdown-menu */
+.sidebar-menu li.sub-dropdown {
+  position: relative;
+}
+
+/* Tombol sub-level (level 2) */
+.sidebar-menu li.sub-dropdown > a.sub-nav-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px 8px 24px;
+  color: #9ea6b4;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.sidebar-menu li.sub-dropdown > a.sub-nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+
+.sidebar-menu li.sub-dropdown > a.sub-nav-link i {
+  margin-right: 8px;
+  width: 18px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.75;
+}
+
+/* Chevron indicator untuk sub-dropdown */
+.sidebar-menu li.sub-dropdown > a.sub-nav-link::after {
+  content: '\f105'; /* FontAwesome chevron-right */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  margin-left: auto;
+  font-size: 11px;
+  transition: transform 0.25s;
+  opacity: 0.6;
+}
+
+.sidebar-menu li.sub-dropdown.open > a.sub-nav-link::after,
+.sidebar-menu li.sub-dropdown.active > a.sub-nav-link::after {
+  transform: rotate(90deg);
+  opacity: 1;
+  color: #fff;
+}
+
+/* Sub dropdown menu (level 3) */
+.sidebar-menu ul.sub-dropdown-menu {
+  display: none;
+  list-style: none;
+  padding: 2px 0;
+  margin: 0;
+  background: rgba(0,0,0,0.12);
+  border-left: 2px solid rgba(255,255,255,0.12);
+  margin-left: 24px;
+  border-radius: 0 0 4px 4px;
+}
+
+.sidebar-menu ul.sub-dropdown-menu li a.nav-link {
+  padding: 7px 14px 7px 20px;
+  font-size: 12.5px;
+  color: #8a93a2;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+  border-radius: 3px;
+}
+
+.sidebar-menu ul.sub-dropdown-menu li a.nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.07);
+}
+
+.sidebar-menu ul.sub-dropdown-menu li a.nav-link i {
+  margin-right: 7px;
+  width: 15px;
+  font-size: 11px;
+  text-align: center;
+  opacity: 0.65;
+}
+
+/* Active state untuk level 3 */
+.sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
+.sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
+  color: #fff;
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Active state untuk level 2 (sub-dropdown) ketika anak aktif */
+.sidebar-menu li.sub-dropdown.active > a.sub-nav-link,
+.sidebar-menu li.sub-dropdown.open > a.sub-nav-link {
+  color: #fff;
+}
 
 /*# sourceMappingURL=custom.css.map */

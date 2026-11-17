@@ -187,7 +187,7 @@
                             <table class="table table-hover table-sm mb-0">
                                 <thead>
                                     <tr class="bg-light text-muted text-uppercase small">
-                                        <th style="width: 34%; padding-left: 20px;">Sub Menu</th>
+                                        <th style="width: 34%; padding-left: 20px;">Sub Menu / Rincian</th>
                                         <th style="width: 18%; text-align: center;">Status & Aksi Cepat</th>
                                         <th style="width: 12%; text-align: center;"><i class="far fa-eye text-info mr-1"></i> Lihat</th>
                                         <th style="width: 12%; text-align: center;"><i class="fas fa-plus-circle text-success mr-1"></i> Simpan</th>
@@ -197,17 +197,20 @@
                                 </thead>
                                 <tbody>
                                     {% for item in group.items %}
-                                        <tr class="submenu-row {% if item.is_active %}row-active{% else %}row-inactive{% endif %}" id="row-{{ item.form.prefix }}" data-submenu-name="{{ item.submenu.submenu_nama|lower }}" data-menu-name="{{ group.menu.menu_nama|lower }}" data-link="{{ item.submenu.submenu_link|lower }}">
+                                        <tr class="submenu-row {% if item.is_active %}row-active{% else %}row-inactive{% endif %}" id="row-{{ item.form.prefix }}" data-submenu-name="{{ item.rincian.rinciansubmenu_nama|lower }} {{ item.submenu.submenu_nama|lower }}" data-menu-name="{{ group.menu.menu_nama|lower }}" data-link="{{ item.rincian.rinciansubmenu_link|lower }}">
                                             {{ item.form.id }}
                                             <td style="padding-left: 20px; vertical-align: middle;">
                                                 <div class="d-flex align-items-center">
                                                     <div class="submenu-icon-box mr-3">
-                                                        <i class="{{ item.submenu.submenu_icon|default:'fas fa-angle-right' }} text-secondary"></i>
+                                                        <i class="{{ item.rincian.rinciansubmenu_icon|default:item.submenu.submenu_icon|default:'fas fa-angle-right' }} text-secondary"></i>
                                                     </div>
                                                     <div>
-                                                        <span class="font-weight-600 text-dark submenu-title" style="font-size: 0.95rem;">{{ item.submenu.submenu_nama }}</span>
-                                                        {% if item.submenu.submenu_link %}
-                                                            <div class="text-muted small font-monospace"><i class="fas fa-link mr-1"></i>{{ item.submenu.submenu_link }}</div>
+                                                        <div class="d-flex align-items-center mb-1">
+                                                            <span class="badge badge-light border text-primary mr-2" style="font-size: 0.72rem;">{{ item.submenu.submenu_nama }}</span>
+                                                            <span class="font-weight-600 text-dark submenu-title" style="font-size: 0.95rem;">{{ item.rincian.rinciansubmenu_nama }}</span>
+                                                        </div>
+                                                        {% if item.rincian.rinciansubmenu_link %}
+                                                            <div class="text-muted small font-monospace"><i class="fas fa-link mr-1"></i>{{ item.rincian.rinciansubmenu_link }}</div>
                                                         {% else %}
                                                             <div class="text-muted small font-italic">No route link</div>
                                                         {% endif %}

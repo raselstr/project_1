@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.forms import inlineformset_factory
 
 
-from .models import Menu, Submenu, Level, Userlevel, Levelsub
+from .models import Menu, Submenu, Rinciansubmenu, Level, Userlevel, Levelsub
 
 
 class Menuform(forms.ModelForm):
@@ -41,24 +41,24 @@ class SubmenuForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['submenu_menu'].widget.attrs.update({'class': 'form-control select2'})
         self.fields['submenu_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Submenu'})
-        self.fields['submenu_icon'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Icon Submenu'})
+        self.fields['submenu_icon'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Icon Submenu (contoh: fas fa-file)'})
         self.fields['submenu_link'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Link Submenu'})
-    
-    def clean_menu_nama(self):
-        data = self.cleaned_data['submenu_menu']
-        return escape(data)
+        if 'submenu_urutan' in self.fields:
+            self.fields['submenu_urutan'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Urutan'})
 
-    def clean_menu_link(self):
-        data = self.cleaned_data['submenu_nama']
-        return escape(data)
+class RinciansubmenuForm(forms.ModelForm):
+    class Meta:
+        model = Rinciansubmenu
+        fields = '__all__'
 
-    def clean_menu_icon(self):
-        data = self.cleaned_data['submenu_icon']
-        return escape(data)
-    
-    def clean_menu_icon(self):
-        data = self.cleaned_data['submenu_link']
-        return escape(data)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['rinciansubmenu_submenu'].widget.attrs.update({'class': 'form-control select2'})
+        self.fields['rinciansubmenu_nama'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nama Rincian Sub Menu'})
+        self.fields['rinciansubmenu_icon'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Icon Rincian Sub Menu (contoh: fas fa-list)'})
+        self.fields['rinciansubmenu_link'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Link Rincian Sub Menu (contoh: rencana_pendidikan_home)'})
+        if 'rinciansubmenu_urutan' in self.fields:
+            self.fields['rinciansubmenu_urutan'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Urutan'})
 
 class LevelForm(forms.ModelForm):
     class Meta:

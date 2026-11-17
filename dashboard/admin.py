@@ -12,6 +12,7 @@ class LevelAdmin(admin.ModelAdmin):
 
 admin.site.register(Menu)
 admin.site.register(Submenu)
+admin.site.register(Rinciansubmenu)
 admin.site.register(Userlevel)
 
 admin.site.register(Levelsub)

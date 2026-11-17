@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
+from django.db.models import Q
 from dashboard.models import Userlevel, Levelsub
 import logging
 
@@ -46,8 +47,10 @@ def menu_access_required(permission):
             # Dapatkan ID submenu dari session
             submenu_id = request.session.get('current_submenu_id')
             if submenu_id:
-                # Filter levelsub yang relevan untuk submenu ini
-                levelsubs_for_submenu = allowed_levelsubs.filter(levelsub_submenu=submenu_id)
+                # Filter levelsub yang relevan untuk rincian sub menu ini
+                levelsubs_for_submenu = allowed_levelsubs.filter(
+                    Q(levelsub_rinciansubmenu_id=submenu_id) | Q(levelsub_submenu_id=submenu_id)
+                )
 
                 # Peta permission
                 permission_map = {

@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Count, Q
 from project.decorators import menu_access_required, set_submenu_session
 
-from ..models import Level, Submenu, Levelsub, Userlevel
+from ..models import Level, Submenu, Rinciansubmenu, Levelsub, Userlevel
 from ..forms import LevelForm
 
 @set_submenu_session
@@ -19,7 +19,7 @@ def list_level(request):
             distinct=True
         )
     ).order_by('id')
-    total_submenus = Submenu.objects.count()
+    total_submenus = Rinciansubmenu.objects.count()
     total_users = Userlevel.objects.count()
     form = LevelForm()
     context = {
@@ -50,9 +50,9 @@ def simpan_level(request):
         if form.is_valid():
             new_level = form.save()
             # Otomatis inisialisasi entri Levelsub untuk level baru
-            submenus = Submenu.objects.all()
-            for submenu in submenus:
-                Levelsub.objects.get_or_create(levelsub_level=new_level, levelsub_submenu=submenu)
+            rincians = Rinciansubmenu.objects.all()
+            for rincian in rincians:
+                Levelsub.objects.get_or_create(levelsub_level=new_level, levelsub_rinciansubmenu=rincian)
             messages.success(request, f'Level "{new_level.level_nama}" berhasil ditambahkan. Silakan atur hak akses sub menu.')
             return redirect('list_levelsub', number=new_level.id)
     else:
@@ -62,7 +62,7 @@ def simpan_level(request):
         "tombol": "Tambah Level Baru",
         'form': form,
         'datas': data,
-        "total_submenus": Submenu.objects.count(),
+        "total_submenus": Rinciansubmenu.objects.count(),
         "total_users": Userlevel.objects.count(),
         "total_levels": data.count(),
     }

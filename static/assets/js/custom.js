@@ -1,6 +1,6 @@
 /**
  * Custom JavaScript for Tech Modern Theme & Mobile Responsive
- * v5.6 — Sidebar accordion fix + active state URL matching
+ * v5.7 — Sidebar: 3-level menu (sub-dropdown) support + active state URL matching
  */
 
 "use strict";
@@ -8,78 +8,72 @@
 $(document).ready(function() {
 
   // =========================================================================
-  // 1. SIDEBAR ACCORDION & ACTIVE STATE
+  // 1. SIDEBAR ACCORDION & ACTIVE STATE (3-LEVEL SUPPORT)
   // =========================================================================
+
+  function scoreLink($link, currentPath, currentSubmenuId) {
+    var href = $link.attr('href') || '';
+    if (!href || href === '#' || href.indexOf('javascript:') === 0) return 0;
+    var linkUrl;
+    try { linkUrl = new URL(href, window.location.origin); } catch(e) { return 0; }
+    var linkPath = linkUrl.pathname.replace(/\/+$/, "");
+    var linkSubmenuId = linkUrl.searchParams.get('submenu_id');
+    var score = 0;
+    if (currentSubmenuId && linkSubmenuId && currentSubmenuId === linkSubmenuId) score += 100;
+    if (currentPath && linkPath && currentPath === linkPath) score += 50;
+    else if (linkPath && linkPath !== '' && linkPath !== '/' && currentPath.indexOf(linkPath) === 0) score += 30;
+    return score;
+  }
+
   function initSidebarActiveState() {
-    var currentUrl = window.location.href;
     var currentPath = window.location.pathname.replace(/\/+$/, "");
-    var currentSearch = window.location.search;
-    var currentParams = new URLSearchParams(currentSearch);
+    var currentParams = new URLSearchParams(window.location.search);
     var currentSubmenuId = currentParams.get('submenu_id');
 
     var $bestMatch = null;
     var bestScore = -1;
+    var isLevel3 = false; // apakah best match ada di level 3 (sub-dropdown-menu)
 
-    // Cari submenu yang paling cocok dengan URL saat ini
-    $('.sidebar-menu li.dropdown ul.dropdown-menu li a.nav-link').each(function() {
-      var $link = $(this);
-      var href = $link.attr('href') || '';
-      if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
-
-      var linkUrl;
-      try {
-        linkUrl = new URL(href, window.location.origin);
-      } catch(e) {
-        return;
-      }
-
-      var linkPath = linkUrl.pathname.replace(/\/+$/, "");
-      var linkSubmenuId = linkUrl.searchParams.get('submenu_id');
-      var score = 0;
-
-      // 1. Jika submenu_id sama persis: skor tertinggi (100)
-      if (currentSubmenuId && linkSubmenuId && currentSubmenuId === linkSubmenuId) {
-        score += 100;
-      }
-
-      // 2. Jika pathname sama persis (skor 50)
-      if (currentPath && linkPath && currentPath === linkPath) {
-        score += 50;
-      }
-      // 3. Jika pathname merupakan awalan (misal currentPath = /pendidikan/rencana/list, linkPath = /pendidikan/rencana) (skor 30)
-      else if (linkPath && linkPath !== '' && linkPath !== '/' && currentPath.indexOf(linkPath) === 0) {
-        score += 30;
-      }
-
-      if (score > bestScore && score > 0) {
-        bestScore = score;
-        $bestMatch = $link;
-      }
+    // Scan level 2: .dropdown-menu > li > a (bukan li.sub-dropdown)
+    $('.sidebar-menu li.dropdown > ul.dropdown-menu > li:not(.sub-dropdown) > a.nav-link').each(function() {
+      var s = scoreLink($(this), currentPath, currentSubmenuId);
+      if (s > bestScore && s > 0) { bestScore = s; $bestMatch = $(this); isLevel3 = false; }
     });
 
-    // Fallback: Dashboard utama jika di root path
-    if (!bestScore || bestScore <= 0) {
+    // Scan level 3: .sub-dropdown-menu > li > a
+    $('.sidebar-menu ul.sub-dropdown-menu li a.nav-link').each(function() {
+      var s = scoreLink($(this), currentPath, currentSubmenuId);
+      if (s > bestScore && s > 0) { bestScore = s; $bestMatch = $(this); isLevel3 = true; }
+    });
+
+    // Fallback: Dashboard
+    if (bestScore <= 0) {
       if (currentPath === '' || currentPath === '/' || currentPath === '/dashboard') {
         var $dashLink = $('.sidebar-menu a[href*="dashboard"]').first();
-        if ($dashLink.length) {
-          $bestMatch = $dashLink;
-          bestScore = 10;
-        }
+        if ($dashLink.length) { $bestMatch = $dashLink; bestScore = 10; isLevel3 = false; }
       }
     }
 
     // Terapkan active state
     if ($bestMatch && bestScore > 0) {
-      // Bersihkan semua active dan tutup dropdown lain
+      // Bersihkan semua
       $('.sidebar-menu li.dropdown').removeClass('active open-temp');
       $('.sidebar-menu li.dropdown ul.dropdown-menu li').removeClass('active');
-      $('.sidebar-menu li.dropdown ul.dropdown-menu').hide();
+      $('.sidebar-menu li.sub-dropdown').removeClass('active open');
+      $('.sidebar-menu ul.dropdown-menu').hide();
+      $('.sidebar-menu ul.sub-dropdown-menu').hide();
 
-      // Tandai submenu item sebagai active
       var $subLi = $bestMatch.closest('li');
       $subLi.addClass('active');
 
-      // Tandai parent menu dropdown sebagai active dan buka menunya
+      if (isLevel3) {
+        // Buka sub-dropdown (level 2) parent
+        var $subDropLi = $bestMatch.closest('li.sub-dropdown');
+        $subDropLi.addClass('active open');
+        $subDropLi.find('> ul.sub-dropdown-menu').show();
+      }
+
+      // Buka dropdown utama (level 1)
       var $parentDropdown = $bestMatch.closest('li.dropdown');
       $parentDropdown.addClass('active');
       $parentDropdown.find('> ul.dropdown-menu').show();
@@ -88,12 +82,58 @@ $(document).ready(function() {
 
   initSidebarActiveState();
 
-  // Handler saat user mengklik submenu item
-  $(document).on('click', '.sidebar-menu ul.dropdown-menu li a.nav-link', function() {
+  // ----- Klik level 1 (has-dropdown) — toggle accordion -----
+  $(document).on('click', '.sidebar-menu li.dropdown > a.has-dropdown', function(e) {
+    // Biarkan default handler theme bekerja, hanya pastikan sub-dropdown ditutup jika menu lain dibuka
+    var $thisDropdown = $(this).closest('li.dropdown');
+    if (!$thisDropdown.hasClass('active')) {
+      // Tutup semua sub-dropdown di menu lain
+      $('.sidebar-menu li.dropdown').not($thisDropdown).find('li.sub-dropdown').removeClass('active open');
+      $('.sidebar-menu li.dropdown').not($thisDropdown).find('ul.sub-dropdown-menu').slideUp(150);
+    }
+  });
+
+  // ----- Klik level 2 (sub-nav-link / sub-dropdown) -----
+  $(document).on('click', '.sidebar-menu li.sub-dropdown > a.sub-nav-link', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var $li = $(this).closest('li.sub-dropdown');
+    var $menu = $li.find('> ul.sub-dropdown-menu');
+    var isOpen = $li.hasClass('open');
+
+    // Tutup semua sub-dropdown lain di dalam menu yang sama
+    $li.siblings('li.sub-dropdown').removeClass('active open');
+    $li.siblings('li.sub-dropdown').find('> ul.sub-dropdown-menu').slideUp(150);
+
+    if (isOpen) {
+      $li.removeClass('open active');
+      $menu.slideUp(200);
+    } else {
+      $li.addClass('open active');
+      $menu.slideDown(200);
+    }
+  });
+
+  // ----- Klik level 3 (item di sub-dropdown-menu) -----
+  $(document).on('click', '.sidebar-menu ul.sub-dropdown-menu li a.nav-link', function() {
+    var $link = $(this);
+    // Clear all level 3 active
+    $('.sidebar-menu ul.sub-dropdown-menu li').removeClass('active');
+    $link.closest('li').addClass('active');
+    // Keep level 2 open/active
+    var $subDropLi = $link.closest('li.sub-dropdown');
+    $subDropLi.addClass('active open');
+    // Keep level 1 active
+    var $parentDropdown = $link.closest('li.dropdown');
+    $('.sidebar-menu li.dropdown').not($parentDropdown).removeClass('active open-temp');
+    $parentDropdown.addClass('active');
+  });
+
+  // ----- Klik level 2 (item biasa di dropdown-menu, bukan sub-dropdown) -----
+  $(document).on('click', '.sidebar-menu ul.dropdown-menu > li:not(.sub-dropdown) > a.nav-link', function() {
     var $link = $(this);
     $('.sidebar-menu ul.dropdown-menu li').removeClass('active');
     $link.closest('li').addClass('active');
-
     var $parentDropdown = $link.closest('li.dropdown');
     $('.sidebar-menu li.dropdown').not($parentDropdown).removeClass('active open-temp');
     $parentDropdown.addClass('active');

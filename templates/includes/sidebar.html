@@ -18,22 +18,60 @@
               </ul>
             </li>
           </ul>
+
           <ul class="sidebar-menu" id="dynamic-list">
-              {% for menu, submenus in submenu_dict.items %}
-                  <li class="menu-header">{{ menu.menu_nama }}</li>
-                  <li class="dropdown{% for submenu in submenus %}{% if request.GET.submenu_id == submenu.id|stringformat:'s' or request.resolver_match.url_name == submenu.submenu_link %} active{% endif %}{% endfor %}">
-                    <a href="#" class="nav-link has-dropdown"><i class="{{ menu.menu_icon }}"></i><span>{{ menu.menu_nama }}</span></a>
-                    <ul class="dropdown-menu">
-                        {% for submenu in submenus %}
-                        <li class="{% if request.GET.submenu_id == submenu.id|stringformat:'s' or request.resolver_match.url_name == submenu.submenu_link %}active{% endif %}">
-                          <a class="nav-link" href="{% if submenu.submenu_link %}{% url submenu.submenu_link %}?submenu_id={{ submenu.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ submenu.id }}{% endif %}">
-                              <i class="{{ submenu.submenu_icon }}"></i>
-                              {{ submenu.submenu_nama }}
+              {% for item in sidebar_menu_list %}
+                  {% if item.is_nested %}
+                      <!-- 1 MENU UTAMA GABUNGAN (3 TINGKAT: MENU -> SUBMENU -> RINCIAN) -->
+                      <li class="menu-header">{{ item.menu_nama }}</li>
+                      <li class="dropdown menu-bidang-group">
+                          <a href="#" class="nav-link has-dropdown">
+                              <i class="{{ item.menu_icon }}"></i>
+                              <span>{{ item.menu_nama }}</span>
                           </a>
-                        </li>    
-                        {% endfor %}
-                    </ul>
-                  </li>
+                          <ul class="dropdown-menu">
+                              {% for sub in item.sub_list %}
+                                  <!-- SUB MENU (LEVEL 2) -->
+                                  <li class="sub-dropdown">
+                                      <a href="#" class="nav-link has-sub-dropdown sub-nav-link">
+                                          <i class="{{ sub.icon }}"></i>
+                                          <span>{{ sub.nama }}</span>
+                                      </a>
+                                      <!-- RINCIAN SUB MENU (LEVEL 3) -->
+                                      <ul class="sub-dropdown-menu">
+                                          {% for rincian in sub.rincians %}
+                                          <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
+                                              <a class="nav-link" href="{% if rincian.rinciansubmenu_link %}{% url rincian.rinciansubmenu_link %}?submenu_id={{ rincian.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ rincian.id }}{% endif %}">
+                                                  <i class="{{ rincian.rinciansubmenu_icon }}"></i>
+                                                  <span>{{ rincian.rinciansubmenu_nama }}</span>
+                                              </a>
+                                          </li>
+                                          {% endfor %}
+                                      </ul>
+                                  </li>
+                              {% endfor %}
+                          </ul>
+                      </li>
+                  {% else %}
+                      <!-- MENU STANDAR LAINNYA (LEVEL 1 -> RINCIAN SUB MENU) -->
+                      <li class="menu-header">{{ item.menu_nama }}</li>
+                      <li class="dropdown">
+                          <a href="#" class="nav-link has-dropdown">
+                              <i class="{{ item.menu_icon }}"></i>
+                              <span>{{ item.menu_nama }}</span>
+                          </a>
+                          <ul class="dropdown-menu">
+                              {% for rincian in item.rincians %}
+                              <li class="{% if request.GET.submenu_id == rincian.id|stringformat:'s' or request.resolver_match.url_name == rincian.rinciansubmenu_link %}active{% endif %}">
+                                  <a class="nav-link" href="{% if rincian.rinciansubmenu_link %}{% url rincian.rinciansubmenu_link %}?submenu_id={{ rincian.id }}{% else %}{% url 'dashboard' %}?submenu_id={{ rincian.id }}{% endif %}">
+                                      <i class="{{ rincian.rinciansubmenu_icon }}"></i>
+                                      <span>{{ rincian.rinciansubmenu_nama }}</span>
+                                  </a>
+                              </li>
+                              {% endfor %}
+                          </ul>
+                      </li>
+                  {% endif %}
               {% endfor %}
           </ul>
       </aside>
