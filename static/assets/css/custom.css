@@ -1,113 +1,201 @@
 /**
- *
- * You can write your CSS code here, DO NOT touch the default JavaScript file
- * because it will make it harder for you to update.
- *
- * v2.0 — Tambahan: 3-level sidebar menu (sub-dropdown), compact posting table
+ * Custom CSS for Tech Modern Theme & 3-Level Sidebar Menu
+ * v2.2 — Sidebar 285px, anti-terpotong untuk rincian sub menu, layout padding fix
  */
 
 /* ============================================================
-   3-LEVEL SIDEBAR: SUB-DROPDOWN
+   1. SIDEBAR WIDTH & LAYOUT OVERRIDE (285px)
    ============================================================ */
 
-/* Sub-dropdown item di dalam dropdown-menu */
-.sidebar-menu li.sub-dropdown {
-  position: relative;
+/* Lebar sidebar utama */
+.main-sidebar {
+  width: 285px !important;
 }
 
-/* Tombol sub-level (level 2) */
-.sidebar-menu li.sub-dropdown > a.sub-nav-link {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px 8px 24px;
-  color: #9ea6b4;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
+/* Sidebar saat disembunyikan di mode mobile (slide ke kiri) */
+body.sidebar-gone .main-sidebar {
+  left: -285px !important;
+}
+
+/* Navbar mengikuti lebar sidebar */
+.navbar {
+  left: 285px !important;
+  width: calc(100% - 285px) !important;
+}
+
+/* Main content & footer menggunakan padding-left (Stisla layout pattern) */
+.main-content {
+  padding-left: 315px !important;
+  margin-left: 0 !important;
+}
+
+.main-footer {
+  padding-left: 315px !important;
+  margin-left: 0 !important;
+}
+
+/* Saat sidebar mini (icon only) */
+body.sidebar-mini .main-sidebar {
+  width: 65px !important;
+}
+body.sidebar-mini .main-content,
+body.sidebar-mini .main-footer {
+  padding-left: 90px !important;
+  margin-left: 0 !important;
+}
+body.sidebar-mini .navbar {
+  left: 65px !important;
+  width: calc(100% - 65px) !important;
+}
+
+/* Responsive: mobile & tablet (<= 1024px) */
+@media (max-width: 1024px) {
+  .main-content,
+  .main-footer {
+    padding-left: 30px !important;
+    margin-left: 0 !important;
+  }
+  .navbar {
+    left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Pastikan dropdown menu mengisi penuh lebar sidebar */
+.main-sidebar .sidebar-menu ul.dropdown-menu {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   2. 3-LEVEL SIDEBAR: SUB-DROPDOWN & RINCIAN SUB MENU
+   ============================================================ */
+
+/* Item Sub-dropdown (Level 2 container) */
+.main-sidebar .sidebar-menu li.sub-dropdown {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Link Sub Menu (Level 2 link) — override Stisla padding-left: 65px */
+.main-sidebar .sidebar-menu li.sub-dropdown > a.sub-nav-link {
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 16px 8px 28px !important;
+  height: 38px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #9ea6b4 !important;
+  cursor: pointer !important;
   transition: color 0.2s, background 0.2s;
   border-radius: 4px;
-  text-decoration: none;
+  text-decoration: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-.sidebar-menu li.sub-dropdown > a.sub-nav-link:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.08);
+.main-sidebar .sidebar-menu li.sub-dropdown > a.sub-nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.sidebar-menu li.sub-dropdown > a.sub-nav-link i {
-  margin-right: 8px;
-  width: 18px;
-  font-size: 12px;
-  text-align: center;
-  opacity: 0.75;
+.main-sidebar .sidebar-menu li.sub-dropdown > a.sub-nav-link i {
+  margin-right: 10px !important;
+  width: 16px !important;
+  font-size: 12px !important;
+  text-align: center !important;
+  opacity: 0.8;
+  flex-shrink: 0 !important;
+}
+
+.main-sidebar .sidebar-menu li.sub-dropdown > a.sub-nav-link span {
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  letter-spacing: 0.2px;
 }
 
 /* Chevron indicator untuk sub-dropdown */
-.sidebar-menu li.sub-dropdown > a.sub-nav-link::after {
-  content: '\f105'; /* FontAwesome chevron-right */
-  font-family: 'Font Awesome 5 Free';
-  font-weight: 900;
-  margin-left: auto;
-  font-size: 11px;
-  transition: transform 0.25s;
-  opacity: 0.6;
-}
-
-.sidebar-menu li.sub-dropdown.open > a.sub-nav-link::after,
-.sidebar-menu li.sub-dropdown.active > a.sub-nav-link::after {
-  transform: rotate(90deg);
-  opacity: 1;
-  color: #fff;
-}
-
-/* Sub dropdown menu (level 3) */
-.sidebar-menu ul.sub-dropdown-menu {
-  display: none;
-  list-style: none;
-  padding: 2px 0;
-  margin: 0;
-  background: rgba(0,0,0,0.12);
-  border-left: 2px solid rgba(255,255,255,0.12);
-  margin-left: 24px;
-  border-radius: 0 0 4px 4px;
-}
-
-.sidebar-menu ul.sub-dropdown-menu li a.nav-link {
-  padding: 7px 14px 7px 20px;
-  font-size: 12.5px;
-  color: #8a93a2;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  transition: color 0.2s, background 0.2s;
-  border-radius: 3px;
-}
-
-.sidebar-menu ul.sub-dropdown-menu li a.nav-link:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.07);
-}
-
-.sidebar-menu ul.sub-dropdown-menu li a.nav-link i {
-  margin-right: 7px;
-  width: 15px;
-  font-size: 11px;
-  text-align: center;
+.main-sidebar .sidebar-menu li.sub-dropdown > a.sub-nav-link::after {
+  content: '\f105' !important; /* FontAwesome chevron-right */
+  font-family: 'Font Awesome 5 Free' !important;
+  font-weight: 900 !important;
+  margin-left: auto !important;
+  font-size: 11px !important;
+  transition: transform 0.25s !important;
   opacity: 0.65;
+  flex-shrink: 0 !important;
+  position: static !important;
+  transform: none !important;
 }
 
-/* Active state untuk level 3 */
-.sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
-.sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
-  color: #fff;
-  font-weight: 600;
-  background: rgba(255,255,255,0.1);
+.main-sidebar .sidebar-menu li.sub-dropdown.open > a.sub-nav-link::after,
+.main-sidebar .sidebar-menu li.sub-dropdown.active > a.sub-nav-link::after {
+  transform: rotate(90deg) !important;
+  opacity: 1 !important;
+  color: #00f0ff !important;
 }
 
-/* Active state untuk level 2 (sub-dropdown) ketika anak aktif */
-.sidebar-menu li.sub-dropdown.active > a.sub-nav-link,
-.sidebar-menu li.sub-dropdown.open > a.sub-nav-link {
-  color: #fff;
+/* Container Rincian Sub Menu (Level 3 menu) */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu {
+  display: none;
+  list-style: none !important;
+  padding: 4px 0 !important;
+  margin: 2px 10px 4px 22px !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-left: 2px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 0 4px 4px 0 !important;
+  box-sizing: border-box !important;
 }
 
-/*# sourceMappingURL=custom.css.map */
+/* Link Rincian Sub Menu (Level 3 link) — override Stisla padding-left: 65px */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link {
+  display: flex !important;
+  align-items: center !important;
+  padding: 6px 12px 6px 14px !important;
+  height: 32px !important;
+  font-size: 12.5px !important;
+  color: #a2abb9 !important;
+  text-decoration: none !important;
+  transition: all 0.2s;
+  border-radius: 3px;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  padding-left: 18px !important;
+}
+
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link i {
+  margin-right: 8px !important;
+  width: 14px !important;
+  font-size: 11px !important;
+  text-align: center !important;
+  opacity: 0.75;
+  flex-shrink: 0 !important;
+}
+
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li a.nav-link span {
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Active states */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
+  color: #00f0ff !important;
+  font-weight: 600 !important;
+  background: rgba(0, 240, 255, 0.12) !important;
+}
+
+.main-sidebar .sidebar-menu li.sub-dropdown.active > a.sub-nav-link,
+.main-sidebar .sidebar-menu li.sub-dropdown.open > a.sub-nav-link {
+  color: #fff !important;
+}
