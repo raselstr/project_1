@@ -187,15 +187,51 @@ body.sidebar-mini .navbar {
   text-overflow: clip !important;
 }
 
-/* Active states */
-.main-sidebar .sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
-.main-sidebar .sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
-  color: #00f0ff !important;
-  font-weight: 600 !important;
-  background: rgba(0, 240, 255, 0.12) !important;
+/* ============================================================
+   Active states — Level 3 (Rincian Sub Menu yang diklik)
+   HARUS PALING TERANG: solid gradient biru + border cyan neon
+   ============================================================ */
+
+/* Level 3 NON-ACTIVE: transparan & redup */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li:not(.active) > a.nav-link {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  border-left: none !important;
+  box-shadow: none !important;
 }
 
+/* Level 3 ACTIVE (yang diklik): TERANG & menonjol */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link,
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  background: linear-gradient(90deg, #0052cc 0%, #0284c7 100%) !important;
+  border-left: 4px solid #00f0ff !important;
+  box-shadow: 0 2px 12px rgba(0, 82, 204, 0.5) !important;
+  padding-left: 10px !important;
+}
+
+/* Icon pada Level 3 ACTIVE: cyan glowing */
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li.active > a.nav-link i,
+.main-sidebar .sidebar-menu ul.sub-dropdown-menu li > a.nav-link.active i {
+  color: #00f0ff !important;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.9) !important;
+  opacity: 1 !important;
+}
+
+/* Level 2 sub-dropdown header saat open/active: putih, tidak solid gradient */
 .main-sidebar .sidebar-menu li.sub-dropdown.active > a.sub-nav-link,
 .main-sidebar .sidebar-menu li.sub-dropdown.open > a.sub-nav-link {
-  color: #fff !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-left: none !important;
+  box-shadow: none !important;
+}
+
+/* Icon Level 2 saat open/active */
+.main-sidebar .sidebar-menu li.sub-dropdown.active > a.sub-nav-link i,
+.main-sidebar .sidebar-menu li.sub-dropdown.open > a.sub-nav-link i {
+  color: #38bdf8 !important;
+  opacity: 1 !important;
 }
