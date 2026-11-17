@@ -22,11 +22,10 @@ Untuk menjalankan ulang setiap kali perlu test lokal, gunakan perintah ini:
 5. Di server: git pull && docker restart tkdd
 
 
-# Setelah git pull biasa (perubahan kode Python):
+# Deployment penuh (Pull + Auto-Build jika ada dep baru + Migrate + Static + Clear Cache)
 #./deploy.sh
-# Jika requirements.txt atau Dockerfile berubah:
-#./deploy.sh --build
-# Hanya update static files:
-#./deploy.sh --static
-# Lihat bantuan:
-#./deploy.sh --help
+
+./deploy.sh --build     # Paksa build image docker baru
+./deploy.sh --static    # Hanya perbarui static files + bersihkan cache proxy
+./deploy.sh --no-pull   # Deploy perubahan file lokal tanpa git pull
+./deploy.sh --help      # Lihat daftar opsi
