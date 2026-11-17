@@ -3,117 +3,448 @@
 {% load custom_filters %}
 
 {% block content %}
-<section class="section">
-    <div class="section-header">
-        <h1>{{judul}}</h1>
-        <div class="section-header-breadcrumb">
-            <div class="breadcrumb-item active"><a href="#">Dashboard</a></div>
-            <div class="breadcrumb-item">Settings</div>
+<section class="section py-3">
+    <!-- Header Banner -->
+    <div class="section-header mb-4 d-flex align-items-center justify-content-between flex-wrap" style="background: linear-gradient(135deg, #07192f 0%, #0a2540 60%, #0052cc 100%); padding: 1.25rem 1.5rem; border-radius: 12px; color: white;">
+        <div class="mb-2 mb-md-0">
+            <h1 class="text-white font-weight-bold mb-1" style="font-size: 1.5rem; letter-spacing: -0.02em;">
+                <i class="fas fa-paper-plane mr-2 text-info"></i> {{ judul }}
+            </h1>
+            <p class="mb-0 text-white-50" style="font-size: 0.85rem;">
+                Pusat kendali sinkronisasi dan pembekuan data Rencana Kegiatan ke Jadwal Penganggaran (Induk / Perubahan).
+            </p>
+        </div>
+        <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+            <!-- Selector Tahun -->
+            <div class="btn-group shadow-sm" role="group" aria-label="Pilih Tahun">
+                {% for thn in available_tahun %}
+                <a href="?tahun={{ thn }}" class="btn btn-sm {% if thn == tahun %}btn-light font-weight-bold text-primary{% else %}btn-outline-light text-white{% endif %} px-3" style="font-size: 0.85rem;">
+                    TA {{ thn }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Jadwal Aktif Badge -->
+            <div class="bg-white text-dark px-3 py-1 rounded shadow-sm d-flex align-items-center" style="font-size: 0.85rem;">
+                <i class="fas fa-calendar-check text-success mr-2"></i>
+                <div>
+                    <span class="text-muted small d-block" style="font-size: 0.72rem; line-height: 1;">JADWAL AKTIF:</span>
+                    <strong class="text-dark">{{ jadwal_aktif.jadwal_keterangan|default:"Tidak Ada Jadwal Aktif" }}</strong>
+                </div>
+            </div>
+
+            <a href="{% url 'jadwal:list' %}" class="btn btn-sm btn-outline-light shadow-sm" title="Kelola Jadwal Posting">
+                <i class="fas fa-cog mr-1"></i> Atur Jadwal
+            </a>
         </div>
     </div>
 
-    <div class="section-body">
-        <h2 class="section-title">{{judul}}</h2>
-        <p class="section-lead">
-            {{uraian}}
-        </p>
+    <!-- Alert jika belum ada jadwal aktif -->
+    {% if not jadwal_aktif %}
+    <div class="alert alert-warning d-flex align-items-center shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <i class="fas fa-exclamation-triangle fa-2x mr-3 text-warning"></i>
+        <div>
+            <h6 class="mb-1 font-weight-bold text-dark">Perhatian: Belum Ada Jadwal Posting Aktif untuk TA {{ tahun }}</h6>
+            <p class="mb-0 text-dark small">
+                Data posting memerlukan jadwal aktif (Induk atau Perubahan). Silakan aktifkan jadwal terlebih dahulu melalui menu 
+                <a href="{% url 'jadwal:list' %}" class="font-weight-bold text-primary">Master Jadwal Posting</a>.
+            </p>
+        </div>
+    </div>
+    {% endif %}
 
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-money-check-alt"></i>
+    <!-- Tech KPI Summary Row -->
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: white; border-left: 4px solid #0052cc !important;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.74rem; letter-spacing: 0.5px;">
+                            Total Rencana Terdaftar
+                        </div>
+                        <div class="font-weight-bold text-dark mt-1" style="font-size: 1.45rem;">
+                            {{ total_renc_u|add:total_renc_s }} <span class="text-muted" style="font-size: 0.85rem; font-weight: normal;">Kegiatan</span>
+                        </div>
+                        <div class="small text-muted mt-1">
+                            <span class="text-primary font-weight-bold">{{ total_renc_u }}</span> Tahun Berjalan &bull; 
+                            <span class="text-info font-weight-bold">{{ total_renc_s }}</span> Sisa
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h4>{{tab1}}</h4>
-                        <a href="{% url 'posting_list' %}" class="card-cta">{{tab1}} ... <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-funnel-dollar"></i>
-                    </div>
-                    <div class="card-body">
-                        <h4>{{tab2}}</h4>
-                        <a href="{% url 'postingsisa_list' %}" class="card-cta">{{tab2}} ... <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-money-check-alt"></i>
-                    </div>
-                    <div class="card-body">
-                        <h4>{{tab3}}</h4>
-                        <a href="{% url 'posting_pendidikan_list' %}" class="card-cta">{{tab3}} ... <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-funnel-dollar"></i>
-                    </div>
-                    <div class="card-body">
-                        <h4>{{tab4}}</h4>
-                        <a href="{% url 'posting_pendidikan_listsisa' %}" class="card-cta">{{tab4}} ... <i class="fas fa-chevron-right"></i></a>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(0, 82, 204, 0.1); width: 52px; height: 52px;">
+                        <i class="fas fa-clipboard-list text-primary fa-lg"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-money-check-alt"></i>
+
+        <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: white; border-left: 4px solid #059669 !important;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.74rem; letter-spacing: 0.5px;">
+                            Total Sudah Diposting
+                        </div>
+                        <div class="font-weight-bold text-dark mt-1" style="font-size: 1.45rem;">
+                            {{ total_post_u|add:total_post_s }} <span class="text-muted" style="font-size: 0.85rem; font-weight: normal;">Kegiatan</span>
+                        </div>
+                        <div class="small text-muted mt-1">
+                            <span class="text-success font-weight-bold">{{ total_post_u }}</span> Tahun Berjalan &bull; 
+                            <span class="text-info font-weight-bold">{{ total_post_s }}</span> Sisa
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h4>{{tab5}}</h4>
-                        <a href="{% url 'posting_kesehatan_list' %}" class="card-cta">{{tab5}} ... <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-funnel-dollar"></i>
-                    </div>
-                    <div class="card-body">
-                        <h4>{{tab6}}</h4>
-                        <a href="{% url 'posting_kesehatan_listsisa' %}" class="card-cta">{{tab6}} ... <i class="fas fa-chevron-right"></i></a>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(5, 150, 105, 0.1); width: 52px; height: 52px;">
+                        <i class="fas fa-check-double text-success fa-lg"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-money-check-alt"></i>
+
+        <div class="col-lg-4 col-md-12">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: white; border-left: 4px solid #7c3aed !important;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.74rem; letter-spacing: 0.5px;">
+                            Total Pagu Terposting
+                        </div>
+                        <div class="font-weight-bold text-dark mt-1" style="font-size: 1.35rem; color: #7c3aed !important;">
+                            Rp {{ total_nilai_u|add:total_nilai_s|floatformat:2|intcomma }}
+                        </div>
+                        <div class="small text-muted mt-1">
+                            Sinkron pada jadwal: <strong>{{ jadwal_aktif.jadwal_keterangan|default:"-" }}</strong>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h4>{{tab7}}</h4>
-                        <a href="{% url 'posting_pu_list' %}" class="card-cta">{{tab7}} ... <i class="fas fa-chevron-right"></i></a>
+                    <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background: rgba(124, 58, 237, 0.1); width: 52px; height: 52px;">
+                        <i class="fas fa-coins text-purple fa-lg" style="color: #7c3aed;"></i>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card card-large-icons">
-                    <div class="card-icon bg-primary text-white">
-                        <i class="fas fa-funnel-dollar"></i>
-                    </div>
-                    <div class="card-body">
-                        <h4>{{tab8}}</h4>
-                        <a href="{% url 'posting_pu_listsisa' %}" class="card-cta">{{tab8}} ... <i class="fas fa-chevron-right"></i></a>
+        </div>
+    </div>
+
+    <!-- Navigation Pills / Tabs -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-header p-2 bg-light d-flex align-items-center justify-content-between flex-wrap" style="border-bottom: 1px solid #e2e8f0;">
+            <ul class="nav nav-pills" id="postingTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active font-weight-bold py-2 px-3" id="tab-utama-link" data-toggle="pill" href="#tab-utama" role="tab" style="font-size: 0.88rem; border-radius: 8px;">
+                        <i class="fas fa-calendar-check mr-2"></i> Tahun Berjalan (Utama)
+                        <span class="badge badge-light ml-2 text-dark">{{ total_post_u }}/{{ total_renc_u }}</span>
+                    </a>
+                </li>
+                <li class="nav-item ml-1">
+                    <a class="nav-link font-weight-bold py-2 px-3" id="tab-sisa-link" data-toggle="pill" href="#tab-sisa" role="tab" style="font-size: 0.88rem; border-radius: 8px;">
+                        <i class="fas fa-history mr-2"></i> Sisa Tahun Lalu (SiLPA)
+                        <span class="badge badge-light ml-2 text-dark">{{ total_post_s }}/{{ total_renc_s }}</span>
+                    </a>
+                </li>
+                <li class="nav-item ml-1">
+                    <a class="nav-link font-weight-bold py-2 px-3" id="tab-rekap-link" data-toggle="pill" href="#tab-rekap" role="tab" style="font-size: 0.88rem; border-radius: 8px;">
+                        <i class="fas fa-table mr-2"></i> Matriks Rekapitulasi
+                    </a>
+                </li>
+            </ul>
+
+            <div class="px-2 text-muted small mt-2 mt-md-0 d-none d-md-block">
+                <i class="fas fa-info-circle mr-1 text-primary"></i> Pilih bidang, lalu klik <strong>Eksekusi Posting</strong> untuk sinkronisasi.
+            </div>
+        </div>
+
+        <div class="card-body p-4 bg-white">
+            <div class="tab-content" id="postingTabContent">
+                
+                <!-- ========================================== -->
+                <!-- TAB 1: TAHUN BERJALAN (UTAMA)             -->
+                <!-- ========================================== -->
+                <div class="tab-pane fade show active" id="tab-utama" role="tabpanel">
+                    <div class="row">
+                        {% for b in bidang_list %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm border-0 posting-card" style="border-radius: 12px; overflow: hidden; border-top: 4px solid {{ b.border_color }} !important; background: #ffffff;">
+                                
+                                <!-- Card Header -->
+                                <div class="p-3 d-flex align-items-center justify-content-between" style="background: #f8fafc; border-bottom: 1px solid #edf2f7;">
+                                    <div class="d-flex align-items-center" style="gap: 10px;">
+                                        <div class="rounded d-flex align-items-center justify-content-center text-white" style="width: 38px; height: 38px; background: {{ b.header_bg }}; font-size: 1rem;">
+                                            <i class="{{ b.icon }}"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;">{{ b.nama }}</h6>
+                                            <small class="text-muted">Tahun Berjalan TA {{ tahun }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge {{ b.utama.status_badge }} px-2 py-1" style="font-size: 0.74rem;">
+                                        {{ b.utama.status_label }}
+                                    </span>
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <!-- Metrics Grid -->
+                                    <div class="bg-light p-3 rounded mb-3">
+                                        <div class="row no-gutters text-center mb-2">
+                                            <div class="col-6 border-right">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Rencana</small>
+                                                <strong class="font-weight-bold text-dark" style="font-size: 1.15rem;">
+                                                    {{ b.utama.jml_rencana }}
+                                                </strong>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Kegiatan</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diposting</small>
+                                                <strong class="font-weight-bold {% if b.utama.status == 'synced' %}text-success{% elif b.utama.status == 'unposted' %}text-warning{% else %}text-dark{% endif %}" style="font-size: 1.15rem;">
+                                                    {{ b.utama.jml_posted }}
+                                                </strong>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Kegiatan</small>
+                                            </div>
+                                        </div>
+                                        <div class="pt-2 border-top text-center">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem; text-transform: uppercase;">Total Pagu Diposting</small>
+                                            <div class="font-weight-bold text-primary" style="font-size: 1.05rem;">
+                                                Rp {{ b.utama.nilai_posted|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Message Alert -->
+                                    {% if b.utama.status == 'synced' %}
+                                    <div class="alert alert-success py-1 px-2 mb-3 text-center small border-0" style="background: rgba(16, 185, 129, 0.12); color: #065f46;">
+                                        <i class="fas fa-check-circle mr-1"></i> Data sinkron dengan {{ jadwal_aktif.jadwal_keterangan }}
+                                    </div>
+                                    {% elif b.utama.status == 'unposted' %}
+                                    <div class="alert alert-warning py-1 px-2 mb-3 text-center small border-0 font-weight-bold" style="background: rgba(245, 158, 11, 0.15); color: #92400e;">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Ada {{ b.utama.jml_rencana }} rencana siap diposting
+                                    </div>
+                                    {% elif b.utama.status == 'partial' %}
+                                    <div class="alert alert-info py-1 px-2 mb-3 text-center small border-0" style="background: rgba(2, 132, 199, 0.12); color: #075985;">
+                                        <i class="fas fa-info-circle mr-1"></i> Sebagian kegiatan belum diposting
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-light py-1 px-2 mb-3 text-center small text-muted border">
+                                        <i class="fas fa-inbox mr-1"></i> Belum ada rencana kegiatan
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex align-items-center" style="gap: 8px;">
+                                        <a href="{{ b.utama.url_list }}" class="btn btn-outline-secondary btn-sm flex-fill" title="Lihat rincian data posting">
+                                            <i class="fas fa-table mr-1"></i> Lihat Data
+                                        </a>
+                                        <a href="{{ b.utama.url_eksekusi }}" class="btn btn-primary btn-sm flex-fill font-weight-bold shadow-sm" style="background: #0052cc; border-color: #0052cc;" title="Eksekusi posting rencana ke jadwal aktif">
+                                            <i class="fas fa-bolt mr-1"></i> Eksekusi Posting
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+
+                <!-- ========================================== -->
+                <!-- TAB 2: SISA TAHUN LALU (SiLPA)             -->
+                <!-- ========================================== -->
+                <div class="tab-pane fade" id="tab-sisa" role="tabpanel">
+                    <div class="row">
+                        {% for b in bidang_list %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm border-0 posting-card" style="border-radius: 12px; overflow: hidden; border-top: 4px solid {{ b.border_color }} !important; background: #ffffff;">
+                                
+                                <!-- Card Header -->
+                                <div class="p-3 d-flex align-items-center justify-content-between" style="background: #f8fafc; border-bottom: 1px solid #edf2f7;">
+                                    <div class="d-flex align-items-center" style="gap: 10px;">
+                                        <div class="rounded d-flex align-items-center justify-content-center text-white" style="width: 38px; height: 38px; background: {{ b.header_bg }}; font-size: 1rem;">
+                                            <i class="{{ b.icon }}"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 font-weight-bold text-dark" style="font-size: 0.95rem;">{{ b.nama }}</h6>
+                                            <small class="text-muted">Sisa Tahun Lalu (SiLPA)</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge {{ b.sisa.status_badge }} px-2 py-1" style="font-size: 0.74rem;">
+                                        {{ b.sisa.status_label }}
+                                    </span>
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <!-- Metrics Grid -->
+                                    <div class="bg-light p-3 rounded mb-3">
+                                        <div class="row no-gutters text-center mb-2">
+                                            <div class="col-6 border-right">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Rencana Sisa</small>
+                                                <strong class="font-weight-bold text-dark" style="font-size: 1.15rem;">
+                                                    {{ b.sisa.jml_rencana }}
+                                                </strong>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Kegiatan</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diposting</small>
+                                                <strong class="font-weight-bold {% if b.sisa.status == 'synced' %}text-success{% elif b.sisa.status == 'unposted' %}text-warning{% else %}text-dark{% endif %}" style="font-size: 1.15rem;">
+                                                    {{ b.sisa.jml_posted }}
+                                                </strong>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Kegiatan</small>
+                                            </div>
+                                        </div>
+                                        <div class="pt-2 border-top text-center">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem; text-transform: uppercase;">Total Pagu Sisa Diposting</small>
+                                            <div class="font-weight-bold text-info" style="font-size: 1.05rem;">
+                                                Rp {{ b.sisa.nilai_posted|floatformat:2|intcomma }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Message Alert -->
+                                    {% if b.sisa.status == 'synced' %}
+                                    <div class="alert alert-success py-1 px-2 mb-3 text-center small border-0" style="background: rgba(16, 185, 129, 0.12); color: #065f46;">
+                                        <i class="fas fa-check-circle mr-1"></i> Data sisa sinkron dengan {{ jadwal_aktif.jadwal_keterangan }}
+                                    </div>
+                                    {% elif b.sisa.status == 'unposted' %}
+                                    <div class="alert alert-warning py-1 px-2 mb-3 text-center small border-0 font-weight-bold" style="background: rgba(245, 158, 11, 0.15); color: #92400e;">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> Ada {{ b.sisa.jml_rencana }} rencana sisa siap diposting
+                                    </div>
+                                    {% elif b.sisa.status == 'partial' %}
+                                    <div class="alert alert-info py-1 px-2 mb-3 text-center small border-0" style="background: rgba(2, 132, 199, 0.12); color: #075985;">
+                                        <i class="fas fa-info-circle mr-1"></i> Sebagian kegiatan sisa belum diposting
+                                    </div>
+                                    {% else %}
+                                    <div class="alert alert-light py-1 px-2 mb-3 text-center small text-muted border">
+                                        <i class="fas fa-inbox mr-1"></i> Tidak ada rencana sisa
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex align-items-center" style="gap: 8px;">
+                                        <a href="{{ b.sisa.url_list }}" class="btn btn-outline-secondary btn-sm flex-fill" title="Lihat rincian data posting sisa">
+                                            <i class="fas fa-table mr-1"></i> Lihat Data
+                                        </a>
+                                        <a href="{{ b.sisa.url_eksekusi }}" class="btn btn-info btn-sm flex-fill font-weight-bold shadow-sm text-white" title="Eksekusi posting sisa ke jadwal aktif">
+                                            <i class="fas fa-bolt mr-1"></i> Eksekusi Posting
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- TAB 3: MATRIKS RINGKASAN SELURUH BIDANG    -->
+                <!-- ========================================== -->
+                <div class="tab-pane fade" id="tab-rekap" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0" style="border-radius: 8px; overflow: hidden;">
+                            <thead class="thead-dark" style="background: #07192f;">
+                                <tr>
+                                    <th rowspan="2" class="text-center align-middle" style="width: 45px;">No</th>
+                                    <th rowspan="2" class="align-middle">Bidang Anggaran</th>
+                                    <th colspan="3" class="text-center">Tahun Berjalan (Utama)</th>
+                                    <th colspan="3" class="text-center">Sisa Tahun Lalu (SiLPA)</th>
+                                    <th rowspan="2" class="text-center align-middle" style="width: 220px;">Aksi Cepat</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center" style="font-size: 0.8rem;">Rencana / Posted</th>
+                                    <th class="text-center" style="font-size: 0.8rem;">Pagu Diposting</th>
+                                    <th class="text-center" style="font-size: 0.8rem;">Status</th>
+                                    <th class="text-center" style="font-size: 0.8rem;">Rencana / Posted</th>
+                                    <th class="text-center" style="font-size: 0.8rem;">Pagu Diposting</th>
+                                    <th class="text-center" style="font-size: 0.8rem;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in bidang_list %}
+                                <tr>
+                                    <td class="text-center font-weight-bold">{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="{{ b.icon }} mr-2" style="color: {{ b.border_color }}; width: 18px;"></i>
+                                            <strong>{{ b.nama }}</strong>
+                                        </div>
+                                    </td>
+
+                                    <!-- Utama -->
+                                    <td class="text-center">
+                                        <span class="font-weight-bold">{{ b.utama.jml_posted }}</span> / {{ b.utama.jml_rencana }}
+                                    </td>
+                                    <td class="text-right font-weight-bold text-primary">
+                                        Rp {{ b.utama.nilai_posted|floatformat:2|intcomma }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {{ b.utama.status_badge }} px-2 py-1" style="font-size: 0.72rem;">
+                                            {{ b.utama.status_label }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Sisa -->
+                                    <td class="text-center">
+                                        <span class="font-weight-bold">{{ b.sisa.jml_posted }}</span> / {{ b.sisa.jml_rencana }}
+                                    </td>
+                                    <td class="text-right font-weight-bold text-info">
+                                        Rp {{ b.sisa.nilai_posted|floatformat:2|intcomma }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {{ b.sisa.status_badge }} px-2 py-1" style="font-size: 0.72rem;">
+                                            {{ b.sisa.status_label }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Aksi Cepat -->
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ b.utama.url_eksekusi }}" class="btn btn-primary btn-sm" title="Eksekusi Posting Tahun Berjalan">
+                                                <i class="fas fa-bolt mr-1"></i> Post Utama
+                                            </a>
+                                            <a href="{{ b.sisa.url_eksekusi }}" class="btn btn-info btn-sm text-white" title="Eksekusi Posting Sisa">
+                                                <i class="fas fa-history mr-1"></i> Post Sisa
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="bg-light font-weight-bold" style="border-top: 2px solid #07192f;">
+                                <tr>
+                                    <td colspan="2" class="text-center text-uppercase">Total Keseluruhan</td>
+                                    <td class="text-center">{{ total_post_u }} / {{ total_renc_u }}</td>
+                                    <td class="text-right text-primary font-weight-bold">
+                                        Rp {{ total_nilai_u|floatformat:2|intcomma }}
+                                    </td>
+                                    <td></td>
+                                    <td class="text-center">{{ total_post_s }} / {{ total_renc_s }}</td>
+                                    <td class="text-right text-info font-weight-bold">
+                                        Rp {{ total_nilai_s|floatformat:2|intcomma }}
+                                    </td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </section>
-{% endblock content %}                   
+
+<style>
+.posting-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.posting-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+.nav-pills .nav-link {
+    color: #475569;
+    background: transparent;
+    transition: all 0.2s;
+}
+.nav-pills .nav-link.active {
+    background-color: #0052cc !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0, 82, 204, 0.3);
+}
+</style>
+{% endblock content %}
