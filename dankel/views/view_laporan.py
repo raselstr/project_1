@@ -10,7 +10,7 @@ from ..forms.form_realisasi import RealisasiDankelFilterForm, RealisasiDankelFor
 from project.decorators import menu_access_required, set_submenu_session
 from opd.models import Pejabat, OpdDana
 from datetime import datetime
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 from core.services.laporan_sp2d_service import LaporanSp2dService
 from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 
@@ -309,7 +309,7 @@ def sp2d(request):
     danarealisasi_id = request.session.get('realisasidankel_dana')
     tahaprealisasi_id = request.session.get('realisasidankel_tahap')
     subopdrealisasi_id = request.session.get('realisasidankel_subopd')
-    scoped_subopd = scoped_opd_id(subopdrealisasi_id)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), subopdrealisasi_id)
     level = request.session.get('level')
     data = Model_pejabat.objects.none()
     

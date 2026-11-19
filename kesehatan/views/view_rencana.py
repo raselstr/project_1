@@ -13,7 +13,7 @@ from dausg.models import Subkegiatan
 from dausg.models import DausgkesehatanSub
 from kesehatan.tables import RencanaTable
 from opd.models import Pejabat, Subopd
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 from core.services.rencana_service import enrich_rencana_with_perubahan
 from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
 from core.services.home_rekap_service import HomeRekapService
@@ -133,7 +133,7 @@ def list(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    rencana_subopd = scoped_opd_id(rencana_subopd)
+    rencana_subopd = resolve_filter_opd(request.session.get('idsubopd'), rencana_subopd)
     if rencana_subopd:
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
@@ -265,7 +265,7 @@ def cetak(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    rencana_subopd = scoped_opd_id(rencana_subopd)
+    rencana_subopd = resolve_filter_opd(request.session.get('idsubopd'), rencana_subopd)
     if rencana_subopd:
         filters &= Q(rencana_subopd_id=rencana_subopd)
     
@@ -331,7 +331,7 @@ def excel(request):
         filters &= Q(rencana_tahun=rencana_tahun)
     if rencana_dana:
         filters &= Q(rencana_dana_id=rencana_dana)
-    scoped_sub = scoped_opd_id(rencana_subopd)
+    scoped_sub = resolve_filter_opd(request.session.get('idsubopd'), rencana_subopd)
     if scoped_sub:
         filters &= Q(rencana_subopd_id=scoped_sub)
 

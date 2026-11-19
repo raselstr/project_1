@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import logout
+from django.urls import resolve, Resolver404
 
 class LoginRequiredMiddleware:
     def __init__(self, get_response):
@@ -14,8 +15,16 @@ class LoginRequiredMiddleware:
         
         # Allow access to exempt URLs without login
         if not request.user.is_authenticated:
-            current_view_name = request.resolver_match.view_name
-            if current_view_name not in exempt_urls:
+            view_name = None
+            if request.resolver_match:
+                view_name = request.resolver_match.view_name
+            else:
+                try:
+                    view_name = resolve(request.path_info).view_name
+                except Resolver404:
+                    view_name = None
+            
+            if view_name not in exempt_urls and request.path_info != settings.LOGIN_URL:
                 return redirect(settings.LOGIN_URL)
         
         response = self.get_response(request)

@@ -8,7 +8,7 @@ from ..models import RencDankel, RencDankelsisa, RencDankeljadwal, Subkegiatan
 from ..forms.form_rencana import RencDankelForm
 from project.decorators import menu_access_required, set_submenu_session
 from ..tables import RencanaTable
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 from core.services.rencana_service import enrich_rencana_with_perubahan
 from core.services.laporan_rencana_excel_service import LaporanRencanaExcelService
 from core.services.home_rekap_service import HomeRekapService
@@ -116,7 +116,7 @@ def list(request):
 
     # Membuat query secara dinamis
     query = Q(rencdankel_tahun=sesitahun) & Q(rencdankel_dana=dana)
-    scoped_subopd = scoped_opd_id(sesiidopd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), sesiidopd)
     if scoped_subopd:
         query &= Q(rencdankel_subopd=scoped_subopd)
 
@@ -207,7 +207,7 @@ def cetak(request):
     filters = Q()
     if tahun:
         filters &= Q(rencdankel_tahun=tahun)
-    sesisubopd = scoped_opd_id(sesisubopd)
+    sesisubopd = resolve_filter_opd(request.session.get('idsubopd'), sesisubopd)
     if sesisubopd:
         filters &= Q(rencdankel_subopd=sesisubopd)
     
@@ -251,7 +251,7 @@ def excel(request):
     filters = Q()
     if tahun:
         filters &= Q(rencdankel_tahun=tahun)
-    scoped_sub = scoped_opd_id(sesisubopd)
+    scoped_sub = resolve_filter_opd(request.session.get('idsubopd'), sesisubopd)
     if scoped_sub:
         filters &= Q(rencdankel_subopd=scoped_sub)
 

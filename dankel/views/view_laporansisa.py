@@ -12,7 +12,7 @@ from project.decorators import menu_access_required, set_submenu_session
 from opd.models import Pejabat, OpdDana
 from penerimaan.models import DistribusiPenerimaan
 from datetime import datetime
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 from core.services.laporan_sp2d_service import LaporanSp2dService
 from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
 
@@ -127,7 +127,7 @@ def pdf(request):
     data = Model_pejabat.objects.none()
     
     sesiidopd = _clean_id(request.session.get('realisasidankelsisa_subopd'))
-    scoped_sub = scoped_opd_id(sesiidopd) or scoped_opd_id(_clean_id(request.session.get('idsubopd')))
+    scoped_sub = resolve_filter_opd(request.session.get('idsubopd'), sesiidopd) or scoped_opd_id(_clean_id(request.session.get('idsubopd')))
     
     if scoped_sub:
         data = Model_pejabat.objects.filter(pejabat_sub=scoped_sub)
@@ -154,7 +154,7 @@ def apip(request):
     
     sesiidopd = _clean_id(request.session.get('idsubopd'))
     idopd = _clean_id(request.session.get('realisasidankelsisa_subopd'))
-    scoped_sub = scoped_opd_id(idopd) or scoped_opd_id(sesiidopd)
+    scoped_sub = resolve_filter_opd(request.session.get('idsubopd'), idopd) or scoped_opd_id(sesiidopd)
     data = Model_pejabat.objects.none()
     
     if scoped_sub:
@@ -192,7 +192,7 @@ def sp2d(request):
     tahaprealisasi_id = _clean_id(request.session.get('realisasidankelsisa_tahap'))
     raw_subopd = _clean_id(request.session.get('realisasidankelsisa_subopd'))
     raw_ses_opd = _clean_id(request.session.get('idsubopd'))
-    scoped_subopd = scoped_opd_id(raw_subopd) or scoped_opd_id(raw_ses_opd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), raw_subopd) or scoped_opd_id(raw_ses_opd)
     level = request.session.get('level')
     data = Model_pejabat.objects.none()
     
@@ -257,7 +257,7 @@ def get_data_context(request):
     tahaprealisasi_id = _clean_id(request.session.get('realisasidankelsisa_tahap'))
     raw_subopd = _clean_id(request.session.get('realisasidankelsisa_subopd'))
     raw_ses_opd = _clean_id(request.session.get('idsubopd'))
-    scoped_subopd = scoped_opd_id(raw_subopd) or scoped_opd_id(raw_ses_opd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), raw_subopd) or scoped_opd_id(raw_ses_opd)
     jadwal = _clean_id(request.session.get('jadwal'))
     level = request.session.get('level')
 

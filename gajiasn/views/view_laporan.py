@@ -22,7 +22,7 @@ from penerimaan.models import Penerimaan
 from dana.models import TahapDana
 from pagu.models import Pagudausg
 from gajiasn.tables import RekapPaguTable, Sp2dTable
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 from core.services.budget_warning import build_realisasi_penerimaan_warning
 from core.services.laporan_sp2d_service import LaporanSp2dService
 from core.services.laporan_realisasi_excel_service import LaporanRealisasiExcelService
@@ -141,7 +141,7 @@ def get_data_context(request):
     realisasi_dana = request.session.get('realisasi_dana')
     realisasi_subopd = request.session.get('realisasi_subopd')
     realisasi_tahap = request.session.get('realisasi_tahap')
-    scoped_subopd = scoped_opd_id(realisasi_subopd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), realisasi_subopd)
 
     filters = Q()
     if jadwal:
@@ -400,7 +400,7 @@ def sp2d(request):
     realisasi_tahun = request.session.get('realisasi_tahun') or request.session.get('tahun') or datetime.now().year
     realisasi_dana = request.session.get('realisasi_dana')
     realisasi_tahap = request.session.get('realisasi_tahap')
-    scoped_subopd = scoped_opd_id(sesiidopd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), sesiidopd)
     level = request.session.get('level')
 
     filterreals = Q()

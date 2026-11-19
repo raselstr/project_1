@@ -18,7 +18,7 @@ from dausg.models import Subkegiatan
 
 from pendidikan.forms.form_sisa import RealisasiFilterForm, RealisasiForm
 from penerimaan.models import Penerimaan
-from core.forms.budget_opd import scoped_opd_id
+from core.forms.budget_opd import scoped_opd_id, resolve_filter_opd
 
 tabel_realisasi = RealisasiTablesisa
 tabel_rencana = RencanapendidikanpostingsisaTable
@@ -201,7 +201,7 @@ def sp2d(request, pk=None):
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4])
         elif realisasi_tahap == 5:
             filters &= Q(realisasi_tahap_id__in=[1, 2, 3, 4, 5])
-    scoped_subopd = scoped_opd_id(realisasi_subopd)
+    scoped_subopd = resolve_filter_opd(request.session.get('idsubopd'), realisasi_subopd)
     if scoped_subopd:
         filters &= Q(realisasi_subopd_id=scoped_subopd)
 
@@ -256,7 +256,7 @@ def list(request):
         filters &= Q(posting_tahun=realisasi_tahun)
     if realisasi_dana:
         filters &= Q(posting_dana_id=realisasi_dana)
-    realisasi_subopd = scoped_opd_id(realisasi_subopd)
+    realisasi_subopd = resolve_filter_opd(request.session.get('idsubopd'), realisasi_subopd)
     if realisasi_subopd:
         filters &= Q(posting_subopd_id=realisasi_subopd)
     

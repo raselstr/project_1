@@ -2,7 +2,7 @@ from django import forms
 from ..models import Rencana, Rencanaposting,Subkegiatan, Subopd, Realisasi
 from dausg.models import DausgpendidikanSub
 from jadwal.models import Jadwal
-from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset
+from core.forms.budget_opd import allow_all_budgeted_subopd, budgeted_subopd_queryset, apply_opd_filter_to_form
 
 model_rencana = Rencana
 model_posting = Rencanaposting
@@ -30,8 +30,7 @@ class RencanaFilterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         self.fields['rencana_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
-        if sesisubopd is None:
-            allow_all_budgeted_subopd(self.fields['rencana_subopd'])
+        apply_opd_filter_to_form(self.fields['rencana_subopd'], sesisubopd)
         
         if sesidana is not None:
             self.fields['rencana_dana'].queryset = model_subkegiatan.objects.filter(sub_slug=sesidana)
@@ -130,8 +129,7 @@ class RealisasiFilterForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
         self.fields['realisasi_subopd'].queryset = budgeted_subopd_queryset(tahun=tahun, dana_slug=sesidana, opd_id=sesisubopd)
-        if sesisubopd is None:
-            allow_all_budgeted_subopd(self.fields['realisasi_subopd'])
+        apply_opd_filter_to_form(self.fields['realisasi_subopd'], sesisubopd)
         
         if sesidana is not None:
             self.fields['realisasi_dana'].queryset = model_subkegiatan.objects.filter(sub_slug=sesidana)
