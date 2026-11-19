@@ -7,4 +7,4 @@ WORKDIR /project_1
 RUN pip install --no-cache-dir flower==2.0.1
 
 # Default CMD untuk Flower 2.x
-CMD ["python", "-m", "flower", "flower", "--broker=redis://redis:6379/0", "--port=5555"]
+CMD ["python", "-m", "flower", "flower", "--broker=redis://redis:6379/0", "--address=0.0.0.0", "--port=5555"]

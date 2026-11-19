@@ -47,9 +47,12 @@
           <div class="float-right">{{ level }}</div>
         </div>
         <div class="dropdown-divider"></div>
-        <a href="{% url 'logout' %}" class="dropdown-item has-icon text-danger">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="dropdown-item has-icon text-danger">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </form>
       </div>
     </li>
   </ul>

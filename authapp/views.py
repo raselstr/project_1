@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
 from django.contrib import messages
+from django.views.decorators.http import require_POST
 from dashboard.models import Userlevel, Levelsub
 from jadwal.models import Jadwal
 
@@ -84,6 +85,7 @@ def login_view(request):
         
     return render(request, 'authapp/login.html',{'tahun':years})
 
+@require_POST
 def logout_view(request):
     logout(request)
     return redirect('login')
