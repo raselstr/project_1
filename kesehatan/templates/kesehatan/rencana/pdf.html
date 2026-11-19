@@ -158,6 +158,7 @@
     .col-pagu { text-align: right; white-space: nowrap; width: 95px; }
     .col-output { text-align: center; width: 45px; }
     .col-satuan { text-align: center; width: 50px; }
+    .col-uraian { text-align: left; }
     .col-kode { text-align: center; width: 85px; font-family: monospace; font-size: 9px; }
     .col-pagudpa { text-align: right; white-space: nowrap; width: 95px; }
 
@@ -261,6 +262,7 @@
       </th>
       <th colspan="2" class="th-selisih">Perubahan / Selisih (+/-)</th>
       <th rowspan="2" class="col-satuan">Satuan</th>
+      <th rowspan="2" class="col-uraian">Uraian Rencana Output</th>
       <th rowspan="2" class="col-kode">Kode DPA</th>
       <th rowspan="2" class="col-pagudpa">Pagu DPA (Rp)</th>
     </tr>
@@ -291,12 +293,13 @@
         {{ row.selisih_output|floatformat:0|intcomma }}
       </td>
       <td class="col-satuan">{{ row.get_satuan_kegiatan|default:"-" }}</td>
+      <td class="col-uraian">{{ row.rencana_uraianoutput|default:"-" }}</td>
       <td class="col-kode">{{ row.rencana_ket|default:"-" }}</td>
       <td class="col-pagudpa">{{ row.rencana_pagudpa|floatformat:2|intcomma }}</td>
     </tr>
     {% empty %}
     <tr>
-      <td colspan="13" style="text-align: center; padding: 12px; color: #7f8c8d;">
+      <td colspan="14" style="text-align: center; padding: 12px; color: #7f8c8d;">
         Tidak ada data rencana kegiatan untuk filter yang dipilih.
       </td>
     </tr>
@@ -311,7 +314,7 @@
       <td class="col-out-cmp">{{ total_perubahan_output|floatformat:0|intcomma }}</td>
       <td class="col-selisih">{{ total_selisih_pagu|floatformat:2|intcomma }}</td>
       <td class="col-selout">{{ total_selisih_output|floatformat:0|intcomma }}</td>
-      <td colspan="3"></td>
+      <td colspan="4"></td>
     </tr>
   </tfoot>
 </table>
@@ -328,6 +331,7 @@
       <th class="col-pagu">Pagu Rencana (Rp)</th>
       <th class="col-output">Output</th>
       <th class="col-satuan">Satuan</th>
+      <th class="col-uraian">Uraian Rencana Output</th>
       <th class="col-kode">Kode DPA</th>
       <th class="col-pagudpa">Pagu DPA (Rp)</th>
     </tr>
@@ -342,12 +346,13 @@
       <td class="col-pagu">{{ row.induk_pagu|floatformat:2|intcomma }}</td>
       <td class="col-output">{{ row.induk_output|floatformat:0|intcomma }}</td>
       <td class="col-satuan">{{ row.get_satuan_kegiatan|default:"-" }}</td>
+      <td class="col-uraian">{{ row.rencana_uraianoutput|default:"-" }}</td>
       <td class="col-kode">{{ row.rencana_ket|default:"-" }}</td>
       <td class="col-pagudpa">{{ row.rencana_pagudpa|floatformat:2|intcomma }}</td>
     </tr>
     {% empty %}
     <tr>
-      <td colspan="9" style="text-align: center; padding: 12px; color: #7f8c8d;">
+      <td colspan="10" style="text-align: center; padding: 12px; color: #7f8c8d;">
         Tidak ada data rencana kegiatan untuk filter yang dipilih.
       </td>
     </tr>
@@ -358,7 +363,7 @@
       <td colspan="4" style="text-align: right; padding-right: 8px;">TOTAL KESELURUHAN :</td>
       <td class="col-pagu">{{ total_induk_pagu|floatformat:2|intcomma }}</td>
       <td class="col-output">{{ total_induk_output|floatformat:0|intcomma }}</td>
-      <td colspan="3"></td>
+      <td colspan="4"></td>
     </tr>
   </tfoot>
 </table>

@@ -55,6 +55,7 @@ class RencanagajiasnForm(forms.ModelForm):
             'rencana_kegiatan': forms.Select(attrs={'class': 'form-control select2'}),
             'rencana_pagu': forms.NumberInput(attrs={'class': 'form-control'}),
             'rencana_output': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rencana_uraianoutput': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Uraian Rencana Output'}),
             'rencana_ket': forms.TextInput(attrs={'class': 'form-control'}),
             'rencana_pagudpa': forms.NumberInput(attrs={'class': 'form-control'}),
         }

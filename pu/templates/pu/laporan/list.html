@@ -32,13 +32,14 @@
                             <tr>
                                 <th style="text-align:center" rowspan="2">No</th>
                                 <th style="text-align:center" rowspan="2">Nama Program</th>
-                                <th style="text-align:center" colspan="2">Rencana</th>
+                                <th style="text-align:center" colspan="3">Rencana</th>
                                 <th style="text-align:center" colspan="5">Realisasi</th>
                                 <th style="text-align:center" rowspan="2">Satuan</th>
                             </tr>
                             <tr>
                                 <th style="text-align:center">Pagu</th>
                                 <th style="text-align:center">Output</th>
+                                <th style="text-align:center">Uraian Rencana Output</th>
                                 <th style="text-align:center">Tahap 1</th>
                                 <th style="text-align:center">Tahap 2</th>
                                 <th style="text-align:center">Tahap 3</th>
@@ -53,6 +54,7 @@
                                     <td><strong>{{ prog.prog.dausgpu_prog }}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_pagu_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:center"><strong>{{ prog.total_output_prog}}</strong></td>
+                                    <td></td>
                                     <td style="text-align:right"><strong>{{ prog.total_tahap1_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_tahap2_prog|floatformat:2 }}</strong></td>
                                     <td style="text-align:right"><strong>{{ prog.total_tahap3_prog|floatformat:2 }}</strong></td>
@@ -67,6 +69,7 @@
                                         <td>&emsp;{{ keg.keg.dausgpukeg_nama}}</td>
                                         <td style="text-align:right">{{ keg.total_pagu_keg|floatformat:2 }}</td>
                                         <td style="text-align:center">{{ keg.total_output_keg}}</td>
+                                        <td></td>
                                         <td style="text-align:right">{{ keg.total_tahap1_keg|floatformat:2 }}</td>
                                         <td style="text-align:right">{{ keg.total_tahap2_keg|floatformat:2 }}</td>
                                         <td style="text-align:right">{{ keg.total_tahap3_keg|floatformat:2 }}</td>
@@ -81,6 +84,7 @@
                                             <td>&emsp;&emsp;{{ sub.sub.dausgpusub_nama }}</td>
                                             <td style="text-align:right">{{ sub.pagu|floatformat:2 }}</td>
                                             <td style="text-align:center">{{ sub.output}}</td>
+                                            <td style="text-align:left">{{ sub.uraian_output|default:"-" }}</td>
                                             <td style="text-align:right">{{ sub.realisasi.tahap1|floatformat:2 }}</td>
                                             <td style="text-align:right">{{ sub.realisasi.tahap2|floatformat:2 }}</td>
                                             <td style="text-align:right">{{ sub.realisasi.tahap3|floatformat:2 }}</td>
@@ -97,6 +101,7 @@
                                 <th colspan="2">Total Keseluruhan</th>
                                 <th style="text-align:right">{{ total_pagu_keseluruhan|floatformat:2 }}</th>
                                 <th style="text-align:center">{{ total_output_keseluruhan }}</th>
+                                <th></th>
                                 <th style="text-align:right">{{ total_tahap1_keseluruhan|floatformat:2 }}</th>
                                 <th style="text-align:right">{{ total_tahap2_keseluruhan|floatformat:2 }}</th>
                                 <th style="text-align:right">{{ total_tahap3_keseluruhan|floatformat:2 }}</th>

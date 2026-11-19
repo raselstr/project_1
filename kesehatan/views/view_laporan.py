@@ -461,11 +461,13 @@ def get_data_context(request):
                             total_tahap4 += realisasi_rencana.filter(realisasi_tahap_id=4).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                             total_tahap5 += realisasi_rencana.filter(realisasi_tahap_id=5).aggregate(total=Sum('realisasi_nilai'))['total'] or 0
                         posting_subopd = related_rencanas.first().posting_subopd if related_rencanas.exists() else None
+                        uraian_output = related_rencanas.first().posting_uraianoutput if related_rencanas.exists() else ''
                         keg_subs.append({
                             'sub': sub,
                             'posting_subopd': posting_subopd,
                             'pagu': pagu,
                             'output': output,
+                            'uraian_output': uraian_output,
                             'realisasi': {
                                 'total_sp2d': total_sp2d,
                                 'total_output': total_output_realisasi,

@@ -153,6 +153,7 @@ def posting(request):
                             'posting_subkegiatan':item.rencana_kegiatan,
                             'posting_pagu': item.rencana_pagu,
                             'posting_output': item.rencana_output,
+                            'posting_uraianoutput': item.rencana_uraianoutput,
                             'posting_ket': item.rencana_ket,
                             'posting_pagudpa': item.rencana_pagudpa,
                         }

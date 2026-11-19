@@ -193,6 +193,7 @@ class BaseRencanaTable(tables.Table):
     satuan_kegiatan = tables.Column(verbose_name="Satuan Kegiatan", accessor="get_satuan_kegiatan")
     kegiatan = tables.Column(verbose_name="Kegiatan", accessor="get_kegiatan")
     subkegiatan = tables.Column(verbose_name="Sub Kegiatan", accessor="get_subkegiatan", footer="Total Keseluruhan")
+    rencana_uraianoutput = tables.Column(verbose_name="Uraian Rencana Output")
     rencana_ket = tables.Column(verbose_name="Kode Sub Kegiatan DPA")
     rencana_pagudpa = tables.Column(
         verbose_name="Nilai Pagu Sub Kegiatan sesuai DPA",
@@ -223,6 +224,7 @@ class RencanaTable(BaseRencanaTable):
             "subkegiatan",
             "rencana_pagu",
             "rencana_output",
+            "rencana_uraianoutput",
             "satuan_kegiatan",
             "rencana_ket",
             "rencana_pagudpa",
@@ -240,6 +242,7 @@ class RencanasisaTable(BaseRencanaTable):
             "subkegiatan",
             "rencana_pagu",
             "rencana_output",
+            "rencana_uraianoutput",
             "satuan_kegiatan",
             "rencana_ket",
             "rencana_pagudpa",
@@ -275,6 +278,7 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
         attrs={"td": {"class": "text-right"}},
     )
     output_satuan = tables.Column(empty_values=(), verbose_name='Rencana Output', attrs={"td": {"class": "text-center"}})
+    posting_uraianoutput = tables.Column(verbose_name="Uraian Rencana Output")
     realisasi_output = tables.Column(empty_values=(), verbose_name='Realisasi Output', attrs={"td": {"class": "text-center"}})
 
     class Meta(BaseMetaTable):
@@ -283,6 +287,7 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
             'subkegiatan',
             'posting_pagu',
             'output_satuan',
+            'posting_uraianoutput',
             'total_realisasi_pk',
             'realisasi_output',
         )
@@ -291,6 +296,7 @@ class BaseRencanaKesehatanpostingTable(tables.Table):
             'subkegiatan',
             'posting_pagu',
             'output_satuan',
+            'posting_uraianoutput',
             'total_realisasi_pk',
             'realisasi_output',
         )

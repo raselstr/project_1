@@ -175,20 +175,20 @@ class LaporanRencanaExcelService:
                 # 9: Selisih Pagu, 10: Selisih Output, 11: Satuan, 12: Keterangan
                 total_cols = 12
             else:
-                # Kolom Pendidikan / Kesehatan / PU Perubahan:
+                # Kolom Pendidikan / Kesehatan / PU / Gaji ASN Perubahan:
                 # 1: No, 2: OPD, 3: Sub Kegiatan,
                 # 4: Semula Pagu, 5: Semula Output, 6: Menjadi Pagu, 7: Menjadi Output,
-                # 8: Selisih Pagu, 9: Selisih Output, 10: Satuan, 11: Kode DPA Kegiatan, 12: Pagu DPA Kegiatan
-                total_cols = 12
+                # 8: Selisih Pagu, 9: Selisih Output, 10: Satuan, 11: Uraian Output, 12: Kode DPA Kegiatan, 13: Pagu DPA Kegiatan
+                total_cols = 13
         else:
             if is_dankel:
                 # Kolom Dankel Normal:
                 # 1: No, 2: Sub OPD, 3: Kegiatan, 4: Sub Kegiatan, 5: Pagu, 6: Output, 7: Satuan, 8: Keterangan
                 total_cols = 8
             else:
-                # Kolom Pendidikan / Kesehatan / PU Normal:
-                # 1: No, 2: OPD, 3: Sub Kegiatan, 4: Pagu, 5: Output, 6: Satuan, 7: Kode DPA Kegiatan, 8: Pagu DPA Kegiatan
-                total_cols = 8
+                # Kolom Pendidikan / Kesehatan / PU / Gaji ASN Normal:
+                # 1: No, 2: OPD, 3: Sub Kegiatan, 4: Pagu, 5: Output, 6: Satuan, 7: Uraian Output, 8: Kode DPA Kegiatan, 9: Pagu DPA Kegiatan
+                total_cols = 9
 
         max_col_letter = get_column_letter(total_cols)
 
@@ -264,7 +264,7 @@ class LaporanRencanaExcelService:
             else:
                 merges = [("A8:A9", "No"), ("B8:B9", "OPD"), ("C8:C9", "Sub Kegiatan"),
                           ("D8:E8", lbl_semula), ("F8:G8", lbl_menjadi), ("H8:I8", lbl_selisih),
-                          ("J8:J9", "Satuan"), ("K8:K9", "Kode DPA Kegiatan"), ("L8:L9", "Pagu DPA Kegiatan (Rp)")]
+                          ("J8:J9", "Satuan"), ("K8:K9", "Uraian Rencana Output"), ("L8:L9", "Kode DPA Kegiatan"), ("M8:M9", "Pagu DPA Kegiatan (Rp)")]
                 for m_range, m_text in merges:
                     ws.merge_cells(m_range)
                     top_cell = m_range.split(":")[0]
@@ -294,7 +294,7 @@ class LaporanRencanaExcelService:
             if is_dankel:
                 headers = ["No", "Sub OPD", "Kegiatan", "Sub Kegiatan", "Pagu (Rp)", "Output", "Satuan", "Keterangan"]
             else:
-                headers = ["No", "OPD", "Sub Kegiatan", "Pagu (Rp)", "Output", "Satuan", "Kode DPA Kegiatan", "Pagu DPA Kegiatan (Rp)"]
+                headers = ["No", "OPD", "Sub Kegiatan", "Pagu (Rp)", "Output", "Satuan", "Uraian Rencana Output", "Kode DPA Kegiatan", "Pagu DPA Kegiatan (Rp)"]
 
             for c, h in enumerate(headers, 1):
                 cell = ws.cell(row=8, column=c, value=h)
@@ -331,6 +331,7 @@ class LaporanRencanaExcelService:
                 keg_val = ""
                 subkeg_val = cls._clean_str(getattr(item, 'get_subkegiatan', getattr(item, 'rencana_kegiatan', getattr(item, 'rencanasisa_kegiatan', ''))))
                 satuan_val = cls._clean_str(getattr(item, 'get_satuan_kegiatan', getattr(item, 'rencana_satuan', '')))
+                uraianoutput_val = cls._clean_str(getattr(item, 'rencana_uraianoutput', getattr(item, 'rencanasisa_uraianoutput', getattr(item, 'posting_uraianoutput', ''))))
                 ket_val = cls._clean_str(getattr(item, 'rencana_ket', getattr(item, 'rencanasisa_ket', '')))
                 pagudpa_val = cls._to_num(getattr(item, 'rencana_pagudpa', getattr(item, 'rencanasisa_pagudpa', 0.0)))
                 sum_pagu_dpa += pagudpa_val
@@ -355,9 +356,9 @@ class LaporanRencanaExcelService:
                     num_cols = (5, 6, 7, 8, 9, 10)
                     center_cols = (1, 11)
                 else:
-                    row_vals = [idx, subopd_val, subkeg_val, p_induk, o_induk, p_perubahan, o_perubahan, p_selisih, o_selisih, satuan_val, ket_val, pagudpa_val]
-                    num_cols = (4, 5, 6, 7, 8, 9, 12)
-                    center_cols = (1, 10, 11)
+                    row_vals = [idx, subopd_val, subkeg_val, p_induk, o_induk, p_perubahan, o_perubahan, p_selisih, o_selisih, satuan_val, uraianoutput_val, ket_val, pagudpa_val]
+                    num_cols = (4, 5, 6, 7, 8, 9, 13)
+                    center_cols = (1, 10, 12)
             else:
                 if is_dankel:
                     pagu_val = cls._to_num(getattr(item, 'rencdankel_pagu', getattr(item, 'rencdankelsisa_pagu', 0.0)))
@@ -368,9 +369,9 @@ class LaporanRencanaExcelService:
                 else:
                     pagu_val = cls._to_num(getattr(item, 'rencana_pagu', getattr(item, 'rencanasisa_pagu', 0.0)))
                     out_val = cls._to_num(getattr(item, 'rencana_output', getattr(item, 'rencanasisa_output', 0.0)))
-                    row_vals = [idx, subopd_val, subkeg_val, pagu_val, out_val, satuan_val, ket_val, pagudpa_val]
-                    num_cols = (4, 5, 8)
-                    center_cols = (1, 6, 7)
+                    row_vals = [idx, subopd_val, subkeg_val, pagu_val, out_val, satuan_val, uraianoutput_val, ket_val, pagudpa_val]
+                    num_cols = (4, 5, 9)
+                    center_cols = (1, 6, 8)
 
                 sum_pagu_1 += pagu_val
                 sum_out_1 += out_val
@@ -403,8 +404,8 @@ class LaporanRencanaExcelService:
             else:
                 ws.merge_cells(f"A{current_row}:C{current_row}")
                 ws[f"A{current_row}"] = "Total Keseluruhan:"
-                totals = {4: sum_pagu_1, 5: sum_out_1, 6: sum_pagu_2, 7: sum_out_2, 8: sum_pagu_diff, 9: sum_out_diff, 12: sum_pagu_dpa}
-                empty_cols = (10, 11)
+                totals = {4: sum_pagu_1, 5: sum_out_1, 6: sum_pagu_2, 7: sum_out_2, 8: sum_pagu_diff, 9: sum_out_diff, 13: sum_pagu_dpa}
+                empty_cols = (10, 11, 12)
         else:
             if is_dankel:
                 ws.merge_cells(f"A{current_row}:D{current_row}")
@@ -414,8 +415,8 @@ class LaporanRencanaExcelService:
             else:
                 ws.merge_cells(f"A{current_row}:C{current_row}")
                 ws[f"A{current_row}"] = "Total Keseluruhan:"
-                totals = {4: sum_pagu_1, 5: sum_out_1, 8: sum_pagu_dpa}
-                empty_cols = (6, 7)
+                totals = {4: sum_pagu_1, 5: sum_out_1, 9: sum_pagu_dpa}
+                empty_cols = (6, 7, 8)
 
         for c in range(1, total_cols + 1):
             cell = ws.cell(row=current_row, column=c)
