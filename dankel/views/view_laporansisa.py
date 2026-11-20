@@ -201,8 +201,6 @@ def sp2d(request):
     subopd_obj = Subopd.objects.filter(pk=scoped_subopd).first() if scoped_subopd else (Subopd.objects.filter(pk=raw_subopd).first() if raw_subopd else None)
 
     filterreals = Q()
-    if level != 'Pengguna':
-        filterreals &= Q(realisasidankelsisa_verif=1)
     if tahunrealisasi:
         filterreals &= Q(realisasidankelsisa_tahun=tahunrealisasi)
     if dana_obj:
@@ -278,8 +276,6 @@ def get_data_context(request):
     
     # Buat filter query realisasi
     filterreals = Q()
-    if level == 'APIP':
-        filterreals &= Q(realisasidankelsisa_verif=1)
     if tahunrealisasi:
         filterreals &= Q(realisasidankelsisa_tahun=tahunrealisasi)
     if dana_obj:

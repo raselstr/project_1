@@ -350,8 +350,6 @@ def get_data_context(request):
         filters &= Q(posting_subopd_id=scoped_subopd)
 
     filterreals = Q()
-    if level == 'APIP':
-        filterreals &= Q(realisasi_verif=1)
     if realisasi_tahun:
         filterreals &= Q(realisasi_tahun=realisasi_tahun)
     if realisasi_dana:

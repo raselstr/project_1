@@ -314,8 +314,6 @@ def sp2d(request):
     data = Model_pejabat.objects.none()
     
     filterreals = Q()
-    if level != 'Pengguna':
-        filterreals &= Q(realisasidankel_verif=1)
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)
     if danarealisasi_id:
@@ -535,8 +533,6 @@ def get_data_context(request):
     # FILTER REALISASI
     # =====================
     filterreals = Q()
-    if level == 'APIP':
-        filterreals &= Q(realisasidankel_verif=1)
 
     if tahunrealisasi:
         filterreals &= Q(realisasidankel_tahun=tahunrealisasi)

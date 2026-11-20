@@ -269,8 +269,6 @@ class LaporanSp2dService:
                     q_dankel &= Q(realisasidankel_subopd_id=subopd_id)
                 if tahap_filter_list:
                     q_dankel &= Q(realisasidankel_tahap_id__in=tahap_filter_list)
-                if level == 'APIP':
-                    q_dankel &= Q(realisasidankel_verif=1)
 
                 qs_dk = RealisasiDankel.objects.filter(q_dankel).select_related(
                     'realisasidankel_subopd',
@@ -287,8 +285,6 @@ class LaporanSp2dService:
                     q_dankelsisa &= Q(realisasidankelsisa_subopd_id=subopd_id)
                 if tahap_filter_list:
                     q_dankelsisa &= Q(realisasidankelsisa_tahap_id__in=tahap_filter_list)
-                if level == 'APIP':
-                    q_dankelsisa &= Q(realisasidankelsisa_verif=1)
 
                 qs_dksisa = RealisasiDankelsisa.objects.filter(q_dankelsisa).select_related(
                     'realisasidankelsisa_subopd',
@@ -324,8 +320,6 @@ class LaporanSp2dService:
                     q &= Q(realisasi_subopd_id=subopd_id)
                 if tahap_filter_list:
                     q &= Q(realisasi_tahap_id__in=tahap_filter_list)
-                if level == 'APIP':
-                    q &= Q(realisasi_verif=1)
 
                 qs = model_main.objects.filter(q).select_related(
                     'realisasi_subopd',
@@ -343,8 +337,6 @@ class LaporanSp2dService:
                     q_s &= Q(realisasi_subopd_id=subopd_id)
                 if tahap_filter_list:
                     q_s &= Q(realisasi_tahap_id__in=tahap_filter_list)
-                if level == 'APIP':
-                    q_s &= Q(realisasi_verif=1)
 
                 qs_s = model_sisa.objects.filter(q_s).select_related(
                     'realisasi_subopd',
